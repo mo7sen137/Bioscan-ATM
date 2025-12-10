@@ -19,7 +19,6 @@
       --error-color: #ff416c;
       --success-color: #00ff88;
       --whatsapp-color: #25D366;
-      --hospital-color: #f1c40f;
     }
 
     /* --- CUSTOM SCROLLBAR --- */
@@ -91,7 +90,6 @@
     .icon-btn.active { color: var(--success-color); text-shadow: 0 0 10px var(--success-color); }
     .icon-btn.muted { color: var(--error-color); }
     
-    /* WhatsApp Button specific style */
     .whatsapp-btn { color: var(--whatsapp-color) !important; }
     .whatsapp-btn:hover { text-shadow: 0 0 10px var(--whatsapp-color); }
 
@@ -206,10 +204,31 @@
     .vision::before { background: linear-gradient(to top, #38f9d7, #43e97b); }
     .vision i { color: #43e97b; }
 
-    /* Hospital Button */
-    .hospital { border-bottom: 4px solid var(--hospital-color); } 
-    .hospital::before { background: linear-gradient(to top, #f39c12, var(--hospital-color)); }
-    .hospital i { color: var(--hospital-color); }
+    /* --- FLOATING HOSPITAL BUTTON (CREATIVE) --- */
+    .hospital-fab {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff416c, #ff4b2b); /* لون أحمر طوارئ */
+      color: white;
+      border: none;
+      box-shadow: 0 4px 15px rgba(255, 65, 108, 0.5);
+      cursor: pointer;
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px;
+      transition: 0.3s;
+      animation: pulse-fab 2s infinite;
+    }
+    .hospital-fab:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(255, 65, 108, 0.7); }
+    
+    @keyframes pulse-fab {
+      0% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.7); }
+      70% { box-shadow: 0 0 0 15px rgba(255, 65, 108, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0); }
+    }
 
     /* History Bar */
     .history-bar {
@@ -267,6 +286,10 @@
 
   <div class="toast-container" id="toastContainer"></div>
 
+  <button class="hospital-fab" id="hospitalBtn" onclick="findHospitals()" title="Nearest Hospitals">
+    <i class="fas fa-ambulance"></i>
+  </button>
+
   <div class="user-card">
     <i class="fas fa-user-circle"></i>
     <h2 id="titleText">User: <span id="currentUserName">Unknown</span></h2>
@@ -275,15 +298,12 @@
       <button class="icon-btn whatsapp-btn" id="whatsappBtn" onclick="sendWhatsAppReport()" title="Send Report to WhatsApp">
         <i class="fab fa-whatsapp"></i>
       </button>
-
       <button class="icon-btn active" id="voiceToggle" onclick="toggleHoverVoice()" title="Toggle Voice Guide">
         <i class="fas fa-volume-up"></i>
       </button>
-
       <button class="icon-btn" onclick="toggleFullScreen()" title="Full Screen">
         <i class="fas fa-expand"></i>
       </button>
-
       <div id="connectionStatus" class="status-dot" title="Online"></div>
     </div>
   </div>
@@ -315,10 +335,6 @@
 
     <div class="measure-btn vision" id="visionBtn" onclick="goToVisionPage()">
       <i class="fas fa-eye"></i> <span>Vision Test</span>
-    </div>
-
-    <div class="measure-btn hospital" id="hospitalBtn" onclick="findHospitals()">
-      <i class="fas fa-hospital-alt"></i> <span>Nearest Hospitals</span>
     </div>
   </div>
 
@@ -419,7 +435,6 @@
     }
 
     // --- AI Logic + Data Fetch for WhatsApp ---
-    // Variables to store current readings
     let currentData = { temp: "--", bpm: "--", bp: "--", spo2: "--" };
 
     function updateAIAnalysis() {
@@ -431,13 +446,11 @@
         if(snapshot.exists()) {
           snapshot.forEach((child) => {
             const data = child.val();
-            // Update Global Data for WhatsApp
             currentData.temp = data.temperature || "--";
             currentData.bpm = data.bpm || "--";
             currentData.bp = data.pressure || "--";
             currentData.spo2 = data.spo2 || "--";
 
-            // AI Logic
             const temp = parseFloat(data.temperature) || 0;
             const bpm = parseInt(data.bpm) || 0;
             const spo2 = parseFloat(data.spo2) || 0;
@@ -471,35 +484,24 @@
       });
     }
 
-    // --- 1. WHATSAPP REPORT FUNCTION ---
+    // --- WHATSAPP REPORT ---
     function sendWhatsAppReport() {
       if (!currentUserId || currentUserId === "Guest") {
         showToast(localStorage.getItem("language")==="ar" ? "لا يوجد رقم مسجل!" : "No phone number!", "error");
         return;
       }
-      
-      // Formatting Number (Assuming Egypt +20)
-      // If user enters 010..., we remove 0 and add 20 -> 2010...
       let phone = "20" + currentUserId.substring(1); 
-      
       const date = new Date().toLocaleString();
-      let message = `🏥 *Bioscan ATM Report* 🏥%0A`;
-      message += `📅 ${date}%0A%0A`;
-      message += `🌡️ Temp: ${currentData.temp} °C%0A`;
-      message += `❤️ Pulse: ${currentData.bpm} BPM%0A`;
-      message += `🩸 BP: ${currentData.bp} mmHg%0A`;
-      message += `🫁 Oxygen: ${currentData.spo2} %%0A%0A`;
-      message += `✅ *Stay Safe!*`;
-
+      let message = `🏥 *Bioscan ATM Report* 🏥%0A📅 ${date}%0A%0A🌡️ Temp: ${currentData.temp} °C%0A❤️ Pulse: ${currentData.bpm} BPM%0A🩸 BP: ${currentData.bp} mmHg%0A🫁 Oxygen: ${currentData.spo2} %%0A%0A✅ *Stay Safe!*`;
       window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
     }
 
-    // --- 2. NEAREST HOSPITALS FUNCTION ---
+    // --- NEAREST HOSPITALS ---
     function findHospitals() {
       window.open("https://www.google.com/maps/search/hospitals+near+me/", "_blank");
     }
 
-    // --- 3. HEALTH TIP OF THE DAY ---
+    // --- HEALTH TIP ---
     const healthTips = {
       ar: [
         "شرب 8 أكواب من الماء يومياً يحافظ على حيوية جسمك.",
@@ -521,11 +523,9 @@
       const lang = localStorage.getItem("language") || "en";
       const tips = lang === "ar" ? healthTips.ar : healthTips.en;
       const randomTip = tips[Math.floor(Math.random() * tips.length)];
-      
-      // Show as info toast
       setTimeout(() => {
           showToast((lang==="ar"?"💡 نصيحة: ":"💡 Tip: ") + randomTip, "info");
-      }, 1000); // Delay slightly to appear after load
+      }, 1000);
     }
 
     // --- HOVER VOICE ASSISTANT ---
@@ -552,7 +552,7 @@
         'historyBtn': { ar: 'اضغط هنا لعرض السجل الطبي والتقارير', en: 'Click here to view medical history' },
         'exitBtn': { ar: 'اضغط هنا لتسجيل الخروج', en: 'Click here to logout' },
         'whatsappBtn': { ar: 'اضغط لإرسال التقرير عبر واتساب', en: 'Click to send report via WhatsApp' },
-        'hospitalBtn': { ar: 'اضغط للبحث عن أقرب مستشفيات', en: 'Click to find nearest hospitals' }
+        'hospitalBtn': { ar: 'اضغط للبحث عن أقرب مستشفيات للطوارئ', en: 'Click to find nearest hospitals for emergency' }
       };
 
       Object.keys(voiceMap).forEach(btnId => {
@@ -572,12 +572,11 @@
       });
     }
 
-    // Navigation
-    function goToVisionPage() { window.location.href = "instruction.html"; }
     function goToTemperature() { window.location.href = "temp.html"; }
     function goToPulse() { window.location.href = "pulse.html"; }
     function goToPressure() { window.location.href = "pressure.html"; }
     function goToOxygen() { window.location.href = "oxygen.html"; }
+    function goToVisionPage() { window.location.href = "instruction.html"; }
     function goToHistory() { window.location.href = "history.html"; }
     function closeMeasurements() {
       localStorage.removeItem("selectedUserId");
@@ -600,9 +599,6 @@
         updateBtn("oxygenBtn", "fas fa-lungs", "نسبة الأكسجين");
         updateBtn("historyBtn", "fas fa-file-medical-alt", "السجل الطبي والتقارير");
         
-        // New Buttons Translation
-        updateBtn("hospitalBtn", "fas fa-hospital-alt", "أقرب مستشفيات");
-
         document.getElementById("exitBtn").innerHTML = '<i class="fas fa-sign-out-alt" style="transform: rotate(180deg);"></i> تسجيل خروج';
 
       } else {
@@ -617,9 +613,6 @@
         updateBtn("oxygenBtn", "fas fa-lungs", "Oxygen (SpO2)");
         updateBtn("historyBtn", "fas fa-file-medical-alt", "View History & Reports");
         
-        // New Buttons Translation
-        updateBtn("hospitalBtn", "fas fa-hospital-alt", "Nearest Hospitals");
-
         document.getElementById("exitBtn").innerHTML = '<i class="fas fa-sign-out-alt"></i> Exit Dashboard';
       }
       updateAIAnalysis();
@@ -634,11 +627,11 @@
     
     window.onload = () => {
         updateAIAnalysis();
+        showRandomTip();
         if ('speechSynthesis' in window) {
             window.speechSynthesis.onvoiceschanged = () => { setupHoverVoice(); };
             setTimeout(setupHoverVoice, 500);
         }
-        showRandomTip(); // Show tip on load
     };
 
   </script>
