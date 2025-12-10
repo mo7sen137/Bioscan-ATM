@@ -319,14 +319,12 @@
     const userSpan = document.getElementById('currentUserName');
     if(currentUserId) userSpan.innerText = currentUserId; else userSpan.innerText = "Guest";
 
-    // --- 1. CONNECTION STATUS (Active Ping) ---
+    // --- CONNECTION STATUS (Active Ping) ---
     async function checkInternetConnection() {
       try {
         await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" });
         return true;
-      } catch (error) {
-        return false;
-      }
+      } catch (error) { return false; }
     }
 
     async function updateStatus() {
@@ -335,55 +333,35 @@
       const currentLang = localStorage.getItem("language") || "en";
 
       if (isOnline) {
-        dot.classList.remove('offline');
-        dot.title = "Online";
-        dot.style.backgroundColor = ""; 
+        dot.classList.remove('offline'); dot.title = "Online"; dot.style.backgroundColor = ""; 
       } else {
         if (!dot.classList.contains('offline')) {
            showToast(currentLang === 'ar' ? "فقد الاتصال بالإنترنت!" : "Internet Connection Lost!", "error");
         }
-        dot.classList.add('offline');
-        dot.title = "Offline";
-        dot.style.backgroundColor = "#ff416c";
+        dot.classList.add('offline'); dot.title = "Offline"; dot.style.backgroundColor = "#ff416c";
       }
     }
     updateStatus();
     setInterval(updateStatus, 3000);
 
-    // --- 2. FULL SCREEN TOGGLE ---
+    // --- FULL SCREEN ---
     function toggleFullScreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-      }
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else if (document.exitFullscreen) document.exitFullscreen();
     }
 
-    // --- 3. AUTO LOGOUT (IDLE TIMER: 90 Seconds) ---
+    // --- AUTO LOGOUT (90 Sec) ---
     let idleTime = 0;
-    const idleLimit = 90; // 90 seconds = 1.5 Minutes
-
+    const idleLimit = 90; 
     function timerIncrement() {
       idleTime++;
-      if (idleTime >= idleLimit) {
-        // Auto Logout Triggered
-        const currentLang = localStorage.getItem("language") || "en";
-        // Optional: Save state or log
-        closeMeasurements(); 
-      }
+      if (idleTime >= idleLimit) closeMeasurements(); 
     }
-
-    function resetTimer() {
-      idleTime = 0;
-    }
-
-    // Monitor User Activity
+    function resetTimer() { idleTime = 0; }
     document.onmousemove = resetTimer;
     document.onkeypress = resetTimer;
     document.ontouchstart = resetTimer;
     document.onclick = resetTimer;
-
-    // Start Timer Interval
     setInterval(timerIncrement, 1000);
 
     // --- Toast Logic ---
@@ -452,6 +430,65 @@
       });
     }
 
+    // --- HOVER VOICE ASSISTANT (NEW FEATURE) ---
+    function setupHoverVoice() {
+      // Define messages map
+      const voiceMap = {
+        'tempBtn': {
+          ar: 'اضغط هنا لقياس درجة الحرارة',
+          en: 'Click here to measure body temperature'
+        },
+        'pulseBtn': {
+          ar: 'اضغط هنا لقياس نبض القلب',
+          en: 'Click here to measure heart rate'
+        },
+        'bpBtn': {
+          ar: 'اضغط هنا لقياس ضغط الدم',
+          en: 'Click here to measure blood pressure'
+        },
+        'oxygenBtn': {
+          ar: 'اضغط هنا لقياس نسبة الأكسجين',
+          en: 'Click here to measure blood oxygen level'
+        },
+        'visionBtn': {
+          ar: 'اضغط هنا لبدء فحص النظر',
+          en: 'Click here to start vision test'
+        },
+        'historyBtn': {
+          ar: 'اضغط هنا لعرض السجل الطبي والتقارير',
+          en: 'Click here to view medical history and reports'
+        },
+        'exitBtn': {
+          ar: 'اضغط هنا لتسجيل الخروج',
+          en: 'Click here to logout'
+        }
+      };
+
+      // Add listeners to buttons
+      Object.keys(voiceMap).forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          btn.addEventListener('mouseenter', () => {
+            const lang = localStorage.getItem("language") || "en";
+            const text = lang === 'ar' ? voiceMap[btnId].ar : voiceMap[btnId].en;
+            
+            // Cancel previous speech first
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+            utterance.rate = 1.0; // Normal speed
+            window.speechSynthesis.speak(utterance);
+          });
+
+          // Stop speech when leaving the button
+          btn.addEventListener('mouseleave', () => {
+            window.speechSynthesis.cancel();
+          });
+        }
+      });
+    }
+
     // Navigation
     function goToVisionPage() { window.location.href = "instruction.html"; }
     function goToTemperature() { window.location.href = "temp.html"; }
@@ -504,7 +541,10 @@
     }
 
     applyLanguage();
-    window.onload = updateAIAnalysis;
+    window.onload = () => {
+        updateAIAnalysis();
+        setupHoverVoice(); // Activate the hover voice assistant
+    };
 
   </script>
 
