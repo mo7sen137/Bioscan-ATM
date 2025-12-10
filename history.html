@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bioscan | History & Reports</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary-color: #a18cd1;
+      --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --text-color: #ffffff;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-gradient);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-color);
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Header */
+    header {
+      width: 100%;
+      background: rgba(15, 32, 39, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 15px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--primary-color);
+      text-transform: uppercase;
+    }
+
+    .back-btn {
+      position: absolute;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--primary-color);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      z-index: 1000;
+    }
+
+    .back-btn:hover {
+      background: var(--primary-color);
+      color: #fff;
+    }
+
+    /* Container */
+    .container {
+      width: 90%;
+      max-width: 800px;
+      margin-top: 30px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Top Actions Bar */
+    .actions-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* Dropdown */
+    .controls {
+      background: var(--glass-bg);
+      padding: 10px 20px;
+      border-radius: 50px;
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    select {
+      background: transparent;
+      border: none;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select option { background: #2c5364; color: white; }
+
+    /* PDF Button */
+    .pdf-btn {
+      background: linear-gradient(45deg, #00c6ff, #0072ff);
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(0, 198, 255, 0.3);
+      transition: 0.3s;
+    }
+
+    .pdf-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(0, 198, 255, 0.6);
+    }
+
+    /* Chart Card */
+    .chart-card {
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 25px;
+      padding: 20px;
+      width: 100%;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      height: 400px;
+      position: relative;
+    }
+
+    .loading-text {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <button id="backBtn" class="back-btn" onclick="window.location.href='measurements.html'">
+    <i class="fas fa-arrow-left"></i> <span>Back</span>
+  </button>
+  <h1 id="headerTitle">Health History</h1>
+</header>
+
+<div class="container">
+  
+  <div class="actions-bar">
+    <div class="controls">
+      <label for="metricSelect"><i class="fas fa-filter"></i></label>
+      <select id="metricSelect" onchange="loadData()">
+        <option value="bpm">💓 Pulse Rate</option>
+        <option value="temperature">🌡 Temperature</option>
+        <option value="spo2">🫁 Oxygen (SpO₂)</option>
+        <option value="pressure">🩺 Blood Pressure</option>
+      </select>
+    </div>
+
+    <button class="pdf-btn" id="pdfBtn" onclick="generatePDF()">
+      <i class="fas fa-file-medical"></i> <span id="pdfText">Download Report</span>
+    </button>
+  </div>
+
+  <div class="chart-card">
+    <div id="loading" class="loading-text">Loading data...</div>
+    <canvas id="healthChart"></canvas>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  // --- Firebase Config ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
+    authDomain: "smart-a76a0.firebaseapp.com",
+    databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
+    projectId: "smart-a76a0",
+    storageBucket: "smart-a76a0.firebasestorage.app",
+    messagingSenderId: "343693501983",
+    appId: "1:343693501983:web:10ea3fce9d990a2455172a"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.database();
+  let fetchedData = []; // To store data for PDF
+
+  // --- Chart Logic ---
+  let myChart = null;
+  const ctx = document.getElementById('healthChart').getContext('2d');
+
+  function initChart(labels, data, label, color) {
+    if (myChart) myChart.destroy();
+    myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: label,
+          data: data,
+          borderColor: color,
+          backgroundColor: color + '33',
+          borderWidth: 3,
+          pointBackgroundColor: '#fff',
+          pointRadius: 5,
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: 'white' } } },
+        scales: {
+          x: { ticks: { color: '#ddd' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+          y: { ticks: { color: '#ddd' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+        }
+      }
+    });
+  }
+
+  function loadData() {
+    const userId = localStorage.getItem("selectedUserId");
+    if (!userId) {
+      document.getElementById('loading').innerText = "Please login first!";
+      return;
+    }
+
+    const metric = document.getElementById('metricSelect').value;
+    const userRef = db.ref("current users/" + userId);
+    
+    // Get last 15 readings
+    userRef.limitToLast(15).once("value").then((snapshot) => {
+      document.getElementById('loading').style.display = 'none';
+      let labels = [];
+      let dataPoints = [];
+      fetchedData = []; // Clear old data for PDF
+
+      if (snapshot.exists()) {
+        snapshot.forEach((child) => {
+          const val = child.val();
+          // Save all data for PDF regardless of filter
+          fetchedData.push(val);
+
+          // For Chart (Filtered)
+          if (val[metric]) {
+            let timeLabel = val.timestamp ? new Date(val.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "Reading";
+            labels.push(timeLabel);
+            dataPoints.push(val[metric]);
+          }
+        });
+
+        // Set Colors
+        let color = '#fff';
+        let title = '';
+        if(metric === 'bpm') { color = '#ff416c'; title = 'Pulse Rate (BPM)'; }
+        else if(metric === 'temperature') { color = '#ff7e5f'; title = 'Temperature (°C)'; }
+        else if(metric === 'spo2') { color = '#00c6ff'; title = 'Oxygen (%)'; }
+        else if(metric === 'pressure') { color = '#4facfe'; title = 'Blood Pressure'; }
+
+        if(dataPoints.length > 0) {
+           initChart(labels, dataPoints, title, color);
+        } else {
+           if (myChart) myChart.destroy();
+           document.getElementById('loading').style.display = 'block';
+           document.getElementById('loading').innerText = "No data for this metric.";
+        }
+      } else {
+        document.getElementById('loading').innerText = "No history found.";
+      }
+    });
+  }
+
+  // --- PDF GENERATION LOGIC ---
+  async function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const userId = localStorage.getItem("selectedUserId") || "Guest";
+    const date = new Date().toLocaleString();
+
+    // 1. Header
+    doc.setFillColor(15, 32, 39); // Dark Header Background
+    doc.rect(0, 0, 210, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.text("BioScan Medical Report", 105, 20, null, null, "center");
+    
+    // 2. User Info
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.text(`Patient ID: ${userId}`, 14, 50);
+    doc.text(`Date: ${date}`, 14, 58);
+    doc.text("Generated via Bioscan ATM System", 14, 66);
+
+    // 3. Prepare Data for Table
+    // We reverse the data to show newest first
+    const tableRows = fetchedData.reverse().map(item => {
+      return [
+        item.timestamp ? new Date(item.timestamp).toLocaleString() : "-",
+        item.temperature ? item.temperature + " °C" : "-",
+        item.bpm ? item.bpm + " BPM" : "-",
+        item.spo2 ? item.spo2 + " %" : "-",
+        item.pressure ? item.pressure : "-"
+      ];
+    });
+
+    // 4. Create Table
+    doc.autoTable({
+      startY: 75,
+      head: [['Time', 'Temperature', 'Pulse', 'Oxygen', 'Pressure']],
+      body: tableRows,
+      theme: 'grid',
+      headStyles: { fillColor: [0, 210, 255] }, // Cyan color matching site
+      alternateRowStyles: { fillColor: [240, 240, 240] }
+    });
+
+    // 5. Footer / Disclaimer
+    const finalY = doc.lastAutoTable.finalY || 150;
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text("Disclaimer: This report is generated automatically by sensors.", 14, finalY + 10);
+    doc.text("Please consult a doctor for official diagnosis.", 14, finalY + 16);
+
+    // 6. Save
+    doc.save(`Bioscan_Report_${userId}.pdf`);
+  }
+
+  // --- Language ---
+  const lang = localStorage.getItem("language") || "en";
+  if (lang === "ar") {
+    document.body.style.direction = "rtl";
+    document.getElementById("headerTitle").innerText = "سجل التاريخ الصحي";
+    document.querySelector(".back-btn").style.right = "20px";
+    document.querySelector(".back-btn").style.left = "auto";
+    document.querySelector(".back-btn").innerHTML = '<i class="fas fa-arrow-right"></i> <span>عودة</span>';
+    document.getElementById("pdfText").innerText = "تحميل التقرير الطبي";
+    
+    const select = document.getElementById("metricSelect");
+    select.options[0].text = "💓 نبض القلب";
+    select.options[1].text = "🌡 درجة الحرارة";
+    select.options[2].text = "🫁 الأكسجين";
+    select.options[3].text = "🩺 ضغط الدم";
+  }
+
+  window.onload = loadData;
+
+</script>
+
+</body>
+</html>

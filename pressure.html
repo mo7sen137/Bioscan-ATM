@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bioscan | Blood Pressure</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+  :root {
+    --primary-color: #6a11cb; /* Indigo/Purple (Distinct from Oxygen) */
+    --danger-color: #ff0000;
+    --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --text-color: #ffffff;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg-gradient);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-color);
+    overflow-x: hidden;
+    transition: background 0.5s;
+  }
+
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* --- SOS ANIMATION --- */
+  @keyframes sos-flash {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); border-color: red; }
+    50% { box-shadow: 0 0 50px 20px rgba(255, 0, 0, 0.5); border-color: #ff4d4d; background: rgba(50, 0, 0, 0.6); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); border-color: red; }
+  }
+
+  .critical-state {
+    animation: sos-flash 1s infinite;
+    border: 2px solid red !important;
+  }
+  
+  .critical-bg {
+    background: radial-gradient(circle, #3a0000, #000) !important;
+  }
+
+  /* Header */
+  header {
+    width: 100%;
+    background: rgba(15, 32, 39, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 15px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+  }
+
+  header h1 {
+    font-size: 1.4rem; margin: 0; font-weight: 600; letter-spacing: 1px; color: var(--primary-color); text-transform: uppercase; pointer-events: none;
+  }
+
+  .back-btn {
+    position: absolute; left: 20px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--primary-color); color: white; padding: 8px 15px; border-radius: 50px; cursor: pointer; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 5px; z-index: 1000;
+  }
+  .back-btn:hover { background: var(--primary-color); color: #fff; }
+
+  .container { display: flex; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; }
+
+  .card {
+    background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 40px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: 0.3s;
+  }
+
+  .icon-container { margin-bottom: 20px; }
+  .icon-container i {
+    font-size: 5rem;
+    /* Purple Gradient */
+    background: -webkit-linear-gradient(#2575fc, #6a11cb); 
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+    filter: drop-shadow(0 0 10px rgba(106, 17, 203, 0.5)); 
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+  .pressure-box {
+    background: rgba(0, 0, 0, 0.3); border-radius: 15px; padding: 20px; margin: 20px 0; border: 1px solid rgba(106, 17, 203, 0.3);
+  }
+
+  #pressureValue { font-size: 2.5rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--primary-color); }
+  .unit { font-size: 1.2rem; color: var(--primary-color); margin-left: 5px; }
+
+  .instructions-list { list-style: none; padding: 0; text-align: left; margin-bottom: 30px; }
+  .instructions-list li { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #e0e0e0; }
+  .instructions-list li i { color: var(--primary-color); width: 25px; text-align: center; }
+
+  /* SOS ALERT BANNER */
+  .sos-banner {
+    display: none;
+    background: red; color: white; font-weight: bold; padding: 10px; border-radius: 10px; margin-bottom: 15px; animation: blink 0.5s infinite alternate;
+  }
+  @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
+
+  .actions-row { display: flex; gap: 10px; justify-content: center; }
+  .advice-btn, .voice-btn { padding: 12px 20px; border-radius: 50px; border: none; cursor: pointer; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  
+  .advice-btn { flex: 2; background: linear-gradient(45deg, #6a11cb, #2575fc); color: white; box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4); }
+  .voice-btn { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid var(--primary-color); color: var(--primary-color); }
+  .advice-btn:hover, .voice-btn:hover { transform: translateY(-3px); }
+  .voice-btn:hover { background: var(--primary-color); color: white; }
+
+  .advice-box { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 15px; margin-top: 20px; display: none; font-size: 1.1rem; color: #fff; border-left: 4px solid var(--primary-color); animation: slideDown 0.5s ease; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<audio id="alarmSound" loop>
+  <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+</audio>
+
+<header>
+  <button id="backBtn" class="back-btn" onclick="goBack()">
+    <i class="fas fa-arrow-left"></i> <span>Back</span>
+  </button>
+  <h1 id="headerTitle">Blood Pressure</h1>
+</header>
+
+<div class="container">
+  
+  <div id="sosBanner" class="sos-banner">
+    <i class="fas fa-exclamation-triangle"></i> CRITICAL ALERT
+  </div>
+
+  <div class="card" id="mainCard">
+    <div class="icon-container">
+      <i class="fas fa-stethoscope"></i>
+    </div>
+
+    <div class="pressure-box">
+      <span id="pressureValue">--</span> <span class="unit">mmHg</span>
+    </div>
+
+    <h3 id="instrTitle" style="color: var(--primary-color); font-weight: 400; margin-bottom: 15px;">Instructions</h3>
+    <ul class="instructions-list" id="instructions">
+      <li><i class="fas fa-chair"></i> Sit calmly for 1–2 minutes.</li>
+      <li><i class="fas fa-hand-holding-heart"></i> Relax your arm.</li>
+      <li><i class="fas fa-comment-slash"></i> Do not talk or move.</li>
+    </ul>
+
+    <div class="actions-row">
+      <button class="advice-btn" id="adviceBtn" onclick="showAdvice()">
+        <i class="fas fa-user-md"></i> <span id="btnText">Medical Advice</span>
+      </button>
+      <button class="voice-btn" onclick="speakResult()">
+        <i class="fas fa-volume-up"></i>
+      </button>
+    </div>
+
+    <div class="advice-box" id="adviceBox"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
+    authDomain: "smart-a76a0.firebaseapp.com",
+    databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
+    projectId: "smart-a76a0",
+    storageBucket: "smart-a76a0.firebasestorage.app",
+    messagingSenderId: "343693501983",
+    appId: "1:343693501983:web:10ea3fce9d990a2455172a"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const pressureBox = document.getElementById("pressureValue");
+  const adviceBox = document.getElementById("adviceBox");
+  const sosBanner = document.getElementById("sosBanner");
+  const mainCard = document.getElementById("mainCard");
+  const alarmSound = document.getElementById("alarmSound");
+  const userId = localStorage.getItem("selectedUserId");
+
+  let isCritical = false;
+
+  if (!userId) {
+    pressureBox.innerText = "--";
+    adviceBox.style.display = "block";
+    adviceBox.innerText = "User not registered!";
+    adviceBox.style.borderLeftColor = "#ff0000";
+  } else {
+    const userRef = db.ref("current users/" + userId);
+    userRef.limitToLast(1).on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        snapshot.forEach((childSnap) => {
+          const data = childSnap.val();
+          if (data.pressure) {
+            pressureBox.innerText = data.pressure;
+            
+            // Flash Effect (Matched to Purple Theme)
+            document.querySelector('.pressure-box').style.borderColor = "#6a11cb";
+            document.querySelector('.pressure-box').style.boxShadow = "0 0 20px rgba(106, 17, 203, 0.4)";
+
+            // Check for SOS condition
+            let val = parseFloat(data.pressure);
+            if (val > 160 || val < 80) {
+              triggerSOS();
+            } else {
+              clearSOS();
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // --- SOS Functions ---
+  function triggerSOS() {
+    if(isCritical) return; 
+    isCritical = true;
+    
+    document.body.classList.add("critical-bg");
+    mainCard.classList.add("critical-state");
+    sosBanner.style.display = "block";
+    
+    alarmSound.play().catch(error => console.log("Audio play blocked until interaction"));
+    
+    const lang = localStorage.getItem("language") || "en";
+    sosBanner.innerText = lang === "ar" ? "🚨 تنبيه حرج: يرجى طلب المساعدة!" : "🚨 CRITICAL ALERT: Seek Help!";
+  }
+
+  function clearSOS() {
+    if(!isCritical) return;
+    isCritical = false;
+    
+    document.body.classList.remove("critical-bg");
+    mainCard.classList.remove("critical-state");
+    sosBanner.style.display = "none";
+    alarmSound.pause();
+    alarmSound.currentTime = 0;
+  }
+
+  // --- Normal Functions ---
+  function speakResult() {
+    let pressureText = pressureBox.innerText.replace(" mmHg", ""); 
+    let pressureVal = parseFloat(pressureText); 
+    const lang = localStorage.getItem("language") || "en";
+    let textToSpeak = "";
+
+    if(pressureBox.innerText.includes("--")){
+      textToSpeak = lang === "ar" ? "لا توجد قراءة للضغط" : "No reading available";
+    } else {
+      if(lang === "ar"){
+        textToSpeak = `ضغط الدم لديك هو ${pressureText}.`;
+        if(pressureVal > 140) textToSpeak += " الضغط مرتفع جداً.";
+        else if(pressureVal < 90) textToSpeak += " الضغط منخفض جداً.";
+        else textToSpeak += " ضغط الدم طبيعي.";
+      } else {
+        textToSpeak = `Your blood pressure is ${pressureText}.`;
+      }
+    }
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.lang = lang === "ar" ? 'ar-SA' : 'en-US';
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function showAdvice() {
+    let pressure = parseFloat(pressureBox.innerText);
+    const lang = localStorage.getItem("language") || "en";
+    let txt = "";
+    
+    if(isCritical) {
+       txt = lang === "ar" ? "🚨 حالة طوارئ! توجه للمستشفى فوراً." : "🚨 EMERGENCY! Go to hospital immediately.";
+       adviceBox.style.borderLeftColor = "#ff0000";
+    } else if (pressure >= 90 && pressure <= 120) {
+       txt = lang === "ar" ? "✔ ضغط طبيعي." : "✔ Normal pressure.";
+       adviceBox.style.borderLeftColor = "#00ff88";
+    } else {
+       txt = lang === "ar" ? "⚠ انتبه لضغطك." : "⚠ Monitor your pressure.";
+       adviceBox.style.borderLeftColor = "#ffcc00";
+    }
+
+    adviceBox.innerText = txt;
+    adviceBox.style.display = "block";
+    if(!isCritical) speakResult();
+  }
+
+  function goBack() { 
+    clearSOS();
+    window.location.href = "measurements.html"; 
+  }
+
+  const lang = localStorage.getItem("language") || "en";
+  if (lang === "ar") {
+    document.body.style.direction = "rtl";
+    document.getElementById("headerTitle").innerText = "قياس ضغط الدم";
+    const backBtn = document.getElementById("backBtn");
+    backBtn.style.left = "auto"; backBtn.style.right = "20px";
+    backBtn.innerHTML = '<i class="fas fa-arrow-right"></i> <span>عودة</span>';
+    document.getElementById("instrTitle").innerText = "إرشادات القياس";
+    document.getElementById("instructions").innerHTML = `
+      <li><i class="fas fa-chair"></i> اجلس بهدوء.</li>
+      <li><i class="fas fa-hand-holding-heart"></i> ارح ذراعك.</li>
+    `;
+    document.getElementById("btnText").innerText = "النصيحة الطبية";
+  }
+</script>
+
+<div style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; display: flex; gap: 5px;">
+  <button onclick="testCritical()" style="background: red; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 12px;">
+    🚨 Test SOS
+  </button>
+  <button onclick="testNormal()" style="background: green; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 12px;">
+    ✅ Test Normal
+  </button>
+</div>
+
+<script>
+  // Uncomment these functions to use the buttons
+  function testCritical() {
+    document.getElementById("pressureValue").innerText = "180";
+    triggerSOS(); 
+  }
+
+  function testNormal() {
+    document.getElementById("pressureValue").innerText = "120";
+    clearSOS();
+  }
+</script>
+
+</body>
+</html>

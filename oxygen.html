@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bioscan | Oxygen (SpO₂)</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+  :root {
+    --primary-color: #00c6ff; /* Cyan for Oxygen */
+    --danger-color: #ff0000;
+    --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --text-color: #ffffff;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg-gradient);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-color);
+    overflow-x: hidden;
+    transition: background 0.5s;
+  }
+
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* --- SOS ANIMATION --- */
+  @keyframes sos-flash {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); border-color: red; }
+    50% { box-shadow: 0 0 50px 20px rgba(255, 0, 0, 0.5); border-color: #ff4d4d; background: rgba(50, 0, 0, 0.6); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); border-color: red; }
+  }
+
+  .critical-state {
+    animation: sos-flash 1s infinite;
+    border: 2px solid red !important;
+  }
+  
+  .critical-bg {
+    background: radial-gradient(circle, #3a0000, #000) !important;
+  }
+
+  /* Header */
+  header {
+    width: 100%;
+    background: rgba(15, 32, 39, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 15px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+  }
+
+  header h1 {
+    font-size: 1.4rem;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
+  .back-btn {
+    position: absolute;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--primary-color);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    z-index: 1000;
+  }
+
+  .back-btn:hover {
+    background: var(--primary-color);
+    color: #000;
+    box-shadow: 0 0 15px rgba(0, 198, 255, 0.5);
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    width: 100%;
+    padding: 20px;
+  }
+
+  .card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 25px;
+    padding: 40px;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    transition: 0.3s;
+  }
+
+  /* SOS ALERT BANNER */
+  .sos-banner {
+    display: none;
+    background: red; color: white; font-weight: bold; padding: 10px; border-radius: 10px; margin-bottom: 15px; animation: blink 0.5s infinite alternate;
+  }
+  @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
+
+  .icon-container { margin-bottom: 20px; }
+  .icon-container i {
+    font-size: 5rem;
+    background: -webkit-linear-gradient(#00c6ff, #0072ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(0, 198, 255, 0.5));
+    animation: breathe 3s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(0, 198, 255, 0.5)); }
+    50% { transform: scale(1.1); filter: drop-shadow(0 0 25px rgba(0, 198, 255, 0.8)); }
+  }
+
+  .ox-box {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid rgba(0, 198, 255, 0.3);
+  }
+
+  #oxValue {
+    font-size: 3rem; font-weight: 700; color: #fff;
+    text-shadow: 0 0 15px var(--primary-color);
+  }
+
+  .unit { font-size: 1.5rem; color: var(--primary-color); }
+
+  .instructions-list {
+    list-style: none; padding: 0; text-align: left; margin-bottom: 30px;
+  }
+
+  .instructions-list li {
+    margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #e0e0e0;
+  }
+
+  .instructions-list li i { color: var(--primary-color); width: 25px; text-align: center; }
+
+  /* Buttons Row */
+  .actions-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .advice-btn, .voice-btn {
+    padding: 12px 20px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .advice-btn {
+    flex: 2;
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 198, 255, 0.4);
+  }
+
+  .voice-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+  }
+
+  .advice-btn:hover, .voice-btn:hover { transform: translateY(-3px); }
+  .voice-btn:hover { background: var(--primary-color); color: white; }
+
+  .advice-box {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 20px;
+    display: none;
+    font-size: 1.1rem;
+    color: #fff;
+    border-left: 4px solid var(--primary-color);
+    animation: slideDown 0.5s ease;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<audio id="alarmSound" loop>
+  <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+</audio>
+
+<header>
+  <button id="backBtn" class="back-btn" onclick="goBack()">
+    <i class="fas fa-arrow-left"></i> <span>Back</span>
+  </button>
+  <h1 id="headerTitle">Blood Oxygen <span style="font-size:0.8em; opacity:0.8;">(SpO₂)</span></h1>
+</header>
+
+<div class="container">
+  
+  <div id="sosBanner" class="sos-banner">
+    <i class="fas fa-exclamation-triangle"></i> CRITICAL: LOW OXYGEN!
+  </div>
+
+  <div class="card" id="mainCard">
+    <div class="icon-container">
+      <i class="fas fa-lungs"></i>
+    </div>
+
+    <div class="ox-box">
+      <span id="oxValue">--</span> <span class="unit">%</span>
+    </div>
+
+    <h3 id="instrTitle" style="color: var(--primary-color); font-weight: 400; margin-bottom: 15px;">Instructions</h3>
+    <ul class="instructions-list" id="instructions">
+      <li><i class="fas fa-fingerprint"></i> Place finger on sensor.</li>
+      <li><i class="fas fa-hand-holding"></i> Keep hand steady.</li>
+      <li><i class="fas fa-exclamation-circle"></i> Avoid movement.</li>
+    </ul>
+
+    <div class="actions-row">
+      <button class="advice-btn" id="adviceBtn" onclick="showAdvice()">
+        <i class="fas fa-user-md"></i> <span id="btnText">Medical Advice</span>
+      </button>
+      
+      <button class="voice-btn" onclick="speakResult()">
+        <i class="fas fa-volume-up"></i>
+      </button>
+    </div>
+
+    <div class="advice-box" id="adviceBox"></div>
+
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
+    authDomain: "smart-a76a0.firebaseapp.com",
+    databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
+    projectId: "smart-a76a0",
+    storageBucket: "smart-a76a0.firebasestorage.app",
+    messagingSenderId: "343693501983",
+    appId: "1:343693501983:web:10ea3fce9d990a2455172a"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const oxBox = document.getElementById("oxValue");
+  const adviceBox = document.getElementById("adviceBox");
+  const sosBanner = document.getElementById("sosBanner");
+  const mainCard = document.getElementById("mainCard");
+  const alarmSound = document.getElementById("alarmSound");
+  const userId = localStorage.getItem("selectedUserId");
+
+  let isCritical = false;
+
+  if (!userId) {
+    oxBox.innerText = "--";
+    adviceBox.style.display = "block";
+    adviceBox.innerText = "Error: User ID missing.";
+    adviceBox.style.borderLeftColor = "#ff0000";
+  } else {
+    const userRef = db.ref("current users/" + userId);
+    userRef.limitToLast(1).on("child_added", (snapshot) => {
+      const data = snapshot.val();
+      if (data.spo2) {
+        oxBox.innerText = data.spo2;
+        
+        // SOS Check
+        let val = parseFloat(data.spo2);
+        if (val < 90) { // Critical low oxygen
+          triggerSOS();
+        } else {
+          clearSOS();
+          // Normal flash
+          document.querySelector('.ox-box').style.borderColor = "#00c6ff";
+          document.querySelector('.ox-box').style.boxShadow = "0 0 20px rgba(0, 198, 255, 0.4)";
+        }
+      }
+    });
+  }
+
+  // --- SOS Functions ---
+  function triggerSOS() {
+    if(isCritical) return;
+    isCritical = true;
+    
+    document.body.classList.add("critical-bg");
+    mainCard.classList.add("critical-state");
+    sosBanner.style.display = "block";
+    
+    alarmSound.play().catch(e => console.log("Audio waiting for interaction"));
+    
+    const lang = localStorage.getItem("language") || "en";
+    sosBanner.innerText = lang === "ar" ? "🚨 خطر: نقص حاد في الأكسجين!" : "🚨 CRITICAL: LOW OXYGEN LEVEL!";
+  }
+
+  function clearSOS() {
+    if(!isCritical) return;
+    isCritical = false;
+    
+    document.body.classList.remove("critical-bg");
+    mainCard.classList.remove("critical-state");
+    sosBanner.style.display = "none";
+    alarmSound.pause();
+    alarmSound.currentTime = 0;
+  }
+
+  // --- Voice Assistant ---
+  function speakResult() {
+    let ox = parseFloat(oxBox.innerText);
+    const lang = localStorage.getItem("language") || "en";
+    let textToSpeak = "";
+
+    if(oxBox.innerText === "--" || isNaN(ox)){
+      textToSpeak = lang === "ar" ? "لا توجد قراءة للأكسجين حتى الآن" : "No oxygen reading available yet";
+    } else {
+      if(lang === "ar"){
+        textToSpeak = `نسبة الأكسجين في الدم هي ${ox} بالمائة.`;
+        if(ox < 90) textToSpeak += " تحذير! النسبة منخفضة جداً.";
+        else if(ox < 95) textToSpeak += " النسبة منخفضة قليلاً.";
+        else textToSpeak += " نسبة الأكسجين ممتازة.";
+      } else {
+        textToSpeak = `Your blood oxygen level is ${ox} percent.`;
+        if(ox < 90) textToSpeak += " Warning! Critical oxygen level.";
+        else if(ox < 95) textToSpeak += " The level is slightly low.";
+        else textToSpeak += " Oxygen level is excellent.";
+      }
+    }
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.lang = lang === "ar" ? 'ar-SA' : 'en-US';
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function showAdvice() {
+    let ox = parseFloat(oxBox.innerText);
+    const lang = localStorage.getItem("language") || "en";
+    let txt = "";
+
+    if (oxBox.innerText === "--" || isNaN(ox)) {
+      txt = lang === "ar" ? "لا توجد بيانات." : "No data available.";
+      adviceBox.style.borderLeftColor = "#ccc";
+    } else if (isCritical) {
+      txt = lang === "ar" ? "🚨 خطر! توجه للمستشفى فوراً." : "🚨 EMERGENCY! Seek medical help.";
+      adviceBox.style.borderLeftColor = "#ff0000";
+    } else if (ox >= 95) {
+      txt = lang === "ar" ? "✔ نسبة ممتازة." : "✔ Excellent level.";
+      adviceBox.style.borderLeftColor = "#00ff88";
+    } else if (ox >= 92 && ox < 95) {
+      txt = lang === "ar" ? "⚠ أقل من الطبيعي قليلاً." : "⚠ Slightly low.";
+      adviceBox.style.borderLeftColor = "#ffcc00";
+    }
+
+    adviceBox.innerText = txt;
+    adviceBox.style.display = "block";
+    if(!isCritical) speakResult();
+  }
+
+  function goBack() { 
+    clearSOS();
+    window.location.href = "measurements.html"; 
+  }
+
+  const lang = localStorage.getItem("language") || "en";
+  if (lang === "ar") {
+    document.body.style.direction = "rtl";
+    document.getElementById("headerTitle").innerHTML = 'نسبة الأكسجين <span style="font-size:0.8em; opacity:0.8;">(SpO₂)</span>';
+    const backBtn = document.getElementById("backBtn");
+    backBtn.style.left = "auto"; backBtn.style.right = "20px";
+    backBtn.innerHTML = '<i class="fas fa-arrow-right"></i> <span>عودة</span>';
+    document.getElementById("instrTitle").innerText = "تعليمات القياس";
+    document.getElementById("instructions").innerHTML = `
+      <li><i class="fas fa-fingerprint"></i> ضع إصبعك بالكامل على المستشعر.</li>
+      <li><i class="fas fa-hand-holding"></i> حافظ على يدك ثابتة.</li>
+    `;
+    document.getElementById("btnText").innerText = "النصيحة الطبية";
+  }
+</script>
+
+<div style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; display: flex; gap: 5px;">
+  <button onclick="testCritical()" style="background: red; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 12px;">
+    🚨 Test Low
+  </button>
+  <button onclick="testNormal()" style="background: green; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 12px;">
+    ✅ Test Normal
+  </button>
+</div>
+
+<script>
+
+  // الاختبار اليدوي للحالات الحرجة والطبيعية
+
+  // function testCritical() {
+  //   document.getElementById("oxValue").innerText = "85";
+  //   triggerSOS(); 
+  // }
+
+  // function testNormal() {
+  //   document.getElementById("oxValue").innerText = "98";
+  //   clearSOS();
+  // }
+
+</script>
+</body>
+</html>
