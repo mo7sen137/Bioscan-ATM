@@ -15,9 +15,7 @@
       --glass-bg: rgba(255, 255, 255, 0.1);
       --glass-border: rgba(255, 255, 255, 0.2);
       --text-color: #ffffff;
-      --primary-color: #00d2ff;
-      --success-color: #00ff88;
-      --error-color: #ff416c;
+      --primary-color: #00d2ff; /* Cyan color matching the image */
       --whatsapp-color: #25D366;
     }
 
@@ -33,9 +31,9 @@
     /* Scrollbar */
     ::-webkit-scrollbar { width: 10px; }
     ::-webkit-scrollbar-track { background: #1a1a1a; }
-    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--primary-color), #a18cd1); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; }
 
-    /* Header Bar */
+    /* Screen Header */
     .screen-header {
       width: 100%; max-width: 900px;
       display: flex; justify-content: space-between; align-items: center;
@@ -56,13 +54,13 @@
     .back-btn { background: rgba(255,255,255,0.1); }
     .back-btn:hover { background: var(--primary-color); }
 
-    .print-btn { background: linear-gradient(45deg, #ff9966, #ff5e62); }
-    .print-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 94, 98, 0.5); }
+    .print-btn { background: linear-gradient(45deg, #00d2ff, #3a7bd5); }
+    .print-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(0, 210, 255, 0.5); }
 
     .whatsapp-btn { background: linear-gradient(45deg, #25D366, #128C7E); }
     .whatsapp-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(37, 211, 102, 0.5); }
 
-    /* Table */
+    /* Table on Screen */
     .table-container {
       width: 100%; max-width: 900px;
       background: rgba(0, 0, 0, 0.3); border-radius: 20px;
@@ -77,45 +75,101 @@
 
     .status-msg { margin-top: 50px; font-size: 1.2rem; color: #aaa; text-align: center; }
 
-    /* --- PRINT STYLES (THE PROFESSIONAL REPORT LOOK) --- */
+    /* Print Header (Hidden on Screen) */
+    #printHeader, #printFooter { display: none; }
+
+    /* --- PRINT STYLES (MATCHING THE IMAGE) --- */
     @media print {
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+
       body {
-        background: white !important; color: black !important;
-        display: block !important; padding: 0 !important;
+        background: white !important;
+        color: #333 !important;
+        display: block !important;
+        padding: 0 !important;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
       }
       
-      /* Hide Screen Elements */
-      .screen-header, .back-btn, .whatsapp-btn, .print-btn, ::-webkit-scrollbar {
+      /* Hide Screen UI */
+      .screen-header, .back-btn, .whatsapp-btn, .print-btn, ::-webkit-scrollbar, .toast-container {
         display: none !important;
       }
 
-      /* Report Header (Visible only in Print) */
+      /* Report Header */
       #printHeader {
-        display: block !important;
-        text-align: center; margin-bottom: 30px; padding-bottom: 20px;
-        border-bottom: 2px solid #000;
+        display: flex !important;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #00d2ff;
       }
-      
+
+      .report-info {
+        text-align: left;
+        font-size: 14px;
+        line-height: 1.8;
+      }
+      .report-info strong { color: #555; }
+
+      .report-title {
+        text-align: right;
+      }
+      .report-title h1 {
+        font-size: 28px; color: #333; margin: 0; font-weight: 700;
+        text-transform: uppercase;
+      }
+      .report-title p { color: #888; margin: 5px 0 0 0; font-size: 14px; }
+
+      /* Table Styles (Matching Image) */
       .table-container {
         background: white !important; border: none !important;
         max-height: none !important; overflow: visible !important;
-        box-shadow: none !important; width: 100% !important; max-width: 100% !important;
+        box-shadow: none !important; width: 100% !important;
+        margin-top: 20px;
       }
 
-      table { width: 100%; border: 1px solid #000; }
-      th { background: #eee !important; color: #000 !important; border: 1px solid #000; }
-      td { color: #000 !important; border: 1px solid #000; }
-      tr:hover { background: none !important; }
+      table { width: 100%; border-collapse: collapse; }
+      
+      /* The Teal Header */
+      thead th {
+        background-color: #00ced1 !important; /* Specific Teal Color */
+        color: white !important;
+        padding: 12px 15px;
+        text-align: left;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none !important;
+        -webkit-print-color-adjust: exact; /* Force color print */
+        print-color-adjust: exact;
+      }
 
-      /* Report Footer */
+      tbody td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee !important;
+        color: #444 !important;
+        font-size: 13px;
+        text-align: left;
+      }
+
+      /* Zebra Striping (Optional, looks nice) */
+      tbody tr:nth-child(even) {
+        background-color: #f9f9f9 !important;
+        -webkit-print-color-adjust: exact;
+      }
+
+      /* Footer */
       #printFooter {
         display: block !important;
-        margin-top: 50px; text-align: center; font-size: 0.8rem; color: #555;
-        border-top: 1px solid #ccc; padding-top: 10px;
+        position: fixed; bottom: 20px; left: 0; width: 100%;
+        text-align: left; font-size: 11px; color: #999;
+        border-top: 1px solid #ddd; padding-top: 10px;
       }
     }
-
-    #printHeader, #printFooter { display: none; } /* Hidden on screen */
 
     /* Toast */
     .toast-container { position: fixed; top: 20px; right: 20px; z-index: 3000; }
@@ -135,11 +189,14 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <div id="printHeader">
-    <h1 style="margin:0;">BIOSCAN ATM</h1>
-    <p style="margin:5px 0;">Medical Monitoring Report</p>
-    <div style="text-align:left; margin-top:20px; font-weight:bold;">
-      Patient ID: <span id="printUserId">--</span><br>
-      Date: <span id="printDate">--</span>
+    <div class="report-info">
+      <strong>Patient ID:</strong> <span id="printUserId">--</span><br>
+      <strong>Date:</strong> <span id="printDate">--</span><br>
+      <strong>Source:</strong> Generated via Bioscan ATM System
+    </div>
+    <div class="report-title">
+      <h1>Medical Report</h1>
+      <p>BioScan Health Monitor</p>
     </div>
   </div>
 
@@ -149,14 +206,12 @@
       <span id="userSubtitle">User: --</span>
     </div>
     <div class="actions">
-      <button class="btn whatsapp-btn" onclick="sendHistoryToWhatsApp()" title="Send to WhatsApp">
+      <button class="btn whatsapp-btn" onclick="sendHistoryToWhatsApp()" title="Send via WhatsApp">
         <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
       </button>
-      
-      <button class="btn print-btn" onclick="window.print()" title="Download PDF">
-        <i class="fas fa-file-pdf"></i> <span>Download PDF</span>
+      <button class="btn print-btn" onclick="window.print()" title="Print / PDF">
+        <i class="fas fa-print"></i> <span>Print Report</span>
       </button>
-      
       <button class="btn back-btn" onclick="goBack()">
         <i class="fas fa-arrow-left"></i>
       </button>
@@ -167,11 +222,11 @@
     <table id="historyTable">
       <thead>
         <tr>
-          <th id="th-date">Date & Time</th>
-          <th id="th-temp">Temp (°C)</th>
+          <th id="th-date">Time / Date</th>
+          <th id="th-temp">Temperature</th>
           <th id="th-pulse">Pulse (BPM)</th>
-          <th id="th-bp">Pressure</th>
           <th id="th-spo2">Oxygen (%)</th>
+          <th id="th-bp">Pressure</th>
         </tr>
       </thead>
       <tbody id="tableBody">
@@ -182,8 +237,7 @@
   </div>
 
   <div id="printFooter">
-    Generated automatically by Bioscan ATM System.<br>
-    This is an automated report and does not replace a doctor's diagnosis.
+    Disclaimer: This report is generated automatically by sensors. Please consult a doctor for official diagnosis.
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -208,10 +262,9 @@
 
     // --- SETUP UI ---
     if(currentUserId) {
-        const userText = (lang === "ar" ? "المستخدم: " : "User: ") + currentUserId;
-        document.getElementById("userSubtitle").innerText = userText;
+        document.getElementById("userSubtitle").innerText = (lang === "ar" ? "المستخدم: " : "User: ") + currentUserId;
         document.getElementById("printUserId").innerText = currentUserId;
-        document.getElementById("printDate").innerText = new Date().toLocaleDateString();
+        document.getElementById("printDate").innerText = new Date().toLocaleString();
     } else {
         window.location.href = "index.html";
     }
@@ -221,21 +274,29 @@
         document.getElementById("pageTitle").innerText = "السجل الطبي";
         document.querySelector(".back-btn i").className = "fas fa-arrow-right";
         document.querySelector(".whatsapp-btn span").innerText = "واتساب";
-        document.querySelector(".print-btn span").innerText = "تحميل PDF";
+        document.querySelector(".print-btn span").innerText = "طباعة تقرير";
         
-        // Table Headers
-        document.getElementById("th-date").innerText = "التاريخ والوقت";
+        document.getElementById("th-date").innerText = "الوقت / التاريخ";
         document.getElementById("th-temp").innerText = "الحرارة";
         document.getElementById("th-pulse").innerText = "النبض";
         document.getElementById("th-bp").innerText = "الضغط";
         document.getElementById("th-spo2").innerText = "الأكسجين";
-        
         document.getElementById("loadingMsg").innerText = "جاري تحميل البيانات...";
         document.getElementById("emptyMsg").innerText = "لا توجد سجلات سابقة.";
+        
+        // Print Translations
+        document.querySelector(".report-title h1").innerText = "تقرير طبي";
+        document.querySelector(".report-title p").innerText = "نظام بايو سكان";
+        document.querySelector(".report-info").innerHTML = `
+            <strong>رقم المريض:</strong> ${currentUserId}<br>
+            <strong>التاريخ:</strong> ${new Date().toLocaleString()}<br>
+            <strong>المصدر:</strong> تم الإنشاء بواسطة نظام Bioscan ATM
+        `;
+        document.getElementById("printFooter").innerText = "تنويه: هذا التقرير تم إنشاؤه آلياً بواسطة المستشعرات. يرجى مراجعة الطبيب للتشخيص الرسمي.";
     }
 
     // --- FETCH DATA ---
-    const records = []; // For WhatsApp
+    const records = [];
 
     const userRef = db.ref("current users/" + currentUserId);
     userRef.on("value", (snapshot) => {
@@ -252,19 +313,18 @@
             
             const dataList = [];
             snapshot.forEach(child => { dataList.push(child.val()); });
-            dataList.reverse(); // Newest first
+            dataList.reverse();
 
             dataList.forEach(data => {
                 if(data.temperature || data.bpm || data.pressure || data.spo2) {
                     records.push(data);
-                    
                     const row = `
                         <tr>
                             <td>${data.createdAt || "N/A"}</td>
-                            <td style="color:${getColor(data.temperature, 36, 37.5)}">${data.temperature || "--"}</td>
-                            <td style="color:${getColor(data.bpm, 60, 100)}">${data.bpm || "--"}</td>
+                            <td>${data.temperature || "--"}</td>
+                            <td>${data.bpm || "--"}</td>
+                            <td>${data.spo2 || "--"}</td>
                             <td>${data.pressure || "--"}</td>
-                            <td style="color:${getColor(data.spo2, 95, 100)}">${data.spo2 || "--"}</td>
                         </tr>
                     `;
                     tbody.innerHTML += row;
@@ -276,44 +336,21 @@
         }
     });
 
-    // Helper for coloring values in Dark Mode (Reset for print via CSS)
-    function getColor(val, min, max) {
-        // We use !important in CSS print to override these inline colors to black
-        if(!val) return "inherit";
-        val = parseFloat(val);
-        if(val >= min && val <= max) return "#00ff88"; 
-        return "#ff416c"; 
-    }
-
-    // --- WHATSAPP LOGIC ---
+    // --- WHATSAPP ---
     function sendHistoryToWhatsApp() {
         if (records.length === 0) {
             showToast(lang === "ar" ? "لا توجد بيانات!" : "No records!", "error");
             return;
         }
-
         let phone = "20" + currentUserId.substring(1);
-        let report = lang === "ar" ? `📄 *تقرير السجل الطبي - Bioscan ATM*%0A` : `📄 *Bioscan Medical History Report*%0A`;
-        report += `👤 ID: ${currentUserId}%0A`;
-        report += `📅 Date: ${new Date().toLocaleDateString()}%0A`;
-        report += `-----------------------------%0A`;
+        let report = lang === "ar" ? `📄 *تقرير السجل الطبي*%0A` : `📄 *Medical History Report*%0A`;
+        report += `👤 ID: ${currentUserId}%0A📅 ${new Date().toLocaleDateString()}%0A-----------------%0A`;
 
-        // Send last 5 records
         const limit = Math.min(records.length, 5); 
         for(let i = 0; i < limit; i++) {
             const r = records[i];
-            report += `⏰ ${r.createdAt || "?"}%0A`;
-            if(r.temperature) report += `🌡️ ${r.temperature}°C | `;
-            if(r.bpm) report += `❤️ ${r.bpm} bpm | `;
-            if(r.spo2) report += `🫁 ${r.spo2}%%0A`;
-            if(r.pressure) report += `🩸 ${r.pressure}%0A`;
-            report += `-----------------------------%0A`;
+            report += `⏰ ${r.createdAt}%0A🌡️ ${r.temperature}°C | ❤️ ${r.bpm} bpm%0A🫁 ${r.spo2}% | 🩸 ${r.pressure}%0A-----------------%0A`;
         }
-
-        if(records.length > 5) {
-            report += lang === "ar" ? `... والمزيد في التقرير الكامل.` : `... and more in full PDF report.`;
-        }
-
         window.open(`https://wa.me/${phone}?text=${report}`, '_blank');
     }
 
