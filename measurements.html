@@ -18,6 +18,8 @@
       --ai-color: #00d2ff;
       --error-color: #ff416c;
       --success-color: #00ff88;
+      --whatsapp-color: #25D366;
+      --hospital-color: #f1c40f;
     }
 
     /* --- CUSTOM SCROLLBAR --- */
@@ -79,9 +81,7 @@
     .user-card span { font-weight: 600; color: #00d2ff; text-transform: uppercase; }
 
     /* Top Buttons Group */
-    .top-actions {
-      display: flex; align-items: center; gap: 10px;
-    }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
 
     .icon-btn {
       background: transparent; border: none; color: white; cursor: pointer; font-size: 1.2rem;
@@ -90,6 +90,10 @@
     .icon-btn:hover { transform: scale(1.2); opacity: 1; color: var(--primary-color); }
     .icon-btn.active { color: var(--success-color); text-shadow: 0 0 10px var(--success-color); }
     .icon-btn.muted { color: var(--error-color); }
+    
+    /* WhatsApp Button specific style */
+    .whatsapp-btn { color: var(--whatsapp-color) !important; }
+    .whatsapp-btn:hover { text-shadow: 0 0 10px var(--whatsapp-color); }
 
     /* --- CONNECTION STATUS DOT --- */
     .status-dot {
@@ -97,6 +101,7 @@
       background-color: var(--success-color);
       box-shadow: 0 0 10px var(--success-color);
       transition: all 0.3s ease;
+      margin-left: 15px;
     }
     .status-dot.offline {
       background-color: var(--error-color) !important;
@@ -201,6 +206,11 @@
     .vision::before { background: linear-gradient(to top, #38f9d7, #43e97b); }
     .vision i { color: #43e97b; }
 
+    /* Hospital Button */
+    .hospital { border-bottom: 4px solid var(--hospital-color); } 
+    .hospital::before { background: linear-gradient(to top, #f39c12, var(--hospital-color)); }
+    .hospital i { color: var(--hospital-color); }
+
     /* History Bar */
     .history-bar {
       width: 100%; max-width: 900px;
@@ -238,7 +248,7 @@
       background: rgba(16, 30, 40, 0.95); color: white; padding: 15px 25px;
       border-radius: 12px; min-width: 280px; display: flex; align-items: center; gap: 12px;
       box-shadow: 0 5px 20px rgba(0,0,0,0.4); border-left: 5px solid;
-      animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), fadeOut 0.5s ease 3s forwards;
+      animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), fadeOut 0.5s ease 4s forwards;
       backdrop-filter: blur(5px);
     }
     @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -246,6 +256,10 @@
     
     .toast-error { border-color: var(--error-color); }
     .toast-error i { color: var(--error-color); font-size: 1.2rem; }
+    .toast-success { border-color: var(--success-color); }
+    .toast-success i { color: var(--success-color); font-size: 1.2rem; }
+    .toast-info { border-color: var(--ai-color); }
+    .toast-info i { color: var(--ai-color); font-size: 1.2rem; }
 
   </style>
 </head>
@@ -258,6 +272,10 @@
     <h2 id="titleText">User: <span id="currentUserName">Unknown</span></h2>
     
     <div class="top-actions">
+      <button class="icon-btn whatsapp-btn" id="whatsappBtn" onclick="sendWhatsAppReport()" title="Send Report to WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+      </button>
+
       <button class="icon-btn active" id="voiceToggle" onclick="toggleHoverVoice()" title="Toggle Voice Guide">
         <i class="fas fa-volume-up"></i>
       </button>
@@ -298,6 +316,10 @@
     <div class="measure-btn vision" id="visionBtn" onclick="goToVisionPage()">
       <i class="fas fa-eye"></i> <span>Vision Test</span>
     </div>
+
+    <div class="measure-btn hospital" id="hospitalBtn" onclick="findHospitals()">
+      <i class="fas fa-hospital-alt"></i> <span>Nearest Hospitals</span>
+    </div>
   </div>
 
   <div class="history-bar" id="historyBtn" onclick="goToHistory()">
@@ -308,6 +330,13 @@
   <button class="close-btn" id="exitBtn" onclick="closeMeasurements()">
     <i class="fas fa-sign-out-alt"></i> Exit Dashboard
   </button>
+
+  <div style="display:none;">
+    <span id="tempValue">--</span>
+    <span id="pulseValue">--</span>
+    <span id="pressureValue">--</span>
+    <span id="oxValue">--</span>
+  </div>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -352,7 +381,6 @@
         dot.classList.add('offline'); dot.title = "Offline"; dot.style.backgroundColor = "#ff416c";
       }
     }
-    updateStatus();
     setInterval(updateStatus, 3000);
 
     // --- FULL SCREEN ---
@@ -376,17 +404,24 @@
     setInterval(timerIncrement, 1000);
 
     // --- Toast Logic ---
-    function showToast(message, type = "error") {
+    function showToast(message, type = "info") {
       const container = document.getElementById("toastContainer");
       const toast = document.createElement("div");
       toast.className = `toast toast-${type}`;
-      const icon = "fa-exclamation-circle";
+      let icon = "fa-info-circle";
+      if(type === "error") icon = "fa-exclamation-circle";
+      if(type === "success") icon = "fa-check-circle";
+      if(type === "info") icon = "fa-lightbulb";
+
       toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
       container.appendChild(toast);
-      setTimeout(() => { toast.remove(); }, 3500);
+      setTimeout(() => { toast.remove(); }, 4000);
     }
 
-    // --- AI Logic ---
+    // --- AI Logic + Data Fetch for WhatsApp ---
+    // Variables to store current readings
+    let currentData = { temp: "--", bpm: "--", bp: "--", spo2: "--" };
+
     function updateAIAnalysis() {
       if(!currentUserId) return;
       const userRef = db.ref("current users/" + currentUserId);
@@ -396,6 +431,13 @@
         if(snapshot.exists()) {
           snapshot.forEach((child) => {
             const data = child.val();
+            // Update Global Data for WhatsApp
+            currentData.temp = data.temperature || "--";
+            currentData.bpm = data.bpm || "--";
+            currentData.bp = data.pressure || "--";
+            currentData.spo2 = data.spo2 || "--";
+
+            // AI Logic
             const temp = parseFloat(data.temperature) || 0;
             const bpm = parseInt(data.bpm) || 0;
             const spo2 = parseFloat(data.spo2) || 0;
@@ -404,31 +446,19 @@
             let status = "normal"; 
 
             if (temp > 38 && bpm > 100) {
-              analysis = lang === "ar" ? 
-                "تحذير: مؤشرات على وجود حمى أو عدوى (حرارة ونبض مرتفع). يرجى استشارة طبيب." : 
-                "Warning: Signs of fever or infection (High Temp & Pulse). Please consult a doctor.";
+              analysis = lang === "ar" ? "تحذير: مؤشرات حمى أو عدوى. استشر طبيب." : "Warning: Signs of fever. Consult a doctor.";
               status = "danger";
-            } 
-            else if (spo2 > 0 && spo2 < 95 && bpm > 100) {
-              analysis = lang === "ar" ? 
-                "تحذير: إجهاد تنفسي (نقص أكسجين مع تسارع نبض). يرجى الراحة فوراً." : 
-                "Warning: Respiratory stress detected (Low Oxygen & High Pulse). Rest immediately.";
+            } else if (spo2 > 0 && spo2 < 95 && bpm > 100) {
+              analysis = lang === "ar" ? "تحذير: إجهاد تنفسي. استرح فوراً." : "Warning: Respiratory stress. Rest immediately.";
               status = "danger";
-            }
-            else if (temp > 37.5) {
-               analysis = lang === "ar" ? "حرارتك مرتفعة قليلاً، ينصح بالراحة وشرب السوائل." : "Slightly high temperature. Rest and hydration recommended.";
+            } else if (temp > 37.5) {
+               analysis = lang === "ar" ? "حرارة مرتفعة قليلاً، ينصح بالراحة." : "Slightly high temperature. Rest recommended.";
                status = "warning";
-            }
-            else if (bpm > 100) {
-               analysis = lang === "ar" ? "معدل ضربات القلب مرتفع. حاول الاسترخاء وتجنب المجهود." : "Heart rate is elevated. Try to relax and avoid stress.";
-               status = "warning";
-            }
-            else if (temp > 0 && bpm > 0) {
-               analysis = lang === "ar" ? "جميع المؤشرات الحيوية في المعدل الطبيعي. حافظ على صحتك!" : "All vital signs are within normal range. Keep it up!";
+            } else if (temp > 0 && bpm > 0) {
+               analysis = lang === "ar" ? "جميع المؤشرات في المعدل الطبيعي." : "All vital signs are normal.";
                status = "normal";
-            } 
-            else {
-               analysis = lang === "ar" ? "في انتظار إجراء القياسات لبدء التحليل..." : "Waiting for measurements to generate analysis...";
+            } else {
+               analysis = lang === "ar" ? "في انتظار القياسات..." : "Waiting for measurements...";
             }
 
             document.getElementById("aiText").innerText = analysis;
@@ -441,22 +471,73 @@
       });
     }
 
-    // --- HOVER VOICE ASSISTANT (FIXED) ---
-    let voiceEnabled = true;
+    // --- 1. WHATSAPP REPORT FUNCTION ---
+    function sendWhatsAppReport() {
+      if (!currentUserId || currentUserId === "Guest") {
+        showToast(localStorage.getItem("language")==="ar" ? "لا يوجد رقم مسجل!" : "No phone number!", "error");
+        return;
+      }
+      
+      // Formatting Number (Assuming Egypt +20)
+      // If user enters 010..., we remove 0 and add 20 -> 2010...
+      let phone = "20" + currentUserId.substring(1); 
+      
+      const date = new Date().toLocaleString();
+      let message = `🏥 *Bioscan ATM Report* 🏥%0A`;
+      message += `📅 ${date}%0A%0A`;
+      message += `🌡️ Temp: ${currentData.temp} °C%0A`;
+      message += `❤️ Pulse: ${currentData.bpm} BPM%0A`;
+      message += `🩸 BP: ${currentData.bp} mmHg%0A`;
+      message += `🫁 Oxygen: ${currentData.spo2} %%0A%0A`;
+      message += `✅ *Stay Safe!*`;
 
+      window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+    }
+
+    // --- 2. NEAREST HOSPITALS FUNCTION ---
+    function findHospitals() {
+      window.open("https://www.google.com/maps/search/hospitals+near+me/", "_blank");
+    }
+
+    // --- 3. HEALTH TIP OF THE DAY ---
+    const healthTips = {
+      ar: [
+        "شرب 8 أكواب من الماء يومياً يحافظ على حيوية جسمك.",
+        "المشي لمدة 30 دقيقة يومياً يقلل خطر الإصابة بأمراض القلب.",
+        "قلل من الملح والسكر للحفاظ على ضغط دم متوازن.",
+        "النوم الكافي (7-8 ساعات) يعزز المناعة والذاكرة.",
+        "تجنب التدخين للحفاظ على صحة الرئتين ونسبة الأكسجين."
+      ],
+      en: [
+        "Drink 8 glasses of water daily to stay hydrated.",
+        "Walking for 30 mins daily reduces heart disease risk.",
+        "Reduce salt and sugar intake for better blood pressure.",
+        "Adequate sleep (7-8 hours) boosts immunity.",
+        "Avoid smoking to maintain healthy oxygen levels."
+      ]
+    };
+
+    function showRandomTip() {
+      const lang = localStorage.getItem("language") || "en";
+      const tips = lang === "ar" ? healthTips.ar : healthTips.en;
+      const randomTip = tips[Math.floor(Math.random() * tips.length)];
+      
+      // Show as info toast
+      setTimeout(() => {
+          showToast((lang==="ar"?"💡 نصيحة: ":"💡 Tip: ") + randomTip, "info");
+      }, 1000); // Delay slightly to appear after load
+    }
+
+    // --- HOVER VOICE ASSISTANT ---
+    let voiceEnabled = true;
     function toggleHoverVoice() {
         voiceEnabled = !voiceEnabled;
         const btn = document.getElementById('voiceToggle');
         const icon = btn.querySelector('i');
-        
         if(voiceEnabled) {
-            btn.classList.add('active');
-            btn.classList.remove('muted');
-            icon.className = 'fas fa-volume-up';
+            btn.classList.add('active'); btn.classList.remove('muted'); icon.className = 'fas fa-volume-up';
         } else {
-            btn.classList.remove('active');
-            btn.classList.add('muted');
-            icon.className = 'fas fa-volume-mute';
+            btn.classList.remove('active'); btn.classList.add('muted'); icon.className = 'fas fa-volume-mute';
             window.speechSynthesis.cancel();
         }
     }
@@ -469,7 +550,9 @@
         'oxygenBtn': { ar: 'اضغط هنا لقياس نسبة الأكسجين', en: 'Click here to measure blood oxygen level' },
         'visionBtn': { ar: 'اضغط هنا لبدء فحص النظر', en: 'Click here to start vision test' },
         'historyBtn': { ar: 'اضغط هنا لعرض السجل الطبي والتقارير', en: 'Click here to view medical history' },
-        'exitBtn': { ar: 'اضغط هنا لتسجيل الخروج', en: 'Click here to logout' }
+        'exitBtn': { ar: 'اضغط هنا لتسجيل الخروج', en: 'Click here to logout' },
+        'whatsappBtn': { ar: 'اضغط لإرسال التقرير عبر واتساب', en: 'Click to send report via WhatsApp' },
+        'hospitalBtn': { ar: 'اضغط للبحث عن أقرب مستشفيات', en: 'Click to find nearest hospitals' }
       };
 
       Object.keys(voiceMap).forEach(btnId => {
@@ -479,17 +562,12 @@
             if (!voiceEnabled) return;
             const lang = localStorage.getItem("language") || "en";
             const text = lang === 'ar' ? voiceMap[btnId].ar : voiceMap[btnId].en;
-            
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
-            utterance.rate = 1.0;
             window.speechSynthesis.speak(utterance);
           };
-
-          btn.onmouseleave = () => {
-            window.speechSynthesis.cancel();
-          };
+          btn.onmouseleave = () => { window.speechSynthesis.cancel(); };
         }
       });
     }
@@ -522,6 +600,9 @@
         updateBtn("oxygenBtn", "fas fa-lungs", "نسبة الأكسجين");
         updateBtn("historyBtn", "fas fa-file-medical-alt", "السجل الطبي والتقارير");
         
+        // New Buttons Translation
+        updateBtn("hospitalBtn", "fas fa-hospital-alt", "أقرب مستشفيات");
+
         document.getElementById("exitBtn").innerHTML = '<i class="fas fa-sign-out-alt" style="transform: rotate(180deg);"></i> تسجيل خروج';
 
       } else {
@@ -536,27 +617,28 @@
         updateBtn("oxygenBtn", "fas fa-lungs", "Oxygen (SpO2)");
         updateBtn("historyBtn", "fas fa-file-medical-alt", "View History & Reports");
         
+        // New Buttons Translation
+        updateBtn("hospitalBtn", "fas fa-hospital-alt", "Nearest Hospitals");
+
         document.getElementById("exitBtn").innerHTML = '<i class="fas fa-sign-out-alt"></i> Exit Dashboard';
       }
       updateAIAnalysis();
     }
 
     function updateBtn(id, iconClass, text) {
-      document.getElementById(id).innerHTML = `<i class="${iconClass}"></i><span>${text}</span>`;
+      const btn = document.getElementById(id);
+      if(btn) btn.innerHTML = `<i class="${iconClass}"></i><span>${text}</span>`;
     }
 
     applyLanguage();
     
-    // Ensure voices are loaded before trying
     window.onload = () => {
         updateAIAnalysis();
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = () => {
-                setupHoverVoice();
-            };
-            // Fallback if event doesn't fire
+            window.speechSynthesis.onvoiceschanged = () => { setupHoverVoice(); };
             setTimeout(setupHoverVoice, 500);
         }
+        showRandomTip(); // Show tip on load
     };
 
   </script>
