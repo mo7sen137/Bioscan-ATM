@@ -11,7 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
-    /* --- SCREEN STYLES (DARK MODE) --- */
+    /* --- SCREEN STYLES --- */
     :root {
       --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       --glass-bg: rgba(255, 255, 255, 0.1);
@@ -77,28 +77,19 @@
     th { background: rgba(0, 210, 255, 0.2); color: var(--primary-color); position: sticky; top: 0; backdrop-filter: blur(5px); }
     tr:hover { background: rgba(255,255,255,0.05); }
 
-    /* Delete Button Style */
     .delete-btn {
-      background: transparent;
-      border: none;
-      color: rgba(255, 255, 255, 0.6);
-      cursor: pointer;
-      font-size: 1.1rem;
-      transition: 0.3s;
-      padding: 5px;
+      background: transparent; border: none; color: rgba(255, 255, 255, 0.6);
+      cursor: pointer; font-size: 1.1rem; transition: 0.3s; padding: 5px;
     }
-    .delete-btn:hover {
-      color: var(--delete-color);
-      transform: scale(1.2);
-    }
+    .delete-btn:hover { color: var(--delete-color); transform: scale(1.2); }
 
     .status-msg { margin-top: 50px; font-size: 1.2rem; color: #aaa; text-align: center; }
 
     #printHeader, #printFooter { display: none; }
 
-    /* --- QR MODAL STYLES --- */
+    /* --- COMMON MODAL STYLES --- */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
       z-index: 4000; display: none; justify-content: center; align-items: center;
       opacity: 0; transition: opacity 0.3s;
     }
@@ -107,24 +98,46 @@
     .qr-card {
       background: white; color: black; padding: 30px; border-radius: 20px;
       text-align: center; width: 300px; position: relative;
-      box-shadow: 0 0 30px rgba(142, 68, 173, 0.5);
-      transform: scale(0.8); transition: transform 0.3s;
+      box-shadow: 0 0 30px rgba(142, 68, 173, 0.5); transform: scale(0.8); transition: transform 0.3s;
     }
     .modal-overlay.active .qr-card { transform: scale(1); }
-    
     #qrcode { display: flex; justify-content: center; margin: 20px 0; min-height: 150px; }
-    
-    .close-qr {
-      position: absolute; top: 10px; right: 15px; background: none; border: none;
-      font-size: 1.5rem; cursor: pointer; color: #333;
-    }
+    .close-qr { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #333; }
     .close-qr:hover { color: red; }
+
+    /* --- DELETE CONFIRMATION MODAL --- */
+    .delete-card {
+      background: linear-gradient(145deg, #2c0b0e, #1a0506); /* Dark Red Theme */
+      border: 1px solid var(--delete-color);
+      padding: 30px; border-radius: 25px; text-align: center;
+      width: 90%; max-width: 400px;
+      box-shadow: 0 0 40px rgba(255, 65, 108, 0.2);
+      transform: scale(0.8); transition: transform 0.3s;
+    }
+    .modal-overlay.active .delete-card { transform: scale(1); }
+    
+    .del-icon { font-size: 3rem; color: var(--delete-color); margin-bottom: 20px; animation: shake 0.5s; }
+    @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } 100% { transform: translateX(0); } }
+    
+    .del-title { color: #fff; margin: 0 0 10px 0; font-size: 1.5rem; }
+    .del-text { color: #ccc; margin-bottom: 25px; font-size: 0.9rem; }
+    
+    .del-actions { display: flex; justify-content: center; gap: 15px; }
+    
+    .btn-cancel, .btn-confirm {
+      padding: 10px 25px; border-radius: 50px; border: none; font-size: 1rem; cursor: pointer; font-family: 'Poppins', sans-serif; transition: 0.3s;
+    }
+    .btn-cancel { background: rgba(255,255,255,0.1); color: #fff; }
+    .btn-cancel:hover { background: rgba(255,255,255,0.2); }
+    
+    .btn-confirm { background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4); }
+    .btn-confirm:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(255, 65, 108, 0.6); }
 
     /* --- PRINT STYLES --- */
     @media print {
       @page { size: A4; margin: 10mm; }
       body { background: white !important; color: #333 !important; display: block !important; padding: 0 !important; font-family: 'Helvetica', sans-serif !important; }
-      .screen-header, .back-btn, .whatsapp-btn, .print-btn, .qr-btn, ::-webkit-scrollbar, .toast-container, .modal-overlay, .delete-btn, th:last-child, td:last-child { display: none !important; } /* Hide Delete & Last Column */
+      .screen-header, .back-btn, .whatsapp-btn, .print-btn, .qr-btn, ::-webkit-scrollbar, .toast-container, .modal-overlay, .delete-btn, th:last-child, td:last-child { display: none !important; }
       #printHeader { display: flex !important; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #00d2ff; }
       .report-info { text-align: left; font-size: 14px; line-height: 1.8; }
       .report-title { text-align: right; }
@@ -154,10 +167,20 @@
       <button class="close-qr" onclick="closeQR()">&times;</button>
       <h3 style="margin-top:0; color:#8e44ad;">Doctor Scan</h3>
       <p style="font-size:0.8rem; color:#666;">Scan to see latest reading</p>
-      
       <div id="qrcode"></div>
-      
       <p style="font-size:0.7rem; color:#999; margin-bottom:0;">Generated by Bioscan ATM</p>
+    </div>
+  </div>
+
+  <div id="deleteModal" class="modal-overlay">
+    <div class="delete-card">
+      <i class="fas fa-trash-alt del-icon"></i>
+      <h3 id="delTitle" class="del-title">Delete Record?</h3>
+      <p id="delText" class="del-text">This action cannot be undone.</p>
+      <div class="del-actions">
+        <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn-confirm" onclick="confirmDelete()">Delete</button>
+      </div>
     </div>
   </div>
 
@@ -182,15 +205,12 @@
       <button class="btn qr-btn" onclick="generateQR()" title="Generate QR Code">
         <i class="fas fa-qrcode"></i> <span>QR Code</span>
       </button>
-
       <button class="btn whatsapp-btn" onclick="sendHistoryToWhatsApp()" title="Send to WhatsApp">
         <i class="fab fa-whatsapp"></i>
       </button>
-      
       <button class="btn print-btn" onclick="window.print()" title="Download PDF">
         <i class="fas fa-print"></i>
       </button>
-      
       <button class="btn back-btn" onclick="goBack()">
         <i class="fas fa-arrow-left"></i>
       </button>
@@ -206,7 +226,8 @@
           <th id="th-pulse">Pulse (BPM)</th>
           <th id="th-spo2">Oxygen (%)</th>
           <th id="th-bp">Pressure</th>
-          <th id="th-action" style="width: 50px;"></th> </tr>
+          <th id="th-action" style="width: 50px;"></th>
+        </tr>
       </thead>
       <tbody id="tableBody">
         </tbody>
@@ -245,7 +266,6 @@
     const lang = localStorage.getItem("language") || "en";
     const PATIENT_DATA_PATH = "PatientData"; 
 
-    // --- SETUP UI ---
     if(currentUserId) {
         const userText = (lang === "ar" ? "المستخدم: " : "User: ") + currentUserId;
         document.getElementById("userSubtitle").innerText = userText;
@@ -260,28 +280,25 @@
         document.getElementById("pageTitle").innerText = "السجل الطبي";
         document.querySelector(".back-btn i").className = "fas fa-arrow-right";
         document.querySelector(".qr-btn span").innerText = "كود الطبيب";
-        
         document.getElementById("th-date").innerText = "الوقت / التاريخ";
         document.getElementById("th-temp").innerText = "الحرارة";
         document.getElementById("th-pulse").innerText = "النبض";
         document.getElementById("th-bp").innerText = "الضغط";
         document.getElementById("th-spo2").innerText = "الأكسجين";
-        // Header for delete column
         document.getElementById("th-action").innerHTML = '<i class="fas fa-trash-alt"></i>';
-
         document.getElementById("loadingMsg").innerText = "جاري تحميل البيانات...";
         document.getElementById("emptyMsg").innerText = "لا توجد سجلات سابقة.";
-        
         document.querySelector(".report-title h1").innerText = "تقرير طبي";
         document.querySelector(".report-title p").innerText = "نظام بايو سكان";
-        document.querySelector(".report-info").innerHTML = `
-            <strong>رقم المريض:</strong> ${currentUserId}<br>
-            <strong>التاريخ:</strong> ${new Date().toLocaleString()}<br>
-            <strong>المصدر:</strong> تم الإنشاء بواسطة نظام Bioscan ATM
-        `;
+        document.querySelector(".report-info").innerHTML = `<strong>رقم المريض:</strong> ${currentUserId}<br><strong>التاريخ:</strong> ${new Date().toLocaleString()}<br><strong>المصدر:</strong> تم الإنشاء بواسطة نظام Bioscan ATM`;
         document.getElementById("printFooter").innerText = "تنويه: هذا التقرير تم إنشاؤه آلياً بواسطة المستشعرات. يرجى مراجعة الطبيب للتشخيص الرسمي.";
+        
+        // Modal Translations
+        document.getElementById("delTitle").innerText = "حذف السجل؟";
+        document.getElementById("delText").innerText = "لا يمكن التراجع عن هذا الإجراء.";
+        document.querySelector(".btn-confirm").innerText = "حذف";
+        document.querySelector(".btn-cancel").innerText = "إلغاء";
     } else {
-        // English header icon
         document.getElementById("th-action").innerHTML = '<i class="fas fa-trash-alt"></i>';
     }
 
@@ -303,7 +320,6 @@
         return values;
     }
 
-    // --- SMART FETCH & GROUP DATA ---
     const records = [];
     const historyRef = db.ref(`${PATIENT_DATA_PATH}/${currentUserId}/History`);
     
@@ -320,20 +336,16 @@
             loading.style.display = "none";
             empty.style.display = "none";
             
-            // 1. جلب البيانات مع المفتاح (للحذف)
             snapshot.forEach(child => { 
                 rawList.push({ key: child.key, ...child.val() }); 
             });
-            // عكس الترتيب (الأحدث أولاً)
             rawList.reverse();
 
-            // 2. منطق التجميع
             const groupedList = [];
             
             rawList.forEach(item => {
                 let itemDateStr = item.createdAt || item.Timestamp || "N/A";
                 let itemDate = new Date(itemDateStr);
-                
                 let temp = item.temperature;
                 let bpm = item.bpm;
                 let pressure = item.pressure;
@@ -347,18 +359,26 @@
                     if(parsed.spo2) spo2 = parsed.spo2;
                 }
 
-                // إضافة للسجل (نستخدم المفتاح الأصلي للحذف)
-                groupedList.push({
-                    key: item.key, // Save Firebase Key
-                    createdAt: itemDateStr,
-                    temperature: temp,
-                    bpm: bpm,
-                    pressure: pressure,
-                    spo2: spo2
-                });
+                // Grouping Logic (Merge if within 2 minutes)
+                let addedToGroup = false;
+                if (groupedList.length > 0 && !isNaN(itemDate.getTime())) {
+                    const lastGroup = groupedList[groupedList.length - 1];
+                    const lastDate = new Date(lastGroup.createdAt);
+                    const diffMs = Math.abs(lastDate - itemDate);
+                    if (diffMs < 120000) {
+                        if (!lastGroup.temperature && temp) lastGroup.temperature = temp;
+                        if (!lastGroup.bpm && bpm) lastGroup.bpm = bpm;
+                        if (!lastGroup.pressure && pressure) lastGroup.pressure = pressure;
+                        if (!lastGroup.spo2 && spo2) lastGroup.spo2 = spo2;
+                        addedToGroup = true;
+                    }
+                }
+
+                if (!addedToGroup) {
+                    groupedList.push({ key: item.key, createdAt: itemDateStr, temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2 });
+                }
             });
 
-            // 3. العرض
             groupedList.forEach(data => {
                 const temp = data.temperature || "--";
                 const bpm = data.bpm || "--";
@@ -366,39 +386,46 @@
                 const spo2 = data.spo2 || "--";
                 const date = data.createdAt;
 
-                // Push to global records for QR/Print
-                records.push({ temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2, createdAt: date });
-                
-                const row = `
-                    <tr>
-                        <td>${date}</td>
-                        <td>${temp}</td>
-                        <td>${bpm}</td>
-                        <td>${spo2}</td>
-                        <td>${pressure}</td>
-                        <td class="action-cell">
-                            <button class="delete-btn" onclick="deleteRecord('${data.key}')" title="Delete">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
+                if(temp !== "--" || bpm !== "--" || pressure !== "--" || spo2 !== "--") {
+                    records.push({ temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2, createdAt: date });
+                    const row = `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${temp}</td>
+                            <td>${bpm}</td>
+                            <td>${spo2}</td>
+                            <td>${pressure}</td>
+                            <td class="action-cell">
+                                <button class="delete-btn" onclick="askToDelete('${data.key}')" title="Delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                }
             });
             
             if(records.length === 0) empty.style.display = "block";
-
         } else {
             loading.style.display = "none";
             empty.style.display = "block";
         }
     });
 
-    // --- DELETE FUNCTION ---
-    function deleteRecord(key) {
-        const confirmMsg = lang === "ar" ? "هل أنت متأكد من حذف هذا السجل؟" : "Are you sure you want to delete this record?";
-        if(confirm(confirmMsg)) {
-            db.ref(`${PATIENT_DATA_PATH}/${currentUserId}/History/${key}`).remove()
+    // --- CUSTOM DELETE MODAL LOGIC ---
+    let recordToDelete = null;
+
+    function askToDelete(key) {
+        recordToDelete = key;
+        const modal = document.getElementById("deleteModal");
+        modal.style.display = "flex";
+        setTimeout(() => modal.classList.add("active"), 10);
+    }
+
+    function confirmDelete() {
+        if(recordToDelete) {
+            db.ref(`${PATIENT_DATA_PATH}/${currentUserId}/History/${recordToDelete}`).remove()
             .then(() => {
                 showToast(lang === "ar" ? "تم الحذف بنجاح" : "Record deleted", "success");
             })
@@ -407,6 +434,14 @@
                 showToast("Error deleting", "error");
             });
         }
+        closeDeleteModal();
+    }
+
+    function closeDeleteModal() {
+        recordToDelete = null;
+        const modal = document.getElementById("deleteModal");
+        modal.classList.remove("active");
+        setTimeout(() => { modal.style.display = "none"; }, 300);
     }
 
     // --- QR CODE LOGIC ---
@@ -415,7 +450,6 @@
             showToast(lang === "ar" ? "لا توجد بيانات!" : "No data available!", "error");
             return;
         }
-
         const modal = document.getElementById("qrModal");
         modal.style.display = "flex"; 
         void modal.offsetWidth; 
@@ -423,7 +457,6 @@
 
         const qrContainer = document.getElementById("qrcode");
         qrContainer.innerHTML = "";
-
         const latest = records[0];
         
         const qrData = `ID:${currentUserId}
@@ -434,33 +467,21 @@ BP:${latest.pressure}
 O2:${latest.spo2}`;
 
         setTimeout(() => {
-            try {
-                new QRCode(qrContainer, {
-                    text: qrData,
-                    width: 150,
-                    height: 150,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.L 
-                });
-            } catch (e) {
-                console.error("QR Error:", e);
-                qrContainer.innerHTML = "<p style='color:red'>Error generating code</p>";
-            }
-        }, 300); 
+            new QRCode(qrContainer, {
+                text: qrData, width: 150, height: 150, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.L
+            });
+        }, 300);
     }
 
     function closeQR() {
         const modal = document.getElementById("qrModal");
         modal.classList.remove("active");
-        
         setTimeout(() => {
             modal.style.display = "none";
             document.getElementById("qrcode").innerHTML = ""; 
-        }, 300); 
+        }, 300);
     }
 
-    // --- WHATSAPP LOGIC ---
     function sendHistoryToWhatsApp() {
         if (records.length === 0) {
             showToast(lang === "ar" ? "لا توجد بيانات!" : "No records!", "error");
@@ -468,14 +489,12 @@ O2:${latest.spo2}`;
         }
         let phone = currentUserId;
         if (phone.startsWith('0')) phone = '20' + phone.substring(1);
-
         let report = lang === "ar" ? `📄 *تقرير السجل الطبي*%0A` : `📄 *Medical History Report*%0A`;
         report += `👤 ID: ${currentUserId}%0A📅 ${new Date().toLocaleDateString()}%0A-----------------%0A`;
-
         const limit = Math.min(records.length, 5); 
         for(let i = 0; i < limit; i++) {
             const r = records[i];
-            report += `⏰ ${r.createdAt}%0A🌡️ ${r.temperature || '--'}°C | ❤️ ${r.bpm || '--'} bpm%0A🫁 ${r.spo2}% | 🩸 ${r.pressure || '--'}%0A-----------------%0A`;
+            report += `⏰ ${r.createdAt}%0A🌡️ ${r.temperature || '--'}°C | ❤️ ${r.bpm || '--'} bpm%0A🫁 ${r.spo2 || '--'}% | 🩸 ${r.pressure || '--'}%0A-----------------%0A`;
         }
         window.open(`https://wa.me/${phone}?text=${report}`, '_blank');
     }
