@@ -11,7 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
-    /* --- Styles (نفس التصميم الأصلي) --- */
+    /* --- SCREEN STYLES (DARK MODE) --- */
     :root {
       --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       --glass-bg: rgba(255, 255, 255, 0.1);
@@ -20,6 +20,7 @@
       --primary-color: #00d2ff;
       --whatsapp-color: #25D366;
       --qr-color: #8e44ad;
+      --delete-color: #ff416c;
     }
 
     body {
@@ -76,6 +77,21 @@
     th { background: rgba(0, 210, 255, 0.2); color: var(--primary-color); position: sticky; top: 0; backdrop-filter: blur(5px); }
     tr:hover { background: rgba(255,255,255,0.05); }
 
+    /* Delete Button Style */
+    .delete-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: 0.3s;
+      padding: 5px;
+    }
+    .delete-btn:hover {
+      color: var(--delete-color);
+      transform: scale(1.2);
+    }
+
     .status-msg { margin-top: 50px; font-size: 1.2rem; color: #aaa; text-align: center; }
 
     #printHeader, #printFooter { display: none; }
@@ -108,7 +124,7 @@
     @media print {
       @page { size: A4; margin: 10mm; }
       body { background: white !important; color: #333 !important; display: block !important; padding: 0 !important; font-family: 'Helvetica', sans-serif !important; }
-      .screen-header, .back-btn, .whatsapp-btn, .print-btn, .qr-btn, ::-webkit-scrollbar, .toast-container, .modal-overlay { display: none !important; }
+      .screen-header, .back-btn, .whatsapp-btn, .print-btn, .qr-btn, ::-webkit-scrollbar, .toast-container, .modal-overlay, .delete-btn, th:last-child, td:last-child { display: none !important; } /* Hide Delete & Last Column */
       #printHeader { display: flex !important; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #00d2ff; }
       .report-info { text-align: left; font-size: 14px; line-height: 1.8; }
       .report-title { text-align: right; }
@@ -190,7 +206,7 @@
           <th id="th-pulse">Pulse (BPM)</th>
           <th id="th-spo2">Oxygen (%)</th>
           <th id="th-bp">Pressure</th>
-        </tr>
+          <th id="th-action" style="width: 50px;"></th> </tr>
       </thead>
       <tbody id="tableBody">
         </tbody>
@@ -244,11 +260,15 @@
         document.getElementById("pageTitle").innerText = "السجل الطبي";
         document.querySelector(".back-btn i").className = "fas fa-arrow-right";
         document.querySelector(".qr-btn span").innerText = "كود الطبيب";
+        
         document.getElementById("th-date").innerText = "الوقت / التاريخ";
         document.getElementById("th-temp").innerText = "الحرارة";
         document.getElementById("th-pulse").innerText = "النبض";
         document.getElementById("th-bp").innerText = "الضغط";
         document.getElementById("th-spo2").innerText = "الأكسجين";
+        // Header for delete column
+        document.getElementById("th-action").innerHTML = '<i class="fas fa-trash-alt"></i>';
+
         document.getElementById("loadingMsg").innerText = "جاري تحميل البيانات...";
         document.getElementById("emptyMsg").innerText = "لا توجد سجلات سابقة.";
         
@@ -260,6 +280,9 @@
             <strong>المصدر:</strong> تم الإنشاء بواسطة نظام Bioscan ATM
         `;
         document.getElementById("printFooter").innerText = "تنويه: هذا التقرير تم إنشاؤه آلياً بواسطة المستشعرات. يرجى مراجعة الطبيب للتشخيص الرسمي.";
+    } else {
+        // English header icon
+        document.getElementById("th-action").innerHTML = '<i class="fas fa-trash-alt"></i>';
     }
 
     function extractSensorValues(sensorString) {
@@ -297,23 +320,20 @@
             loading.style.display = "none";
             empty.style.display = "none";
             
-            // 1. جلب البيانات الخام
+            // 1. جلب البيانات مع المفتاح (للحذف)
             snapshot.forEach(child => { 
-                rawList.push(child.val()); 
+                rawList.push({ key: child.key, ...child.val() }); 
             });
             // عكس الترتيب (الأحدث أولاً)
             rawList.reverse();
 
-            // 2. منطق التجميع (Grouping Logic)
-            // سنقوم بدمج السجلات التي لها نفس التوقيت (فرق أقل من دقيقتين)
+            // 2. منطق التجميع
             const groupedList = [];
             
             rawList.forEach(item => {
-                // استخراج التاريخ
                 let itemDateStr = item.createdAt || item.Timestamp || "N/A";
                 let itemDate = new Date(itemDateStr);
                 
-                // استخراج القيم من هذا العنصر (سواء كانت نص أو مفاتيح منفصلة)
                 let temp = item.temperature;
                 let bpm = item.bpm;
                 let pressure = item.pressure;
@@ -327,38 +347,18 @@
                     if(parsed.spo2) spo2 = parsed.spo2;
                 }
 
-                // محاولة الدمج مع آخر مجموعة تمت إضافتها
-                let addedToGroup = false;
-                
-                if (groupedList.length > 0 && !isNaN(itemDate.getTime())) {
-                    const lastGroup = groupedList[groupedList.length - 1];
-                    const lastDate = new Date(lastGroup.createdAt);
-                    
-                    // إذا كان الفرق أقل من دقيقتين (120000 مللي ثانية) نعتبرها نفس الجلسة
-                    const diffMs = Math.abs(lastDate - itemDate);
-                    if (diffMs < 120000) {
-                        // دمج البيانات الناقصة فقط
-                        if (!lastGroup.temperature && temp) lastGroup.temperature = temp;
-                        if (!lastGroup.bpm && bpm) lastGroup.bpm = bpm;
-                        if (!lastGroup.pressure && pressure) lastGroup.pressure = pressure;
-                        if (!lastGroup.spo2 && spo2) lastGroup.spo2 = spo2;
-                        addedToGroup = true;
-                    }
-                }
-
-                // إذا لم يتم الدمج، أنشئ مجموعة جديدة
-                if (!addedToGroup) {
-                    groupedList.push({
-                        createdAt: itemDateStr,
-                        temperature: temp,
-                        bpm: bpm,
-                        pressure: pressure,
-                        spo2: spo2
-                    });
-                }
+                // إضافة للسجل (نستخدم المفتاح الأصلي للحذف)
+                groupedList.push({
+                    key: item.key, // Save Firebase Key
+                    createdAt: itemDateStr,
+                    temperature: temp,
+                    bpm: bpm,
+                    pressure: pressure,
+                    spo2: spo2
+                });
             });
 
-            // 3. عرض البيانات المجمعة
+            // 3. العرض
             groupedList.forEach(data => {
                 const temp = data.temperature || "--";
                 const bpm = data.bpm || "--";
@@ -366,7 +366,7 @@
                 const spo2 = data.spo2 || "--";
                 const date = data.createdAt;
 
-                // إضافة للسجل العالمي (للطباعة والـ QR)
+                // Push to global records for QR/Print
                 records.push({ temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2, createdAt: date });
                 
                 const row = `
@@ -376,6 +376,11 @@
                         <td>${bpm}</td>
                         <td>${spo2}</td>
                         <td>${pressure}</td>
+                        <td class="action-cell">
+                            <button class="delete-btn" onclick="deleteRecord('${data.key}')" title="Delete">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
                     </tr>
                 `;
                 tbody.innerHTML += row;
@@ -389,7 +394,22 @@
         }
     });
 
-    // --- FIXED QR CODE LOGIC ---
+    // --- DELETE FUNCTION ---
+    function deleteRecord(key) {
+        const confirmMsg = lang === "ar" ? "هل أنت متأكد من حذف هذا السجل؟" : "Are you sure you want to delete this record?";
+        if(confirm(confirmMsg)) {
+            db.ref(`${PATIENT_DATA_PATH}/${currentUserId}/History/${key}`).remove()
+            .then(() => {
+                showToast(lang === "ar" ? "تم الحذف بنجاح" : "Record deleted", "success");
+            })
+            .catch(error => {
+                console.error(error);
+                showToast("Error deleting", "error");
+            });
+        }
+    }
+
+    // --- QR CODE LOGIC ---
     function generateQR() {
         if(records.length === 0) {
             showToast(lang === "ar" ? "لا توجد بيانات!" : "No data available!", "error");
@@ -397,17 +417,15 @@
         }
 
         const modal = document.getElementById("qrModal");
-        modal.style.display = "flex"; // إظهار الحاوية أولاً
-        // Force reflow
+        modal.style.display = "flex"; 
         void modal.offsetWidth; 
         modal.classList.add("active");
 
         const qrContainer = document.getElementById("qrcode");
-        qrContainer.innerHTML = ""; // مسح القديم
+        qrContainer.innerHTML = "";
 
         const latest = records[0];
         
-        // تبسيط البيانات للكود
         const qrData = `ID:${currentUserId}
 D:${latest.createdAt.split(',')[0]}
 T:${latest.temperature}
@@ -415,33 +433,31 @@ HR:${latest.bpm}
 BP:${latest.pressure}
 O2:${latest.spo2}`;
 
-        // تأخير بسيط للتأكد من أن العنصر مرئي قبل الرسم
         setTimeout(() => {
             try {
                 new QRCode(qrContainer, {
                     text: qrData,
-                    width: 150, // حجم مناسب
+                    width: 150,
                     height: 150,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.L // مستوى تصحيح منخفض لتقليل التعقيد
+                    correctLevel : QRCode.CorrectLevel.L 
                 });
             } catch (e) {
                 console.error("QR Error:", e);
                 qrContainer.innerHTML = "<p style='color:red'>Error generating code</p>";
             }
-        }, 300); // زيادة الوقت قليلاً
+        }, 300); 
     }
 
     function closeQR() {
         const modal = document.getElementById("qrModal");
         modal.classList.remove("active");
         
-        // إخفاء الـ display بعد انتهاء الأنميشن
         setTimeout(() => {
             modal.style.display = "none";
-            document.getElementById("qrcode").innerHTML = ""; // تنظيف
-        }, 300); // نفس مدة الـ transition في الـ CSS
+            document.getElementById("qrcode").innerHTML = ""; 
+        }, 300); 
     }
 
     // --- WHATSAPP LOGIC ---
@@ -459,7 +475,7 @@ O2:${latest.spo2}`;
         const limit = Math.min(records.length, 5); 
         for(let i = 0; i < limit; i++) {
             const r = records[i];
-            report += `⏰ ${r.createdAt}%0A🌡️ ${r.temperature}°C | ❤️ ${r.bpm} bpm%0A🫁 ${r.spo2}% | 🩸 ${r.pressure}%0A-----------------%0A`;
+            report += `⏰ ${r.createdAt}%0A🌡️ ${r.temperature || '--'}°C | ❤️ ${r.bpm || '--'} bpm%0A🫁 ${r.spo2}% | 🩸 ${r.pressure || '--'}%0A-----------------%0A`;
         }
         window.open(`https://wa.me/${phone}?text=${report}`, '_blank');
     }
