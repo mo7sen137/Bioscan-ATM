@@ -5,12 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bioscan | Blood Pressure</title>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
+  /* --- CSS Styles (نفس التصميم الأصلي) --- */
   :root {
-    --primary-color: #6a11cb; /* Indigo/Purple (Distinct from Oxygen) */
+    --primary-color: #6a11cb; /* Indigo/Purple */
     --danger-color: #ff0000;
     --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     --glass-bg: rgba(255, 255, 255, 0.1);
@@ -51,7 +56,7 @@
     animation: sos-flash 1s infinite;
     border: 2px solid red !important;
   }
-  
+   
   .critical-bg {
     background: radial-gradient(circle, #3a0000, #000) !important;
   }
@@ -88,7 +93,6 @@
   .icon-container { margin-bottom: 20px; }
   .icon-container i {
     font-size: 5rem;
-    /* Purple Gradient */
     background: -webkit-linear-gradient(#2575fc, #6a11cb); 
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
     filter: drop-shadow(0 0 10px rgba(106, 17, 203, 0.5)); 
@@ -114,12 +118,16 @@
   }
   @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
 
-  .actions-row { display: flex; gap: 10px; justify-content: center; }
-  .advice-btn, .voice-btn { padding: 12px 20px; border-radius: 50px; border: none; cursor: pointer; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-  
+  .actions-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .advice-btn, .voice-btn, .save-btn { padding: 12px 20px; border-radius: 50px; border: none; cursor: pointer; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+   
   .advice-btn { flex: 2; background: linear-gradient(45deg, #6a11cb, #2575fc); color: white; box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4); }
+  
+  /* زر الحفظ الجديد */
+  .save-btn { flex: 2; background: linear-gradient(45deg, #11998e, #38ef7d); color: white; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4); }
+
   .voice-btn { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid var(--primary-color); color: var(--primary-color); }
-  .advice-btn:hover, .voice-btn:hover { transform: translateY(-3px); }
+  .advice-btn:hover, .voice-btn:hover, .save-btn:hover { transform: translateY(-3px); }
   .voice-btn:hover { background: var(--primary-color); color: white; }
 
   .advice-box { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 15px; margin-top: 20px; display: none; font-size: 1.1rem; color: #fff; border-left: 4px solid var(--primary-color); animation: slideDown 0.5s ease; }
@@ -140,7 +148,7 @@
 </header>
 
 <div class="container">
-  
+   
   <div id="sosBanner" class="sos-banner">
     <i class="fas fa-exclamation-triangle"></i> CRITICAL ALERT
   </div>
@@ -162,6 +170,10 @@
     </ul>
 
     <div class="actions-row">
+      <button class="save-btn" id="saveBtn" onclick="saveMeasurement()">
+        <i class="fas fa-save"></i> <span id="saveBtnText">Save</span>
+      </button>
+
       <button class="advice-btn" id="adviceBtn" onclick="showAdvice()">
         <i class="fas fa-user-md"></i> <span id="btnText">Medical Advice</span>
       </button>
@@ -174,22 +186,22 @@
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script>
+  // --- 1. Firebase Config ---
   const firebaseConfig = {
     apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
     authDomain: "smart-a76a0.firebaseapp.com",
     databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
     projectId: "smart-a76a0",
-    storageBucket: "smart-a76a0.firebasestorage.app",
     messagingSenderId: "343693501983",
     appId: "1:343693501983:web:10ea3fce9d990a2455172a"
   };
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
+  const auth = firebase.auth();
+
+  auth.signInAnonymously().catch(console.error);
 
   const pressureBox = document.getElementById("pressureValue");
   const adviceBox = document.getElementById("adviceBox");
@@ -197,37 +209,59 @@
   const mainCard = document.getElementById("mainCard");
   const alarmSound = document.getElementById("alarmSound");
   const userId = localStorage.getItem("selectedUserId");
+  const PATIENT_DATA_PATH = "PatientData";
 
   let isCritical = false;
 
-  if (!userId) {
-    pressureBox.innerText = "--";
-    adviceBox.style.display = "block";
-    adviceBox.innerText = "User not registered!";
-    adviceBox.style.borderLeftColor = "#ff0000";
-  } else {
-    const userRef = db.ref("current users/" + userId);
-    userRef.limitToLast(1).on("value", (snapshot) => {
-      if (snapshot.exists()) {
-        snapshot.forEach((childSnap) => {
-          const data = childSnap.val();
-          if (data.pressure) {
-            pressureBox.innerText = data.pressure;
-            
-            // Flash Effect (Matched to Purple Theme)
-            document.querySelector('.pressure-box').style.borderColor = "#6a11cb";
-            document.querySelector('.pressure-box').style.boxShadow = "0 0 20px rgba(106, 17, 203, 0.4)";
+  // --- 2. Live Reading Logic (Placeholder/Optional) ---
+  // يمكن وضع كود قراءة الحساس هنا مستقبلاً
+  // حالياً القيم تأتي من أزرار التجربة في الأسفل
 
-            // Check for SOS condition
-            let val = parseFloat(data.pressure);
-            if (val > 160 || val < 80) {
-              triggerSOS();
-            } else {
-              clearSOS();
-            }
-          }
+  // --- 3. Save Function ---
+  function saveMeasurement() {
+    const val = pressureBox.innerText;
+    
+    if (val === "--" || val === "") {
+        alert(localStorage.getItem("language") === "ar" ? "لا توجد قراءة لحفظها!" : "No reading to save!");
+        return;
+    }
+
+    if (!userId) {
+        alert("Error: User not logged in.");
+        window.location.href = "index.html";
+        return;
+    }
+
+    const timestamp = new Date().toLocaleString();
+
+    // أ. حفظ في History
+    db.ref(`${PATIENT_DATA_PATH}/${userId}/History`).push({
+        pressure: val,
+        createdAt: timestamp
+    });
+
+    // ب. تحديث SensorData في الداشبورد
+    db.ref(`${PATIENT_DATA_PATH}/${userId}/SensorData`).once('value').then(snapshot => {
+        let currentStr = snapshot.val() || "";
+        
+        // استبدال أو إضافة BP
+        if (currentStr.includes("BP=")) {
+            currentStr = currentStr.replace(/BP=[^,]+/, `BP=${val}`);
+        } else if (currentStr === "No measurement recorded yet") {
+            currentStr = `BP=${val}`;
+        } else {
+            currentStr = currentStr ? `${currentStr}, BP=${val}` : `BP=${val}`;
+        }
+
+        db.ref(`${PATIENT_DATA_PATH}/${userId}`).update({
+            SensorData: currentStr,
+            Timestamp: timestamp
+        }).then(() => {
+            alert(localStorage.getItem("language") === "ar" ? "تم حفظ القياس بنجاح!" : "Measurement saved successfully!");
+        }).catch(error => {
+            console.error("Save Error:", error);
+            alert("Error saving data.");
         });
-      }
     });
   }
 
@@ -286,7 +320,10 @@
     const lang = localStorage.getItem("language") || "en";
     let txt = "";
     
-    if(isCritical) {
+    if (pressureBox.innerText === "--") {
+       txt = lang === "ar" ? "لا توجد بيانات." : "No data available.";
+       adviceBox.style.borderLeftColor = "#ccc";
+    } else if(isCritical) {
        txt = lang === "ar" ? "🚨 حالة طوارئ! توجه للمستشفى فوراً." : "🚨 EMERGENCY! Go to hospital immediately.";
        adviceBox.style.borderLeftColor = "#ff0000";
     } else if (pressure >= 90 && pressure <= 120) {
@@ -320,6 +357,7 @@
       <li><i class="fas fa-hand-holding-heart"></i> ارح ذراعك.</li>
     `;
     document.getElementById("btnText").innerText = "النصيحة الطبية";
+    document.getElementById("saveBtnText").innerText = "حفظ القياس";
   }
 </script>
 
@@ -333,7 +371,6 @@
 </div>
 
 <script>
-  // Uncomment these functions to use the buttons
   function testCritical() {
     document.getElementById("pressureValue").innerText = "180";
     triggerSOS(); 
