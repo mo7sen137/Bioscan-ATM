@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-  /* Theme Color: Purple */
+  /* --- CSS Styles (Theme: Purple) --- */
   :root { --primary-color: #6a11cb; --danger-color: #ff0000; --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-color: #ffffff; }
   body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; transition: background 0.5s; }
   @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -44,7 +44,7 @@
   .advice-box { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 15px; margin-top: 20px; display: none; font-size: 1.1rem; color: #fff; border-left: 4px solid var(--primary-color); animation: slideDown 0.5s ease; }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* New Modal Styles */
+  /* Modal Styles */
   .confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 5000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
   .confirm-modal.active { display: flex; opacity: 1; }
   .confirm-content { background: linear-gradient(145deg, #152229, #1c2e36); border: 2px solid var(--primary-color); border-radius: 25px; width: 90%; max-width: 400px; padding: 30px; text-align: center; box-shadow: 0 0 50px rgba(106, 17, 203, 0.3); transform: scale(0.8); transition: transform 0.3s ease; }
@@ -146,19 +146,29 @@
     });
   }
 
+  // --- Save with Session ID ---
   function saveMeasurement() {
     const val = pressureBox.innerText;
-    const isAr = localStorage.getItem("language") === "ar";
     if (val === "--" || val === "") return;
     if (!userId) { window.location.href = "index.html"; return; }
     
+    let sessionId = localStorage.getItem("currentSessionId");
+    if (!sessionId) { sessionId = Date.now().toString(); localStorage.setItem("currentSessionId", sessionId); }
+
     const timestamp = new Date().toLocaleString();
-    db.ref(`${PATIENT_DATA_PATH}/${userId}/History`).push({ pressure: val, createdAt: timestamp });
+    
+    // التحديث في نفس رقم الجلسة
+    db.ref(`${PATIENT_DATA_PATH}/${userId}/History/${sessionId}`).update({
+        pressure: val,
+        createdAt: timestamp
+    });
+    
     db.ref(`${PATIENT_DATA_PATH}/${userId}/SensorData`).once('value').then(snapshot => {
         let currentStr = snapshot.val() || "";
         if (currentStr.includes("BP=")) currentStr = currentStr.replace(/BP=[^,]+/, `BP=${val}`);
         else if (currentStr === "No measurement recorded yet") currentStr = `BP=${val}`;
         else currentStr = currentStr ? `${currentStr}, BP=${val}` : `BP=${val}`;
+        
         db.ref(`${PATIENT_DATA_PATH}/${userId}`).update({ SensorData: currentStr, Timestamp: timestamp })
           .then(() => showConfirmModal());
     });
