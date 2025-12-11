@@ -4,36 +4,49 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bioscan | Pulse Rate</title>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 <style>
-  /* Theme Color: Red/Pink */
-  :root { --primary-color: #ff416c; --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-color: #ffffff; }
+  /* --- CSS Styles (Theme: Red/Pink) --- */
+  :root { --primary-color: #ff416c; --danger-color: #ff0000; --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-color: #ffffff; }
   body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; transition: background 0.5s; }
   @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  
+  /* SOS Animation */
   @keyframes sos-flash { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); border-color: red; } 50% { box-shadow: 0 0 50px 20px rgba(255, 0, 0, 0.5); border-color: #ff4d4d; background: rgba(50, 0, 0, 0.6); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); border-color: red; } }
   .critical-state { animation: sos-flash 1s infinite; border: 2px solid red !important; }
   .critical-bg { background: radial-gradient(circle, #3a0000, #000) !important; }
+
+  /* Header & Containers */
   header { width: 100%; background: rgba(15, 32, 39, 0.9); backdrop-filter: blur(10px); padding: 15px 0; display: flex; justify-content: center; align-items: center; position: relative; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); z-index: 100; }
   header h1 { font-size: 1.4rem; margin: 0; font-weight: 600; letter-spacing: 1px; color: var(--primary-color); text-transform: uppercase; pointer-events: none; }
   .back-btn { position: absolute; left: 20px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--primary-color); color: white; padding: 8px 15px; border-radius: 50px; cursor: pointer; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 5px; z-index: 1000; }
-  .back-btn:hover { background: var(--primary-color); color: #fff; }
+  .back-btn:hover { background: var(--primary-color); color: #fff; box-shadow: 0 0 15px rgba(255, 65, 108, 0.5); }
   .container { display: flex; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; }
   .card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 40px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: 0.3s; }
+  
   .sos-banner { display: none; background: red; color: white; font-weight: bold; padding: 10px; border-radius: 10px; margin-bottom: 15px; animation: blink 0.5s infinite alternate; }
   @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
+
   .icon-container { margin-bottom: 20px; }
   .icon-container i { font-size: 5rem; background: -webkit-linear-gradient(#ff4b2b, #ff416c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(255, 65, 108, 0.5)); animation: heartbeat 1.5s ease-in-out infinite; }
   @keyframes heartbeat { 0% { transform: scale(1); } 15% { transform: scale(1.3); } 30% { transform: scale(1); } 45% { transform: scale(1.15); } 60% { transform: scale(1); } }
+  
   .pulse-box { background: rgba(0, 0, 0, 0.3); border-radius: 15px; padding: 20px; margin: 20px 0; border: 1px solid rgba(255, 65, 108, 0.3); }
   #pulseValue { font-size: 3rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--primary-color); }
   .unit { font-size: 1.5rem; color: var(--primary-color); }
+  
   .instructions-list { list-style: none; padding: 0; text-align: left; margin-bottom: 30px; }
   .instructions-list li { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #e0e0e0; }
   .instructions-list li i { color: var(--primary-color); width: 25px; text-align: center; }
+  
+  /* Buttons */
   .actions-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .advice-btn, .voice-btn, .save-btn { padding: 12px 20px; border-radius: 50px; border: none; cursor: pointer; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .advice-btn { flex: 2; background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4); }
@@ -41,10 +54,11 @@
   .voice-btn { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid var(--primary-color); color: var(--primary-color); }
   .advice-btn:hover, .voice-btn:hover, .save-btn:hover { transform: translateY(-3px); }
   .voice-btn:hover { background: var(--primary-color); color: white; }
+  
   .advice-box { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 15px; margin-top: 20px; display: none; font-size: 1.1rem; color: #fff; border-left: 4px solid var(--primary-color); animation: slideDown 0.5s ease; }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* New Modal Styles */
+  /* Modal Styles */
   .confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 5000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
   .confirm-modal.active { display: flex; opacity: 1; }
   .confirm-content { background: linear-gradient(145deg, #152229, #1c2e36); border: 2px solid var(--primary-color); border-radius: 25px; width: 90%; max-width: 400px; padding: 30px; text-align: center; box-shadow: 0 0 50px rgba(255, 65, 108, 0.3); transform: scale(0.8); transition: transform 0.3s ease; }
@@ -105,6 +119,7 @@
 </div>
 
 <script>
+  // --- 1. Config ---
   const firebaseConfig = {
     apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
     authDomain: "smart-a76a0.firebaseapp.com",
@@ -127,6 +142,7 @@
   const PATIENT_DATA_PATH = "PatientData";
   let isCritical = false;
 
+  // --- 2. Live Reading ---
   if (userId) {
     db.ref(PATIENT_DATA_PATH + "/" + userId + "/SensorData").on("value", snapshot => {
        const str = snapshot.val() || "";
@@ -145,14 +161,24 @@
     });
   }
 
+  // --- 3. Save Function (Updated for Session) ---
   function saveMeasurement() {
     const val = pulseBox.innerText;
-    const isAr = localStorage.getItem("language") === "ar";
     if (val === "--" || val === "") return;
     if (!userId) { window.location.href = "index.html"; return; }
     
+    // جلب رقم الجلسة الموحد
+    let sessionId = localStorage.getItem("currentSessionId");
+    if (!sessionId) { sessionId = Date.now().toString(); localStorage.setItem("currentSessionId", sessionId); }
+
     const timestamp = new Date().toLocaleString();
-    db.ref(`${PATIENT_DATA_PATH}/${userId}/History`).push({ bpm: val, createdAt: timestamp });
+    
+    // تحديث الجلسة الحالية
+    db.ref(`${PATIENT_DATA_PATH}/${userId}/History/${sessionId}`).update({
+        bpm: val,
+        createdAt: timestamp
+    });
+    
     db.ref(`${PATIENT_DATA_PATH}/${userId}/SensorData`).once('value').then(snapshot => {
         let currentStr = snapshot.val() || "";
         if (currentStr.includes("HR=")) currentStr = currentStr.replace(/HR=[^,]+/, `HR=${val}`);
@@ -164,6 +190,7 @@
     });
   }
 
+  // --- Helpers ---
   function showConfirmModal() {
       const isAr = localStorage.getItem("language") === "ar";
       document.getElementById("modalTitle").innerText = isAr ? "تم بنجاح!" : "Success!";
@@ -185,7 +212,7 @@
   function speakResult() {
     let bpm = parseInt(pulseBox.innerText);
     const lang = localStorage.getItem("language") || "en";
-    let text = (lang === "ar") ? `نبضك ${bpm}` : `Your pulse is ${bpm}`;
+    let text = (lang === "ar") ? `نبضك ${bpm} دقة في الدقيقة` : `Your heart rate is ${bpm} beats per minute`;
     if(!isNaN(bpm)) window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
   }
 
