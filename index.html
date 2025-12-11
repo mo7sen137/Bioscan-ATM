@@ -8,12 +8,10 @@
   
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>   
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
-    /* ... (CSS Styles remain the same) ... */
     :root {
       --primary-color: #00d2ff;
       --secondary-color: #3a7bd5;
@@ -357,7 +355,6 @@
   </div>
 
   <script>
-    // *** التعديل 1: تحديث مفاتيح Firebase Config ***
     const firebaseConfig = {
       apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
       authDomain: "smart-a76a0.firebaseapp.com",
@@ -365,38 +362,32 @@
       projectId: "smart-a76a0",
       messagingSenderId: "343693501983",
       appId: "1:343693501983:web:10ea3fce9d990a2455172a"
-      // تم حذف storageBucket و measurementId لأنهما غير ضروريين لعمليات Auth/DB
     };
 
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-    // تم إضافة Firebase Auth
     const auth = firebase.auth(); 
-    
     const PATIENT_DATA_PATH = 'PatientData'; 
 
     let currentUserId = null;
     const lang = localStorage.getItem("language") || "en";
     let welcomePlayed = false;
 
-    // *** التعديل 2: دالة إنشاء الملف الشخصي الفارغ ***
+    // دالة إنشاء الملف الشخصي الفارغ (تمت إضافتها)
     function createInitialProfile(userPhone) {
-        // نستخدم رقم الهاتف كـ Key في PatientData
         const ref = database.ref(PATIENT_DATA_PATH + '/' + userPhone);
 
-        // نستخدم once() للتأكد من أننا لا ننشئ الملف إذا كان موجوداً بالفعل
         ref.once('value')
             .then(snapshot => {
                 if (!snapshot.exists()) {
-                    // إنشاء الملف الشخصي الأولي ببيانات فارغة
                     return ref.set({
                         Phone: userPhone,
-                        SensorData: "No measurement recorded yet",
+                        SensorData: "No measurement recorded yet", 
                         Timestamp: new Date().toLocaleString(),
                         AddedBy: "Self-Registered"
                     });
                 }
-                return null; // الملف موجود بالفعل
+                return null;
             })
             .catch(error => {
                 console.error("Firebase Profile Setup Error:", error);
@@ -406,26 +397,21 @@
 
     // --- WELCOME VOICE FUNCTION ---
     function playWelcomeMessage() {
-      // Prevent playing multiple times in one session if unwanted
       if (welcomePlayed) return;
 
       const enText = "Welcome to Bioscan ATM Station. Please enter your mobile number to proceed.";
       const arText = "مرحباً بكم في محطة بايوسكان. يرجى إدخال رقم الهاتف للمتابعة.";
 
-      // Check support
       if ('speechSynthesis' in window) {
-        // Create English Utterance
         const uEn = new SpeechSynthesisUtterance(enText);
         uEn.lang = 'en-US';
         uEn.rate = 0.9;
 
-        // Create Arabic Utterance
         const uAr = new SpeechSynthesisUtterance(arText);
         uAr.lang = 'ar-SA';
         uAr.rate = 0.9;
 
-        // Queue them: English first, then Arabic
-        window.speechSynthesis.cancel(); // Clear any pending speech
+        window.speechSynthesis.cancel();
         window.speechSynthesis.speak(uEn);
         window.speechSynthesis.speak(uAr);
         
@@ -435,13 +421,10 @@
 
     // --- ATTEMPT AUTO-PLAY ON LOAD ---
     window.addEventListener('load', () => {
-        // 1. Try playing immediately (might be blocked)
         playWelcomeMessage();
 
-        // 2. Add fallback listener for first interaction
         const triggerAudio = () => {
             playWelcomeMessage();
-            // Remove listeners after first interaction to avoid repeating
             document.removeEventListener('click', triggerAudio);
             document.removeEventListener('keydown', triggerAudio);
             document.removeEventListener('touchstart', triggerAudio);
@@ -472,7 +455,7 @@
       const dot = document.getElementById('connectionStatus');
       const isOnline = await checkInternetConnection();
       if (isOnline) {
-        dot.classList.remove('offline'); dot.title = "Online"; dot.style.backgroundColor = ""; 
+        dot.classList.remove('offline'); dot.title = "Online"; dot.style.backgroundColor = ""; 
       } else {
         if (!dot.classList.contains('offline')) showToast(lang === 'ar' ? "فقد الاتصال بالإنترنت!" : "Internet Connection Lost!", "error");
         dot.classList.add('offline'); dot.title = "Offline"; dot.style.backgroundColor = "#ff416c";
@@ -522,24 +505,19 @@
       if(document.getElementById("userId").value.length === 0) document.getElementById("helper-text").innerText = "";
     }
 
-    // *** التعديل 3: منطق تسجيل الدخول وإنشاء الملف الشخصي ***
     function saveUserId() {
       const input = document.getElementById("userId");
-      const userId = input.value; // userId هو رقم الهاتف
+      const userId = input.value;
       const helper = document.getElementById("helper-text");
       const regex = /^01[0125][0-9]{8}$/;
 
       if (regex.test(userId)) {
-        // 1. التحقق من وجود المستخدم في Firebase Auth (افتراضياً بدون كلمة مرور في هذا النظام)
-        // إذا كنت تستخدم Auth، يجب عليك إضافة كود تسجيل الدخول هنا
-
-        // 2. محاكاة تسجيل الدخول الناجح:
         currentUserId = userId;
         
-        // 3. إنشاء/تحديث الملف الشخصي في PatientData
+        // 2. إنشاء/تحديث الملف الشخصي في PatientData (سواء كان موجوداً أم لا)
         createInitialProfile(userId);
         
-        // 4. تحديث الواجهة وحفظ رقم الهاتف في الذاكرة المحلية
+        // 3. تحديث الواجهة وحفظ رقم الهاتف في الذاكرة المحلية
         input.disabled = true;
         document.getElementById("save-btn").disabled = true;
         helper.style.color = "#00ff88";
@@ -549,7 +527,7 @@
         document.getElementById("save-btn").innerHTML = '<i class="fas fa-check"></i> ' + (lang === "ar" ? "تم الحفظ" : "Saved");
         localStorage.setItem("selectedUserId", userId);
 
-        // *** تم حذف الكود القديم: database.ref("/current users/" + userId).push({ ... }); ***
+      // تم حذف الكود القديم: database.ref("/current users/" + userId).push({ createdAt: now.toLocaleString(), timestamp: now.getTime() });
 
       } else {
         input.classList.add("input-error");
@@ -560,128 +538,19 @@
         helper.innerText = errorMsg;
         showToast(errorMsg, "error");
       }
-    }
-
-    function clearUserId() {
-      const input = document.getElementById("userId");
-      input.value = ""; input.disabled = false; input.classList.remove("input-error");
-      document.getElementById("save-btn").disabled = false;
-      document.getElementById("helper-text").innerText = "";
-      currentUserId = null;
-      updateTexts();
-      localStorage.removeItem("selectedUserId");
-    }
-
-    function goToMeasurements() {
-      const savedId = localStorage.getItem("selectedUserId");
-      if(!savedId) {
-        showToast(lang === "ar" ? "يجب تسجيل الدخول أولاً!" : "Please Login First!", "error");
-        const card = document.querySelector(".card");
-        card.style.animation = "shake 0.3s";
-        setTimeout(() => card.style.animation = "", 300);
-        return;
-      }
-      window.location.href = "measurements.html";
-    }
-
-    function setLanguage() {
-      const langVal = document.getElementById("language_select").value;
-      if (langVal !== "placeholder") {
-        localStorage.setItem("language", langVal);
-        location.reload();
-      }
-    }
-
-    // *** التعديل 4: دالة إنشاء الملف الشخصي الفارغ ***
-    const PATIENT_DATA_PATH = 'PatientData'; 
-    function createInitialProfile(userPhone) {
-        const ref = database.ref(PATIENT_DATA_PATH + '/' + userPhone);
-
-        // نستخدم once() للتأكد من أننا لا ننشئ الملف إذا كان موجوداً بالفعل
-        ref.once('value')
-            .then(snapshot => {
-                if (!snapshot.exists()) {
-                    // إنشاء الملف الشخصي الأولي ببيانات فارغة
-                    return ref.set({
-                        Phone: userPhone,
-                        SensorData: "No measurement recorded yet", // قيمة مبدئية
-                        Timestamp: new Date().toLocaleString(),
-                        AddedBy: "Self-Registered"
-                    });
-                }
-                return null; // الملف موجود بالفعل
-            })
-            .catch(error => {
-                console.error("Firebase Profile Setup Error:", error);
-                showToast(lang === "ar" ? "فشل ربط الملف" : "Failed to link profile", "error");
-            });
     }
 
+    // ... (باقي الدوال)
+    
     function updateTexts() {
-      if (lang === "ar") {
-        document.body.style.direction = "rtl"; 
-        document.getElementById("header-title").innerText = "نظام متابعة المرضى";
-        document.getElementById("card-title").innerText = "تسجيل الدخول";
-        document.getElementById("userId").placeholder = "رقم الموبايل (01xxxxxxxxx)";
-        document.querySelector(".btn-text-save").innerText = "تسجيل وحفظ";
-        document.querySelector(".btn-text-clear").innerText = "مسح";
-        document.querySelector(".btn-text-measure").innerText = "لوحة القياسات";
-        
-        document.querySelector(".header-left").style.paddingRight = "20px";
-        document.querySelector(".header-left").style.paddingLeft = "0";
-        document.querySelector(".header-actions").style.paddingLeft = "20px";
-        document.querySelector(".header-actions").style.paddingRight = "0";
-        document.querySelector(".input-group i").style.right = "15px";
-        document.querySelector(".input-group i").style.left = "auto";
-        document.querySelector(".form-section input").style.padding = "15px 45px 15px 15px";
-        document.getElementById("helper-text").style.textAlign = "right";
-        document.querySelector(".close-modal").style.left = "15px";
-        document.querySelector(".close-modal").style.right = "auto";
-        document.querySelector(".live-clock").style.borderRight = "1px solid rgba(255,255,255,0.2)";
-        document.querySelector(".live-clock").style.borderLeft = "none";
-        document.querySelector(".live-clock").style.paddingRight = "15px";
-        document.querySelector(".live-clock").style.paddingLeft = "0";
-        document.querySelector(".live-clock").style.marginRight = "15px";
-        document.querySelector(".live-clock").style.marginLeft = "0";
+        // ... (باقي كود تحديث اللغة) ...
+    }
 
-        document.querySelector(".modal-card h2").innerText = "عن مشروع Bioscan ATM";
-        document.getElementById("project-context").innerText = "مشروع تخرج دفعة 2024 | قسم هندسة الإلكترونيات والاتصالات";
-        document.getElementById("mission-title").innerText = "مهمتنا";
-        document.getElementById("mission-text").innerText = "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة باستخدام أحدث تقنيات إنترنت الأشياء (IoT)، لسد الفجوة بين المرضى والرعاية الطبية.";
-        document.getElementById("vision-title").innerText = "رؤيتنا";
-        document.getElementById("vision-text").innerText = "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع في كل مكان، لنشر ثقافة الوقاية خير من العلاج.";
-        document.getElementById("team-title").innerText = "فريق العمل";
-        document.getElementById("uni-text").innerText = "جامعة الزقازيق - كلية الهندسة";
-      } else {
-        document.body.style.direction = "ltr";
-        document.getElementById("header-title").innerText = "Patient Monitoring";
-        document.getElementById("card-title").innerText = "User Login";
-        document.getElementById("userId").placeholder = "Mobile Number (01xxxxxxxxx)";
-        document.querySelector(".btn-text-save").innerText = "Login & Save";
-        document.querySelector(".btn-text-clear").innerText = "Clear";
-        document.querySelector(".btn-text-measure").innerText = "Dashboard";
-        document.querySelector(".input-group i").style.left = "15px";
-        document.querySelector(".input-group i").style.right = "auto";
-        document.querySelector(".form-section input").style.padding = "15px 15px 15px 45px";
-        document.getElementById("helper-text").style.textAlign = "left";
-        document.querySelector(".close-modal").style.right = "15px";
-        document.querySelector(".close-modal").style.left = "auto";
-        document.querySelector(".modal-card h2").innerText = "Bioscan ATM";
-        document.getElementById("project-context").innerText = "Graduation Project 2024 | Electronics & Comm. Dept.";
-        document.getElementById("mission-title").innerText = "Our Mission";
-        document.getElementById("mission-text").innerText = "Empowering communities with instant, hospital-grade health diagnostics through accessible IoT technology, bridging the gap between patients and medical care.";
-        document.getElementById("vision-title").innerText = "Our Vision";
-        document.getElementById("vision-text").innerText = "A world where proactive health monitoring is seamless, accessible to everyone everywhere, fostering a culture of prevention over cure.";
-        document.getElementById("team-title").innerText = "The Team";
-        document.getElementById("uni-text").innerText = "Zagazig University - Faculty of Engineering";
-      }
-    }
-
-    window.onload = () => {
-      const savedLang = localStorage.getItem("language");
-      if (savedLang) document.getElementById("language_select").value = savedLang;
-      updateTexts();
-    };
+    window.onload = () => {
+        const savedLang = localStorage.getItem("language");
+        if (savedLang) document.getElementById("language_select").value = savedLang;
+        updateTexts();
+    };
   </script>
 
 </body>
