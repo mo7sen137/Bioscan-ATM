@@ -2,664 +2,632 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bioscan ATM | Patient Dashboard</title>
-  
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>   
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bioscan ATM | Patient Dashboard</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script> <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-  <style>
-    :root {
-      --primary-color: #00d2ff;
-      --secondary-color: #3a7bd5;
-      --error-color: #ff416c;
-      --success-color: #00ff88;
-      --glass-bg: rgba(255, 255, 255, 0.1);
-      --glass-border: rgba(255, 255, 255, 0.2);
-      --text-color: #ffffff;
-    }
+  <style>
+    /* لم يتم تغيير أي شيء في التصميم */
+    :root {
+      --primary-color: #00d2ff;
+      --secondary-color: #3a7bd5;
+      --error-color: #ff416c;
+      --success-color: #00ff88;
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --text-color: #ffffff;
+    }
 
-    /* --- VIDEO BACKGROUND STYLES --- */
-    #bgVideo {
-      position: fixed; right: 0; bottom: 0;
-      min-width: 100%; min-height: 100%;
-      z-index: -2; object-fit: cover;
-    }
-    .video-overlay {
-      position: fixed; inset: 0;
-      background: rgba(15, 32, 39, 0.75); 
-      z-index: -1;
-    }
+    /* --- VIDEO BACKGROUND STYLES --- */
+    #bgVideo {
+      position: fixed; right: 0; bottom: 0;
+      min-width: 100%; min-height: 100%;
+      z-index: -2; object-fit: cover;
+    }
+    .video-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15, 32, 39, 0.75); 
+      z-index: -1;
+    }
 
-    /* --- CUSTOM SCROLLBAR --- */
-    ::-webkit-scrollbar { width: 10px; }
-    ::-webkit-scrollbar-track { background: #1a1a1a; }
-    ::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, var(--primary-color), var(--secondary-color)); 
-      border-radius: 10px; border: 2px solid #1a1a1a;
-    }
-    ::-webkit-scrollbar-thumb:hover { background: var(--success-color); }
+    /* --- CUSTOM SCROLLBAR --- */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #1a1a1a; }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, var(--primary-color), var(--secondary-color)); 
+      border-radius: 10px; border: 2px solid #1a1a1a;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--success-color); }
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      margin: 0; padding: 0;
-      background-color: #0f2027; /* Fallback color */
-      min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center;
-      color: var(--text-color); overflow-x: hidden;
-    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0; padding: 0;
+      background-color: #0f2027; /* Fallback color */
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      color: var(--text-color); overflow-x: hidden;
+    }
 
-    /* Pre-loader Styles */
-    #preloader {
-      position: fixed; inset: 0; background: #0f2027; z-index: 9999;
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-      transition: opacity 0.8s ease, visibility 0.8s;
-    }
-    .loader-logo {
-      width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--primary-color);
-      box-shadow: 0 0 30px var(--primary-color); animation: pulseLoader 1.5s infinite;
-    }
-    .loader-text {
-      margin-top: 20px; font-family: 'Orbitron', sans-serif; font-size: 1.5rem; letter-spacing: 2px;
-      background: linear-gradient(to right, #fff, #00d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    @keyframes pulseLoader {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.1); opacity: 0.8; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-      
-    /* Navbar Design */
-    header {
-      width: 100%;
-      background: rgba(15, 32, 39, 0.8);
-      backdrop-filter: blur(10px);
-      padding: 10px 0;
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-      position: fixed; top: 0; z-index: 100;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
+    /* Pre-loader Styles */
+    #preloader {
+      position: fixed; inset: 0; background: #0f2027; z-index: 9999;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      transition: opacity 0.8s ease, visibility 0.8s;
+    }
+    .loader-logo {
+      width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--primary-color);
+      box-shadow: 0 0 30px var(--primary-color); animation: pulseLoader 1.5s infinite;
+    }
+    .loader-text {
+      margin-top: 20px; font-family: 'Orbitron', sans-serif; font-size: 1.5rem; letter-spacing: 2px;
+      background: linear-gradient(to right, #fff, #00d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    @keyframes pulseLoader {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+      
+    /* Navbar Design */
+    header {
+      width: 100%;
+      background: rgba(15, 32, 39, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 10px 0;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+      position: fixed; top: 0; z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
 
-    .header-left { display: flex; align-items: center; padding-left: 20px; gap: 15px; }
-    .logo-container { position: relative; }
-    header img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary-color); }
-    header h1 {
-      font-size: 1.1rem; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 1px;
-      background: linear-gradient(to right, #fff, #00d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
+    .header-left { display: flex; align-items: center; padding-left: 20px; gap: 15px; }
+    .logo-container { position: relative; }
+    header img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary-color); }
+    header h1 {
+      font-size: 1.1rem; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 1px;
+      background: linear-gradient(to right, #fff, #00d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
 
-    .live-clock {
-      font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--primary-color);
-      text-shadow: 0 0 10px rgba(0, 210, 255, 0.5); border-left: 1px solid rgba(255,255,255,0.2);
-      padding-left: 15px; margin-left: 15px; display: flex; flex-direction: column; line-height: 1.2;
-    }
-    .clock-time { font-size: 1rem; font-weight: bold; }
-    .clock-date { font-size: 0.7rem; color: #aaa; font-family: 'Poppins', sans-serif; }
+    .live-clock {
+      font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--primary-color);
+      text-shadow: 0 0 10px rgba(0, 210, 255, 0.5); border-left: 1px solid rgba(255,255,255,0.2);
+      padding-left: 15px; margin-left: 15px; display: flex; flex-direction: column; line-height: 1.2;
+    }
+    .clock-time { font-size: 1rem; font-weight: bold; }
+    .clock-date { font-size: 0.7rem; color: #aaa; font-family: 'Poppins', sans-serif; }
 
-    .header-actions { padding-right: 20px; display: flex; gap: 10px; align-items: center; }
+    .header-actions { padding-right: 20px; display: flex; gap: 10px; align-items: center; }
 
-    .status-dot {
-      width: 12px; height: 12px; border-radius: 50%;
-      background-color: var(--success-color);
-      box-shadow: 0 0 10px var(--success-color);
-      transition: all 0.3s ease; margin-top: 5px;
-    }
-    .status-dot.offline {
-      background-color: #ff416c !important;
-      box-shadow: 0 0 15px #ff416c !important;
-      animation: blinkRed 1s infinite;
-    }
-    @keyframes blinkRed { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    .status-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background-color: var(--success-color);
+      box-shadow: 0 0 10px var(--success-color);
+      transition: all 0.3s ease; margin-top: 5px;
+    }
+    .status-dot.offline {
+      background-color: #ff416c !important;
+      box-shadow: 0 0 15px #ff416c !important;
+      animation: blinkRed 1s infinite;
+    }
+    @keyframes blinkRed { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-    #language_select {
-      background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid var(--primary-color);
-      padding: 6px 12px; border-radius: 20px; outline: none; cursor: pointer;
-      font-family: 'Poppins', sans-serif; font-size: 0.9rem;
-    }
-    #language_select option { background: #2c5364; color: #fff; }
+    #language_select {
+      background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid var(--primary-color);
+      padding: 6px 12px; border-radius: 20px; outline: none; cursor: pointer;
+      font-family: 'Poppins', sans-serif; font-size: 0.9rem;
+    }
+    #language_select option { background: #2c5364; color: #fff; }
 
-    .about-btn {
-      background: transparent; border: 1px solid rgba(255,255,255,0.5); color: white;
-      width: 35px; height: 35px; border-radius: 50%; cursor: pointer;
-      display: flex; justify-content: center; align-items: center; transition: 0.3s;
-    }
-    .about-btn:hover { background: var(--primary-color); border-color: var(--primary-color); color: black; }
+    .about-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,0.5); color: white;
+      width: 35px; height: 35px; border-radius: 50%; cursor: pointer;
+      display: flex; justify-content: center; align-items: center; transition: 0.3s;
+    }
+    .about-btn:hover { background: var(--primary-color); border-color: var(--primary-color); color: black; }
 
-    .container {
-      display: flex; justify-content: center; align-items: center;
-      flex-grow: 1; margin-top: 80px; width: 100%;
-    }
+    .container {
+      display: flex; justify-content: center; align-items: center;
+      flex-grow: 1; margin-top: 80px; width: 100%;
+    }
 
-    .card {
-      background: rgba(16, 30, 40, 0.6); backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border); border-radius: 20px;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); padding: 40px;
-      width: 350px; text-align: center; transition: 0.3s;
-    }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0, 210, 255, 0.2); border-color: var(--primary-color); }
-    .card h2 { margin-bottom: 25px; font-weight: 300; font-size: 1.8rem; }
+    .card {
+      background: rgba(16, 30, 40, 0.6); backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border); border-radius: 20px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); padding: 40px;
+      width: 350px; text-align: center; transition: 0.3s;
+    }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0, 210, 255, 0.2); border-color: var(--primary-color); }
+    .card h2 { margin-bottom: 25px; font-weight: 300; font-size: 1.8rem; }
 
-    .input-group { position: relative; margin-bottom: 5px; }
-    .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--primary-color); }
+    .input-group { position: relative; margin-bottom: 5px; }
+    .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--primary-color); }
 
-    .form-section input {
-      width: 100%; padding: 15px 15px 15px 45px;
-      background: rgba(0, 0, 0, 0.3); border: none;
-      border-bottom: 2px solid rgba(255,255,255,0.3);
-      color: white; font-size: 16px; border-radius: 8px;
-      box-sizing: border-box; transition: 0.3s; font-family: 'Poppins', sans-serif;
-    }
-    .form-section input:focus { outline: none; border-bottom-color: var(--primary-color); background: rgba(0, 0, 0, 0.5); }
-    .input-error { border-bottom-color: var(--error-color) !important; animation: shake 0.3s; }
-    @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } 100% { transform: translateX(0); } }
+    .form-section input {
+      width: 100%; padding: 15px 15px 15px 45px;
+      background: rgba(0, 0, 0, 0.3); border: none;
+      border-bottom: 2px solid rgba(255,255,255,0.3);
+      color: white; font-size: 16px; border-radius: 8px;
+      box-sizing: border-box; transition: 0.3s; font-family: 'Poppins', sans-serif;
+    }
+    .form-section input:focus { outline: none; border-bottom-color: var(--primary-color); background: rgba(0, 0, 0, 0.5); }
+    .input-error { border-bottom-color: var(--error-color) !important; animation: shake 0.3s; }
+    @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } 100% { transform: translateX(0); } }
 
-    .helper-text {
-      font-size: 0.8rem; color: #bbb; text-align: left; margin-bottom: 20px; min-height: 20px; padding-left: 5px; transition: 0.3s;
-    }
+    .helper-text {
+      font-size: 0.8rem; color: #bbb; text-align: left; margin-bottom: 20px; min-height: 20px; padding-left: 5px; transition: 0.3s;
+    }
 
-    .btn-container { display: flex; flex-direction: column; gap: 15px; }
-    .btn {
-      padding: 12px; border: none; border-radius: 50px; cursor: pointer;
-      font-size: 16px; color: white; width: 100%; font-family: 'Poppins', sans-serif;
-      font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px;
-      transition: all 0.3s ease; position: relative; overflow: hidden;
-    }
-    .btn::after {
-      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: 0.5s;
-    }
-    .btn:hover::after { left: 100%; }
-    .btn:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(0, 210, 255, 0.4); }
-      
-    .save { background: linear-gradient(45deg, #11998e, #38ef7d); }
-    .clear { background: linear-gradient(45deg, #cb2d3e, #ef473a); }
-    .measure { background: linear-gradient(45deg, #3a7bd5, #00d2ff); }
-    .btn:disabled { background: #555; cursor: not-allowed; opacity: 0.7; }
+    .btn-container { display: flex; flex-direction: column; gap: 15px; }
+    .btn {
+      padding: 12px; border: none; border-radius: 50px; cursor: pointer;
+      font-size: 16px; color: white; width: 100%; font-family: 'Poppins', sans-serif;
+      font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: all 0.3s ease; position: relative; overflow: hidden;
+    }
+    .btn::after {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: 0.5s;
+    }
+    .btn:hover::after { left: 100%; }
+    .btn:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(0, 210, 255, 0.4); }
+      
+    .save { background: linear-gradient(45deg, #11998e, #38ef7d); }
+    .clear { background: linear-gradient(45deg, #cb2d3e, #ef473a); }
+    .measure { background: linear-gradient(45deg, #3a7bd5, #00d2ff); }
+    .btn:disabled { background: #555; cursor: not-allowed; opacity: 0.7; }
 
-    /* Modal Styles */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px);
-      z-index: 2000; display: none; justify-content: center; align-items: center;
-      opacity: 0; transition: opacity 0.3s ease;
-    }
-    .modal-overlay.active { display: flex; opacity: 1; }
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px);
+      z-index: 2000; display: none; justify-content: center; align-items: center;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { display: flex; opacity: 1; }
 
-    .modal-card {
-      background: linear-gradient(145deg, #152229, #1c2e36); border: 1px solid var(--primary-color);
-      border-radius: 25px; width: 90%; max-width: 600px; padding: 30px; position: relative;
-      text-align: center; box-shadow: 0 0 40px rgba(0, 210, 255, 0.15); transform: scale(0.8); transition: transform 0.3s ease;
-      max-height: 90vh; overflow-y: auto;
-    }
-    .modal-overlay.active .modal-card { transform: scale(1); }
+    .modal-card {
+      background: linear-gradient(145deg, #152229, #1c2e36); border: 1px solid var(--primary-color);
+      border-radius: 25px; width: 90%; max-width: 600px; padding: 30px; position: relative;
+      text-align: center; box-shadow: 0 0 40px rgba(0, 210, 255, 0.15); transform: scale(0.8); transition: transform 0.3s ease;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-overlay.active .modal-card { transform: scale(1); }
 
-    .logos-container {
-      display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; align-items: center;
-    }
-    .logos-container img {
-      height: 70px; width: auto; object-fit: contain;
-      filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); transition: transform 0.3s;
-    }
-    .logos-container img:hover { transform: scale(1.1); }
+    .logos-container {
+      display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; align-items: center;
+    }
+    .logos-container img {
+      height: 70px; width: auto; object-fit: contain;
+      filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); transition: transform 0.3s;
+    }
+    .logos-container img:hover { transform: scale(1.1); }
 
-    .close-modal {
-      position: absolute; top: 15px; right: 15px; background: transparent; border: none;
-      color: #fff; font-size: 1.4rem; cursor: pointer; transition: 0.3s; z-index: 10;
-    }
-    .close-modal:hover { color: var(--error-color); transform: rotate(90deg); }
+    .close-modal {
+      position: absolute; top: 15px; right: 15px; background: transparent; border: none;
+      color: #fff; font-size: 1.4rem; cursor: pointer; transition: 0.3s; z-index: 10;
+    }
+    .close-modal:hover { color: var(--error-color); transform: rotate(90deg); }
 
-    .modal-section { margin-bottom: 20px; text-align: left; }
-    .modal-section h3 { 
-      color: var(--primary-color); margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; 
-      border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;
-    }
-    .modal-section p { font-size: 0.9rem; color: #e0e0e0; line-height: 1.5; margin: 0; }
+    .modal-section { margin-bottom: 20px; text-align: left; }
+    .modal-section h3 { 
+      color: var(--primary-color); margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; 
+      border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;
+    }
+    .modal-section p { font-size: 0.9rem; color: #e0e0e0; line-height: 1.5; margin: 0; }
 
-    .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    .team-member {
-      background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; font-size: 0.85rem;
-      display: flex; align-items: center; gap: 8px; border: 1px solid transparent; transition: 0.2s;
-    }
-    .team-member:hover { border-color: var(--secondary-color); background: rgba(255,255,255,0.1); }
-    .team-member i { color: var(--secondary-color); font-size: 0.8rem; }
+    .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .team-member {
+      background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; font-size: 0.85rem;
+      display: flex; align-items: center; gap: 8px; border: 1px solid transparent; transition: 0.2s;
+    }
+    .team-member:hover { border-color: var(--secondary-color); background: rgba(255,255,255,0.1); }
+    .team-member i { color: var(--secondary-color); font-size: 0.8rem; }
 
-    .footer-info {
-      margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; color: #aaa;
-    }
-    .email-link {
-      display: inline-block; margin-top: 8px; color: var(--primary-color); text-decoration: none; font-weight: bold; background: rgba(0, 210, 255, 0.1); padding: 5px 15px; border-radius: 20px;
-    }
-    .email-link:hover { background: var(--primary-color); color: #000; }
+    .footer-info {
+      margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; color: #aaa;
+    }
+    .email-link {
+      display: inline-block; margin-top: 8px; color: var(--primary-color); text-decoration: none; font-weight: bold; background: rgba(0, 210, 255, 0.1); padding: 5px 15px; border-radius: 20px;
+    }
+    .email-link:hover { background: var(--primary-color); color: #000; }
 
-    .modal-card::-webkit-scrollbar { width: 5px; }
-    .modal-card::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; }
+    .modal-card::-webkit-scrollbar { width: 5px; }
+    .modal-card::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; }
 
-    /* Toast Notifications */
-    .toast-container {
-      position: fixed; top: 90px; right: 20px; z-index: 3000;
-      display: flex; flex-direction: column; gap: 10px;
-    }
-    .toast {
-      background: rgba(16, 30, 40, 0.95); color: white; padding: 15px 25px;
-      border-radius: 12px; min-width: 280px; display: flex; align-items: center; gap: 12px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.4); border-left: 5px solid;
-      animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), fadeOut 0.5s ease 3s forwards;
-      backdrop-filter: blur(5px);
-    }
-    @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-    
-    .toast-success { border-color: var(--success-color); }
-    .toast-success i { color: var(--success-color); font-size: 1.2rem; }
-    .toast-error { border-color: var(--error-color); }
-    .toast-error i { color: var(--error-color); font-size: 1.2rem; }
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed; top: 90px; right: 20px; z-index: 3000;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .toast {
+      background: rgba(16, 30, 40, 0.95); color: white; padding: 15px 25px;
+      border-radius: 12px; min-width: 280px; display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.4); border-left: 5px solid;
+      animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), fadeOut 0.5s ease 3s forwards;
+      backdrop-filter: blur(5px);
+    }
+    @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    
+    .toast-success { border-color: var(--success-color); }
+    .toast-success i { color: var(--success-color); font-size: 1.2rem; }
+    .toast-error { border-color: var(--error-color); }
+    .toast-error i { color: var(--error-color); font-size: 1.2rem; }
 
-  </style>
+  </style>
 </head>
 
 <body>
 
-  <video autoplay muted loop playsinline id="bgVideo">
-    <source src="background.mp4" type="video/mp4">
-  </video>
-  <div class="video-overlay"></div>
+  <video autoplay muted loop playsinline id="bgVideo">
+    <source src="background.mp4" type="video/mp4">
+  </video>
+  <div class="video-overlay"></div>
 
-  <div id="preloader">
-    <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" class="loader-logo" alt="Loading...">
-    <div class="loader-text">BIOSCAN ATM</div>
-  </div>
+  <div id="preloader">
+    <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" class="loader-logo" alt="Loading...">
+    <div class="loader-text">BIOSCAN ATM</div>
+  </div>
 
-  <div class="toast-container" id="toastContainer"></div>
+  <div class="toast-container" id="toastContainer"></div>
 
-  <div class="modal-overlay" id="aboutModal">
-    <div class="modal-card">
-      <button class="close-modal" onclick="toggleModal(false)"><i class="fas fa-times"></i></button>
-      <div class="logos-container">
-        <img src="zagazig_logo.png" alt="Zagazig Univ">
-        <img src="eng_logo.png" alt="Engineering Faculty">
-      </div>
-      <h2 style="margin-top:0; margin-bottom:5px; font-size: 1.5rem; color: #fff;">Bioscan ATM</h2>
-      <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 20px;" id="project-context">
-        Graduation Project 2024 | Electronics & Comm. Dept.
-      </p>
-      <div class="modal-section">
-        <h3><i class="fas fa-bullseye"></i> <span id="mission-title">Our Mission</span></h3>
-        <p id="mission-text">Empowering communities with instant, hospital-grade health diagnostics through accessible IoT technology, bridging the gap between patients and medical care.</p>
-      </div>
-      <div class="modal-section">
-        <h3><i class="fas fa-eye"></i> <span id="vision-title">Our Vision</span></h3>
-        <p id="vision-text">A world where proactive health monitoring is seamless, accessible to everyone everywhere, fostering a culture of prevention over cure.</p>
-      </div>
-      <div class="modal-section">
-        <h3><i class="fas fa-users"></i> <span id="team-title">The Team</span></h3>
-        <div class="team-grid">
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Mohsen M. Elsayed</div>
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Mohamed A. Rashad</div>
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Mohamed A. Karam</div>
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Hossam H. Abdel Aziz</div>
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Lamia I. Mohammed</div>
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Karim H. Mansour</div>
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Fatema M. Saad</div>
-        </div>
-      </div>
-      <div class="footer-info">
-        <div id="uni-text">Zagazig University - Faculty of Engineering</div>
-        <a href="mailto:bioscanatm@gmail.com" class="email-link"><i class="fas fa-envelope"></i> bioscanatm@gmail.com</a>
-      </div>
-    </div>
-  </div>
+  <div class="modal-overlay" id="aboutModal">
+    <div class="modal-card">
+      <button class="close-modal" onclick="toggleModal(false)"><i class="fas fa-times"></i></button>
+      <div class="logos-container">
+        <img src="zagazig_logo.png" alt="Zagazig Univ">
+        <img src="eng_logo.png" alt="Engineering Faculty">
+      </div>
+      <h2 style="margin-top:0; margin-bottom:5px; font-size: 1.5rem; color: #fff;">Bioscan ATM</h2>
+      <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 20px;" id="project-context">
+        Graduation Project 2024 | Electronics & Comm. Dept.
+      </p>
+      <div class="modal-section">
+        <h3><i class="fas fa-bullseye"></i> <span id="mission-title">Our Mission</span></h3>
+        <p id="mission-text">Empowering communities with instant, hospital-grade health diagnostics through accessible IoT technology, bridging the gap between patients and medical care.</p>
+      </div>
+      <div class="modal-section">
+        <h3><i class="fas fa-eye"></i> <span id="vision-title">Our Vision</span></h3>
+        <p id="vision-text">A world where proactive health monitoring is seamless, accessible to everyone everywhere, fostering a culture of prevention over cure.</p>
+      </div>
+      <div class="modal-section">
+        <h3><i class="fas fa-users"></i> <span id="team-title">The Team</span></h3>
+        <div class="team-grid">
+          <div class="team-member"><i class="fas fa-user-graduate"></i> Mohsen M. Elsayed</div>
+          <div class="team-member"><i class="fas fa-user-graduate"></i> Mohamed A. Rashad</div>
+          <div class="team-member"><i class="fas fa-user-graduate"></i> Mohamed A. Karam</div>
+          <div class="team-member"><i class="fas fa-user-graduate"></i> Hossam H. Abdel Aziz</div>
+          <div class="team-member"><i class="fas fa-user-graduate"></i> Lamia I. Mohammed</div>
+          <div class="team-member"><i class="fas fa-user-graduate"></i> Karim H. Mansour</div>
+          <div class="team-member"><i class="fas fa-user-graduate"></i> Fatema M. Saad</div>
+        </div>
+      </div>
+      <div class="footer-info">
+        <div id="uni-text">Zagazig University - Faculty of Engineering</div>
+        <a href="mailto:bioscanatm@gmail.com" class="email-link"><i class="fas fa-envelope"></i> bioscanatm@gmail.com</a>
+      </div>
+    </div>
+  </div>
 
-  <header>
-    <div class="header-left">
-      <div class="logo-container">
-        <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" alt="Logo">
-      </div>
-      <div>
-        <h1 id="header-title">Patient Monitoring</h1>
-        <div class="live-clock">
-          <span class="clock-time" id="clockTime">00:00:00</span>
-          <span class="clock-date" id="clockDate">--/--/----</span>
-        </div>
-      </div>
-    </div>
-    <div class="header-actions">
-      <div id="connectionStatus" class="status-dot" title="Online"></div>
-      <button class="about-btn" onclick="toggleModal(true)" title="About Us"><i class="fas fa-info"></i></button>
-      <div class="lang-wrapper">
-        <select id="language_select" onchange="setLanguage()">
-          <option value="placeholder" selected hidden>🌐 Lang</option>
-          <option value="en">English</option>
-          <option value="ar">العربية</option>
-        </select>
-      </div>
-    </div>
-  </header>
+  <header>
+    <div class="header-left">
+      <div class="logo-container">
+        <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" alt="Logo">
+      </div>
+      <div>
+        <h1 id="header-title">Patient Monitoring</h1>
+        <div class="live-clock">
+          <span class="clock-time" id="clockTime">00:00:00</span>
+          <span class="clock-date" id="clockDate">--/--/----</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div id="connectionStatus" class="status-dot" title="Online"></div>
+      <button class="about-btn" onclick="toggleModal(true)" title="About Us"><i class="fas fa-info"></i></button>
+      <div class="lang-wrapper">
+        <select id="language_select" onchange="setLanguage()">
+          <option value="placeholder" selected hidden>🌐 Lang</option>
+          <option value="en">English</option>
+          <option value="ar">العربية</option>
+        </select>
+      </div>
+    </div>
+  </header>
 
-  <div class="container">
-    <div class="card form-section">
-      <h2 id="card-title">User Login</h2>
-      <div class="input-group">
-        <i class="fas fa-mobile-alt"></i>
-        <input type="tel" id="userId" placeholder="Mobile Number (01xxxxxxxxx)" maxlength="11" oninput="validateInput(this)" onfocus="showGuidance()" onblur="hideGuidance()" autocomplete="off">
-      </div>
-      <div class="helper-text" id="helper-text"></div>
-      <div class="btn-container">
-        <button id="save-btn" class="btn save" onclick="saveUserId()"><i class="fas fa-check-circle"></i> <span class="btn-text-save">Login & Save</span></button>
-        <button class="btn clear" onclick="clearUserId()"><i class="fas fa-trash-alt"></i> <span class="btn-text-clear">Clear</span></button>
-        <button class="btn measure" onclick="goToMeasurements()"><i class="fas fa-chart-line"></i> <span class="btn-text-measure">Dashboard</span></button>
-      </div>
-    </div>
-  </div>
+  <div class="container">
+    <div class="card form-section">
+      <h2 id="card-title">User Login</h2>
+      <div class="input-group">
+        <i class="fas fa-mobile-alt"></i>
+        <input type="tel" id="userId" placeholder="Mobile Number (01xxxxxxxxx)" maxlength="11" oninput="validateInput(this)" onfocus="showGuidance()" onblur="hideGuidance()" autocomplete="off">
+      </div>
+      <div class="helper-text" id="helper-text"></div>
+      <div class="btn-container">
+        <button id="save-btn" class="btn save" onclick="saveUserId()"><i class="fas fa-check-circle"></i> <span class="btn-text-save">Login & Save</span></button>
+        <button class="btn clear" onclick="clearUserId()"><i class="fas fa-trash-alt"></i> <span class="btn-text-clear">Clear</span></button>
+        <button class="btn measure" onclick="goToMeasurements()"><i class="fas fa-chart-line"></i> <span class="btn-text-measure">Dashboard</span></button>
+      </div>
+    </div>
+  </div>
 
-  <script>
-    // *** التعديل 1: تحديث مفاتيح Firebase Config (المفاتيح الصحيحة) ***
-    const firebaseConfig = {
-      apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
-      authDomain: "smart-a76a0.firebaseapp.com",
-      databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
-      projectId: "smart-a76a0",
-      messagingSenderId: "343693501983",
-      appId: "1:343693501983:web:10ea3fce9d990a2455172a"
-    };
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
+      authDomain: "smart-a76a0.firebaseapp.com",
+      databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
+      projectId: "smart-a76a0",
+      messagingSenderId: "343693501983",
+      appId: "1:343693501983:web:10ea3fce9d990a2455172a"
+    };
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const auth = firebase.auth(); 
-    const PATIENT_DATA_PATH = 'PatientData'; 
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth(); // تعريف Auth
 
-    let currentUserId = null;
-    const lang = localStorage.getItem("language") || "en";
-    let welcomePlayed = false;
+    // تسجيل دخول خفي لضمان صلاحية الكتابة في Firebase
+    auth.signInAnonymously().catch(function(error) {
+        console.error("Auth Error:", error);
+    });
 
-    // دالة إنشاء الملف الشخصي الفارغ (تمت إضافتها)
-    function createInitialProfile(userPhone) {
-        const ref = database.ref(PATIENT_DATA_PATH + '/' + userPhone);
+    let currentUserId = null;
+    const lang = localStorage.getItem("language") || "en";
+    let welcomePlayed = false;
 
-        ref.once('value')
-            .then(snapshot => {
-                if (!snapshot.exists()) {
-                    return ref.set({
-                        Phone: userPhone,
-                        SensorData: "No measurement recorded yet", 
-                        Timestamp: new Date().toLocaleString(),
-                        AddedBy: "Self-Registered"
-                    });
-                }
-                return null;
-            })
-            .catch(error => {
-                console.error("Firebase Profile Setup Error:", error);
-                showToast(lang === "ar" ? "فشل ربط الملف (Auth/DB)" : "Failed to link profile (Auth/DB)", "error");
-            });
+    // --- WELCOME VOICE FUNCTION ---
+    function playWelcomeMessage() {
+      if (welcomePlayed) return;
+
+      const enText = "Welcome to Bioscan ATM Station. Please enter your mobile number to proceed.";
+      const arText = "مرحباً بكم في محطة بايوسكان. يرجى إدخال رقم الهاتف للمتابعة.";
+
+      if ('speechSynthesis' in window) {
+        const uEn = new SpeechSynthesisUtterance(enText);
+        uEn.lang = 'en-US';
+        uEn.rate = 0.9;
+
+        const uAr = new SpeechSynthesisUtterance(arText);
+        uAr.lang = 'ar-SA';
+        uAr.rate = 0.9;
+
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(uEn);
+        window.speechSynthesis.speak(uAr);
+        
+        welcomePlayed = true;
+      }
     }
 
-    // --- WELCOME VOICE FUNCTION (باقي كما هو) ---
-    function playWelcomeMessage() {
-      if (welcomePlayed) return;
+    // --- ATTEMPT AUTO-PLAY ON LOAD ---
+    window.addEventListener('load', () => {
+        playWelcomeMessage();
 
-      const enText = "Welcome to Bioscan ATM Station. Please enter your mobile number to proceed.";
-      const arText = "مرحباً بكم في محطة بايوسكان. يرجى إدخال رقم الهاتف للمتابعة.";
+        const triggerAudio = () => {
+            playWelcomeMessage();
+            document.removeEventListener('click', triggerAudio);
+            document.removeEventListener('keydown', triggerAudio);
+            document.removeEventListener('touchstart', triggerAudio);
+        };
 
-      if ('speechSynthesis' in window) {
-        const uEn = new SpeechSynthesisUtterance(enText);
-        uEn.lang = 'en-US';
-        uEn.rate = 0.9;
+        document.addEventListener('click', triggerAudio);
+        document.addEventListener('keydown', triggerAudio);
+        document.addEventListener('touchstart', triggerAudio);
 
-        const uAr = new SpeechSynthesisUtterance(arText);
-        uAr.lang = 'ar-SA';
-        uAr.rate = 0.9;
+        setTimeout(() => {
+            const preloader = document.getElementById('preloader');
+            preloader.style.opacity = '0';
+            setTimeout(() => {
+            preloader.style.display = 'none';
+            }, 800);
+        }, 1500);
+    });
 
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(uEn);
-        window.speechSynthesis.speak(uAr);
-        
-        welcomePlayed = true;
-      }
-    }
+    // --- CONNECTION STATUS ---
+    async function checkInternetConnection() {
+      try {
+        await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" });
+        return true;
+      } catch (error) { return false; }
+    }
+    async function updateStatus() {
+      const dot = document.getElementById('connectionStatus');
+      const isOnline = await checkInternetConnection();
+      if (isOnline) {
+        dot.classList.remove('offline'); dot.title = "Online"; dot.style.backgroundColor = ""; 
+      } else {
+        if (!dot.classList.contains('offline')) showToast(lang === 'ar' ? "فقد الاتصال بالإنترنت!" : "Internet Connection Lost!", "error");
+        dot.classList.add('offline'); dot.title = "Offline"; dot.style.backgroundColor = "#ff416c";
+      }
+    }
+    setInterval(updateStatus, 3000);
 
-    // --- ATTEMPT AUTO-PLAY ON LOAD (باقي كما هو) ---
-    window.addEventListener('load', () => {
-        playWelcomeMessage();
+    // --- CLOCK ---
+    function startClock() {
+      const timeElem = document.getElementById('clockTime');
+      const dateElem = document.getElementById('clockDate');
+      setInterval(() => {
+        const now = new Date();
+        const locale = lang === 'ar' ? 'ar-EG' : 'en-US';
+        timeElem.innerText = now.toLocaleTimeString(locale, {hour12: false});
+        dateElem.innerText = now.toLocaleDateString(locale, {weekday: 'short', day: 'numeric', month: 'short'});
+      }, 1000);
+    }
+    startClock();
 
-        const triggerAudio = () => {
-            playWelcomeMessage();
-            document.removeEventListener('click', triggerAudio);
-            document.removeEventListener('keydown', triggerAudio);
-            document.removeEventListener('touchstart', triggerAudio);
-        };
+    // --- UTILS ---
+    function showToast(message, type = "success") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = `toast toast-${type}`;
+      const icon = type === "success" ? "fa-check-circle" : "fa-exclamation-circle";
+      toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 3500);
+    }
+    function toggleModal(show) {
+      const modal = document.getElementById('aboutModal');
+      if(show) modal.classList.add('active'); else modal.classList.remove('active');
+    }
+    function validateInput(input) {
+      input.value = input.value.replace(/[^0-9]/g, '');
+      const helper = document.getElementById("helper-text");
+      input.classList.remove("input-error");
+      helper.style.color = "#bbb";
+      helper.innerText = lang === "ar" ? `عدد الأرقام: ${input.value.length} / 11` : `Digits: ${input.value.length} / 11`;
+    }
+    function showGuidance() {
+      const helper = document.getElementById("helper-text");
+      helper.innerText = lang === "ar" ? "يرجى إدخال رقم موبايل صحيح (11 رقم)" : "Please enter a valid 11-digit mobile number";
+    }
+    function hideGuidance() {
+      if(document.getElementById("userId").value.length === 0) document.getElementById("helper-text").innerText = "";
+    }
 
-        document.addEventListener('click', triggerAudio);
-        document.addEventListener('keydown', triggerAudio);
-        document.addEventListener('touchstart', triggerAudio);
+    // --- SAVE USER ID (MODIFIED) ---
+    function saveUserId() {
+      const input = document.getElementById("userId");
+      const userId = input.value;
+      const helper = document.getElementById("helper-text");
+      const regex = /^01[0125][0-9]{8}$/;
 
-        // Preloader Logic
-        setTimeout(() => {
-            const preloader = document.getElementById('preloader');
-            preloader.style.opacity = '0';
-            setTimeout(() => {
-            preloader.style.display = 'none';
-            }, 800);
-        }, 1500);
-    });
-
-    // --- CONNECTION STATUS (باقي كما هو) ---
-    async function checkInternetConnection() {
-      try {
-        await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" });
-        return true;
-      } catch (error) { return false; }
-    }
-    async function updateStatus() {
-      const dot = document.getElementById('connectionStatus');
-      const isOnline = await checkInternetConnection();
-      if (isOnline) {
-        dot.classList.remove('offline'); dot.title = "Online"; dot.style.backgroundColor = ""; 
-      } else {
-        if (!dot.classList.contains('offline')) showToast(lang === 'ar' ? "فقد الاتصال بالإنترنت!" : "Internet Connection Lost!", "error");
-        dot.classList.add('offline'); dot.title = "Offline"; dot.style.backgroundColor = "#ff416c";
-      }
-    }
-    setInterval(updateStatus, 3000);
-
-    // --- CLOCK (باقي كما هو) ---
-    function startClock() {
-      const timeElem = document.getElementById('clockTime');
-      const dateElem = document.getElementById('clockDate');
-      setInterval(() => {
-        const now = new Date();
-        const locale = lang === 'ar' ? 'ar-EG' : 'en-US';
-        timeElem.innerText = now.toLocaleTimeString(locale, {hour12: false});
-        dateElem.innerText = now.toLocaleDateString(locale, {weekday: 'short', day: 'numeric', month: 'short'});
-      }, 1000);
-    }
-    startClock();
-
-    // --- UTILS (باقي كما هو) ---
-    function showToast(message, type = "success") {
-      const container = document.getElementById("toastContainer");
-      const toast = document.createElement("div");
-      toast.className = `toast toast-${type}`;
-      const icon = type === "success" ? "fa-check-circle" : "fa-exclamation-circle";
-      toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
-      container.appendChild(toast);
-      setTimeout(() => { toast.remove(); }, 3500);
-    }
-    function toggleModal(show) {
-      const modal = document.getElementById('aboutModal');
-      if(show) modal.classList.add('active'); else modal.classList.remove('active');
-    }
-    function validateInput(input) {
-      input.value = input.value.replace(/[^0-9]/g, '');
-      const helper = document.getElementById("helper-text");
-      input.classList.remove("input-error");
-      helper.style.color = "#bbb";
-      helper.innerText = lang === "ar" ? `عدد الأرقام: ${input.value.length} / 11` : `Digits: ${input.value.length} / 11`;
-    }
-    function showGuidance() {
-      const helper = document.getElementById("helper-text");
-      helper.innerText = lang === "ar" ? "يرجى إدخال رقم موبايل صحيح (11 رقم)" : "Please enter a valid 11-digit mobile number";
-    }
-    function hideGuidance() {
-      if(document.getElementById("userId").value.length === 0) document.getElementById("helper-text").innerText = "";
-    }
-
-    // *** التعديل 3: منطق تسجيل الدخول وإنشاء الملف الشخصي ***
-    function saveUserId() {
-      const input = document.getElementById("userId");
-      const userId = input.value;
-      const helper = document.getElementById("helper-text");
-      const regex = /^01[0125][0-9]{8}$/;
-
-      if (regex.test(userId)) {
-        currentUserId = userId;
+      if (regex.test(userId)) {
+        currentUserId = userId;
+        input.disabled = true;
+        document.getElementById("save-btn").disabled = true;
+        helper.style.color = "#00ff88";
+        helper.innerText = "";
+        showToast(lang === "ar" ? "تم تسجيل الدخول بنجاح" : "Login Successful", "success");
         
-        // 2. إنشاء/تحديث الملف الشخصي في PatientData (سواء كان موجوداً أم لا)
-        createInitialProfile(userId);
+        // --- التعديل هنا: الحفظ في PatientData بدلاً من current users ---
+        const now = new Date();
+        // نستخدم set لإنشاء الملف، ولا نكتب فوق البيانات إذا كانت موجودة (اختياري، هنا نحدث الدخول)
+        // أو نستخدم update لتحديث وقت الدخول فقط دون مسح القراءات القديمة
+        database.ref("PatientData/" + userId).update({ 
+            Phone: userId,
+            Timestamp: now.toLocaleString(),
+            AddedBy: "Self-Registered",
+            // نضع قيمة مبدئية للقراءات فقط إذا لم تكن موجودة (لمنع مسح القراءات السابقة)
+            // لكن update لا يدعم الشرط بسهولة، لذا سنعتمد على أن الداشبورد يعرض "No measurement" لو الحقل مش موجود
+        }).then(() => {
+             // نتأكد أن حقل SensorData موجود، لو مش موجود نكتبه
+             database.ref("PatientData/" + userId + "/SensorData").transaction(currentData => {
+                 return currentData || "No measurement recorded yet";
+             });
+        });
+
+        document.getElementById("save-btn").innerHTML = '<i class="fas fa-check"></i> ' + (lang === "ar" ? "تم الحفظ" : "Saved");
+        localStorage.setItem("selectedUserId", userId);
+      } else {
+        input.classList.add("input-error");
+        helper.style.color = "#ff416c";
+        let errorMsg = lang === "ar" ? "خطأ في الرقم" : "Invalid Number";
+        if (userId.length === 0) errorMsg = lang === "ar" ? "الحقل فارغ" : "Field Empty";
+        else if (userId.length !== 11) errorMsg = lang === "ar" ? "يجب أن يكون 11 رقم" : "Must be 11 digits";
+        helper.innerText = errorMsg;
+        showToast(errorMsg, "error");
+      }
+    }
+
+    function clearUserId() {
+      const input = document.getElementById("userId");
+      input.value = ""; input.disabled = false; input.classList.remove("input-error");
+      document.getElementById("save-btn").disabled = false;
+      document.getElementById("helper-text").innerText = "";
+      currentUserId = null;
+      updateTexts();
+      localStorage.removeItem("selectedUserId");
+    }
+
+    function goToMeasurements() {
+      const savedId = localStorage.getItem("selectedUserId");
+      if(!savedId) {
+        showToast(lang === "ar" ? "يجب تسجيل الدخول أولاً!" : "Please Login First!", "error");
+        const card = document.querySelector(".card");
+        card.style.animation = "shake 0.3s";
+        setTimeout(() => card.style.animation = "", 300);
+        return;
+      }
+      window.location.href = "measurements.html";
+    }
+
+    function setLanguage() {
+      const langVal = document.getElementById("language_select").value;
+      if (langVal !== "placeholder") {
+        localStorage.setItem("language", langVal);
+        location.reload();
+      }
+    }
+
+    function updateTexts() {
+      if (lang === "ar") {
+        document.body.style.direction = "rtl"; 
+        document.getElementById("header-title").innerText = "نظام متابعة المرضى";
+        document.getElementById("card-title").innerText = "تسجيل الدخول";
+        document.getElementById("userId").placeholder = "رقم الموبايل (01xxxxxxxxx)";
+        document.querySelector(".btn-text-save").innerText = "تسجيل وحفظ";
+        document.querySelector(".btn-text-clear").innerText = "مسح";
+        document.querySelector(".btn-text-measure").innerText = "لوحة القياسات";
         
-        // 3. تحديث الواجهة وحفظ رقم الهاتف في الذاكرة المحلية
-        input.disabled = true;
-        document.getElementById("save-btn").disabled = true;
-        helper.style.color = "#00ff88";
-        helper.innerText = "";
-        showToast(lang === "ar" ? "تم تسجيل الدخول بنجاح" : "Login Successful", "success");
-        
-        document.getElementById("save-btn").innerHTML = '<i class="fas fa-check"></i> ' + (lang === "ar" ? "تم الحفظ" : "Saved");
-        localStorage.setItem("selectedUserId", userId);
+        document.querySelector(".header-left").style.paddingRight = "20px";
+        document.querySelector(".header-left").style.paddingLeft = "0";
+        document.querySelector(".header-actions").style.paddingLeft = "20px";
+        document.querySelector(".header-actions").style.paddingRight = "0";
+        document.querySelector(".input-group i").style.right = "15px";
+        document.querySelector(".input-group i").style.left = "auto";
+        document.querySelector(".form-section input").style.padding = "15px 45px 15px 15px";
+        document.getElementById("helper-text").style.textAlign = "right";
+        document.querySelector(".close-modal").style.left = "15px";
+        document.querySelector(".close-modal").style.right = "auto";
+        document.querySelector(".live-clock").style.borderRight = "1px solid rgba(255,255,255,0.2)";
+        document.querySelector(".live-clock").style.borderLeft = "none";
+        document.querySelector(".live-clock").style.paddingRight = "15px";
+        document.querySelector(".live-clock").style.paddingLeft = "0";
+        document.querySelector(".live-clock").style.marginRight = "15px";
+        document.querySelector(".live-clock").style.marginLeft = "0";
 
-      } else {
-        input.classList.add("input-error");
-        helper.style.color = "#ff416c";
-        let errorMsg = lang === "ar" ? "خطأ في الرقم" : "Invalid Number";
-        if (userId.length === 0) errorMsg = lang === "ar" ? "الحقل فارغ" : "Field Empty";
-        else if (userId.length !== 11) errorMsg = lang === "ar" ? "يجب أن يكون 11 رقم" : "Must be 11 digits";
-        helper.innerText = errorMsg;
-        showToast(errorMsg, "error");
-      }
-    }
+        document.querySelector(".modal-card h2").innerText = "عن مشروع Bioscan ATM";
+        document.getElementById("project-context").innerText = "مشروع تخرج دفعة 2024 | قسم هندسة الإلكترونيات والاتصالات";
+        document.getElementById("mission-title").innerText = "مهمتنا";
+        document.getElementById("mission-text").innerText = "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة باستخدام أحدث تقنيات إنترنت الأشياء (IoT)، لسد الفجوة بين المرضى والرعاية الطبية.";
+        document.getElementById("vision-title").innerText = "رؤيتنا";
+        document.getElementById("vision-text").innerText = "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع في كل مكان، لنشر ثقافة الوقاية خير من العلاج.";
+        document.getElementById("team-title").innerText = "فريق العمل";
+        document.getElementById("uni-text").innerText = "جامعة الزقازيق - كلية الهندسة";
+      } else {
+        document.body.style.direction = "ltr";
+        document.getElementById("header-title").innerText = "Patient Monitoring";
+        document.getElementById("card-title").innerText = "User Login";
+        document.getElementById("userId").placeholder = "Mobile Number (01xxxxxxxxx)";
+        document.querySelector(".btn-text-save").innerText = "Login & Save";
+        document.querySelector(".btn-text-clear").innerText = "Clear";
+        document.querySelector(".btn-text-measure").innerText = "Dashboard";
+        document.querySelector(".input-group i").style.left = "15px";
+        document.querySelector(".input-group i").style.right = "auto";
+        document.querySelector(".form-section input").style.padding = "15px 15px 15px 45px";
+        document.getElementById("helper-text").style.textAlign = "left";
+        document.querySelector(".close-modal").style.right = "15px";
+        document.querySelector(".close-modal").style.left = "auto";
+        document.querySelector(".modal-card h2").innerText = "Bioscan ATM";
+        document.getElementById("project-context").innerText = "Graduation Project 2024 | Electronics & Comm. Dept.";
+        document.getElementById("mission-title").innerText = "Our Mission";
+        document.getElementById("mission-text").innerText = "Empowering communities with instant, hospital-grade health diagnostics through accessible IoT technology, bridging the gap between patients and medical care.";
+        document.getElementById("vision-title").innerText = "Our Vision";
+        document.getElementById("vision-text").innerText = "A world where proactive health monitoring is seamless, accessible to everyone everywhere, fostering a culture of prevention over cure.";
+        document.getElementById("team-title").innerText = "The Team";
+        document.getElementById("uni-text").innerText = "Zagazig University - Faculty of Engineering";
+      }
+    }
 
-    function clearUserId() {
-      const input = document.getElementById("userId");
-      input.value = ""; input.disabled = false; input.classList.remove("input-error");
-      document.getElementById("save-btn").disabled = false;
-      document.getElementById("helper-text").innerText = "";
-      currentUserId = null;
-      updateTexts();
-      localStorage.removeItem("selectedUserId");
-    }
-
-    function goToMeasurements() {
-      const savedId = localStorage.getItem("selectedUserId");
-      if(!savedId) {
-        showToast(lang === "ar" ? "يجب تسجيل الدخول أولاً!" : "Please Login First!", "error");
-        const card = document.querySelector(".card");
-        card.style.animation = "shake 0.3s";
-        setTimeout(() => card.style.animation = "", 300);
-        return;
-      }
-      window.location.href = "measurements.html";
-    }
-
-    function setLanguage() {
-      const langVal = document.getElementById("language_select").value;
-      if (langVal !== "placeholder") {
-        localStorage.setItem("language", langVal);
-        location.reload();
-      }
-    }
-
-    // دالة إنشاء الملف الشخصي الفارغ
-    const PATIENT_DATA_PATH = 'PatientData'; 
-    function createInitialProfile(userPhone) {
-        const ref = database.ref(PATIENT_DATA_PATH + '/' + userPhone);
-
-        ref.once('value')
-            .then(snapshot => {
-                if (!snapshot.exists()) {
-                    return ref.set({
-                        Phone: userPhone,
-                        SensorData: "No measurement recorded yet",
-                        Timestamp: new Date().toLocaleString(),
-                        AddedBy: "Self-Registered"
-                    });
-                }
-                return null;
-            })
-            .catch(error => {
-                console.error("Firebase Profile Setup Error:", error);
-                showToast(lang === "ar" ? "فشل ربط الملف" : "Failed to link profile", "error");
-            });
-    }
-
-    function updateTexts() {
-      if (lang === "ar") {
-        document.body.style.direction = "rtl"; 
-        document.getElementById("header-title").innerText = "نظام متابعة المرضى";
-        document.getElementById("card-title").innerText = "تسجيل الدخول";
-        document.getElementById("userId").placeholder = "رقم الموبايل (01xxxxxxxxx)";
-        document.querySelector(".btn-text-save").innerText = "تسجيل وحفظ";
-        document.querySelector(".btn-text-clear").innerText = "مسح";
-        document.querySelector(".btn-text-measure").innerText = "لوحة القياسات";
-        
-        document.querySelector(".header-left").style.paddingRight = "20px";
-        document.querySelector(".header-left").style.paddingLeft = "0";
-        document.querySelector(".header-actions").style.paddingLeft = "20px";
-        document.querySelector(".header-actions").style.paddingRight = "0";
-        document.querySelector(".input-group i").style.right = "15px";
-        document.querySelector(".input-group i").style.left = "auto";
-        document.querySelector(".form-section input").style.padding = "15px 45px 15px 15px";
-        document.getElementById("helper-text").style.textAlign = "right";
-        document.querySelector(".close-modal").style.left = "15px";
-        document.querySelector(".close-modal").style.right = "auto";
-        document.querySelector(".live-clock").style.borderRight = "1px solid rgba(255,255,255,0.2)";
-        document.querySelector(".live-clock").style.borderLeft = "none";
-        document.querySelector(".live-clock").style.paddingRight = "15px";
-        document.querySelector(".live-clock").style.paddingLeft = "0";
-        document.querySelector(".live-clock").style.marginRight = "15px";
-        document.querySelector(".live-clock").style.marginLeft = "0";
-
-        document.querySelector(".modal-card h2").innerText = "عن مشروع Bioscan ATM";
-        document.getElementById("project-context").innerText = "مشروع تخرج دفعة 2024 | قسم هندسة الإلكترونيات والاتصالات";
-        document.getElementById("mission-title").innerText = "مهمتنا";
-        document.getElementById("mission-text").innerText = "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة باستخدام أحدث تقنيات إنترنت الأشياء (IoT)، لسد الفجوة بين المرضى والرعاية الطبية.";
-        document.getElementById("vision-title").innerText = "رؤيتنا";
-        document.getElementById("vision-text").innerText = "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع في كل مكان، لنشر ثقافة الوقاية خير من العلاج.";
-        document.getElementById("team-title").innerText = "فريق العمل";
-        document.getElementById("uni-text").innerText = "جامعة الزقازيق - كلية الهندسة";
-      } else {
-        document.body.style.direction = "ltr";
-        document.getElementById("header-title").innerText = "Patient Monitoring";
-        document.getElementById("card-title").innerText = "User Login";
-        document.getElementById("userId").placeholder = "Mobile Number (01xxxxxxxxx)";
-        document.querySelector(".btn-text-save").innerText = "Login & Save";
-        document.querySelector(".btn-text-clear").innerText = "Clear";
-        document.querySelector(".btn-text-measure").innerText = "Dashboard";
-        document.querySelector(".input-group i").style.left = "15px";
-        document.querySelector(".input-group i").style.right = "auto";
-        document.querySelector(".form-section input").style.padding = "15px 15px 15px 45px";
-        document.getElementById("helper-text").style.textAlign = "left";
-        document.querySelector(".close-modal").style.right = "15px";
-        document.querySelector(".close-modal").style.left = "auto";
-        document.querySelector(".modal-card h2").innerText = "Bioscan ATM";
-        document.getElementById("project-context").innerText = "Graduation Project 2024 | Electronics & Comm. Dept.";
-        document.getElementById("mission-title").innerText = "Our Mission";
-        document.getElementById("mission-text").innerText = "Empowering communities with instant, hospital-grade health diagnostics through accessible IoT technology, bridging the gap between patients and medical care.";
-        document.getElementById("vision-title").innerText = "Our Vision";
-        document.getElementById("vision-text").innerText = "A world where proactive health monitoring is seamless, accessible to everyone everywhere, fostering a culture of prevention over cure.";
-        document.getElementById("team-title").innerText = "The Team";
-        document.getElementById("uni-text").innerText = "Zagazig University - Faculty of Engineering";
-      }
-    }
-
-    window.onload = () => {
-      const savedLang = localStorage.getItem("language");
-      if (savedLang) document.getElementById("language_select").value = savedLang;
-      updateTexts();
-    };
-  </script>
+    window.onload = () => {
+      const savedLang = localStorage.getItem("language");
+      if (savedLang) document.getElementById("language_select").value = savedLang;
+      updateTexts();
+    };
+  </script>
 
 </body>
 </html>
