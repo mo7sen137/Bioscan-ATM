@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
-    /* ... (نفس التصميم الأصلي تماماً كما أرسلته) ... */
+    /* --- CSS Styles (نفس التصميم الأصلي) --- */
     :root {
       --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       --glass-bg: rgba(255, 255, 255, 0.1);
@@ -174,6 +174,7 @@
       <h3 id="aiTitle">AI Health Analysis</h3>
       <p id="aiText">Waiting for measurements to generate analysis...</p>
     </div>
+    <div id="lastReadingTime" style="position: absolute; bottom: 8px; right: 20px; font-size: 0.8rem; color: #aaa;">Last updated: --</div>
   </div>
 
   <div class="measure-container">
@@ -185,9 +186,11 @@
     </div>
     <div class="measure-btn pressure" id="bpBtn" onclick="goToPressure()">
       <i class="fas fa-stethoscope"></i> <span>Blood Pressure</span>
+      <div id="bpValue" style="font-weight: 700; color: #fff; font-size: 1.1rem; position: absolute; bottom: 5px;">--</div>
     </div>
     <div class="measure-btn oxygen" id="oxygenBtn" onclick="goToOxygen()">
       <i class="fas fa-lungs"></i> <span>Oxygen (SpO2)</span>
+      <div id="spo2Value" style="font-weight: 700; color: #fff; font-size: 1.1rem; position: absolute; bottom: 5px;">--</div>
     </div>
     <div class="measure-btn vision" id="visionBtn" onclick="goToVisionPage()">
       <i class="fas fa-eye"></i> <span>Vision Test</span>
@@ -219,18 +222,17 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const auth = firebase.auth(); // Added auth
-
-    // Sign in anonymously to read data
-    auth.signInAnonymously().catch((error) => {
-        console.error("Auth Error:", error);
-    });
+    const auth = firebase.auth(); 
+    
+    // --- Auth Check ---
+    auth.signInAnonymously().catch(console.error);
 
     const PATIENT_DATA_PATH = 'PatientData';
     const currentUserId = localStorage.getItem("selectedUserId");
     const userSpan = document.getElementById('currentUserName');
     
-    if(currentUserId) userSpan.innerText = currentUserId; else userSpan.innerText = "Guest";
+    if(!currentUserId) window.location.href="index.html"; 
+    else userSpan.innerText = currentUserId;
 
     // --- SMART SIDEBAR LOGIC ---
     function toggleSidebar(show) {
@@ -245,7 +247,7 @@
       }
     }
 
-    // --- HELPER TO PARSE SENSOR STRING ---
+    // --- HELPER: Parse string ---
     function extractSensorValues(sensorString) {
         const values = {};
         if (sensorString && sensorString !== "No measurement recorded yet") {
@@ -262,57 +264,6 @@
             });
         }
         return values;
-    }
-
-    // --- DATA & AI LOGIC (MODIFIED) ---
-    let currentData = { temp: "--", bpm: "--", bp: "--", spo2: "--" };
-
-    function updateAIAnalysis() {
-      if(!currentUserId) return;
-      
-      const userRef = db.ref(PATIENT_DATA_PATH + "/" + currentUserId);
-      const lang = localStorage.getItem("language") || "en";
-
-      userRef.on("value", (snapshot) => {
-        if(snapshot.exists()) {
-            const data = snapshot.val();
-            const sensorString = data.SensorData || "No measurement recorded yet";
-            const extracted = extractSensorValues(sensorString);
-
-            currentData = {
-                temp: extracted.temp || "--",
-                bpm: extracted.bpm || "--",
-                bp: extracted.bp || "--",
-                spo2: extracted.spo2 || "--"
-            };
-
-            const temp = parseFloat(currentData.temp) || 0;
-            const bpm = parseInt(currentData.bpm) || 0;
-            const spo2 = parseFloat(currentData.spo2) || 0;
-            
-            let analysis = "";
-            let status = "normal"; 
-
-            if (sensorString === "No measurement recorded yet") {
-                 analysis = lang === "ar" ? "في انتظار إجراء القياسات..." : "Waiting for measurements...";
-                 status = "normal";
-            } else if (temp > 38 && bpm > 100) {
-              analysis = lang === "ar" ? "تحذير: مؤشرات حمى. استشر طبيب." : "Warning: Fever signs. Consult doctor.";
-              status = "danger";
-            } else if (spo2 > 0 && spo2 < 95) {
-              analysis = lang === "ar" ? "تحذير: نقص أكسجين." : "Warning: Low Oxygen.";
-              status = "danger";
-            } else {
-               analysis = lang === "ar" ? "المؤشرات الحيوية مستقرة." : "Vital signs are stable.";
-               status = "normal";
-            }
-
-            document.getElementById("aiText").innerText = analysis;
-            const card = document.querySelector(".ai-card");
-            if(status === "danger") card.style.borderColor = "#ff416c";
-            else card.style.borderColor = "#00ff88";
-        }
-      });
     }
 
     // --- BMI LOGIC ---
@@ -341,7 +292,7 @@
       else { status = lang==="ar"?"سمنة":"Obese"; color="#e74c3c"; }
 
       let riskMsg = "";
-      const currentBP = parseInt(currentData.bp) || 0;
+      const currentBP = currentData.bp ? parseInt(currentData.bp.split('/')[0]) : 0; 
       const currentPulse = parseInt(currentData.bpm) || 0;
 
       if(bmi >= 30) {
@@ -365,20 +316,80 @@
       }
     }
 
+    // --- DATA & AI LOGIC ---
+    let currentData = { temp: "--", bpm: "--", bp: "--", spo2: "--" };
+    let lastTimestamp = "--";
+
+    function updateAIAnalysis() {
+      if(!currentUserId) return;
+        
+      const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
+
+      userRef.on("value", (snapshot) => {
+        if(snapshot.exists()) {
+            const data = snapshot.val();
+            const sensorDataString = data.SensorData || "No measurement recorded yet";
+            const sensorValues = extractSensorValues(sensorDataString);
+            
+            currentData = {
+                temp: sensorValues.temp || "--",
+                bpm: sensorValues.bpm || "--",
+                bp: sensorValues.bp || "--",
+                spo2: sensorValues.spo2 || "--"
+            };
+            lastTimestamp = data.Timestamp || "--";
+
+            document.getElementById('bpValue').innerText = currentData.bp;
+            document.getElementById('spo2Value').innerText = currentData.spo2 + (currentData.spo2 !== '--' ? '%' : '');
+            document.getElementById('lastReadingTime').innerText = (lang === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + lastTimestamp;
+            
+            const temp = parseFloat(currentData.temp) || 0;
+            const bpm = parseInt(currentData.bpm) || 0;
+            const spo2 = parseFloat(currentData.spo2) || 0;
+            
+            let analysis = "";
+            let status = "normal"; 
+            
+            if (sensorDataString === "No measurement recorded yet") {
+                analysis = lang === "ar" ? "يرجى بدء أول قياس لعرض التحليل." : "Please take your first measurement to generate analysis.";
+                status = "info";
+            }
+            else if (temp > 38 && bpm > 100) {
+              analysis = lang === "ar" ? "تحذير: مؤشرات حمى. استشر طبيب." : "Warning: Fever signs. Consult doctor.";
+              status = "danger";
+            } else if (spo2 > 0 && spo2 < 95) {
+              analysis = lang === "ar" ? "تحذير: نقص أكسجين." : "Warning: Low Oxygen.";
+              status = "danger";
+            } else {
+               analysis = lang === "ar" ? "المؤشرات الحيوية مستقرة." : "Vital signs are stable.";
+               status = "normal";
+            }
+
+            document.getElementById("aiText").innerText = analysis;
+            const card = document.querySelector(".ai-card");
+            if(status === "danger") card.style.borderColor = "#ff416c";
+            else if (status === "normal") card.style.borderColor = "#00ff88";
+            else card.style.borderColor = "#00d2ff";
+        }
+      });
+    }
+
     // --- UTILS ---
     async function checkInternetConnection() { try { await fetch("https://www.google.com/favicon.ico?"+new Date().getTime(),{mode:"no-cors"});return true;}catch(e){return false;}}
-    async function updateStatus(){const d=document.getElementById('connectionStatus');if(await checkInternetConnection()){d.classList.remove('offline');d.title="Online";}else{d.classList.add('offline');d.title="Offline";showToast("Connection Lost!","error");}}
+    async function updateStatus(){const d=document.getElementById('connectionStatus');if(await checkInternetConnection()){d.classList.remove('offline');d.title="Online";}else{d.classList.add('offline');d.title="Offline";showToast((localStorage.getItem('language') === 'ar' ? "فقد الاتصال!" : "Connection Lost!"),"error");}}
     setInterval(updateStatus,3000);
 
     function showToast(msg,type="info"){const c=document.getElementById("toastContainer");const t=document.createElement("div");t.className=`toast toast-${type}`;t.innerHTML=`<i class="fas fa-info-circle"></i><span>${msg}</span>`;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
     
     function sendWhatsAppReport(){
-        let p="20"+currentUserId.substring(1);
-        let m=`🏥 *Bioscan Report*%0ATemp: ${currentData.temp}%0APulse: ${currentData.bpm}%0ABP: ${currentData.bp}%0AOx: ${currentData.spo2}`;
-        window.open(`https://wa.me/${p}?text=${m}`,'_blank');
+        let phone = currentUserId; 
+        if (phone.startsWith('0')) phone = '20' + phone.substring(1);
+        let m=`🏥 *Bioscan Report (%0AUpdated: ${lastTimestamp})*%0A- Temp: ${currentData.temp}%0A- Pulse: ${currentData.bpm}%0A- BP: ${currentData.bp}%0A- Ox: ${currentData.spo2}`;
+        if(localStorage.getItem('language') === 'ar') m = `🏥 *تقرير بايو سكان*%0A(آخر تحديث: ${lastTimestamp})%0A- الحرارة: ${currentData.temp}%0A- النبض: ${currentData.bpm}%0A- الضغط: ${currentData.bp}%0A- الأكسجين: ${currentData.spo2}`;
+        window.open(`https://wa.me/${phone}?text=${m}`,'_blank');
     }
     
-    function findHospitals(){window.open("https://www.google.com/maps/search/hospitals+near+me/","_blank");}
+    function findHospitals(){window.open("http://maps.google.com/maps?q=nearest+hospitals","_blank");}
     function toggleFullScreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else if(document.exitFullscreen)document.exitFullscreen();}
     function closeMeasurements(){localStorage.removeItem("selectedUserId");window.location.href="index.html";}
     
