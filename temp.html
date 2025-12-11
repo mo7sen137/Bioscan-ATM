@@ -4,13 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bioscan | Temperature</title>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 <style>
-  /* Theme Color: Orange/Coral */
+  /* --- CSS Styles (نفس التصميم الأصلي) --- */
   :root { --primary-color: #ff7e5f; --danger-color: #ff0000; --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-color: #ffffff; }
   body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; transition: background 0.5s; }
   @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -106,6 +109,7 @@
 </div>
 
 <script>
+  // --- 1. Config ---
   const firebaseConfig = {
     apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
     authDomain: "smart-a76a0.firebaseapp.com",
@@ -128,16 +132,19 @@
   const PATIENT_DATA_PATH = "PatientData";
   let isCritical = false;
 
+  // --- 2. Live Reading (القراءة الحية من الفايربيز) ---
   if (userId) {
     db.ref(PATIENT_DATA_PATH + "/" + userId + "/SensorData").on("value", snapshot => {
        const str = snapshot.val() || "";
+       // استخراج قيمة الحرارة
        if(str && str.includes("Temp=")) {
            const parts = str.split(",");
-           const tempPart = parts.find(p => p.trim().startsWith("Temp="));
+           const tempPart = parts.find(p => p.trim().toLowerCase().startsWith("temp="));
            if(tempPart) {
                const val = parseFloat(tempPart.split("=")[1]);
                if(!isNaN(val)) {
                    tempBox.innerText = val;
+                   // فحص الخطر
                    if (val > 38.5 || val < 35.0) triggerSOS();
                    else clearSOS();
                }
@@ -146,14 +153,28 @@
     });
   }
 
+  // --- 3. Save Function (Updated for Session) ---
   function saveMeasurement() {
     const val = tempBox.innerText;
-    const isAr = localStorage.getItem("language") === "ar";
     if (val === "--" || val === "") return;
     if (!userId) { window.location.href = "index.html"; return; }
     
+    // جلب رقم الجلسة
+    let sessionId = localStorage.getItem("currentSessionId");
+    if (!sessionId) {
+        sessionId = Date.now().toString();
+        localStorage.setItem("currentSessionId", sessionId);
+    }
+
     const timestamp = new Date().toLocaleString();
-    db.ref(`${PATIENT_DATA_PATH}/${userId}/History`).push({ temperature: val, createdAt: timestamp });
+    
+    // التعديل: استخدام update داخل الجلسة الحالية
+    db.ref(`${PATIENT_DATA_PATH}/${userId}/History/${sessionId}`).update({
+        temperature: val,
+        createdAt: timestamp
+    });
+    
+    // تحديث البيانات الحالية للداشبورد (SensorData string)
     db.ref(`${PATIENT_DATA_PATH}/${userId}/SensorData`).once('value').then(snapshot => {
         let currentStr = snapshot.val() || "";
         if (currentStr.includes("Temp=")) currentStr = currentStr.replace(/Temp=[^,]+/, `Temp=${val}`);
@@ -165,6 +186,7 @@
     });
   }
 
+  // --- Helpers ---
   function showConfirmModal() {
       const isAr = localStorage.getItem("language") === "ar";
       document.getElementById("modalTitle").innerText = isAr ? "تم بنجاح!" : "Success!";
@@ -202,6 +224,7 @@
 
   function goBack() { clearSOS(); window.location.href = "measurements.html"; }
 
+  // Localization
   const lang = localStorage.getItem("language") || "en";
   if (lang === "ar") {
     document.body.style.direction = "rtl";
