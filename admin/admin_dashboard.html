@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">لوحة تحكم المسؤول | Smart System</title>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* --- Styles (CSS مُنقح) --- */
+        :root {
+            --primary-color: #00d2ff;
+            --admin-color: #6c5ce7;
+            --error-color: #ff416c;
+            --success-color: #00ff88;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-color: #ffffff;
+            --header-bg: rgba(15, 32, 39, 0.9);
+            --modal-bg: rgba(15, 32, 39, 0.95);
+        }
+
+        body {
+            font-family: 'Cairo', 'Poppins', sans-serif;
+            margin: 0; padding: 20px;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            color: var(--text-color);
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: var(--admin-color); border-radius: 10px; }
+
+        header {
+            width: 100%; max-width: 1200px; margin-bottom: 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--header-bg); backdrop-filter: blur(10px);
+            padding: 15px 25px; border-radius: 15px; border: 1px solid var(--admin-color);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .header-info h1 {
+            margin: 0; font-size: 1.8rem; font-weight: 600; 
+            color: var(--admin-color); text-transform: uppercase;
+        }
+        .header-info p { margin: 0; font-size: 0.85rem; color: #ccc; }
+
+        .logout-btn {
+            background: linear-gradient(45deg, #ff416c, #cb2d3e);
+            color: white; border: none; padding: 10px 20px; border-radius: 25px;
+            font-weight: 600; cursor: pointer; transition: 0.3s;
+        }
+        .logout-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 65, 108, 0.5); }
+        
+        .language-btn {
+            background-color: var(--admin-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 2.5fr 1.5fr; 
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card-admin {
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: 15px;
+            padding: 25px; margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-admin h3 {
+            color: var(--primary-color); font-size: 1.4rem; margin-top: 0;
+            border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 10px;
+            margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+        }
+
+        /* --- DIGITAL STATS LAYOUT --- */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box h4 {
+            margin: 0 0 5px 0;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .stat-box .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--success-color);
+            display: block;
+            min-height: 35px;
+        }
+        
+        /* Highlight RAM usage if high */
+        .stat-box.high-ram .stat-value {
+            color: var(--error-color);
+        }
+
+
+        .device-list { margin: 0; padding: 0; list-style: none; max-height: 200px; overflow-y: auto; }
+        .device-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .device-name { font-weight: 600; color: #ddd; }
+        
+        .status-dot {
+            width: 10px; height: 10px; border-radius: 50%; margin-right: 5px;
+            display: inline-block; animation: pulse 1s infinite alternate;
+        }
+        .status-online { background-color: var(--success-color); box-shadow: 0 0 10px var(--success-color); }
+        .status-offline { background-color: var(--error-color); box-shadow: 0 0 10px var(--error-color); }
+        
+        @keyframes pulse { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .control-item { margin-bottom: 20px; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.2); }
+        .control-btn {
+            padding: 10px 15px; border-radius: 8px; border: none; color: white;
+            cursor: pointer; font-weight: 600; width: 100%; transition: 0.3s;
+            margin-top: 10px;
+        }
+        .btn-reboot { background: linear-gradient(45deg, #f39c12, #e67e22); }
+        .btn-fota { background: linear-gradient(45deg, #9b59b6, #8e44ad); }
+        .fota-input { 
+            width: calc(100% - 20px); padding: 10px; margin-top: 10px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: white; border-radius: 5px; box-sizing: border-box;
+            font-family: 'Poppins', sans-serif; 
+        }
+        
+        .data-search-bar {
+            display: flex; gap: 15px; margin-bottom: 20px;
+        }
+        .data-search-bar input, .data-search-bar select {
+            padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
+            color: white; border-radius: 8px; font-size: 1rem; flex-grow: 1;
+        }
+        .data-table-admin {
+            width: 100%; border-collapse: collapse; margin-top: 10px;
+            max-height: 450px; overflow-y: auto; display: block;
+        }
+        .data-table-admin th, .data-table-admin td {
+            padding: 12px; 
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+        }
+        .data-table-admin th { background: rgba(0, 210, 255, 0.1); color: var(--primary-color); position: sticky; top: 0; }
+        .data-table-admin tr:hover { background: rgba(255,255,255,0.02); }
+        /* تم تغيير لون زر الإجراءات للحذف */
+        .action-btn { 
+            background: linear-gradient(45deg, #ff416c, #cb2d3e); 
+            color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; 
+        }
+        
+        /* تعديل زر الإضافة */
+        #btnAddUser {
+            background: linear-gradient(45deg, #00ff88, #00d2ff); 
+            color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;
+            font-weight: 600;
+        }
+
+        [dir="rtl"] .data-table-admin th, [dir="rtl"] .data-table-admin td { text-align: right; }
+        [dir="ltr"] .data-table-admin th, [dir="ltr"] .data-table-admin td { text-align: left; }
+
+        @media (max-width: 900px) {
+            .dashboard-container { grid-template-columns: 1fr; }
+            .gauge-box { width: 100%; }
+            .data-search-bar { flex-direction: column; }
+        }
+
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--modal-bg); backdrop-filter: blur(5px);
+            border: 1px solid var(--admin-color); border-radius: 15px;
+            padding: 30px; width: 90%; max-width: 450px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+        
+        .modal-content h3 {
+            color: var(--primary-color); border-bottom: 2px solid rgba(255,255,255,0.1); 
+            padding-bottom: 10px; margin-bottom: 20px; text-align: center;
+        }
+
+        .modal-content label {
+            display: block; margin-bottom: 8px; color: #ccc; font-weight: 600;
+        }
+
+        .modal-content input, .modal-content select {
+            width: 100%; padding: 10px; margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border);
+            border-radius: 5px; color: var(--text-color); box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .modal-actions {
+            display: flex; justify-content: space-between; margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px; border-radius: 8px; border: none; color: white;
+            cursor: pointer; font-weight: 600; transition: 0.3s;
+        }
+        
+        .btn-submit { background: linear-gradient(45deg, var(--success-color), #00d2ff); }
+        .btn-submit:hover { opacity: 0.9; }
+
+        .btn-cancel { background: linear-gradient(45deg, #7f8c8d, #34495e); }
+        .btn-cancel:hover { opacity: 0.9; }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="header-info">
+            <h1 id="headerTitle">Bioscan ATM System Control</h1>
+            <p id="welcomeMessage">Welcome, Administrator</p>
+        </div>
+        
+        <div class="header-controls">
+            <button class="language-btn" id="langToggleBtn" onclick="toggleLanguage()">English</button>
+            <button class="logout-btn" onclick="adminLogout()" id="logoutBtnText"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        
+        <div class="data-section">
+            
+            <div class="card-admin">
+                <h3 id="dataManagementTitle"><i class="fas fa-database"></i> Patient Data Management & Analysis</h3>
+                
+                <div class="data-search-bar">
+                    <input type="text" id="patientSearch" placeholder="Search by Phone Number or ID">
+                    <select id="filterSelect">
+                        <option value="all" id="filterAll">Show All Records</option>
+                        <option value="critical" id="filterCritical">Critical Readings Only</option>
+                        <option value="last7days" id="filterLast7">Last 7 Days</option>
+                    </select>
+                    <button class="action-btn" id="btnAddUser" onclick="showAddPatientModal()"><i class="fas fa-plus"></i> <span id="addBtnText">Add User</span></button>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="data-table-admin">
+                        <thead>
+                            <tr>
+                                <th id="thPatientID">Patient ID</th>
+                                <th id="thSensorData">Sensor Readings</th> <th id="thAddedBy">Added By</th>          <th id="thDateTime">Date/Time</th>       <th id="thActions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientDataBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="control-section">
+            
+            <div class="card-admin">
+                <h3 id="systemMonitorTitle"><i class="fas fa-tachometer-alt"></i> System Health & Performance</h3>
+                
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <h4 id="statTitleEfficiency">System Efficiency (%)</h4>
+                        <span class="stat-value" id="statEfficiency">0%</span>
+                    </div>
+                    <div class="stat-box">
+                        <h4 id="statTitleLatency">Network Latency (ms)</h4>
+                        <span class="stat-value" id="statLatency">0 ms</span>
+                    </div>
+                    <div class="stat-box" id="statRAMBox">
+                        <h4 id="statTitleRAM">ESP32 RAM Usage (%)</h4>
+                        <span class="stat-value" id="statRAM">0%</span>
+                    </div>
+                </div>
+                </div>
+
+            <div class="card-admin">
+                <h3 id="deviceStatusTitle"><i class="fas fa-sitemap"></i> Connected Devices Status</h3>
+                <ul id="deviceStatusList" class="device-list">
+                    </ul>
+            </div>
+
+            <div class="card-admin">
+                <h3 id="remoteControlTitle"><i class="fas fa-terminal"></i> Remote Commands</h3>
+                <div class="control-item">
+                    <h4 id="selectDeviceText">Target Device:</h4>
+                    <select id="targetDeviceSelect" class="fota-input">
+                        <option value="Device_001">Device 001</option>
+                        </select>
+                    <button class="control-btn btn-reboot" onclick="sendCommand('REBOOT')"><i class="fas fa-redo-alt"></i> <span id="rebootBtnText">Reboot Device</span></button>
+                </div>
+
+                <div class="control-item">
+                    <h4 id="fotaTitle">Firmware Update (FOTA)</h4>
+                    <input type="url" id="firmwareUrlInput" class="fota-input" placeholder="Enter new firmware URL (e.g., https://.../new.bin)">
+                    <button class="control-btn btn-fota" onclick="sendCommand('FOTA')"><i class="fas fa-cloud-upload-alt"></i> <span id="fotaBtnText">Deploy Update</span></button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <div id="addPatientModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle">إضافة سجل مريض جديد</h3>
+            <form id="addPatientForm">
+                <label for="patientPhone" id="labelPhone">رقم الهاتف (Patient ID)</label>
+                <input type="text" id="patientPhone" required>
+
+                <label for="sensorReading" id="labelReading">قراءات المستشعرات (مثال: Temp=37.1, HR=75)</label>
+                <input type="text" id="sensorReading" placeholder="مثال: Temp=37.1, HR=75" required>
+                
+                <label for="addedSource" id="labelSource">مصدر الإضافة</label>
+                <select id="addedSource" required>
+                    <option value="Admin" id="optionAdmin">تمت إضافته بواسطة المسؤول</option>
+                    <option value="Self" id="optionSelf">سجل نفسه (Self-Registered)</option>
+                </select>
+
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn btn-cancel" onclick="closeAddPatientModal()" id="btnCancel">إلغاء</button>
+                    <button type="submit" class="modal-btn btn-submit" id="btnSave">حفظ السجل</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // --- FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
+            authDomain: "smart-a76a0.firebaseapp.com",
+            databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
+            projectId: "smart-a76a0",
+            messagingSenderId: "343693501983",
+            appId: "1:343693501983:web:10ea3fce9d990a2455172a"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // مسارات قاعدة البيانات
+        const SYSTEM_HEALTH_PATH = 'SystemHealth/Metrics'; 
+        const DEVICE_STATUS_PATH = 'DeviceStatus';
+        const COMMAND_PATH = 'Commands/'; 
+        const PATIENT_DATA_PATH = 'PatientData'; 
+        
+
+        // ===============================================
+        // 1. INITIALIZATION AND AUTHENTICATION
+        // ===============================================
+
+        function initializeDashboard() {
+            monitorSystemPerformance(); 
+            loadDeviceStatus();         
+            loadPatientData();          
+        }
+        
+        // الحل الآمن لمشكلة التوقيت
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(checkAuthentication, 3000); 
+        });
+
+        function checkAuthentication() {
+            auth.onAuthStateChanged(function(user) {
+                if (!user) {
+                    window.location.href = "login.html"; 
+                } else {
+                    applyLanguage(currentLang); 
+                    document.getElementById('welcomeMessage').innerText = getLocalizedText('welcomeMessage') + user.email;
+                    initializeDashboard();
+                }
+            });
+        }
+
+        function adminLogout() {
+            auth.signOut().then(() => {
+                localStorage.removeItem('admin_logged_in'); 
+                window.location.href = "login.html"; 
+            });
+        }
+        
+        // ===============================================
+        // 2. DIGITAL STATS (Working)
+        // ===============================================
+        
+        function monitorSystemPerformance() {
+            db.ref(SYSTEM_HEALTH_PATH).on('value', (snapshot) => {
+                const data = snapshot.val();
+                let efficiency = 0;
+                let avgLatency = 0;
+                let ramUsage = 0;
+                const ramBox = document.getElementById('statRAMBox');
+
+                if (data) {
+                    // القراءة من المفاتيح (Avg_Latency_ms/Avg_Latency و RAM_Usage_Percent/RAM)
+                    avgLatency = data.Avg_Latency_ms || data.Avg_Latency || 0; 
+                    ramUsage = data.RAM_Usage_Percent || data.RAM || 0; 
+                    
+                    efficiency = Math.min(100, Math.max(0, 100 - (avgLatency / 5))); 
+                }
+
+                document.getElementById('statEfficiency').innerText = `${efficiency.toFixed(0)}%`;
+                document.getElementById('statLatency').innerText = `${avgLatency.toFixed(0)} ms`;
+                document.getElementById('statRAM').innerText = `${ramUsage.toFixed(0)}%`;
+                
+                if (ramUsage > 75) {
+                    ramBox.classList.add('high-ram');
+                } else {
+                    ramBox.classList.remove('high-ram');
+                }
+
+            });
+        }
+
+        // ===============================================
+        // 3. DEVICE STATUS AND COMMANDS (Working)
+        // ===============================================
+
+        function loadDeviceStatus() {
+            const select = document.getElementById('targetDeviceSelect');
+            const list = document.getElementById('deviceStatusList');
+            
+            db.ref(DEVICE_STATUS_PATH).on('value', (snapshot) => {
+                select.innerHTML = '';
+                list.innerHTML = '';
+
+                if (!snapshot.exists()) {
+                    list.innerHTML = `<li class="device-item">${getLocalizedText('noDevices')}</li>`;
+                    return;
+                }
+
+                const devices = snapshot.val();
+                
+                Object.keys(devices).forEach(id => {
+                    const deviceData = devices[id];
+                    const status = deviceData.Status || 'Offline'; 
+                    const isOnline = (status === 'Online');
+                    
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.innerText = id;
+                    select.appendChild(option);
+
+                    const listItem = document.createElement('li');
+                    listItem.className = 'device-item';
+                    
+                    const statusText = isOnline ? getLocalizedText('online') : getLocalizedText('offline');
+                    const statusClass = isOnline ? 'status-online' : 'status-offline';
+
+                    listItem.innerHTML = `
+                        <span class="device-name">${id}</span>
+                        <div>
+                            <span class="status-dot ${statusClass}"></span>
+                            ${statusText}
+                        </div>
+                    `;
+                    list.appendChild(listItem);
+                });
+            });
+        }
+
+        // ===============================================
+        // 4. PATIENT DATA MANAGEMENT (CRUD Functions)
+        // ===============================================
+
+        // دالة قراءة البيانات (Read) - (مُعدلة للأعمدة الجديدة)
+        function loadPatientData() {
+            const tableBody = document.getElementById('patientDataBody');
+            tableBody.innerHTML = ''; 
+
+            db.ref(PATIENT_DATA_PATH).on('value', (snapshot) => {
+                tableBody.innerHTML = ''; 
+
+                if (!snapshot.exists()) {
+                    tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">${getLocalizedText('noPatientData')}</td></tr>`;
+                    return;
+                }
+
+                snapshot.forEach((childSnapshot) => {
+                    // رقم الهاتف هو المفتاح الأساسي
+                    const patientPhone = childSnapshot.key; 
+                    const data = childSnapshot.val();
+                    
+                    const row = tableBody.insertRow();
+                    
+                    // العمود 1: Patient ID (رقم الهاتف)
+                    row.insertCell().innerText = patientPhone; 
+                    
+                    // العمود 2: قراءات السينسورات (Data)
+                    row.insertCell().innerText = data.SensorData || 'N/A';
+                    
+                    // العمود 3: Added By (مصدر الإضافة)
+                    row.insertCell().innerText = data.AddedBy || 'N/A';
+                    
+                    // العمود 4: التاريخ والوقت
+                    row.insertCell().innerText = data.Timestamp || 'N/A';
+                    
+                    // العمود 5: الإجراءات (زر الحذف)
+                    const actionCell = row.insertCell();
+                    actionCell.className = 'action-cell';
+                    actionCell.innerHTML = `<button class="action-btn" onclick="deletePatient('${patientPhone}')">${getLocalizedText('actionViewDelete')}</button>`;
+                });
+            });
+        }
+
+        // 4.1 دالة عرض النافذة المنبثقة (Modal)
+        function showAddPatientModal() {
+            // مسح أي قيم سابقة
+            document.getElementById('patientPhone').value = '';
+            document.getElementById('sensorReading').value = '';
+            // عرض النافذة
+            document.getElementById('addPatientModal').style.display = 'flex';
+        }
+
+        // 4.2 دالة إغلاق النافذة
+        function closeAddPatientModal() {
+            document.getElementById('addPatientModal').style.display = 'none';
+        }
+
+        // 4.3 دالة إضافة مريض (Create) - يتم تشغيلها عند ضغط Submit
+        document.getElementById('addPatientForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // منع الإرسال التقليدي للصفحة
+            
+            const phone = document.getElementById('patientPhone').value.trim();
+            const sensorData = document.getElementById('sensorReading').value.trim();
+            const source = document.getElementById('addedSource').value;
+            
+            if (!phone || !sensorData) {
+                alert(getLocalizedText('errorRequired'));
+                return;
+            }
+
+            // تحديد المصدر (الإيميل أو مصدر خارجي)
+            let addedBy = source === 'Admin' ? auth.currentUser.email : source;
+
+            // استخدام رقم الهاتف كمفتاح
+            db.ref(PATIENT_DATA_PATH + '/' + phone).set({
+                Phone: phone,
+                SensorData: sensorData, // القراءات الشاملة للسينسورات
+                Timestamp: new Date().toLocaleString(),
+                AddedBy: addedBy
+            })
+            .then(() => {
+                alert(getLocalizedText('patientAddedSuccess'));
+                closeAddPatientModal(); // إغلاق النافذة عند النجاح
+            })
+            .catch(error => {
+                alert(getLocalizedText('patientAddedError') + error.message);
+            });
+        });
+
+        // 4.4 دالة حذف مريض (Delete)
+        function deletePatient(patientId) {
+            if (confirm(getLocalizedText('confirmDelete') + patientId + getLocalizedText('confirmDeleteSuffix'))) {
+                db.ref(PATIENT_DATA_PATH + '/' + patientId).remove()
+                    .then(() => {
+                        alert(getLocalizedText('patientDeleteSuccess'));
+                    })
+                    .catch(error => {
+                        alert(getLocalizedText('patientDeleteError') + error.message);
+                    });
+            }
+        }
+        
+        // ===============================================
+        // 5. Remote Commands
+        // ===============================================
+        
+        function sendCommand(commandType) {
+            // (باقي دالة إرسال الأوامر)
+            const targetDeviceId = document.getElementById('targetDeviceSelect').value;
+            const inputUrl = document.getElementById('firmwareUrlInput').value;
+            
+            let commandValue = commandType === 'REBOOT' ? 'REBOOT' : inputUrl;
+            let message = commandType === 'REBOOT' ? getLocalizedText('sendingReboot') : getLocalizedText('sendingFOTA');
+            
+            if (commandType === 'FOTA' && (!inputUrl || !inputUrl.startsWith('http'))) {
+                alert(getLocalizedText('invalidFOTAUrl'));
+                return;
+            }
+
+            db.ref(COMMAND_PATH + targetDeviceId).set({
+                Action: commandType,
+                Value: commandValue,
+                Timestamp: new Date().toLocaleString()
+            })
+            .then(() => {
+                alert(message + "\n" + getLocalizedText('commandSent'));
+            })
+            .catch(error => {
+                alert(getLocalizedText('commandError') + error.message);
+            });
+            
+            if (commandType === 'FOTA') {
+                document.getElementById('firmwareUrlInput').value = '';
+            }
+        }
+
+        // ===============================================
+        // 6. LANGUAGE AND UTILS
+        // ===============================================
+        
+        let currentLang = localStorage.getItem("language") || "ar";
+
+        const languageTexts = {
+            'pageTitle': { en: 'Admin Dashboard | Bioscan ATM', ar: 'لوحة تحكم المسؤول | بايو سكان' },
+            'headerTitle': { en: 'Bioscan ATM System Control', ar: 'لوحة تحكم نظام بايو سكان' },
+            'welcomeMessage': { en: 'Welcome, ', ar: 'مرحباً، المسؤول: ' },
+            'logout': { en: 'Logout', ar: 'تسجيل الخروج' },
+            'langToggleBtnAr': { ar: 'English', en: 'العربية' },
+            'dataManagementTitle': { en: 'Patient Data Management & Analysis', ar: 'إدارة وتحليل بيانات المرضى' },
+            'patientSearch': { en: 'Search by Phone Number or ID', ar: 'البحث برقم الهاتف أو الهوية' },
+            'filterAll': { en: 'Show All Records', ar: 'عرض كافة السجلات' },
+            'filterCritical': { en: 'Critical Readings Only', ar: 'القراءات الحرجة فقط' },
+            'filterLast7': { en: 'Last 7 Days', ar: 'آخر 7 أيام' },
+            'addBtnText': { en: 'Add User', ar: 'إضافة مستخدم' },
+            
+            // أعمدة الجدول الجديدة
+            'thPatientID': { en: 'Patient ID', ar: 'هوية المريض' },
+            'thSensorData': { en: 'Sensor Readings', ar: 'قراءات المستشعرات' }, 
+            'thAddedBy': { en: 'Added By', ar: 'أُضيف عن طريق' },
+            'thDateTime': { en: 'Date/Time', ar: 'التاريخ/الوقت' },
+            'thActions': { en: 'Actions', ar: 'إجراءات' },
+            
+            'actionViewDelete': { en: 'Delete', ar: 'حذف' },
+            'riskLow': { en: 'Low', ar: 'منخفض' },
+            'riskHigh': { en: 'High', ar: 'عالي' },
+            'systemMonitorTitle': { en: 'System Health & Performance', ar: 'صحة وأداء النظام' },
+            'statTitleEfficiency': { en: 'System Efficiency (%)', ar: 'كفاءة النظام (%)' },
+            'statTitleLatency': { en: 'Network Latency (ms)', ar: 'زمن استجابة الشبكة (مللي ثانية)' },
+            'statTitleRAM': { en: 'ESP32 RAM Usage (%)', ar: 'استهلاك ذاكرة ESP32 (%)' },
+            'deviceStatusTitle': { en: 'Connected Devices Status', ar: 'حالة الأجهزة المتصلة' },
+            'online': { en: 'Online', ar: 'متصل' },
+            'offline': { en: 'Offline', ar: 'غير متصل' },
+            'noDevices': { en: 'No connected devices found.', ar: 'لم يتم العثور على أجهزة متصلة.' },
+            'noPatientData': { en: 'No patient records found.', ar: 'لم يتم العثور على سجلات للمرضى.' }, 
+            'remoteControlTitle': { en: 'Remote Commands', ar: 'أوامر التحكم عن بعد' },
+            
+            // --- نصوص الـ Modal والـ CRUD ---
+            'modalTitle': { en: 'Add New Patient Record', ar: 'إضافة سجل مريض جديد' },
+            'labelPhone': { en: 'Phone Number (Patient ID)', ar: 'رقم الهاتف (هوية المريض)' },
+            'labelReading': { en: 'Sensor Readings (e.g., Temp=37.1, HR=75)', ar: 'قراءات المستشعرات (مثال: Temp=37.1, HR=75)' },
+            'labelSource': { en: 'Source', ar: 'مصدر الإضافة' },
+            'optionAdmin': { en: 'Added by Admin', ar: 'تمت إضافته بواسطة المسؤول' },
+            'optionSelf': { en: 'Self-Registered', ar: 'سجل نفسه ذاتياً' },
+            'btnCancel': { en: 'Cancel', ar: 'إلغاء' },
+            'btnSave': { en: 'Save Record', ar: 'حفظ السجل' },
+            'patientAddedSuccess': { en: 'Patient record added successfully.', ar: 'تم إضافة سجل المريض بنجاح.' },
+            'patientAddedError': { en: 'Failed to add patient record: ', ar: 'فشل إضافة سجل المريض: ' },
+            'confirmDelete': { en: 'Are you sure you want to delete patient ', ar: 'هل أنت متأكد أنك تريد حذف المريض صاحب الهوية ' },
+            'confirmDeleteSuffix': { en: '?', ar: '؟' },
+            'patientDeleteSuccess': { en: 'Patient record deleted successfully.', ar: 'تم حذف سجل المريض بنجاح.' },
+            'patientDeleteError': { en: 'Failed to delete patient record: ', ar: 'فشل حذف سجل المريض: ' },
+            'errorRequired': { en: 'Please fill in all required fields.', ar: 'الرجاء ملء جميع الحقول المطلوبة.' },
+
+            // ... (باقي نصوص الـ Remote Command)
+            'selectDeviceText': { en: 'Target Device:', ar: 'الجهاز المستهدف:' },
+            'rebootBtnText': { en: 'Reboot Device', ar: 'إعادة تشغيل الجهاز' },
+            'fotaTitle': { en: 'Firmware Update (FOTA)', ar: 'تحديث البرنامج (FOTA)' },
+            'fotaBtnText': { en: 'Deploy Update', ar: 'نشر التحديث' },
+            'firmwareUrlInput': { en: 'Enter new firmware URL (e.g., https://.../new.bin)', ar: 'أدخل رابط ملف التحديث الجديد' },
+            'sendingReboot': { en: 'Sending reboot command...', ar: 'جاري إرسال أمر إعادة التشغيل...' },
+            'sendingFOTA': { en: 'Sending FOTA command...', ar: 'جاري إرسال أمر التحديث اللاسلكي...' },
+            'invalidFOTAUrl': { en: 'Please enter a valid firmware URL.', ar: 'يرجى إدخال رابط ملف تحديث صحيح.' },
+            'commandSent': { en: 'Command successfully sent to Firebase.', ar: 'تم إرسال الأمر إلى Firebase بنجاح.' },
+            'commandError': { en: 'Failed to send command: ', ar: 'فشل إرسال الأمر: ' },
+        };
+        
+        function getLocalizedText(key) {
+            return languageTexts[key][currentLang] || languageTexts[key]['en'];
+        }
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            
+            // Apply texts (تم تحديث كل النصوص)
+            document.getElementById('pageTitle').innerText = getLocalizedText('pageTitle');
+            document.getElementById('headerTitle').innerText = getLocalizedText('headerTitle');
+            document.getElementById('welcomeMessage').innerText = getLocalizedText('welcomeMessage') + (auth.currentUser ? auth.currentUser.email : 'Administrator');
+            document.getElementById('logoutBtnText').innerHTML = `<i class="fas fa-sign-out-alt"></i> ${getLocalizedText('logout')}`;
+            document.getElementById('langToggleBtn').innerText = getLocalizedText('langToggleBtnAr');
+            
+            document.getElementById('dataManagementTitle').innerHTML = `<i class="fas fa-database"></i> ${getLocalizedText('dataManagementTitle')}`;
+            document.getElementById('patientSearch').placeholder = getLocalizedText('patientSearch');
+            document.getElementById('filterAll').innerText = getLocalizedText('filterAll');
+            document.getElementById('filterCritical').innerText = getLocalizedText('filterCritical');
+            document.getElementById('filterLast7').innerText = getLocalizedText('filterLast7');
+            document.getElementById('btnAddUser').innerHTML = `<i class="fas fa-plus"></i> <span id="addBtnText">${getLocalizedText('addBtnText')}</span>`;
+            
+            // تحديث الأعمدة في الجدول
+            document.getElementById('thPatientID').innerText = getLocalizedText('thPatientID');
+            document.getElementById('thSensorData').innerText = getLocalizedText('thSensorData');
+            document.getElementById('thAddedBy').innerText = getLocalizedText('thAddedBy');
+            document.getElementById('thDateTime').innerText = getLocalizedText('thDateTime');
+            document.getElementById('thActions').innerText = getLocalizedText('thActions');
+            
+            // تحديث نصوص الـ Modal
+            document.getElementById('modalTitle').innerText = getLocalizedText('modalTitle');
+            document.getElementById('labelPhone').innerText = getLocalizedText('labelPhone');
+            document.getElementById('labelReading').innerText = getLocalizedText('labelReading');
+            document.getElementById('labelSource').innerText = getLocalizedText('labelSource');
+            document.getElementById('optionAdmin').innerText = getLocalizedText('optionAdmin');
+            document.getElementById('optionSelf').innerText = getLocalizedText('optionSelf');
+            document.getElementById('btnCancel').innerText = getLocalizedText('btnCancel');
+            document.getElementById('btnSave').innerText = getLocalizedText('btnSave');
+
+            document.getElementById('systemMonitorTitle').innerHTML = `<i class="fas fa-tachometer-alt"></i> ${getLocalizedText('systemMonitorTitle')}`;
+            document.getElementById('statTitleEfficiency').innerText = getLocalizedText('statTitleEfficiency');
+            document.getElementById('statTitleLatency').innerText = getLocalizedText('statTitleLatency');
+            document.getElementById('statTitleRAM').innerText = getLocalizedText('statTitleRAM');
+            document.getElementById('deviceStatusTitle').innerHTML = `<i class="fas fa-sitemap"></i> ${getLocalizedText('deviceStatusTitle')}`;
+            document.getElementById('remoteControlTitle').innerHTML = `<i class="fas fa-terminal"></i> ${getLocalizedText('remoteControlTitle')}`;
+            document.getElementById('selectDeviceText').innerText = getLocalizedText('selectDeviceText');
+            document.getElementById('rebootBtnText').innerText = getLocalizedText('rebootBtnText');
+            document.getElementById('fotaTitle').innerText = getLocalizedText('fotaTitle');
+            document.getElementById('fotaBtnText').innerText = getLocalizedText('fotaBtnText');
+            document.getElementById('firmwareUrlInput').placeholder = getLocalizedText('firmwareUrlInput');
+            
+            document.getElementById('patientSearch').style.textAlign = lang === 'ar' ? 'right' : 'left';
+            document.getElementById('firmwareUrlInput').style.textAlign = 'left'; 
+
+            localStorage.setItem("language", lang);
+            
+            monitorSystemPerformance(); 
+            loadDeviceStatus(); 
+            loadPatientData(); 
+        }
+        
+        function toggleLanguage() {
+            const newLang = currentLang === 'ar' ? 'en' : 'ar';
+            applyLanguage(newLang);
+        }
+
+    </script>
+
+</body>
+</html>
