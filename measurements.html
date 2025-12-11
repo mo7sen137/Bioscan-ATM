@@ -180,9 +180,11 @@
   <div class="measure-container">
     <div class="measure-btn temp" id="tempBtn" onclick="goToTemperature()">
       <i class="fas fa-thermometer-half"></i> <span>Temperature</span>
+      <div id="tempValue" style="font-weight: 700; color: #fff; font-size: 1.1rem; position: absolute; bottom: 5px;">--</div>
     </div>
     <div class="measure-btn pulse" id="pulseBtn" onclick="goToPulse()">
       <i class="fas fa-heartbeat"></i> <span>Pulse Rate</span>
+      <div id="pulseValue" style="font-weight: 700; color: #fff; font-size: 1.1rem; position: absolute; bottom: 5px;">--</div>
     </div>
     <div class="measure-btn pressure" id="bpBtn" onclick="goToPressure()">
       <i class="fas fa-stethoscope"></i> <span>Blood Pressure</span>
@@ -339,8 +341,14 @@
             };
             lastTimestamp = data.Timestamp || "--";
 
+            // Update Cards
             document.getElementById('bpValue').innerText = currentData.bp;
             document.getElementById('spo2Value').innerText = currentData.spo2 + (currentData.spo2 !== '--' ? '%' : '');
+            
+            // ** Added Temperature and Pulse Updates **
+            document.getElementById('tempValue').innerText = currentData.temp + (currentData.temp !== '--' ? '°C' : '');
+            document.getElementById('pulseValue').innerText = currentData.bpm + (currentData.bpm !== '--' ? ' bpm' : '');
+
             document.getElementById('lastReadingTime').innerText = (lang === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + lastTimestamp;
             
             const temp = parseFloat(currentData.temp) || 0;
