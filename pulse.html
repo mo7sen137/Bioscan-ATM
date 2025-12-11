@@ -5,10 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bioscan | Pulse Rate</title>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
+  /* --- CSS Styles (نفس التصميم الأصلي) --- */
   :root {
     --primary-color: #ff416c; /* Pink/Red for Heart */
     --danger-color: #ff0000;
@@ -51,7 +56,7 @@
     animation: sos-flash 1s infinite;
     border: 2px solid red !important;
   }
-  
+   
   .critical-bg {
     background: radial-gradient(circle, #3a0000, #000) !important;
   }
@@ -181,9 +186,10 @@
     display: flex;
     gap: 10px;
     justify-content: center;
+    flex-wrap: wrap; /* للسماح بنزول الأزرار لو الشاشة ضيقة */
   }
 
-  .advice-btn, .voice-btn {
+  .advice-btn, .voice-btn, .save-btn {
     padding: 12px 20px;
     border-radius: 50px;
     border: none;
@@ -205,6 +211,14 @@
     box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
   }
 
+  /* زر الحفظ الجديد */
+  .save-btn {
+    flex: 2;
+    background: linear-gradient(45deg, #11998e, #38ef7d); /* لون أخضر مميز */
+    color: white;
+    box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
+  }
+
   .voice-btn {
     flex: 1;
     background: rgba(255,255,255,0.1);
@@ -212,7 +226,7 @@
     color: var(--primary-color);
   }
 
-  .advice-btn:hover, .voice-btn:hover { transform: translateY(-3px); }
+  .advice-btn:hover, .voice-btn:hover, .save-btn:hover { transform: translateY(-3px); }
   .voice-btn:hover { background: var(--primary-color); color: white; }
 
   .advice-box {
@@ -269,6 +283,10 @@
     </ul>
 
     <div class="actions-row">
+      <button class="save-btn" id="saveBtn" onclick="saveMeasurement()">
+        <i class="fas fa-save"></i> <span id="saveBtnText">Save</span>
+      </button>
+
       <button class="advice-btn" id="adviceBtn" onclick="showAdvice()">
         <i class="fas fa-user-md"></i> <span id="btnText">Medical Advice</span>
       </button>
@@ -283,22 +301,23 @@
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script>
+  // --- 1. Firebase Config ---
   const firebaseConfig = {
     apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
     authDomain: "smart-a76a0.firebaseapp.com",
     databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
     projectId: "smart-a76a0",
-    storageBucket: "smart-a76a0.firebasestorage.app",
     messagingSenderId: "343693501983",
     appId: "1:343693501983:web:10ea3fce9d990a2455172a"
   };
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
+  const auth = firebase.auth();
+
+  // تسجيل دخول خفي لضمان الكتابة
+  auth.signInAnonymously().catch(console.error);
 
   const pulseBox = document.getElementById("pulseValue");
   const adviceBox = document.getElementById("adviceBox");
@@ -306,36 +325,60 @@
   const mainCard = document.getElementById("mainCard");
   const alarmSound = document.getElementById("alarmSound");
   const userId = localStorage.getItem("selectedUserId");
+  const PATIENT_DATA_PATH = "PatientData";
 
   let isCritical = false;
 
-  if (!userId) {
-    pulseBox.innerText = "--";
-    adviceBox.style.display = "block";
-    adviceBox.innerText = "User not registered!";
-    adviceBox.style.borderLeftColor = "#ff0000";
-  } else {
-    const userRef = db.ref("current users/" + userId);
-    userRef.limitToLast(1).on("value", (snapshot) => {
-      if (snapshot.exists()) {
-        snapshot.forEach((childSnap) => {
-          const data = childSnap.val();
-          if (data.bpm !== undefined) {
-            pulseBox.innerText = data.bpm;
-            
-            // SOS Check
-            let val = parseInt(data.bpm);
-            if (val > 120 || val < 50) {
-              triggerSOS();
-            } else {
-              clearSOS();
-              // Normal effect
-              document.querySelector('.pulse-box').style.borderColor = "#ff416c";
-              document.querySelector('.pulse-box').style.boxShadow = "0 0 20px rgba(255, 65, 108, 0.4)";
-            }
-          }
+  // --- 2. Save Function (The Core Request) ---
+  function saveMeasurement() {
+    const val = pulseBox.innerText;
+    
+    // التحقق من أن القيمة صالحة
+    if (val === "--" || val === "") {
+        alert(localStorage.getItem("language") === "ar" ? "لا توجد قراءة لحفظها!" : "No reading to save!");
+        return;
+    }
+
+    if (!userId) {
+        alert("Error: User not logged in.");
+        window.location.href = "index.html";
+        return;
+    }
+
+    const timestamp = new Date().toLocaleString();
+
+    // أ. حفظ في History (للسجل)
+    db.ref(`${PATIENT_DATA_PATH}/${userId}/History`).push({
+        bpm: val,
+        createdAt: timestamp
+    });
+
+    // ب. تحديث SensorData (للداشبورد)
+    // نحتاج لقراءة النص الحالي أولاً لعدم مسح الحرارة والضغط
+    db.ref(`${PATIENT_DATA_PATH}/${userId}/SensorData`).once('value').then(snapshot => {
+        let currentStr = snapshot.val() || "";
+        
+        // تحديث جزء HR (Heart Rate) في النص
+        if (currentStr.includes("HR=")) {
+            // استبدال القيمة القديمة
+            currentStr = currentStr.replace(/HR=[^,]+/, `HR=${val}`);
+        } else if (currentStr === "No measurement recorded yet") {
+            currentStr = `HR=${val}`;
+        } else {
+            // إضافة القيمة للنص الموجود
+            currentStr = currentStr ? `${currentStr}, HR=${val}` : `HR=${val}`;
+        }
+
+        // الحفظ النهائي
+        db.ref(`${PATIENT_DATA_PATH}/${userId}`).update({
+            SensorData: currentStr,
+            Timestamp: timestamp
+        }).then(() => {
+            alert(localStorage.getItem("language") === "ar" ? "تم حفظ القياس بنجاح!" : "Measurement saved successfully!");
+        }).catch(error => {
+            console.error("Save Error:", error);
+            alert("Error saving data.");
         });
-      }
     });
   }
 
@@ -439,6 +482,7 @@
       <li><i class="fas fa-hand-paper"></i> لا تحرك يدك أثناء القياس.</li>
     `;
     document.getElementById("btnText").innerText = "النصيحة الطبية";
+    document.getElementById("saveBtnText").innerText = "حفظ القياس";
   }
 </script>
 
@@ -452,18 +496,16 @@
 </div>
 
 <script>
-  
-  // الاختبار اليدوي للحالات الحرجة والطبيعية
-  // function testCritical() {
-  //   document.getElementById("pulseValue").innerText = "140";
-  //   triggerSOS(); 
-  // }
+  // يمكنك استخدام هذه الأزرار لتجربة القيم قبل ربط الحساس
+  function testCritical() {
+    document.getElementById("pulseValue").innerText = "140";
+    triggerSOS(); 
+  }
 
-  // function testNormal() {
-  //   document.getElementById("pulseValue").innerText = "75";
-  //   clearSOS();
-  // }
-
+  function testNormal() {
+    document.getElementById("pulseValue").innerText = "75";
+    clearSOS();
+  }
 </script>
 </body>
 </html>
