@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        /* --- Styles (CSS مُنقح) --- */
+        /* --- Styles --- */
         :root {
             --primary-color: #00d2ff;
             --admin-color: #6c5ce7;
@@ -33,6 +33,9 @@
             min-height: 100vh;
             display: flex; flex-direction: column; align-items: center;
             color: var(--text-color);
+            
+            /* --- SECURITY FIX: Hide content by default --- */
+            visibility: hidden; 
         }
         
         ::-webkit-scrollbar { width: 8px; }
@@ -126,7 +129,6 @@
             min-height: 35px;
         }
         
-        /* Highlight RAM usage if high */
         .stat-box.high-ram .stat-value {
             color: var(--error-color);
         }
@@ -181,13 +183,12 @@
         }
         .data-table-admin th { background: rgba(0, 210, 255, 0.1); color: var(--primary-color); position: sticky; top: 0; }
         .data-table-admin tr:hover { background: rgba(255,255,255,0.02); }
-        /* تم تغيير لون زر الإجراءات للحذف */
+        
         .action-btn { 
             background: linear-gradient(45deg, #ff416c, #cb2d3e); 
             color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; 
         }
         
-        /* تعديل زر الإضافة */
         #btnAddUser {
             background: linear-gradient(45deg, #00ff88, #00d2ff); 
             color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;
@@ -199,7 +200,6 @@
 
         @media (max-width: 900px) {
             .dashboard-container { grid-template-columns: 1fr; }
-            .gauge-box { width: 100%; }
             .data-search-bar { flex-direction: column; }
         }
 
@@ -286,7 +286,10 @@
                         <thead>
                             <tr>
                                 <th id="thPatientID">Patient ID</th>
-                                <th id="thSensorData">Sensor Readings</th> <th id="thAddedBy">Added By</th>          <th id="thDateTime">Date/Time</th>       <th id="thActions">Actions</th>
+                                <th id="thSensorData">Sensor Readings</th> 
+                                <th id="thAddedBy">Added By</th> 
+                                <th id="thDateTime">Date/Time</th> 
+                                <th id="thActions">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="patientDataBody">
@@ -316,7 +319,7 @@
                         <span class="stat-value" id="statRAM">0%</span>
                     </div>
                 </div>
-                </div>
+            </div>
 
             <div class="card-admin">
                 <h3 id="deviceStatusTitle"><i class="fas fa-sitemap"></i> Connected Devices Status</h3>
@@ -390,27 +393,18 @@
         const COMMAND_PATH = 'Commands/'; 
         const PATIENT_DATA_PATH = 'PatientData'; 
         
-
         // ===============================================
-        // 1. INITIALIZATION AND AUTHENTICATION
+        // 1. SECURITY & AUTHENTICATION (The Gatekeeper)
         // ===============================================
-
-        function initializeDashboard() {
-            monitorSystemPerformance(); 
-            loadDeviceStatus();         
-            loadPatientData();          
-        }
         
-        // الحل الآمن لمشكلة التوقيت
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(checkAuthentication, 3000); 
-        });
-
         function checkAuthentication() {
             auth.onAuthStateChanged(function(user) {
                 if (!user) {
-                    window.location.href = "login.html"; 
+                    // إذا لم يكن المستخدم مسجلاً، قم بتحويله فوراً لصفحة الدخول
+                    window.location.replace("login.html"); 
                 } else {
+                    // إذا كان مسجلاً، أظهر محتوى الصفحة وابدأ العمل
+                    document.body.style.visibility = "visible"; 
                     applyLanguage(currentLang); 
                     document.getElementById('welcomeMessage').innerText = getLocalizedText('welcomeMessage') + user.email;
                     initializeDashboard();
@@ -418,15 +412,25 @@
             });
         }
 
+        // تنفيذ فحص الأمان فوراً عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+        });
+
         function adminLogout() {
             auth.signOut().then(() => {
-                localStorage.removeItem('admin_logged_in'); 
                 window.location.href = "login.html"; 
             });
         }
+
+        function initializeDashboard() {
+            monitorSystemPerformance(); 
+            loadDeviceStatus();         
+            loadPatientData();          
+        }
         
         // ===============================================
-        // 2. DIGITAL STATS (Working)
+        // 2. DIGITAL STATS
         // ===============================================
         
         function monitorSystemPerformance() {
@@ -438,10 +442,8 @@
                 const ramBox = document.getElementById('statRAMBox');
 
                 if (data) {
-                    // القراءة من المفاتيح (Avg_Latency_ms/Avg_Latency و RAM_Usage_Percent/RAM)
                     avgLatency = data.Avg_Latency_ms || data.Avg_Latency || 0; 
                     ramUsage = data.RAM_Usage_Percent || data.RAM || 0; 
-                    
                     efficiency = Math.min(100, Math.max(0, 100 - (avgLatency / 5))); 
                 }
 
@@ -454,12 +456,11 @@
                 } else {
                     ramBox.classList.remove('high-ram');
                 }
-
             });
         }
 
         // ===============================================
-        // 3. DEVICE STATUS AND COMMANDS (Working)
+        // 3. DEVICE STATUS
         // ===============================================
 
         function loadDeviceStatus() {
@@ -506,10 +507,9 @@
         }
 
         // ===============================================
-        // 4. PATIENT DATA MANAGEMENT (CRUD Functions)
+        // 4. PATIENT DATA MANAGEMENT
         // ===============================================
 
-        // دالة قراءة البيانات (Read) - (مُعدلة للأعمدة الجديدة)
         function loadPatientData() {
             const tableBody = document.getElementById('patientDataBody');
             tableBody.innerHTML = ''; 
@@ -523,25 +523,15 @@
                 }
 
                 snapshot.forEach((childSnapshot) => {
-                    // رقم الهاتف هو المفتاح الأساسي
                     const patientPhone = childSnapshot.key; 
                     const data = childSnapshot.val();
                     
                     const row = tableBody.insertRow();
-                    
-                    // العمود 1: Patient ID (رقم الهاتف)
                     row.insertCell().innerText = patientPhone; 
-                    
-                    // العمود 2: قراءات السينسورات (Data)
                     row.insertCell().innerText = data.SensorData || 'N/A';
-                    
-                    // العمود 3: Added By (مصدر الإضافة)
                     row.insertCell().innerText = data.AddedBy || 'N/A';
-                    
-                    // العمود 4: التاريخ والوقت
                     row.insertCell().innerText = data.Timestamp || 'N/A';
                     
-                    // العمود 5: الإجراءات (زر الحذف)
                     const actionCell = row.insertCell();
                     actionCell.className = 'action-cell';
                     actionCell.innerHTML = `<button class="action-btn" onclick="deletePatient('${patientPhone}')">${getLocalizedText('actionViewDelete')}</button>`;
@@ -549,24 +539,18 @@
             });
         }
 
-        // 4.1 دالة عرض النافذة المنبثقة (Modal)
         function showAddPatientModal() {
-            // مسح أي قيم سابقة
             document.getElementById('patientPhone').value = '';
             document.getElementById('sensorReading').value = '';
-            // عرض النافذة
             document.getElementById('addPatientModal').style.display = 'flex';
         }
 
-        // 4.2 دالة إغلاق النافذة
         function closeAddPatientModal() {
             document.getElementById('addPatientModal').style.display = 'none';
         }
 
-        // 4.3 دالة إضافة مريض (Create) - يتم تشغيلها عند ضغط Submit
         document.getElementById('addPatientForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // منع الإرسال التقليدي للصفحة
-            
+            e.preventDefault();
             const phone = document.getElementById('patientPhone').value.trim();
             const sensorData = document.getElementById('sensorReading').value.trim();
             const source = document.getElementById('addedSource').value;
@@ -576,26 +560,23 @@
                 return;
             }
 
-            // تحديد المصدر (الإيميل أو مصدر خارجي)
             let addedBy = source === 'Admin' ? auth.currentUser.email : source;
 
-            // استخدام رقم الهاتف كمفتاح
             db.ref(PATIENT_DATA_PATH + '/' + phone).set({
                 Phone: phone,
-                SensorData: sensorData, // القراءات الشاملة للسينسورات
+                SensorData: sensorData,
                 Timestamp: new Date().toLocaleString(),
                 AddedBy: addedBy
             })
             .then(() => {
                 alert(getLocalizedText('patientAddedSuccess'));
-                closeAddPatientModal(); // إغلاق النافذة عند النجاح
+                closeAddPatientModal();
             })
             .catch(error => {
                 alert(getLocalizedText('patientAddedError') + error.message);
             });
         });
 
-        // 4.4 دالة حذف مريض (Delete)
         function deletePatient(patientId) {
             if (confirm(getLocalizedText('confirmDelete') + patientId + getLocalizedText('confirmDeleteSuffix'))) {
                 db.ref(PATIENT_DATA_PATH + '/' + patientId).remove()
@@ -613,7 +594,6 @@
         // ===============================================
         
         function sendCommand(commandType) {
-            // (باقي دالة إرسال الأوامر)
             const targetDeviceId = document.getElementById('targetDeviceSelect').value;
             const inputUrl = document.getElementById('firmwareUrlInput').value;
             
@@ -661,7 +641,6 @@
             'filterLast7': { en: 'Last 7 Days', ar: 'آخر 7 أيام' },
             'addBtnText': { en: 'Add User', ar: 'إضافة مستخدم' },
             
-            // أعمدة الجدول الجديدة
             'thPatientID': { en: 'Patient ID', ar: 'هوية المريض' },
             'thSensorData': { en: 'Sensor Readings', ar: 'قراءات المستشعرات' }, 
             'thAddedBy': { en: 'Added By', ar: 'أُضيف عن طريق' },
@@ -669,8 +648,6 @@
             'thActions': { en: 'Actions', ar: 'إجراءات' },
             
             'actionViewDelete': { en: 'Delete', ar: 'حذف' },
-            'riskLow': { en: 'Low', ar: 'منخفض' },
-            'riskHigh': { en: 'High', ar: 'عالي' },
             'systemMonitorTitle': { en: 'System Health & Performance', ar: 'صحة وأداء النظام' },
             'statTitleEfficiency': { en: 'System Efficiency (%)', ar: 'كفاءة النظام (%)' },
             'statTitleLatency': { en: 'Network Latency (ms)', ar: 'زمن استجابة الشبكة (مللي ثانية)' },
@@ -682,7 +659,6 @@
             'noPatientData': { en: 'No patient records found.', ar: 'لم يتم العثور على سجلات للمرضى.' }, 
             'remoteControlTitle': { en: 'Remote Commands', ar: 'أوامر التحكم عن بعد' },
             
-            // --- نصوص الـ Modal والـ CRUD ---
             'modalTitle': { en: 'Add New Patient Record', ar: 'إضافة سجل مريض جديد' },
             'labelPhone': { en: 'Phone Number (Patient ID)', ar: 'رقم الهاتف (هوية المريض)' },
             'labelReading': { en: 'Sensor Readings (e.g., Temp=37.1, HR=75)', ar: 'قراءات المستشعرات (مثال: Temp=37.1, HR=75)' },
@@ -699,7 +675,6 @@
             'patientDeleteError': { en: 'Failed to delete patient record: ', ar: 'فشل حذف سجل المريض: ' },
             'errorRequired': { en: 'Please fill in all required fields.', ar: 'الرجاء ملء جميع الحقول المطلوبة.' },
 
-            // ... (باقي نصوص الـ Remote Command)
             'selectDeviceText': { en: 'Target Device:', ar: 'الجهاز المستهدف:' },
             'rebootBtnText': { en: 'Reboot Device', ar: 'إعادة تشغيل الجهاز' },
             'fotaTitle': { en: 'Firmware Update (FOTA)', ar: 'تحديث البرنامج (FOTA)' },
@@ -721,7 +696,6 @@
             document.documentElement.lang = lang;
             document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
             
-            // Apply texts (تم تحديث كل النصوص)
             document.getElementById('pageTitle').innerText = getLocalizedText('pageTitle');
             document.getElementById('headerTitle').innerText = getLocalizedText('headerTitle');
             document.getElementById('welcomeMessage').innerText = getLocalizedText('welcomeMessage') + (auth.currentUser ? auth.currentUser.email : 'Administrator');
@@ -735,14 +709,12 @@
             document.getElementById('filterLast7').innerText = getLocalizedText('filterLast7');
             document.getElementById('btnAddUser').innerHTML = `<i class="fas fa-plus"></i> <span id="addBtnText">${getLocalizedText('addBtnText')}</span>`;
             
-            // تحديث الأعمدة في الجدول
             document.getElementById('thPatientID').innerText = getLocalizedText('thPatientID');
             document.getElementById('thSensorData').innerText = getLocalizedText('thSensorData');
             document.getElementById('thAddedBy').innerText = getLocalizedText('thAddedBy');
             document.getElementById('thDateTime').innerText = getLocalizedText('thDateTime');
             document.getElementById('thActions').innerText = getLocalizedText('thActions');
             
-            // تحديث نصوص الـ Modal
             document.getElementById('modalTitle').innerText = getLocalizedText('modalTitle');
             document.getElementById('labelPhone').innerText = getLocalizedText('labelPhone');
             document.getElementById('labelReading').innerText = getLocalizedText('labelReading');
