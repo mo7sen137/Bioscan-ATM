@@ -11,7 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
-    /* --- SCREEN STYLES (DARK MODE) - نفس التصميم الأصلي --- */
+    /* --- SCREEN STYLES (DARK MODE) --- */
     :root {
       --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       --glass-bg: rgba(255, 255, 255, 0.1);
@@ -208,6 +208,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
   <script>
+    // --- 1. Firebase Config ---
     const firebaseConfig = {
       apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
       authDomain: "smart-a76a0.firebaseapp.com",
@@ -305,34 +306,32 @@
             snapshot.forEach(child => { 
                 dataList.push(child.val()); 
             });
-            dataList.reverse(); // الأحدث أولاً
+            dataList.reverse(); // ترتيب تنازلي (الأحدث فوق)
 
             dataList.forEach(data => {
-                // استخراج القيم من نص SensorData المحفوظ في التاريخ
-                // أو إذا كانت البيانات محفوظة ككائنات مباشرة (سندعم الاثنين)
-                let temp, bpm, pressure, spo2, date;
+                let temp = "--", bpm = "--", pressure = "--", spo2 = "--", date = "N/A";
 
+                // 1. البيانات المتجمعة (Session-based)
+                if (data.temperature) temp = data.temperature;
+                if (data.bpm) bpm = data.bpm;
+                if (data.pressure) pressure = data.pressure;
+                if (data.spo2) spo2 = data.spo2;
+                
+                // 2. إذا كانت البيانات محفوظة كنص (SensorData) في السجل (قديم)
                 if (data.SensorData) {
-                    // إذا كانت البيانات نصية (النظام الجديد)
                     const parsed = extractSensorValues(data.SensorData);
-                    temp = parsed.temp || "--";
-                    bpm = parsed.bpm || "--";
-                    pressure = parsed.pressure || "--";
-                    spo2 = parsed.spo2 || "--";
-                    date = data.Timestamp || "N/A";
-                } else {
-                    // دعم للبيانات القديمة (لو وجدت)
-                    temp = data.temperature || "--";
-                    bpm = data.bpm || "--";
-                    pressure = data.pressure || "--";
-                    spo2 = data.spo2 || "--";
-                    date = data.createdAt || "N/A";
+                    if(parsed.temp) temp = parsed.temp;
+                    if(parsed.bpm) bpm = parsed.bpm;
+                    if(parsed.pressure) pressure = parsed.pressure;
+                    if(parsed.spo2) spo2 = parsed.spo2;
                 }
 
-                // إضافة للسجل إذا كانت هناك أي قراءة
+                date = data.createdAt || data.Timestamp || "N/A";
+
+                // عرض السطر إذا كان هناك أي قراءة مسجلة
                 if(temp !== "--" || bpm !== "--" || pressure !== "--" || spo2 !== "--") {
-                    const recordObj = { temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2, createdAt: date };
-                    records.push(recordObj);
+                    const unifiedRecord = { temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2, createdAt: date };
+                    records.push(unifiedRecord);
                     
                     const row = `
                         <tr>
@@ -355,29 +354,50 @@
         }
     });
 
-    // --- QR CODE LOGIC ---
+    // --- QR CODE LOGIC (FIXED) ---
     function generateQR() {
         if(records.length === 0) {
             showToast(lang === "ar" ? "لا توجد بيانات!" : "No data available!", "error");
             return;
         }
 
+        // أظهر النافذة أولاً (مهم جداً للمكتبة عشان تقدر ترسم)
+        const modal = document.getElementById("qrModal");
+        modal.classList.add("active");
+        modal.style.display = "flex"; // تأكيد الظهور
+
+        // مسح الكود القديم
+        const qrContainer = document.getElementById("qrcode");
+        qrContainer.innerHTML = "";
+
+        // استخدام أحدث سجل
         const latest = records[0];
         
-        const qrData = `Bioscan Report\nID: ${currentUserId}\nDate: ${latest.createdAt}\nTemp: ${latest.temperature}°C\nPulse: ${latest.bpm} bpm\nBP: ${latest.pressure}\nO2: ${latest.spo2}%`;
+        // تجهيز البيانات
+        const qrData = `Bioscan Report
+ID: ${currentUserId}
+Date: ${latest.createdAt}
+Temp: ${latest.temperature || '--'}
+Pulse: ${latest.bpm || '--'}
+BP: ${latest.pressure || '--'}
+SpO2: ${latest.spo2 || '--'}%`;
 
-        document.getElementById("qrcode").innerHTML = "";
-
-        new QRCode(document.getElementById("qrcode"), {
-            text: qrData,
-            width: 180,
-            height: 180,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
-
-        document.getElementById("qrModal").classList.add("active");
+        // تأخير بسيط لضمان أن العنصر مرئي قبل الرسم
+        setTimeout(() => {
+            try {
+                new QRCode(qrContainer, {
+                    text: qrData,
+                    width: 180,
+                    height: 180,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+            } catch (e) {
+                console.error("QR Error:", e);
+                qrContainer.innerText = "Error generating QR";
+            }
+        }, 100);
     }
 
     function closeQR() {
@@ -399,7 +419,7 @@
         const limit = Math.min(records.length, 5); 
         for(let i = 0; i < limit; i++) {
             const r = records[i];
-            report += `⏰ ${r.createdAt}%0A🌡️ ${r.temperature}°C | ❤️ ${r.bpm} bpm%0A🫁 ${r.spo2}% | 🩸 ${r.pressure}%0A-----------------%0A`;
+            report += `⏰ ${r.createdAt}%0A🌡️ ${r.temperature || '--'}°C | ❤️ ${r.bpm || '--'} bpm%0A🫁 ${r.spo2 || '--'}% | 🩸 ${r.pressure || '--'}%0A-----------------%0A`;
         }
         window.open(`https://wa.me/${phone}?text=${report}`, '_blank');
     }
