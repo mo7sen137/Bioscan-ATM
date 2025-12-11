@@ -11,7 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
-    /* --- SCREEN STYLES (DARK MODE) --- */
+    /* --- Styles (نفس التصميم الأصلي) --- */
     :root {
       --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       --glass-bg: rgba(255, 255, 255, 0.1);
@@ -96,7 +96,7 @@
     }
     .modal-overlay.active .qr-card { transform: scale(1); }
     
-    #qrcode { display: flex; justify-content: center; margin: 20px 0; }
+    #qrcode { display: flex; justify-content: center; margin: 20px 0; min-height: 150px; }
     
     .close-qr {
       position: absolute; top: 10px; right: 15px; background: none; border: none;
@@ -244,7 +244,6 @@
         document.getElementById("pageTitle").innerText = "السجل الطبي";
         document.querySelector(".back-btn i").className = "fas fa-arrow-right";
         document.querySelector(".qr-btn span").innerText = "كود الطبيب";
-        
         document.getElementById("th-date").innerText = "الوقت / التاريخ";
         document.getElementById("th-temp").innerText = "الحرارة";
         document.getElementById("th-pulse").innerText = "النبض";
@@ -281,6 +280,7 @@
         return values;
     }
 
+    // --- SMART FETCH & GROUP DATA ---
     const records = [];
     const historyRef = db.ref(`${PATIENT_DATA_PATH}/${currentUserId}/History`);
     
@@ -291,50 +291,94 @@
         
         tbody.innerHTML = "";
         records.length = 0;
+        const rawList = [];
 
         if (snapshot.exists()) {
             loading.style.display = "none";
             empty.style.display = "none";
             
-            const dataList = [];
+            // 1. جلب البيانات الخام
             snapshot.forEach(child => { 
-                dataList.push(child.val()); 
+                rawList.push(child.val()); 
             });
-            dataList.reverse();
+            // عكس الترتيب (الأحدث أولاً)
+            rawList.reverse();
 
-            dataList.forEach(data => {
-                let temp = "--", bpm = "--", pressure = "--", spo2 = "--", date = "N/A";
-
-                if (data.temperature) temp = data.temperature;
-                if (data.bpm) bpm = data.bpm;
-                if (data.pressure) pressure = data.pressure;
-                if (data.spo2) spo2 = data.spo2;
+            // 2. منطق التجميع (Grouping Logic)
+            // سنقوم بدمج السجلات التي لها نفس التوقيت (فرق أقل من دقيقتين)
+            const groupedList = [];
+            
+            rawList.forEach(item => {
+                // استخراج التاريخ
+                let itemDateStr = item.createdAt || item.Timestamp || "N/A";
+                let itemDate = new Date(itemDateStr);
                 
-                if (data.SensorData) {
-                    const parsed = extractSensorValues(data.SensorData);
+                // استخراج القيم من هذا العنصر (سواء كانت نص أو مفاتيح منفصلة)
+                let temp = item.temperature;
+                let bpm = item.bpm;
+                let pressure = item.pressure;
+                let spo2 = item.spo2;
+
+                if (item.SensorData) {
+                    const parsed = extractSensorValues(item.SensorData);
                     if(parsed.temp) temp = parsed.temp;
                     if(parsed.bpm) bpm = parsed.bpm;
                     if(parsed.pressure) pressure = parsed.pressure;
                     if(parsed.spo2) spo2 = parsed.spo2;
                 }
 
-                date = data.createdAt || data.Timestamp || "N/A";
-
-                if(temp !== "--" || bpm !== "--" || pressure !== "--" || spo2 !== "--") {
-                    const unifiedRecord = { temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2, createdAt: date };
-                    records.push(unifiedRecord);
+                // محاولة الدمج مع آخر مجموعة تمت إضافتها
+                let addedToGroup = false;
+                
+                if (groupedList.length > 0 && !isNaN(itemDate.getTime())) {
+                    const lastGroup = groupedList[groupedList.length - 1];
+                    const lastDate = new Date(lastGroup.createdAt);
                     
-                    const row = `
-                        <tr>
-                            <td>${date}</td>
-                            <td>${temp}</td>
-                            <td>${bpm}</td>
-                            <td>${spo2}</td>
-                            <td>${pressure}</td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += row;
+                    // إذا كان الفرق أقل من دقيقتين (120000 مللي ثانية) نعتبرها نفس الجلسة
+                    const diffMs = Math.abs(lastDate - itemDate);
+                    if (diffMs < 120000) {
+                        // دمج البيانات الناقصة فقط
+                        if (!lastGroup.temperature && temp) lastGroup.temperature = temp;
+                        if (!lastGroup.bpm && bpm) lastGroup.bpm = bpm;
+                        if (!lastGroup.pressure && pressure) lastGroup.pressure = pressure;
+                        if (!lastGroup.spo2 && spo2) lastGroup.spo2 = spo2;
+                        addedToGroup = true;
+                    }
                 }
+
+                // إذا لم يتم الدمج، أنشئ مجموعة جديدة
+                if (!addedToGroup) {
+                    groupedList.push({
+                        createdAt: itemDateStr,
+                        temperature: temp,
+                        bpm: bpm,
+                        pressure: pressure,
+                        spo2: spo2
+                    });
+                }
+            });
+
+            // 3. عرض البيانات المجمعة
+            groupedList.forEach(data => {
+                const temp = data.temperature || "--";
+                const bpm = data.bpm || "--";
+                const pressure = data.pressure || "--";
+                const spo2 = data.spo2 || "--";
+                const date = data.createdAt;
+
+                // إضافة للسجل العالمي (للطباعة والـ QR)
+                records.push({ temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2, createdAt: date });
+                
+                const row = `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${temp}</td>
+                        <td>${bpm}</td>
+                        <td>${spo2}</td>
+                        <td>${pressure}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
             });
             
             if(records.length === 0) empty.style.display = "block";
@@ -345,6 +389,7 @@
         }
     });
 
+    // --- FIXED QR CODE LOGIC ---
     function generateQR() {
         if(records.length === 0) {
             showToast(lang === "ar" ? "لا توجد بيانات!" : "No data available!", "error");
@@ -352,49 +397,54 @@
         }
 
         const modal = document.getElementById("qrModal");
+        modal.style.display = "flex"; // إظهار الحاوية أولاً
+        // Force reflow
+        void modal.offsetWidth; 
         modal.classList.add("active");
-        modal.style.display = "flex"; 
 
         const qrContainer = document.getElementById("qrcode");
-        qrContainer.innerHTML = "";
+        qrContainer.innerHTML = ""; // مسح القديم
 
         const latest = records[0];
         
-        const qrData = `Bioscan Report
-ID: ${currentUserId}
-Date: ${latest.createdAt}
-Temp: ${latest.temperature || '--'}°C
-Pulse: ${latest.bpm || '--'} bpm
-BP: ${latest.pressure || '--'}
-SpO2: ${latest.spo2 || '--'}%`;
+        // تبسيط البيانات للكود
+        const qrData = `ID:${currentUserId}
+D:${latest.createdAt.split(',')[0]}
+T:${latest.temperature}
+HR:${latest.bpm}
+BP:${latest.pressure}
+O2:${latest.spo2}`;
 
+        // تأخير بسيط للتأكد من أن العنصر مرئي قبل الرسم
         setTimeout(() => {
             try {
                 new QRCode(qrContainer, {
                     text: qrData,
-                    width: 180,
-                    height: 180,
+                    width: 150, // حجم مناسب
+                    height: 150,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.M
+                    correctLevel : QRCode.CorrectLevel.L // مستوى تصحيح منخفض لتقليل التعقيد
                 });
             } catch (e) {
                 console.error("QR Error:", e);
-                qrContainer.innerText = "Error generating QR";
+                qrContainer.innerHTML = "<p style='color:red'>Error generating code</p>";
             }
-        }, 100);
+        }, 300); // زيادة الوقت قليلاً
     }
 
-    // --- Fix: Ensure Modal hides correctly ---
     function closeQR() {
         const modal = document.getElementById("qrModal");
         modal.classList.remove("active");
-        // Wait for CSS transition then hide
+        
+        // إخفاء الـ display بعد انتهاء الأنميشن
         setTimeout(() => {
             modal.style.display = "none";
-        }, 300);
+            document.getElementById("qrcode").innerHTML = ""; // تنظيف
+        }, 300); // نفس مدة الـ transition في الـ CSS
     }
 
+    // --- WHATSAPP LOGIC ---
     function sendHistoryToWhatsApp() {
         if (records.length === 0) {
             showToast(lang === "ar" ? "لا توجد بيانات!" : "No records!", "error");
@@ -409,7 +459,7 @@ SpO2: ${latest.spo2 || '--'}%`;
         const limit = Math.min(records.length, 5); 
         for(let i = 0; i < limit; i++) {
             const r = records[i];
-            report += `⏰ ${r.createdAt}%0A🌡️ ${r.temperature || '--'}°C | ❤️ ${r.bpm || '--'} bpm%0A🫁 ${r.spo2}% | 🩸 ${r.pressure || '--'}%0A-----------------%0A`;
+            report += `⏰ ${r.createdAt}%0A🌡️ ${r.temperature}°C | ❤️ ${r.bpm} bpm%0A🫁 ${r.spo2}% | 🩸 ${r.pressure}%0A-----------------%0A`;
         }
         window.open(`https://wa.me/${phone}?text=${report}`, '_blank');
     }
