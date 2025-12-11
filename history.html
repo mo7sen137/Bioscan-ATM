@@ -208,7 +208,6 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
   <script>
-    // --- 1. Firebase Config ---
     const firebaseConfig = {
       apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
       authDomain: "smart-a76a0.firebaseapp.com",
@@ -222,7 +221,6 @@
     const db = firebase.database();
     const auth = firebase.auth();
 
-    // تسجيل دخول خفي لضمان صلاحية القراءة
     auth.signInAnonymously().catch((error) => {
         console.error("Auth Error:", error);
     });
@@ -265,7 +263,6 @@
         document.getElementById("printFooter").innerText = "تنويه: هذا التقرير تم إنشاؤه آلياً بواسطة المستشعرات. يرجى مراجعة الطبيب للتشخيص الرسمي.";
     }
 
-    // --- HELPER: Extract values from SensorData string ---
     function extractSensorValues(sensorString) {
         const values = {};
         if (sensorString && sensorString !== "No measurement recorded yet") {
@@ -284,10 +281,7 @@
         return values;
     }
 
-    // --- FETCH DATA ---
     const records = [];
-    
-    // نستهدف مسار "History" داخل ملف المريض
     const historyRef = db.ref(`${PATIENT_DATA_PATH}/${currentUserId}/History`);
     
     historyRef.on("value", (snapshot) => {
@@ -306,18 +300,16 @@
             snapshot.forEach(child => { 
                 dataList.push(child.val()); 
             });
-            dataList.reverse(); // ترتيب تنازلي (الأحدث فوق)
+            dataList.reverse();
 
             dataList.forEach(data => {
                 let temp = "--", bpm = "--", pressure = "--", spo2 = "--", date = "N/A";
 
-                // 1. البيانات المتجمعة (Session-based)
                 if (data.temperature) temp = data.temperature;
                 if (data.bpm) bpm = data.bpm;
                 if (data.pressure) pressure = data.pressure;
                 if (data.spo2) spo2 = data.spo2;
                 
-                // 2. إذا كانت البيانات محفوظة كنص (SensorData) في السجل (قديم)
                 if (data.SensorData) {
                     const parsed = extractSensorValues(data.SensorData);
                     if(parsed.temp) temp = parsed.temp;
@@ -328,7 +320,6 @@
 
                 date = data.createdAt || data.Timestamp || "N/A";
 
-                // عرض السطر إذا كان هناك أي قراءة مسجلة
                 if(temp !== "--" || bpm !== "--" || pressure !== "--" || spo2 !== "--") {
                     const unifiedRecord = { temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2, createdAt: date };
                     records.push(unifiedRecord);
@@ -354,35 +345,29 @@
         }
     });
 
-    // --- QR CODE LOGIC (FIXED) ---
     function generateQR() {
         if(records.length === 0) {
             showToast(lang === "ar" ? "لا توجد بيانات!" : "No data available!", "error");
             return;
         }
 
-        // أظهر النافذة أولاً (مهم جداً للمكتبة عشان تقدر ترسم)
         const modal = document.getElementById("qrModal");
         modal.classList.add("active");
-        modal.style.display = "flex"; // تأكيد الظهور
+        modal.style.display = "flex"; 
 
-        // مسح الكود القديم
         const qrContainer = document.getElementById("qrcode");
         qrContainer.innerHTML = "";
 
-        // استخدام أحدث سجل
         const latest = records[0];
         
-        // تجهيز البيانات
         const qrData = `Bioscan Report
 ID: ${currentUserId}
 Date: ${latest.createdAt}
-Temp: ${latest.temperature || '--'}
-Pulse: ${latest.bpm || '--'}
+Temp: ${latest.temperature || '--'}°C
+Pulse: ${latest.bpm || '--'} bpm
 BP: ${latest.pressure || '--'}
 SpO2: ${latest.spo2 || '--'}%`;
 
-        // تأخير بسيط لضمان أن العنصر مرئي قبل الرسم
         setTimeout(() => {
             try {
                 new QRCode(qrContainer, {
@@ -400,11 +385,16 @@ SpO2: ${latest.spo2 || '--'}%`;
         }, 100);
     }
 
+    // --- Fix: Ensure Modal hides correctly ---
     function closeQR() {
-        document.getElementById("qrModal").classList.remove("active");
+        const modal = document.getElementById("qrModal");
+        modal.classList.remove("active");
+        // Wait for CSS transition then hide
+        setTimeout(() => {
+            modal.style.display = "none";
+        }, 300);
     }
 
-    // --- WHATSAPP LOGIC ---
     function sendHistoryToWhatsApp() {
         if (records.length === 0) {
             showToast(lang === "ar" ? "لا توجد بيانات!" : "No records!", "error");
@@ -419,7 +409,7 @@ SpO2: ${latest.spo2 || '--'}%`;
         const limit = Math.min(records.length, 5); 
         for(let i = 0; i < limit; i++) {
             const r = records[i];
-            report += `⏰ ${r.createdAt}%0A🌡️ ${r.temperature || '--'}°C | ❤️ ${r.bpm || '--'} bpm%0A🫁 ${r.spo2 || '--'}% | 🩸 ${r.pressure || '--'}%0A-----------------%0A`;
+            report += `⏰ ${r.createdAt}%0A🌡️ ${r.temperature || '--'}°C | ❤️ ${r.bpm || '--'} bpm%0A🫁 ${r.spo2}% | 🩸 ${r.pressure || '--'}%0A-----------------%0A`;
         }
         window.open(`https://wa.me/${phone}?text=${report}`, '_blank');
     }
