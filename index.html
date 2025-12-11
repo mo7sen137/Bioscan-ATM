@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
+    /* ... (CSS Styles remain the same) ... */
     :root {
       --primary-color: #00d2ff;
       --secondary-color: #3a7bd5;
@@ -336,7 +337,6 @@
           <option value="ar">العربية</option>
         </select>
       </div>
-      <a href="admin_dashboard.html" class="about-btn" style="background:#00d2ff; color:#0f2027;" title="Admin Login"><i class="fas fa-user-shield"></i></a>
     </div>
   </header>
 
@@ -357,7 +357,7 @@
   </div>
 
   <script>
-    // *** التعديل 1: تحديث مفاتيح Firebase Config (المفاتيح الصحيحة) ***
+    // *** التعديل 1: تحديث مفاتيح Firebase Config ***
     const firebaseConfig = {
       apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
       authDomain: "smart-a76a0.firebaseapp.com",
@@ -365,6 +365,7 @@
       projectId: "smart-a76a0",
       messagingSenderId: "343693501983",
       appId: "1:343693501983:web:10ea3fce9d990a2455172a"
+      // تم حذف storageBucket و measurementId لأنهما غير ضروريين لعمليات Auth/DB
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -380,6 +381,7 @@
 
     // *** التعديل 2: دالة إنشاء الملف الشخصي الفارغ ***
     function createInitialProfile(userPhone) {
+        // نستخدم رقم الهاتف كـ Key في PatientData
         const ref = database.ref(PATIENT_DATA_PATH + '/' + userPhone);
 
         // نستخدم once() للتأكد من أننا لا ننشئ الملف إذا كان موجوداً بالفعل
@@ -389,7 +391,7 @@
                     // إنشاء الملف الشخصي الأولي ببيانات فارغة
                     return ref.set({
                         Phone: userPhone,
-                        SensorData: "No measurement recorded yet", // قيمة مبدئية
+                        SensorData: "No measurement recorded yet",
                         Timestamp: new Date().toLocaleString(),
                         AddedBy: "Self-Registered"
                     });
@@ -398,12 +400,11 @@
             })
             .catch(error => {
                 console.error("Firebase Profile Setup Error:", error);
-                showToast(lang === "ar" ? "فشل ربط الملف (قد تكون قواعد الأمان مغلقة)" : "Failed to link profile (Check Security Rules)", "error");
+                showToast(lang === "ar" ? "فشل ربط الملف (Auth/DB)" : "Failed to link profile (Auth/DB)", "error");
             });
     }
 
-
-    // --- WELCOME VOICE FUNCTION (تبقى كما هي) ---
+    // --- WELCOME VOICE FUNCTION ---
     function playWelcomeMessage() {
       // Prevent playing multiple times in one session if unwanted
       if (welcomePlayed) return;
@@ -432,7 +433,7 @@
       }
     }
 
-    // --- ATTEMPT AUTO-PLAY ON LOAD (يبقى كما هو) ---
+    // --- ATTEMPT AUTO-PLAY ON LOAD ---
     window.addEventListener('load', () => {
         // 1. Try playing immediately (might be blocked)
         playWelcomeMessage();
@@ -460,7 +461,7 @@
         }, 1500);
     });
 
-    // --- CONNECTION STATUS (يبقى كما هو) ---
+    // --- CONNECTION STATUS ---
     async function checkInternetConnection() {
       try {
         await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" });
@@ -479,7 +480,7 @@
     }
     setInterval(updateStatus, 3000);
 
-    // --- CLOCK (يبقى كما هو) ---
+    // --- CLOCK ---
     function startClock() {
       const timeElem = document.getElementById('clockTime');
       const dateElem = document.getElementById('clockDate');
@@ -492,7 +493,7 @@
     }
     startClock();
 
-    // --- UTILS (تبقى كما هي) ---
+    // --- UTILS ---
     function showToast(message, type = "success") {
       const container = document.getElementById("toastContainer");
       const toast = document.createElement("div");
@@ -529,13 +530,16 @@
       const regex = /^01[0125][0-9]{8}$/;
 
       if (regex.test(userId)) {
-        // 1. محاكاة تسجيل الدخول الناجح (بعد التحقق من التنسيق):
+        // 1. التحقق من وجود المستخدم في Firebase Auth (افتراضياً بدون كلمة مرور في هذا النظام)
+        // إذا كنت تستخدم Auth، يجب عليك إضافة كود تسجيل الدخول هنا
+
+        // 2. محاكاة تسجيل الدخول الناجح:
         currentUserId = userId;
         
-        // 2. إنشاء/تحديث الملف الشخصي في PatientData (سواء كان موجوداً أم لا)
+        // 3. إنشاء/تحديث الملف الشخصي في PatientData
         createInitialProfile(userId);
         
-        // 3. تحديث الواجهة وحفظ رقم الهاتف في الذاكرة المحلية
+        // 4. تحديث الواجهة وحفظ رقم الهاتف في الذاكرة المحلية
         input.disabled = true;
         document.getElementById("save-btn").disabled = true;
         helper.style.color = "#00ff88";
@@ -544,6 +548,8 @@
         
         document.getElementById("save-btn").innerHTML = '<i class="fas fa-check"></i> ' + (lang === "ar" ? "تم الحفظ" : "Saved");
         localStorage.setItem("selectedUserId", userId);
+
+        // *** تم حذف الكود القديم: database.ref("/current users/" + userId).push({ ... }); ***
 
       } else {
         input.classList.add("input-error");
@@ -607,7 +613,7 @@
             })
             .catch(error => {
                 console.error("Firebase Profile Setup Error:", error);
-                showToast(lang === "ar" ? "فشل ربط الملف (قد تكون قواعد الأمان مغلقة)" : "Failed to link profile (Check Security Rules)", "error");
+                showToast(lang === "ar" ? "فشل ربط الملف" : "Failed to link profile", "error");
             });
     }
 
@@ -643,7 +649,7 @@
         document.getElementById("mission-title").innerText = "مهمتنا";
         document.getElementById("mission-text").innerText = "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة باستخدام أحدث تقنيات إنترنت الأشياء (IoT)، لسد الفجوة بين المرضى والرعاية الطبية.";
         document.getElementById("vision-title").innerText = "رؤيتنا";
-        document.getElementById("vision-text").innerText = "عالم تكون فيه مراقبة الصحة استباقية وسلسلة ومتاحة للجميع في كل مكان، لنشر ثقافة الوقاية خير من العلاج.";
+        document.getElementById("vision-text").innerText = "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع في كل مكان، لنشر ثقافة الوقاية خير من العلاج.";
         document.getElementById("team-title").innerText = "فريق العمل";
         document.getElementById("uni-text").innerText = "جامعة الزقازيق - كلية الهندسة";
       } else {
