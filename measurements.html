@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
-    /* --- CSS Styles (نفس التصميم الأصلي) --- */
+    /* --- CSS Styles --- */
     :root {
       --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       --glass-bg: rgba(255, 255, 255, 0.1);
@@ -27,26 +27,30 @@
     ::-webkit-scrollbar-thumb:hover { background: var(--success-color); }
     body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; color: var(--text-color); box-sizing: border-box; overflow-x: hidden; }
     @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    
     .user-card { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 10px 30px; border-radius: 50px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 15px; width: 100%; max-width: 900px; box-sizing: border-box; animation: slideDown 0.8s ease; }
     @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .user-card i.fa-user-circle { font-size: 1.5rem; color: #00d2ff; }
     .user-card h2 { margin: 0; font-size: 1.1rem; font-weight: 400; flex-grow: 1; }
     .user-card span { font-weight: 600; color: #00d2ff; text-transform: uppercase; }
+    
     .top-actions { display: flex; align-items: center; gap: 10px; }
     .icon-btn { background: transparent; border: none; color: white; cursor: pointer; font-size: 1.2rem; transition: 0.3s; padding: 5px; opacity: 0.8; }
     .icon-btn:hover { transform: scale(1.2); opacity: 1; color: var(--primary-color); }
     .icon-btn.active { color: var(--success-color); text-shadow: 0 0 10px var(--success-color); }
-    .icon-btn.muted { color: var(--error-color); }
     .whatsapp-btn { color: var(--whatsapp-color) !important; }
     .whatsapp-btn:hover { text-shadow: 0 0 10px var(--whatsapp-color); }
+    
     .status-dot { width: 12px; height: 12px; border-radius: 50%; background-color: var(--success-color); box-shadow: 0 0 10px var(--success-color); transition: all 0.3s ease; margin-left: 15px; }
     .status-dot.offline { background-color: var(--error-color) !important; box-shadow: 0 0 15px var(--error-color) !important; animation: blinkRed 1s infinite; }
     @keyframes blinkRed { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    
     .ai-card { width: 100%; max-width: 900px; background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(58, 123, 213, 0.1)); border: 1px solid var(--ai-color); border-radius: 20px; padding: 20px; margin-bottom: 30px; display: flex; align-items: flex-start; gap: 20px; box-shadow: 0 0 20px rgba(0, 210, 255, 0.15); position: relative; overflow: hidden; box-sizing: border-box; }
     .ai-icon { font-size: 2.5rem; color: var(--ai-color); background: rgba(0, 0, 0, 0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; animation: pulseAI 2s infinite; flex-shrink: 0; }
     @keyframes pulseAI { 0% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 210, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0); } }
     .ai-content h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: var(--ai-color); }
     .ai-content p { margin: 0; font-size: 0.95rem; line-height: 1.5; color: #eee; }
+    
     .measure-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; width: 100%; max-width: 900px; margin-bottom: 30px; }
     .measure-btn { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; overflow: hidden; height: 160px; }
     .measure-btn:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.4); }
@@ -57,21 +61,62 @@
     .pressure { border-bottom: 4px solid #6a11cb; } .pressure i { color: #6a11cb; }
     .oxygen { border-bottom: 4px solid #00c6ff; } .oxygen i { color: #00c6ff; }
     .vision { border-bottom: 4px solid #43e97b; } .vision i { color: #43e97b; }
+    
     .history-bar { width: 100%; max-width: 900px; background: linear-gradient(90deg, rgba(161, 140, 209, 0.1), rgba(251, 194, 235, 0.1)); border: 1px solid rgba(161, 140, 209, 0.4); border-radius: 20px; padding: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; cursor: pointer; margin-bottom: 40px; transition: 0.3s; backdrop-filter: blur(10px); box-sizing: border-box; }
     .history-bar:hover { transform: scale(1.02); border-color: var(--history-color); box-shadow: 0 0 25px rgba(161, 140, 209, 0.3); }
     .history-bar i { font-size: 2rem; color: var(--history-color); }
     .history-bar span { font-size: 1.2rem; font-weight: 600; color: #fff; text-transform: uppercase; }
+    
     .close-btn { background: linear-gradient(45deg, #cb2d3e, #ef473a); color: white; border: none; padding: 12px 40px; border-radius: 50px; font-size: 16px; font-family: 'Poppins', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(239, 71, 58, 0.4); transition: 0.3s; display: flex; align-items: center; gap: 10px; margin-top: auto; }
-    .close-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(239, 71, 58, 0.6); }
-    .fab-container { position: fixed; bottom: 30px; z-index: 1000; }
+    
+    /* --- FAB BUTTONS (Floating Actions) --- */
+    .fab-container { position: fixed; bottom: 30px; z-index: 1000; display: flex; flex-direction: column; gap: 15px; align-items: center; }
     .fab-right { right: 30px; }
     .fab-left { left: 30px; }
-    .hospital-fab { width: 65px; height: 65px; border-radius: 50%; background: linear-gradient(135deg, #ff416c, #ff4b2b); color: white; border: none; box-shadow: 0 4px 15px rgba(255, 65, 108, 0.5); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 28px; transition: 0.3s; animation: pulse-fab 2s infinite; }
-    .hospital-fab:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(255, 65, 108, 0.7); }
-    .analyze-fab { width: 65px; height: 65px; border-radius: 50%; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; border: none; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.5); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 28px; transition: 0.3s; animation: float-fab 3s ease-in-out infinite; }
-    .analyze-fab:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(108, 92, 231, 0.7); }
-    @keyframes pulse-fab { 0% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 65, 108, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0); } }
+
+    /* SOS Button (Red & Pulsing) */
+    .sos-fab {
+        width: 70px; height: 70px; border-radius: 50%;
+        background: linear-gradient(135deg, #ff0000, #cc0000);
+        color: white; border: 3px solid rgba(255,255,255,0.3);
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        font-size: 24px; font-weight: bold;
+        transition: 0.3s;
+        animation: sos-pulse 1.5s infinite;
+    }
+    .sos-fab:active { transform: scale(0.9); }
+    @keyframes sos-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); transform: scale(1); }
+        70% { box-shadow: 0 0 0 15px rgba(255, 0, 0, 0); transform: scale(1.05); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); transform: scale(1); }
+    }
+
+    /* Hospital Button (Blue & Distinct) */
+    .hospital-fab {
+        width: 55px; height: 55px; border-radius: 50%;
+        background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+        color: white; border: none;
+        box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        font-size: 22px; transition: 0.3s;
+    }
+    .hospital-fab:hover { transform: scale(1.1); background: linear-gradient(135deg, #3a7bd5, #00d2ff); }
+
+    /* Analyze Button (Purple) */
+    .analyze-fab {
+        width: 65px; height: 65px; border-radius: 50%;
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        color: white; border: none;
+        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.5);
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        font-size: 28px; transition: 0.3s;
+        animation: float-fab 3s ease-in-out infinite;
+    }
+    .analyze-fab:hover { transform: scale(1.1); }
     @keyframes float-fab { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+    /* Sidebar & Overlays */
     .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1999; display: none; opacity: 0; transition: opacity 0.3s; }
     .sidebar-overlay.active { display: block; opacity: 1; }
     .sidebar { position: fixed; top: 0; left: -350px; width: 320px; height: 100%; background: rgba(15, 32, 39, 0.95); backdrop-filter: blur(15px); border-right: 1px solid var(--ai-color); box-shadow: 5px 0 30px rgba(0,0,0,0.5); z-index: 2000; transition: left 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; }
@@ -86,32 +131,24 @@
     .calc-btn { width: 100%; padding: 12px; background: var(--ai-color); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
     .calc-btn:hover { background: #3a7bd5; transform: scale(1.02); }
     .result-box { margin-top: 25px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-left: 4px solid var(--ai-color); font-size: 0.95rem; line-height: 1.5; color: #eee; display: none; }
+    
     .toast-container { position: fixed; top: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
     .toast { background: rgba(16, 30, 40, 0.95); color: white; padding: 15px 25px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); border-left: 5px solid; animation: slideIn 0.4s ease, fadeOut 0.5s ease 4s forwards; }
     @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
     @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
     .toast-error { border-color: var(--error-color); } .toast-error i { color: var(--error-color); }
     .toast-info { border-color: var(--ai-color); } .toast-info i { color: var(--ai-color); }
+
     @media screen and (max-width: 768px) {
       body { padding: 10px; }
       header { padding: 5px 0; }
-      header img { width: 35px; height: 35px; }
-      header h1 { font-size: 0.9rem; letter-spacing: 0; }
       .user-card, .ai-card { padding: 15px; flex-direction: column; align-items: flex-start; gap: 10px; }
       .user-card .top-actions { width: 100%; justify-content: space-between; margin-top: 10px; }
-      .status-dot { margin-left: 0; }
       .measure-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
       .measure-btn { height: 110px; padding: 10px; }
-      .measure-btn i { font-size: 2rem; margin-bottom: 5px; }
-      .measure-btn span { font-size: 0.8rem; }
-      .hospital-fab, .analyze-fab { width: 50px; height: 50px; font-size: 20px; }
-      .fab-container { bottom: 20px; }
-      .fab-right { right: 20px; }
-      .fab-left { left: 20px; }
+      .fab-right { right: 20px; bottom: 20px; }
+      .fab-left { left: 20px; bottom: 20px; }
       .sidebar { width: 85%; }
-      .history-bar { padding: 15px; margin-bottom: 80px; }
-      .history-bar i { font-size: 1.5rem; }
-      .history-bar span { font-size: 1rem; }
     }
   </style>
 </head>
@@ -121,7 +158,11 @@
 
   <div class="fab-container fab-right">
     <button class="hospital-fab" id="hospitalBtn" onclick="findHospitals()" title="Nearest Hospitals">
-      <i class="fas fa-ambulance"></i>
+      <i class="fas fa-hospital"></i>
+    </button>
+    
+    <button class="sos-fab" id="sosBtn" onclick="triggerSOS()" title="EMERGENCY HELP">
+      SOS
     </button>
   </div>
 
@@ -140,12 +181,9 @@
     <div class="sidebar-content">
       <label id="lblWeight">Weight (kg) / الوزن</label>
       <input type="number" id="inputWeight" class="sidebar-input" placeholder="e.g. 75">
-      
       <label id="lblHeight">Height (cm) / الطول</label>
       <input type="number" id="inputHeight" class="sidebar-input" placeholder="e.g. 175">
-      
       <button class="calc-btn" onclick="calculateHealthRisk()" id="btnAnalyze">Analyze Health / تحليل</button>
-      
       <div id="analysisResult" class="result-box"></div>
     </div>
   </div>
@@ -153,7 +191,6 @@
   <div class="user-card">
     <i class="fas fa-user-circle"></i>
     <h2 id="titleText">User: <span id="currentUserName">Unknown</span></h2>
-    
     <div class="top-actions">
       <button class="icon-btn whatsapp-btn" id="whatsappBtn" onclick="sendWhatsAppReport()" title="Send Report to WhatsApp">
         <i class="fab fa-whatsapp"></i>
@@ -172,7 +209,7 @@
     <div class="ai-icon"><i class="fas fa-robot"></i></div>
     <div class="ai-content">
       <h3 id="aiTitle">AI Health Analysis</h3>
-      <p id="aiText">Waiting for measurements to generate analysis...</p>
+      <p id="aiText">Waiting for measurements...</p>
     </div>
     <div id="lastReadingTime" style="position: absolute; bottom: 8px; right: 20px; font-size: 0.8rem; color: #aaa;">Last updated: --</div>
   </div>
@@ -226,7 +263,6 @@
     const db = firebase.database();
     const auth = firebase.auth(); 
     
-    // --- Auth Check ---
     auth.signInAnonymously().catch(console.error);
 
     const PATIENT_DATA_PATH = 'PatientData';
@@ -240,16 +276,48 @@
     function toggleSidebar(show) {
       const sidebar = document.getElementById("smartSidebar");
       const overlay = document.getElementById("sidebarOverlay");
-      if(show) {
-        sidebar.classList.add("active");
-        overlay.classList.add("active");
-      } else {
-        sidebar.classList.remove("active");
-        overlay.classList.remove("active");
-      }
+      if(show) { sidebar.classList.add("active"); overlay.classList.add("active"); }
+      else { sidebar.classList.remove("active"); overlay.classList.remove("active"); }
     }
 
-    // --- HELPER: Parse string ---
+    // --- SOS SYSTEM LOGIC (NEW) ---
+    function triggerSOS() {
+        const lang = localStorage.getItem("language") || "en";
+        const confirmMsg = lang === "ar" ? "هل أنت متأكد أنك تريد إرسال استغاثة طارئة؟" : "Are you sure you want to send an Emergency Alert?";
+        
+        if (confirm(confirmMsg)) {
+            // Check for Geolocation support
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                alert(lang === "ar" ? "المتصفح لا يدعم تحديد الموقع." : "Geolocation is not supported by this browser.");
+            }
+        }
+    }
+
+    function showPosition(position) {
+        const lat = position.coords.latitude;
+        const long = position.coords.longitude;
+        const mapLink = `https://www.google.com/maps?q=${lat},${long}`;
+        const lang = localStorage.getItem("language") || "en";
+        
+        let msg = "";
+        if(lang === "ar") {
+            msg = `🚨 *استغاثة طارئة!* 🚨%0Aأحتاج للمساعدة فوراً.%0A📍 *موقعي:* ${mapLink}%0A🌡️ *الحرارة:* ${currentData.temp}%0A❤️ *النبض:* ${currentData.bpm}`;
+        } else {
+            msg = `🚨 *EMERGENCY SOS!* 🚨%0A I need help immediately.%0A📍 *Location:* ${mapLink}%0A🌡️ *Temp:* ${currentData.temp}%0A❤️ *Pulse:* ${currentData.bpm}`;
+        }
+        
+        // Open WhatsApp to pick a contact
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+
+    function showError(error) {
+        const lang = localStorage.getItem("language") || "en";
+        alert(lang === "ar" ? "تعذر الحصول على الموقع. تأكد من تفعيل GPS." : "Unable to retrieve location. Please enable GPS.");
+    }
+
+    // --- DATA PARSING & AI ---
     function extractSensorValues(sensorString) {
         const values = {};
         if (sensorString && sensorString !== "No measurement recorded yet") {
@@ -268,7 +336,6 @@
         return values;
     }
 
-    // --- ENHANCED BMI & HEALTH ADVICE LOGIC ---
     function calculateHealthRisk() {
       const weight = parseFloat(document.getElementById("inputWeight").value);
       const height = parseFloat(document.getElementById("inputHeight").value);
@@ -284,69 +351,42 @@
 
       const h_m = height / 100;
       const bmi = (weight / (h_m * h_m)).toFixed(1);
-      
-      // Calculate daily water requirement (approx 35ml per kg)
       const waterNeed = (weight * 0.035).toFixed(1);
 
-      let status = "";
-      let color = "";
-      let dietTip = "";
-      let exerciseTip = "";
-      
+      let status = "", color = "", dietTip = "", exerciseTip = "";
       if(bmi < 18.5) { 
-          status = lang==="ar"?"نحافة (Underweight)":"Underweight"; 
-          color="#3498db"; 
-          dietTip = lang==="ar"?"تناول وجبات غنية بالبروتين والكربوهيدرات الصحية والمكسرات." : "Eat protein-rich meals, healthy carbs, and nuts.";
-          exerciseTip = lang==="ar"?"مارس تمارين القوة لبناء العضلات." : "Focus on strength training to build muscle.";
-      }
-      else if(bmi < 25) { 
-          status = lang==="ar"?"وزن مثالي (Healthy)":"Healthy Weight"; 
-          color="#2ecc71"; 
-          dietTip = lang==="ar"?"حافظ على نظام غذائي متوازن مع الخضروات والفواكه." : "Maintain a balanced diet with plenty of fruits/veggies.";
-          exerciseTip = lang==="ar"?"استمر في النشاط البدني المعتدل (المشي/الجري) 30 دقيقة." : "Maintain moderate activity (walking/jogging) 30 mins/day.";
-      }
-      else if(bmi < 30) { 
-          status = lang==="ar"?"وزن زائد (Overweight)":"Overweight"; 
-          color="#f1c40f"; 
-          dietTip = lang==="ar"?"قلل السكريات والدهون المشبعة، وزد من الألياف." : "Reduce sugar/saturated fats, increase fiber intake.";
-          exerciseTip = lang==="ar"?"حاول زيادة تمارين الكارديو (المشي السريع) لحرق الدهون." : "Increase cardio exercises (brisk walking) to burn fat.";
-      }
-      else { 
-          status = lang==="ar"?"سمنة (Obese)":"Obese"; 
-          color="#e74c3c"; 
-          dietTip = lang==="ar"?"تجنب الأطعمة المقلية والوجبات السريعة تماماً." : "Avoid fried foods and fast food completely.";
-          exerciseTip = lang==="ar"?"ابدأ بالمشي الخفيف لتجنب الضغط على المفاصل واستشر مدرباً." : "Start with low-impact walking to protect joints.";
+          status = lang==="ar"?"نحافة":"Underweight"; color="#3498db"; 
+          dietTip = lang==="ar"?"تناول وجبات غنية بالبروتين والكربوهيدرات." : "Eat protein-rich meals.";
+      } else if(bmi < 25) { 
+          status = lang==="ar"?"وزن مثالي":"Healthy Weight"; color="#2ecc71"; 
+          dietTip = lang==="ar"?"حافظ على نظام غذائي متوازن." : "Maintain a balanced diet.";
+      } else if(bmi < 30) { 
+          status = lang==="ar"?"وزن زائد":"Overweight"; color="#f1c40f"; 
+          dietTip = lang==="ar"?"قلل السكريات والدهون." : "Reduce sugar/fats.";
+      } else { 
+          status = lang==="ar"?"سمنة":"Obese"; color="#e74c3c"; 
+          dietTip = lang==="ar"?"تجنب الأطعمة المقلية تماماً." : "Avoid fried foods.";
       }
 
-      const waterMsg = lang==="ar" ? `💧 احتياج الماء: ${waterNeed} لتر يومياً` : `💧 Water Need: ${waterNeed} Liters/day`;
+      const waterMsg = lang==="ar" ? `💧 احتياج الماء: ${waterNeed} لتر` : `💧 Water Need: ${waterNeed} L`;
 
       resultBox.style.display = "block";
       resultBox.style.borderLeftColor = color;
-      resultBox.innerHTML = `
-          <strong style="font-size:1.1em; color:${color}">BMI: ${bmi} (${status})</strong><br>
-          <div style="margin-top:8px; font-size:0.9em; color:#ddd;">
-            ${waterMsg}<br>
-            🍎 <b>${lang==="ar"?"نصيحة غذائية:":"Diet Tip:"}</b> ${dietTip}<br>
-            🏃 <b>${lang==="ar"?"نشاط مقترح:":"Activity:"}</b> ${exerciseTip}
-          </div>
-      `;
+      resultBox.innerHTML = `<strong style="color:${color}">BMI: ${bmi} (${status})</strong><br><small>${waterMsg}</small><br><small>🍎 ${dietTip}</small>`;
       
       if(voiceEnabled) {
-         const utterance = new SpeechSynthesisUtterance(lang==="ar" ? `مؤشر كتلة الجسم هو ${bmi}. حالتك ${status}` : `Your BMI is ${bmi}. You are ${status}`);
+         const utterance = new SpeechSynthesisUtterance(lang==="ar" ? `مؤشر كتلة الجسم هو ${bmi}` : `Your BMI is ${bmi}`);
          utterance.lang = lang==="ar"?'ar-SA':'en-US';
          window.speechSynthesis.speak(utterance);
       }
     }
 
-    // --- DETAILED AI ANALYSIS LOGIC ---
     let currentData = { temp: "--", bpm: "--", bp: "--", spo2: "--" };
     let lastTimestamp = "--";
 
     function updateAIAnalysis() {
       if(!currentUserId) return;
-        
       const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
-
       userRef.on("value", (snapshot) => {
         if(snapshot.exists()) {
             const data = snapshot.val();
@@ -361,97 +401,38 @@
             };
             lastTimestamp = data.Timestamp || "--";
 
-            // Update Cards
             document.getElementById('bpValue').innerText = currentData.bp;
             document.getElementById('spo2Value').innerText = currentData.spo2 + (currentData.spo2 !== '--' ? '%' : '');
             document.getElementById('tempValue').innerText = currentData.temp + (currentData.temp !== '--' ? '°C' : '');
             document.getElementById('pulseValue').innerText = currentData.bpm + (currentData.bpm !== '--' ? ' bpm' : '');
-
-            document.getElementById('lastReadingTime').innerText = (lang === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + lastTimestamp;
+            document.getElementById('lastReadingTime').innerText = (localStorage.getItem("language") === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + lastTimestamp;
             
-            // --- DETAILED ADVICE GENERATION ---
+            // AI Analysis Logic
             const temp = parseFloat(currentData.temp) || 0;
             const bpm = parseInt(currentData.bpm) || 0;
             const spo2 = parseFloat(currentData.spo2) || 0;
-            let sys = 0, dia = 0;
-            if(currentData.bp && currentData.bp.includes('/')) {
-                const parts = currentData.bp.split('/');
-                sys = parseInt(parts[0]);
-                dia = parseInt(parts[1]);
-            }
-            
-            let statusColor = "#00ff88"; // Green by default
-            let adviceList = [];
-            let headerMsg = lang === "ar" ? "الحالة مستقرة." : "Condition is stable.";
+            let statusColor = "#00ff88"; 
+            let advice = localStorage.getItem("language") === "ar" ? "الحالة مستقرة." : "Condition stable.";
 
-            if (sensorDataString === "No measurement recorded yet") {
-                document.getElementById("aiText").innerText = lang === "ar" ? "يرجى بدء القياس للحصول على نصائح مخصصة." : "Please start measuring to get personalized advice.";
-                return;
-            }
+            if(temp > 37.5) { statusColor = "#ff416c"; advice = localStorage.getItem("language")==="ar"?"حرارة مرتفعة! اشرب سوائل.":"High Temp! Hydrate."; }
+            else if(bpm > 100) { advice = localStorage.getItem("language")==="ar"?"نبض سريع! استرخ قليلاً.":"High Pulse! Relax."; }
+            else if(spo2 > 0 && spo2 < 95) { statusColor = "#ff416c"; advice = localStorage.getItem("language")==="ar"?"أكسجين منخفض! تنفس بعمق.":"Low Oxygen! Breathe deep."; }
 
-            // 1. Blood Pressure Logic
-            if(sys > 140 || dia > 90) {
-                statusColor = "#ff416c"; // Red
-                headerMsg = lang === "ar" ? "⚠️ ضغط الدم مرتفع" : "⚠️ High Blood Pressure";
-                adviceList.push(lang==="ar" ? "🥗 قلل الملح، تناول الموز (بوتاسيوم)." : "🥗 Reduce salt, eat Bananas (Potassium).");
-                adviceList.push(lang==="ar" ? "☕ اشرب الكركديه البارد." : "☕ Drink Hibiscus tea.");
-            } else if (sys < 90 && sys > 0) {
-                statusColor = "#f1c40f"; // Yellow
-                headerMsg = lang === "ar" ? "⚠️ ضغط الدم منخفض" : "⚠️ Low Blood Pressure";
-                adviceList.push(lang==="ar" ? "💧 اشرب سوائل كثيرة وعصائر مالحة." : "💧 Drink plenty of fluids and salty juices.");
-            }
-
-            // 2. Temperature Logic
-            if(temp > 37.5) {
-                statusColor = "#ff416c";
-                adviceList.push(lang==="ar" ? "🌡️ حرارة مرتفعة: الراحة التامة وشرب الماء." : "🌡️ High Temp: Rest well and hydrate.");
-                adviceList.push(lang==="ar" ? "🧊 استخدم كمادات باردة." : "🧊 Use cool compresses.");
-            }
-
-            // 3. Oxygen Logic
-            if(spo2 > 0 && spo2 < 95) {
-                statusColor = "#ff416c";
-                adviceList.push(lang==="ar" ? "🫁 أكسجين منخفض: تنفس بعمق وافتح النوافذ." : "🫁 Low Oxygen: Deep breathing & fresh air.");
-                adviceList.push(lang==="ar" ? "🥦 تناول الورقيات الخضراء (حديد)." : "🥦 Eat leafy greens (Iron).");
-            }
-
-            // 4. Pulse Logic
-            if(bpm > 100) {
-                adviceList.push(lang==="ar" ? "❤️ نبض سريع: قلل الكافيين واسترخِ." : "❤️ Fast Pulse: Reduce caffeine & relax.");
-            }
-
-            // If everything is normal
-            if(adviceList.length === 0) {
-                adviceList.push(lang==="ar" ? "✅ استمر في شرب الماء (2-3 لتر)." : "✅ Keep drinking water (2-3L).");
-                adviceList.push(lang==="ar" ? "🏃 حافظ على المشي يومياً." : "🏃 Maintain daily walking.");
-            }
-
-            // Build HTML Output
-            let finalHtml = `<strong>${headerMsg}</strong><br><ul style="margin:5px 0; padding-left:20px; color:#ddd; font-size:0.9rem;">`;
-            adviceList.forEach(tip => {
-                finalHtml += `<li>${tip}</li>`;
-            });
-            finalHtml += `</ul>`;
-
-            document.getElementById("aiText").innerHTML = finalHtml;
-            const card = document.querySelector(".ai-card");
-            card.style.borderColor = statusColor;
+            document.getElementById("aiText").innerText = advice;
+            document.querySelector(".ai-card").style.borderColor = statusColor;
         }
       });
     }
 
     // --- UTILS ---
     async function checkInternetConnection() { try { await fetch("https://www.google.com/favicon.ico?"+new Date().getTime(),{mode:"no-cors"});return true;}catch(e){return false;}}
-    async function updateStatus(){const d=document.getElementById('connectionStatus');if(await checkInternetConnection()){d.classList.remove('offline');d.title="Online";}else{d.classList.add('offline');d.title="Offline";showToast((localStorage.getItem('language') === 'ar' ? "فقد الاتصال!" : "Connection Lost!"),"error");}}
+    async function updateStatus(){const d=document.getElementById('connectionStatus');if(await checkInternetConnection()){d.classList.remove('offline');d.title="Online";}else{d.classList.add('offline');d.title="Offline";}}
     setInterval(updateStatus,3000);
 
-    function showToast(msg,type="info"){const c=document.getElementById("toastContainer");const t=document.createElement("div");t.className=`toast toast-${type}`;t.innerHTML=`<i class="fas fa-info-circle"></i><span>${msg}</span>`;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
-    
     function sendWhatsAppReport(){
         let phone = currentUserId; 
         if (phone.startsWith('0')) phone = '20' + phone.substring(1);
-        let m=`🏥 *Bioscan Report (%0AUpdated: ${lastTimestamp})*%0A- Temp: ${currentData.temp}%0A- Pulse: ${currentData.bpm}%0A- BP: ${currentData.bp}%0A- Ox: ${currentData.spo2}`;
-        if(localStorage.getItem('language') === 'ar') m = `🏥 *تقرير بايو سكان*%0A(آخر تحديث: ${lastTimestamp})%0A- الحرارة: ${currentData.temp}%0A- النبض: ${currentData.bpm}%0A- الضغط: ${currentData.bp}%0A- الأكسجين: ${currentData.spo2}`;
+        let m=`🏥 *Bioscan Report*%0A- Temp: ${currentData.temp}%0A- Pulse: ${currentData.bpm}%0A- BP: ${currentData.bp}%0A- Ox: ${currentData.spo2}`;
         window.open(`https://wa.me/${phone}?text=${m}`,'_blank');
     }
     
@@ -462,21 +443,20 @@
     let idle=0; setInterval(()=>{idle++;if(idle>=90)closeMeasurements();},1000);
     document.onmousemove=document.onkeypress=document.ontouchstart=document.onclick=()=>{idle=0;};
 
-    // --- HOVER VOICE ---
+    // --- HOVER VOICE & LANG ---
     let voiceEnabled=true;
     function toggleHoverVoice(){voiceEnabled=!voiceEnabled;document.getElementById('voiceToggle').classList.toggle('active');}
     function setupHoverVoice(){
         const map={
-            'analyzeBtn':{ar:'تحليل الجسم الذكي',en:'Smart Body Analysis'},
+            'analyzeBtn':{ar:'تحليل الجسم',en:'Body Analysis'},
             'hospitalBtn':{ar:'أقرب مستشفى',en:'Nearest Hospital'},
-            'tempBtn':{ar:'قياس الحرارة',en:'Measure Temperature'},
-            'pulseBtn':{ar:'قياس نبض القلب',en:'Measure Heart Rate'},
-            'bpBtn':{ar:'قياس ضغط الدم',en:'Measure Blood Pressure'},
-            'oxygenBtn':{ar:'قياس الأكسجين',en:'Measure Oxygen Level'},
-            'visionBtn':{ar:'فحص النظر',en:'Vision Test'},
-            'historyBtn':{ar:'السجل الطبي',en:'Medical History'},
-            'whatsappBtn':{ar:'إرسال عبر واتساب',en:'Send via WhatsApp'},
-            'exitBtn':{ar:'تسجيل الخروج',en:'Logout'}
+            'sosBtn':{ar:'نداء استغاثة',en:'SOS Emergency'},
+            'tempBtn':{ar:'حرارة',en:'Temperature'},
+            'pulseBtn':{ar:'نبض',en:'Pulse'},
+            'bpBtn':{ar:'ضغط',en:'Pressure'},
+            'oxygenBtn':{ar:'أكسجين',en:'Oxygen'},
+            'visionBtn':{ar:'نظر',en:'Vision'},
+            'historyBtn':{ar:'السجل',en:'History'}
         };
         Object.keys(map).forEach(id=>{
             const b=document.getElementById(id);
@@ -493,7 +473,6 @@
         });
     }
 
-    // Nav
     function goToTemperature(){window.location.href="temp.html";}
     function goToPulse(){window.location.href="pulse.html";}
     function goToPressure(){window.location.href="pressure.html";}
@@ -513,6 +492,7 @@
             document.getElementById("btnAnalyze").innerText="تحليل النتائج";
             document.getElementById("hospitalBtn").title="أقرب مستشفى";
             document.getElementById("analyzeBtn").title="تحليل الجسم";
+            document.getElementById("sosBtn").title="طوارئ";
             document.querySelector("#tempBtn span").innerText="درجة الحرارة";
             document.querySelector("#pulseBtn span").innerText="نبض القلب";
             document.querySelector("#bpBtn span").innerText="ضغط الدم";
