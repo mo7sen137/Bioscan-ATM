@@ -50,8 +50,8 @@
     @keyframes pulseAI { 0% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 210, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0); } }
     .ai-content h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: var(--ai-color); }
     .ai-content p { margin: 0; font-size: 0.95rem; line-height: 1.5; color: #eee; }
-    .ai-content ul { padding-left: 20px; margin: 5px 0; }
-    .ai-content li { margin-bottom: 5px; color: #ddd; }
+    .ai-content ul { padding-left: 20px; margin: 10px 0; }
+    .ai-content li { margin-bottom: 8px; color: #ddd; font-size: 0.9rem; list-style-type: none; }
     
     .measure-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; width: 100%; max-width: 900px; margin-bottom: 30px; }
     .measure-btn { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; overflow: hidden; height: 160px; }
@@ -355,7 +355,7 @@
       else { sidebar.classList.remove("active"); overlay.classList.remove("active"); }
     }
 
-    // --- SOS LOGIC (FIXED MESSAGE) ---
+    // --- SOS LOGIC (USING TOP BUTTON METHOD) ---
     function triggerSOS() {
         const savedNumber = localStorage.getItem("sosContactNumber");
         if (!savedNumber) { openContactModal(); } else { openConfirmModal(); }
@@ -408,21 +408,24 @@
     function sendPosition(position) {
         const lat = position.coords.latitude;
         const long = position.coords.longitude;
-        // Correct Google Maps Link
-        const mapLink = `https://www.google.com/maps?q=$${lat},${long}`;
+        // Construct Google Maps Link
+        const mapLink = `https://www.google.com/maps?q=${lat},${long}`;
         const lang = localStorage.getItem("language") || "en";
-        const contact = localStorage.getItem("sosContactNumber");
         
+        // Clean phone number (remove +, spaces, etc)
+        let phone = localStorage.getItem("sosContactNumber");
+        if(phone) phone = phone.replace(/\D/g, ''); // Keep only digits
+
         let msg = "";
         if(lang === "ar") {
             msg = `🚨 *استغاثة طارئة!* 🚨\nأحتاج للمساعدة فوراً.\n📍 *موقعي:* ${mapLink}\n🌡️ *الحرارة:* ${currentData.temp}\n❤️ *النبض:* ${currentData.bpm}`;
         } else {
-            msg = `🚨 *EMERGENCY SOS!* 🚨\nI need help immediately.\n📍 *Location:* ${mapLink}\n🌡️ *Temp:* ${currentData.temp}\n❤️ *Pulse:* ${currentData.bpm}`;
+            msg = `🚨 *SOS EMERGENCY!* 🚨\nI need help immediately.\n📍 *Location:* ${mapLink}\n🌡️ *Temp:* ${currentData.temp}\n❤️ *Pulse:* ${currentData.bpm}`;
         }
         
-        // Correct Encoding for WhatsApp (Fixes the "Not sending" issue)
+        // Use the robust logic from the top button
         const encodedMsg = encodeURIComponent(msg);
-        window.open(`https://wa.me/${contact}?text=${encodedMsg}`, '_blank');
+        window.open(`https://wa.me/${phone}?text=${encodedMsg}`, '_blank');
     }
 
     function showError(error) {
@@ -449,7 +452,7 @@
         return values;
     }
 
-    // --- RESTORED: DETAILED BMI LOGIC ---
+    // --- DETAILED BMI LOGIC WITH EMOJIS & EXERCISES ---
     function calculateHealthRisk() {
       const weight = parseFloat(document.getElementById("inputWeight").value);
       const height = parseFloat(document.getElementById("inputHeight").value);
@@ -470,23 +473,33 @@
       let status = "", color = "", dietTip = "", exerciseTip = "";
       if(bmi < 18.5) { 
           status = lang==="ar"?"نحافة":"Underweight"; color="#3498db"; 
-          dietTip = lang==="ar"?"تناول وجبات غنية بالبروتين." : "Eat protein-rich meals.";
+          dietTip = lang==="ar"?"🥑 أكثر من المكسرات وزبدة الفول السوداني." : "🥑 Eat nuts & peanut butter.";
+          exerciseTip = lang==="ar"?"🏋️‍♂️ ركز على تمارين المقاومة لبناء العضلات." : "🏋️‍♂️ Focus on strength training.";
       } else if(bmi < 25) { 
           status = lang==="ar"?"وزن مثالي":"Healthy"; color="#2ecc71"; 
-          dietTip = lang==="ar"?"حافظ على نظام غذائي متوازن." : "Maintain balanced diet.";
+          dietTip = lang==="ar"?"🥗 حافظ على طبق السلطة يومياً." : "🥗 Eat salad daily.";
+          exerciseTip = lang==="ar"?"🏃‍♂️ استمر في المشي أو الجري 30 دقيقة." : "🏃‍♂️ Jog/Walk 30 mins daily.";
       } else if(bmi < 30) { 
           status = lang==="ar"?"وزن زائد":"Overweight"; color="#f1c40f"; 
-          dietTip = lang==="ar"?"قلل السكريات والدهون." : "Reduce sugar/fats.";
+          dietTip = lang==="ar"?"📉 قلل السكريات والمشروبات الغازية." : "📉 Cut sugar & soda.";
+          exerciseTip = lang==="ar"?"🚴‍♂️ جرب ركوب الدراجة أو السباحة." : "🚴‍♂️ Try cycling or swimming.";
       } else { 
           status = lang==="ar"?"سمنة":"Obese"; color="#e74c3c"; 
-          dietTip = lang==="ar"?"تجنب الأطعمة المقلية." : "Avoid fried foods.";
+          dietTip = lang==="ar"?"🚫 ابتعد عن المقليات والوجبات السريعة." : "🚫 No fried/fast food.";
+          exerciseTip = lang==="ar"?"🚶‍♂️ ابدأ بالمشي الخفيف لتجنب آلام المفاصل." : "🚶‍♂️ Start with light walking.";
       }
 
       const waterMsg = lang==="ar" ? `💧 احتياج الماء: ${waterNeed} لتر` : `💧 Water Need: ${waterNeed} L`;
 
       resultBox.style.display = "block";
       resultBox.style.borderLeftColor = color;
-      resultBox.innerHTML = `<strong style="color:${color}">BMI: ${bmi} (${status})</strong><br><small>${waterMsg}</small><br><small>🍎 ${dietTip}</small>`;
+      resultBox.innerHTML = `
+        <strong style="color:${color}; font-size:1.1rem;">BMI: ${bmi} (${status})</strong><br>
+        <div style="margin-top:10px; font-size:0.9rem; color:#eee;">
+            ${waterMsg}<br>
+            🍎 <b>${lang==="ar"?"غذاء:":"Diet:"}</b> ${dietTip}<br>
+            💪 <b>${lang==="ar"?"رياضة:":"Gym:"}</b> ${exerciseTip}
+        </div>`;
       
       if(voiceEnabled) {
          const utterance = new SpeechSynthesisUtterance(lang==="ar" ? `مؤشر كتلة الجسم ${bmi}` : `BMI is ${bmi}`);
@@ -498,7 +511,7 @@
     let currentData = { temp: "--", bpm: "--", bp: "--", spo2: "--" };
     let lastTimestamp = "--";
 
-    // --- RESTORED: DETAILED AI ANALYSIS LOGIC (BP, Temp, O2 Advice) ---
+    // --- EXPANDED AI ANALYSIS LOGIC (FOOD, DRINK, REST, EMOJIS) ---
     function updateAIAnalysis() {
       if(!currentUserId) return;
       const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
@@ -530,34 +543,50 @@
 
             let statusColor = "#00ff88"; 
             let adviceList = [];
-            let headerMsg = localStorage.getItem("language") === "ar" ? "الحالة مستقرة." : "Condition stable.";
+            let headerMsg = localStorage.getItem("language") === "ar" ? "✅ الحالة العامة مستقرة." : "✅ General condition is stable.";
 
             if (sensorDataString === "No measurement recorded yet") {
-                headerMsg = localStorage.getItem("language") === "ar" ? "بانتظار القياسات..." : "Waiting for data...";
+                headerMsg = localStorage.getItem("language") === "ar" ? "⏳ بانتظار بدء القياسات..." : "⏳ Waiting for measurements...";
             } else {
-                // 1. High BP
+                // 1. HIGH BLOOD PRESSURE
                 if(sys > 140) {
                     statusColor = "#ff416c";
-                    headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ ضغط مرتفع" : "⚠️ High BP";
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "اشرب كركديه بارد." : "Drink Hibiscus.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "قلل الملح." : "Reduce Salt.");
+                    headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ ضغط الدم مرتفع" : "⚠️ High Blood Pressure";
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🍌 <b>أكل:</b> تناول الموز، السبانخ، والشوكولاتة الداكنة." : "🍌 <b>Eat:</b> Bananas, Spinach, Dark Chocolate.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🍵 <b>شرب:</b> اشرب الكركديه البارد وعصير البنجر." : "🍵 <b>Drink:</b> Cold Hibiscus tea, Beet juice.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🧘‍♂️ <b>راحة:</b> جرب التأمل وتنفس ببطء." : "🧘‍♂️ <b>Rest:</b> Try meditation & deep breathing.");
+                } 
+                // 2. LOW BLOOD PRESSURE
+                else if (sys > 0 && sys < 90) {
+                     statusColor = "#f1c40f";
+                     headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ ضغط الدم منخفض" : "⚠️ Low Blood Pressure";
+                     adviceList.push(localStorage.getItem("language")==="ar" ? "🧂 <b>أكل:</b> تناول وجبة خفيفة مالحة (مكسرات/جبن)." : "🧂 <b>Eat:</b> Salty snacks (nuts/cheese).");
+                     adviceList.push(localStorage.getItem("language")==="ar" ? "☕ <b>شرب:</b> اشرب قهوة أو سوائل كثيرة." : "☕ <b>Drink:</b> Coffee or plenty of fluids.");
                 }
-                // 2. High Temp
+
+                // 3. HIGH TEMP
                 if(temp > 37.5) {
                     statusColor = "#ff416c";
-                    headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ حرارة مرتفعة" : "⚠️ High Temp";
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "استخدم كمادات باردة." : "Use cool compress.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "اشرب سوائل بكثرة." : "Drink fluids.");
+                    headerMsg = localStorage.getItem("language") === "ar" ? "🌡️ حرارة مرتفعة (حمى)" : "🌡️ High Fever";
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🧊 <b>علاج:</b> استخدم كمادات باردة فوراً." : "🧊 <b>Action:</b> Use cold compresses immediately.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "💧 <b>شرب:</b> اشرب ماء وعصائر لتعويض السوائل." : "💧 <b>Drink:</b> Water & juices to hydrate.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🛌 <b>راحة:</b> الزم الراحة التامة في السرير." : "🛌 <b>Rest:</b> Complete bed rest.");
                 }
-                // 3. Low Oxygen
+
+                // 4. LOW OXYGEN
                 if(spo2 > 0 && spo2 < 95) {
                     statusColor = "#ff416c";
-                    headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ أكسجين منخفض" : "⚠️ Low Oxygen";
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "تنفس بعمق في الهواء الطلق." : "Deep breath fresh air.");
+                    headerMsg = localStorage.getItem("language") === "ar" ? "🫁 نقص في الأكسجين" : "🫁 Low Oxygen Level";
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🪟 <b>بيئة:</b> افتح النوافذ لتجديد الهواء." : "🪟 <b>Env:</b> Open windows for fresh air.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🌬️ <b>تمرين:</b> تنفس بعمق (شهيق وزفير ببطء)." : "🌬️ <b>Exercise:</b> Deep breathing exercises.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🛌 <b>وضعية:</b> استلقِ على بطنك لتحسين التنفس." : "🛌 <b>Position:</b> Lie on your stomach (Prone).");
                 }
                 
+                // NORMAL CONDITION
                 if(adviceList.length === 0 && sensorDataString !== "No measurement recorded yet") {
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "استمر في شرب الماء." : "Keep hydrating.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "💧 استمر في شرب 2-3 لتر ماء يومياً." : "💧 Drink 2-3L water daily.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🚶‍♂️ حافظ على المشي لمدة 30 دقيقة." : "🚶‍♂️ Maintain 30 mins walking.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🥗 أكثر من الخضروات والفواكه." : "🥗 Eat more veggies & fruits.");
                 }
             }
 
