@@ -74,7 +74,6 @@
     .fab-right { right: 30px; }
     .fab-left { left: 30px; }
 
-    /* SOS Button Wrapper for Settings */
     .sos-wrapper { position: relative; }
     .sos-settings-btn {
         position: absolute; top: -5px; right: -5px;
@@ -122,7 +121,7 @@
     .analyze-fab:hover { transform: scale(1.1); }
     @keyframes float-fab { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-    /* --- CUSTOM MODALS (Beautiful Alerts) --- */
+    /* --- CUSTOM MODALS --- */
     .custom-modal-overlay {
         position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
         z-index: 4000; display: none; align-items: center; justify-content: center;
@@ -161,7 +160,6 @@
     .btn-cancel { background: rgba(255,255,255,0.1); color: #ccc; }
     .modal-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
 
-    /* Sidebar & Overlays */
     .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1999; display: none; opacity: 0; transition: opacity 0.3s; }
     .sidebar-overlay.active { display: block; opacity: 1; }
     .sidebar { position: fixed; top: 0; left: -350px; width: 320px; height: 100%; background: rgba(15, 32, 39, 0.95); backdrop-filter: blur(15px); border-right: 1px solid var(--ai-color); box-shadow: 5px 0 30px rgba(0,0,0,0.5); z-index: 2000; transition: left 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; }
@@ -226,7 +224,7 @@
       <div class="custom-modal-box">
           <div class="modal-icon"><i class="fas fa-address-book"></i></div>
           <h3 class="modal-title" id="contactTitle">Setup Emergency Contact</h3>
-          <p class="modal-text" id="contactText">Please enter the phone number to receive SOS alerts (e.g., 201xxxxxxxxx).</p>
+          <p class="modal-text" id="contactText">Please enter the phone number to receive SOS alerts.</p>
           <input type="number" id="emergencyInput" class="modal-input" placeholder="201000000000">
           <div class="modal-actions">
               <button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button>
@@ -239,14 +237,13 @@
       <div class="custom-modal-box">
           <div class="modal-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
           <h3 class="modal-title" id="confirmTitle">Emergency Alert</h3>
-          <p class="modal-text" id="confirmText">Are you sure you want to send an emergency SOS with your location and vitals?</p>
+          <p class="modal-text" id="confirmText">Are you sure you want to send an emergency SOS?</p>
           <div class="modal-actions">
               <button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button>
               <button class="modal-btn btn-danger" onclick="executeSOS()">YES, SEND HELP</button>
           </div>
       </div>
   </div>
-
 
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
   <div class="sidebar" id="smartSidebar">
@@ -348,7 +345,7 @@
     if(!currentUserId) window.location.href="index.html"; 
     else userSpan.innerText = currentUserId;
 
-    // --- SMART SIDEBAR LOGIC ---
+    // --- SIDEBAR ---
     function toggleSidebar(show) {
       const sidebar = document.getElementById("smartSidebar");
       const overlay = document.getElementById("sidebarOverlay");
@@ -356,45 +353,37 @@
       else { sidebar.classList.remove("active"); overlay.classList.remove("active"); }
     }
 
-    // --- SOS SYSTEM LOGIC (UPGRADED) ---
+    // --- SOS LOGIC (FIXED) ---
     function triggerSOS() {
         const savedNumber = localStorage.getItem("sosContactNumber");
-        if (!savedNumber) {
-            openContactModal();
-        } else {
-            openConfirmModal();
-        }
+        if (!savedNumber) { openContactModal(); } else { openConfirmModal(); }
     }
 
     function openContactModal() {
         const lang = localStorage.getItem("language") || "en";
         document.getElementById('contactTitle').innerText = lang === "ar" ? "إعداد جهة الاتصال للطوارئ" : "Setup Emergency Contact";
-        document.getElementById('contactText').innerText = lang === "ar" ? "أدخل رقم الهاتف لاستلام رسائل الاستغاثة (مع كود الدولة)" : "Please enter the phone number to receive SOS alerts (with country code).";
-        
-        // Pre-fill if exists
+        document.getElementById('contactText').innerText = lang === "ar" ? "أدخل رقم الهاتف (مع كود الدولة)" : "Enter phone number (with country code).";
         const saved = localStorage.getItem("sosContactNumber");
         if(saved) document.getElementById('emergencyInput').value = saved;
-        
         document.getElementById('contactModal').classList.add('active');
     }
 
     function saveEmergencyContact() {
         const num = document.getElementById('emergencyInput').value;
         const lang = localStorage.getItem("language") || "en";
-        
         if (num.length < 5) {
             showToast(lang==="ar"?"رقم غير صحيح!":"Invalid Number!", "error");
             return;
         }
         localStorage.setItem("sosContactNumber", num);
         closeModals();
-        showToast(lang==="ar"?"تم حفظ الرقم بنجاح":"Contact Saved", "info");
+        showToast(lang==="ar"?"تم حفظ الرقم":"Contact Saved", "info");
     }
 
     function openConfirmModal() {
         const lang = localStorage.getItem("language") || "en";
         document.getElementById('confirmTitle').innerText = lang === "ar" ? "تنبيه طوارئ" : "Emergency Alert";
-        document.getElementById('confirmText').innerText = lang === "ar" ? "هل أنت متأكد من إرسال نداء استغاثة مع موقعك وحالتك؟" : "Are you sure you want to send an emergency SOS with your location and vitals?";
+        document.getElementById('confirmText').innerText = lang === "ar" ? "هل أنت متأكد من إرسال نداء استغاثة؟" : "Are you sure you want to send SOS?";
         document.getElementById('confirmModal').classList.add('active');
     }
 
@@ -406,31 +395,32 @@
     function executeSOS() {
         closeModals();
         const lang = localStorage.getItem("language") || "en";
-        
         if (navigator.geolocation) {
             showToast(lang==="ar"?"جاري تحديد الموقع...":"Locating...", "info");
             navigator.geolocation.getCurrentPosition(sendPosition, showError);
         } else {
-            alert(lang === "ar" ? "المتصفح لا يدعم تحديد الموقع." : "Geolocation is not supported by this browser.");
+            alert(lang === "ar" ? "المتصفح لا يدعم GPS." : "Geolocation not supported.");
         }
     }
 
     function sendPosition(position) {
         const lat = position.coords.latitude;
         const long = position.coords.longitude;
-        const mapLink = `http://maps.google.com/?q=${lat},${long}`;
+        // Correct Google Maps Link
+        const mapLink = `https://www.google.com/maps?q=${lat},${long}`;
         const lang = localStorage.getItem("language") || "en";
         const contact = localStorage.getItem("sosContactNumber");
         
         let msg = "";
         if(lang === "ar") {
-            msg = `🚨 *استغاثة طارئة!* 🚨%0Aأحتاج للمساعدة فوراً.%0A📍 *موقعي:* ${mapLink}%0A🌡️ *الحرارة:* ${currentData.temp}%0A❤️ *النبض:* ${currentData.bpm}`;
+            msg = `🚨 *استغاثة طارئة!* 🚨\nأحتاج للمساعدة فوراً.\n📍 *موقعي:* ${mapLink}\n🌡️ *الحرارة:* ${currentData.temp}\n❤️ *النبض:* ${currentData.bpm}`;
         } else {
-            msg = `🚨 *EMERGENCY SOS!* 🚨%0A I need help immediately.%0A📍 *Location:* ${mapLink}%0A🌡️ *Temp:* ${currentData.temp}%0A❤️ *Pulse:* ${currentData.bpm}`;
+            msg = `🚨 *EMERGENCY SOS!* 🚨\nI need help immediately.\n📍 *Location:* ${mapLink}\n🌡️ *Temp:* ${currentData.temp}\n❤️ *Pulse:* ${currentData.bpm}`;
         }
         
-        // DIRECT SEND to specific number
-        window.open(`https://wa.me/${contact}?text=${msg}`, '_blank');
+        // Correct Encoding for WhatsApp
+        const encodedMsg = encodeURIComponent(msg);
+        window.open(`https://wa.me/${contact}?text=${encodedMsg}`, '_blank');
     }
 
     function showError(error) {
@@ -438,7 +428,7 @@
         showToast(lang === "ar" ? "تعذر تحديد الموقع" : "Location Error", "error");
     }
 
-    // --- DATA PARSING & AI ---
+    // --- DATA & AI ---
     function extractSensorValues(sensorString) {
         const values = {};
         if (sensorString && sensorString !== "No measurement recorded yet") {
@@ -466,7 +456,7 @@
       if(!weight || !height) {
         resultBox.style.display = "block";
         resultBox.style.borderLeftColor = "#ff416c";
-        resultBox.innerText = lang === "ar" ? "يرجى إدخال الوزن والطول بشكل صحيح." : "Please enter valid Weight and Height.";
+        resultBox.innerText = lang === "ar" ? "يرجى إدخال البيانات." : "Enter valid data.";
         return;
       }
 
@@ -474,29 +464,18 @@
       const bmi = (weight / (h_m * h_m)).toFixed(1);
       const waterNeed = (weight * 0.035).toFixed(1);
 
-      let status = "", color = "", dietTip = "", exerciseTip = "";
-      if(bmi < 18.5) { 
-          status = lang==="ar"?"نحافة":"Underweight"; color="#3498db"; 
-          dietTip = lang==="ar"?"تناول وجبات غنية بالبروتين والكربوهيدرات." : "Eat protein-rich meals.";
-      } else if(bmi < 25) { 
-          status = lang==="ar"?"وزن مثالي":"Healthy Weight"; color="#2ecc71"; 
-          dietTip = lang==="ar"?"حافظ على نظام غذائي متوازن." : "Maintain a balanced diet.";
-      } else if(bmi < 30) { 
-          status = lang==="ar"?"وزن زائد":"Overweight"; color="#f1c40f"; 
-          dietTip = lang==="ar"?"قلل السكريات والدهون." : "Reduce sugar/fats.";
-      } else { 
-          status = lang==="ar"?"سمنة":"Obese"; color="#e74c3c"; 
-          dietTip = lang==="ar"?"تجنب الأطعمة المقلية تماماً." : "Avoid fried foods.";
-      }
-
-      const waterMsg = lang==="ar" ? `💧 احتياج الماء: ${waterNeed} لتر` : `💧 Water Need: ${waterNeed} L`;
+      let status = "", color = "", dietTip = "";
+      if(bmi < 18.5) { status = lang==="ar"?"نحافة":"Underweight"; color="#3498db"; dietTip = lang==="ar"?"تناول بروتين.":"Eat protein."; }
+      else if(bmi < 25) { status = lang==="ar"?"وزن مثالي":"Healthy"; color="#2ecc71"; dietTip = lang==="ar"?"حافظ على أكلك.":"Maintain diet."; }
+      else if(bmi < 30) { status = lang==="ar"?"وزن زائد":"Overweight"; color="#f1c40f"; dietTip = lang==="ar"?"قلل السكر.":"Less sugar."; }
+      else { status = lang==="ar"?"سمنة":"Obese"; color="#e74c3c"; dietTip = lang==="ar"?"تجنب المقلي.":"Avoid fried."; }
 
       resultBox.style.display = "block";
       resultBox.style.borderLeftColor = color;
-      resultBox.innerHTML = `<strong style="color:${color}">BMI: ${bmi} (${status})</strong><br><small>${waterMsg}</small><br><small>🍎 ${dietTip}</small>`;
+      resultBox.innerHTML = `<strong style="color:${color}">BMI: ${bmi} (${status})</strong><br><small>💧 ${waterNeed} L</small><br><small>🍎 ${dietTip}</small>`;
       
       if(voiceEnabled) {
-         const utterance = new SpeechSynthesisUtterance(lang==="ar" ? `مؤشر كتلة الجسم هو ${bmi}` : `Your BMI is ${bmi}`);
+         const utterance = new SpeechSynthesisUtterance(lang==="ar" ? `مؤشر كتلة الجسم ${bmi}` : `BMI is ${bmi}`);
          utterance.lang = lang==="ar"?'ar-SA':'en-US';
          window.speechSynthesis.speak(utterance);
       }
@@ -528,16 +507,15 @@
             document.getElementById('pulseValue').innerText = currentData.bpm + (currentData.bpm !== '--' ? ' bpm' : '');
             document.getElementById('lastReadingTime').innerText = (localStorage.getItem("language") === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + lastTimestamp;
             
-            // AI Analysis Logic
             const temp = parseFloat(currentData.temp) || 0;
             const bpm = parseInt(currentData.bpm) || 0;
             const spo2 = parseFloat(currentData.spo2) || 0;
             let statusColor = "#00ff88"; 
             let advice = localStorage.getItem("language") === "ar" ? "الحالة مستقرة." : "Condition stable.";
 
-            if(temp > 37.5) { statusColor = "#ff416c"; advice = localStorage.getItem("language")==="ar"?"حرارة مرتفعة! اشرب سوائل.":"High Temp! Hydrate."; }
-            else if(bpm > 100) { advice = localStorage.getItem("language")==="ar"?"نبض سريع! استرخ قليلاً.":"High Pulse! Relax."; }
-            else if(spo2 > 0 && spo2 < 95) { statusColor = "#ff416c"; advice = localStorage.getItem("language")==="ar"?"أكسجين منخفض! تنفس بعمق.":"Low Oxygen! Breathe deep."; }
+            if(temp > 37.5) { statusColor = "#ff416c"; advice = localStorage.getItem("language")==="ar"?"حرارة مرتفعة!":"High Temp!"; }
+            else if(bpm > 100) { advice = localStorage.getItem("language")==="ar"?"نبض سريع!":"High Pulse!"; }
+            else if(spo2 > 0 && spo2 < 95) { statusColor = "#ff416c"; advice = localStorage.getItem("language")==="ar"?"أكسجين منخفض!":"Low Oxygen!"; }
 
             document.getElementById("aiText").innerText = advice;
             document.querySelector(".ai-card").style.borderColor = statusColor;
