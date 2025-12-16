@@ -50,6 +50,8 @@
     @keyframes pulseAI { 0% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 210, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0); } }
     .ai-content h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: var(--ai-color); }
     .ai-content p { margin: 0; font-size: 0.95rem; line-height: 1.5; color: #eee; }
+    .ai-content ul { padding-left: 20px; margin: 5px 0; }
+    .ai-content li { margin-bottom: 5px; color: #ddd; }
     
     .measure-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; width: 100%; max-width: 900px; margin-bottom: 30px; }
     .measure-btn { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; overflow: hidden; height: 160px; }
@@ -282,7 +284,7 @@
     <div class="ai-icon"><i class="fas fa-robot"></i></div>
     <div class="ai-content">
       <h3 id="aiTitle">AI Health Analysis</h3>
-      <p id="aiText">Waiting for measurements...</p>
+      <div id="aiText">Waiting for measurements...</div>
     </div>
     <div id="lastReadingTime" style="position: absolute; bottom: 8px; right: 20px; font-size: 0.8rem; color: #aaa;">Last updated: --</div>
   </div>
@@ -353,7 +355,7 @@
       else { sidebar.classList.remove("active"); overlay.classList.remove("active"); }
     }
 
-    // --- SOS LOGIC (FIXED) ---
+    // --- SOS LOGIC (FIXED MESSAGE) ---
     function triggerSOS() {
         const savedNumber = localStorage.getItem("sosContactNumber");
         if (!savedNumber) { openContactModal(); } else { openConfirmModal(); }
@@ -407,7 +409,7 @@
         const lat = position.coords.latitude;
         const long = position.coords.longitude;
         // Correct Google Maps Link
-        const mapLink = `https://www.google.com/maps?q=${lat},${long}`;
+        const mapLink = `https://www.google.com/maps?q=$${lat},${long}`;
         const lang = localStorage.getItem("language") || "en";
         const contact = localStorage.getItem("sosContactNumber");
         
@@ -418,7 +420,7 @@
             msg = `🚨 *EMERGENCY SOS!* 🚨\nI need help immediately.\n📍 *Location:* ${mapLink}\n🌡️ *Temp:* ${currentData.temp}\n❤️ *Pulse:* ${currentData.bpm}`;
         }
         
-        // Correct Encoding for WhatsApp
+        // Correct Encoding for WhatsApp (Fixes the "Not sending" issue)
         const encodedMsg = encodeURIComponent(msg);
         window.open(`https://wa.me/${contact}?text=${encodedMsg}`, '_blank');
     }
@@ -447,6 +449,7 @@
         return values;
     }
 
+    // --- RESTORED: DETAILED BMI LOGIC ---
     function calculateHealthRisk() {
       const weight = parseFloat(document.getElementById("inputWeight").value);
       const height = parseFloat(document.getElementById("inputHeight").value);
@@ -464,15 +467,26 @@
       const bmi = (weight / (h_m * h_m)).toFixed(1);
       const waterNeed = (weight * 0.035).toFixed(1);
 
-      let status = "", color = "", dietTip = "";
-      if(bmi < 18.5) { status = lang==="ar"?"نحافة":"Underweight"; color="#3498db"; dietTip = lang==="ar"?"تناول بروتين.":"Eat protein."; }
-      else if(bmi < 25) { status = lang==="ar"?"وزن مثالي":"Healthy"; color="#2ecc71"; dietTip = lang==="ar"?"حافظ على أكلك.":"Maintain diet."; }
-      else if(bmi < 30) { status = lang==="ar"?"وزن زائد":"Overweight"; color="#f1c40f"; dietTip = lang==="ar"?"قلل السكر.":"Less sugar."; }
-      else { status = lang==="ar"?"سمنة":"Obese"; color="#e74c3c"; dietTip = lang==="ar"?"تجنب المقلي.":"Avoid fried."; }
+      let status = "", color = "", dietTip = "", exerciseTip = "";
+      if(bmi < 18.5) { 
+          status = lang==="ar"?"نحافة":"Underweight"; color="#3498db"; 
+          dietTip = lang==="ar"?"تناول وجبات غنية بالبروتين." : "Eat protein-rich meals.";
+      } else if(bmi < 25) { 
+          status = lang==="ar"?"وزن مثالي":"Healthy"; color="#2ecc71"; 
+          dietTip = lang==="ar"?"حافظ على نظام غذائي متوازن." : "Maintain balanced diet.";
+      } else if(bmi < 30) { 
+          status = lang==="ar"?"وزن زائد":"Overweight"; color="#f1c40f"; 
+          dietTip = lang==="ar"?"قلل السكريات والدهون." : "Reduce sugar/fats.";
+      } else { 
+          status = lang==="ar"?"سمنة":"Obese"; color="#e74c3c"; 
+          dietTip = lang==="ar"?"تجنب الأطعمة المقلية." : "Avoid fried foods.";
+      }
+
+      const waterMsg = lang==="ar" ? `💧 احتياج الماء: ${waterNeed} لتر` : `💧 Water Need: ${waterNeed} L`;
 
       resultBox.style.display = "block";
       resultBox.style.borderLeftColor = color;
-      resultBox.innerHTML = `<strong style="color:${color}">BMI: ${bmi} (${status})</strong><br><small>💧 ${waterNeed} L</small><br><small>🍎 ${dietTip}</small>`;
+      resultBox.innerHTML = `<strong style="color:${color}">BMI: ${bmi} (${status})</strong><br><small>${waterMsg}</small><br><small>🍎 ${dietTip}</small>`;
       
       if(voiceEnabled) {
          const utterance = new SpeechSynthesisUtterance(lang==="ar" ? `مؤشر كتلة الجسم ${bmi}` : `BMI is ${bmi}`);
@@ -484,6 +498,7 @@
     let currentData = { temp: "--", bpm: "--", bp: "--", spo2: "--" };
     let lastTimestamp = "--";
 
+    // --- RESTORED: DETAILED AI ANALYSIS LOGIC (BP, Temp, O2 Advice) ---
     function updateAIAnalysis() {
       if(!currentUserId) return;
       const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
@@ -510,14 +525,51 @@
             const temp = parseFloat(currentData.temp) || 0;
             const bpm = parseInt(currentData.bpm) || 0;
             const spo2 = parseFloat(currentData.spo2) || 0;
+            let sys = 0;
+            if(currentData.bp && currentData.bp.includes('/')) sys = parseInt(currentData.bp.split('/')[0]);
+
             let statusColor = "#00ff88"; 
-            let advice = localStorage.getItem("language") === "ar" ? "الحالة مستقرة." : "Condition stable.";
+            let adviceList = [];
+            let headerMsg = localStorage.getItem("language") === "ar" ? "الحالة مستقرة." : "Condition stable.";
 
-            if(temp > 37.5) { statusColor = "#ff416c"; advice = localStorage.getItem("language")==="ar"?"حرارة مرتفعة!":"High Temp!"; }
-            else if(bpm > 100) { advice = localStorage.getItem("language")==="ar"?"نبض سريع!":"High Pulse!"; }
-            else if(spo2 > 0 && spo2 < 95) { statusColor = "#ff416c"; advice = localStorage.getItem("language")==="ar"?"أكسجين منخفض!":"Low Oxygen!"; }
+            if (sensorDataString === "No measurement recorded yet") {
+                headerMsg = localStorage.getItem("language") === "ar" ? "بانتظار القياسات..." : "Waiting for data...";
+            } else {
+                // 1. High BP
+                if(sys > 140) {
+                    statusColor = "#ff416c";
+                    headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ ضغط مرتفع" : "⚠️ High BP";
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "اشرب كركديه بارد." : "Drink Hibiscus.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "قلل الملح." : "Reduce Salt.");
+                }
+                // 2. High Temp
+                if(temp > 37.5) {
+                    statusColor = "#ff416c";
+                    headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ حرارة مرتفعة" : "⚠️ High Temp";
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "استخدم كمادات باردة." : "Use cool compress.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "اشرب سوائل بكثرة." : "Drink fluids.");
+                }
+                // 3. Low Oxygen
+                if(spo2 > 0 && spo2 < 95) {
+                    statusColor = "#ff416c";
+                    headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ أكسجين منخفض" : "⚠️ Low Oxygen";
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "تنفس بعمق في الهواء الطلق." : "Deep breath fresh air.");
+                }
+                
+                if(adviceList.length === 0 && sensorDataString !== "No measurement recorded yet") {
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "استمر في شرب الماء." : "Keep hydrating.");
+                }
+            }
 
-            document.getElementById("aiText").innerText = advice;
+            // Build List HTML
+            let finalHtml = `<strong>${headerMsg}</strong>`;
+            if(adviceList.length > 0) {
+                finalHtml += `<ul>`;
+                adviceList.forEach(tip => finalHtml += `<li>${tip}</li>`);
+                finalHtml += `</ul>`;
+            }
+
+            document.getElementById("aiText").innerHTML = finalHtml;
             document.querySelector(".ai-card").style.borderColor = statusColor;
         }
       });
