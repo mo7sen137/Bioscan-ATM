@@ -69,12 +69,20 @@
     
     .close-btn { background: linear-gradient(45deg, #cb2d3e, #ef473a); color: white; border: none; padding: 12px 40px; border-radius: 50px; font-size: 16px; font-family: 'Poppins', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(239, 71, 58, 0.4); transition: 0.3s; display: flex; align-items: center; gap: 10px; margin-top: auto; }
     
-    /* --- FAB BUTTONS (Floating Actions) --- */
+    /* --- FAB BUTTONS --- */
     .fab-container { position: fixed; bottom: 30px; z-index: 1000; display: flex; flex-direction: column; gap: 15px; align-items: center; }
     .fab-right { right: 30px; }
     .fab-left { left: 30px; }
 
-    /* SOS Button (Red & Pulsing) */
+    /* SOS Button Wrapper for Settings */
+    .sos-wrapper { position: relative; }
+    .sos-settings-btn {
+        position: absolute; top: -5px; right: -5px;
+        width: 25px; height: 25px; background: #333; border-radius: 50%;
+        color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center;
+        border: 2px solid #ff416c; cursor: pointer; z-index: 1001;
+    }
+
     .sos-fab {
         width: 70px; height: 70px; border-radius: 50%;
         background: linear-gradient(135deg, #ff0000, #cc0000);
@@ -92,7 +100,6 @@
         100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); transform: scale(1); }
     }
 
-    /* Hospital Button (Blue & Distinct) */
     .hospital-fab {
         width: 55px; height: 55px; border-radius: 50%;
         background: linear-gradient(135deg, #00d2ff, #3a7bd5);
@@ -103,7 +110,6 @@
     }
     .hospital-fab:hover { transform: scale(1.1); background: linear-gradient(135deg, #3a7bd5, #00d2ff); }
 
-    /* Analyze Button (Purple) */
     .analyze-fab {
         width: 65px; height: 65px; border-radius: 50%;
         background: linear-gradient(135deg, #6c5ce7, #a29bfe);
@@ -115,6 +121,45 @@
     }
     .analyze-fab:hover { transform: scale(1.1); }
     @keyframes float-fab { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+    /* --- CUSTOM MODALS (Beautiful Alerts) --- */
+    .custom-modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+        z-index: 4000; display: none; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.3s;
+    }
+    .custom-modal-overlay.active { display: flex; opacity: 1; }
+    
+    .custom-modal-box {
+        background: rgba(20, 30, 48, 0.95); border: 1px solid var(--ai-color);
+        padding: 30px; border-radius: 20px; width: 90%; max-width: 400px;
+        text-align: center; box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
+        transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .custom-modal-overlay.active .custom-modal-box { transform: scale(1); }
+    
+    .modal-icon { font-size: 3rem; margin-bottom: 15px; color: var(--ai-color); }
+    .modal-icon.warning { color: var(--error-color); }
+    .modal-title { font-size: 1.4rem; color: #fff; margin-bottom: 10px; font-weight: 600; }
+    .modal-text { color: #ccc; margin-bottom: 25px; line-height: 1.5; font-size: 0.95rem; }
+    
+    .modal-input {
+        width: 100%; padding: 12px; margin-bottom: 20px;
+        background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 10px; color: white; font-size: 1.1rem; text-align: center;
+        box-sizing: border-box;
+    }
+    .modal-input:focus { outline: none; border-color: var(--success-color); }
+
+    .modal-actions { display: flex; justify-content: center; gap: 15px; }
+    .modal-btn {
+        padding: 10px 25px; border: none; border-radius: 50px; font-weight: 600; cursor: pointer;
+        transition: 0.3s; font-family: 'Poppins', sans-serif;
+    }
+    .btn-confirm { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: white; }
+    .btn-danger { background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; }
+    .btn-cancel { background: rgba(255,255,255,0.1); color: #ccc; }
+    .modal-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
 
     /* Sidebar & Overlays */
     .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1999; display: none; opacity: 0; transition: opacity 0.3s; }
@@ -161,9 +206,14 @@
       <i class="fas fa-hospital"></i>
     </button>
     
-    <button class="sos-fab" id="sosBtn" onclick="triggerSOS()" title="EMERGENCY HELP">
-      SOS
-    </button>
+    <div class="sos-wrapper">
+        <button class="sos-settings-btn" onclick="openContactModal()" title="Edit SOS Number">
+            <i class="fas fa-cog"></i>
+        </button>
+        <button class="sos-fab" id="sosBtn" onclick="triggerSOS()" title="EMERGENCY HELP">
+          SOS
+        </button>
+    </div>
   </div>
 
   <div class="fab-container fab-left">
@@ -171,6 +221,32 @@
       <i class="fas fa-chart-pie"></i>
     </button>
   </div>
+
+  <div class="custom-modal-overlay" id="contactModal">
+      <div class="custom-modal-box">
+          <div class="modal-icon"><i class="fas fa-address-book"></i></div>
+          <h3 class="modal-title" id="contactTitle">Setup Emergency Contact</h3>
+          <p class="modal-text" id="contactText">Please enter the phone number to receive SOS alerts (e.g., 201xxxxxxxxx).</p>
+          <input type="number" id="emergencyInput" class="modal-input" placeholder="201000000000">
+          <div class="modal-actions">
+              <button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button>
+              <button class="modal-btn btn-confirm" onclick="saveEmergencyContact()">Save & Continue</button>
+          </div>
+      </div>
+  </div>
+
+  <div class="custom-modal-overlay" id="confirmModal">
+      <div class="custom-modal-box">
+          <div class="modal-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+          <h3 class="modal-title" id="confirmTitle">Emergency Alert</h3>
+          <p class="modal-text" id="confirmText">Are you sure you want to send an emergency SOS with your location and vitals?</p>
+          <div class="modal-actions">
+              <button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button>
+              <button class="modal-btn btn-danger" onclick="executeSOS()">YES, SEND HELP</button>
+          </div>
+      </div>
+  </div>
+
 
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
   <div class="sidebar" id="smartSidebar">
@@ -280,26 +356,71 @@
       else { sidebar.classList.remove("active"); overlay.classList.remove("active"); }
     }
 
-    // --- SOS SYSTEM LOGIC (NEW) ---
+    // --- SOS SYSTEM LOGIC (UPGRADED) ---
     function triggerSOS() {
-        const lang = localStorage.getItem("language") || "en";
-        const confirmMsg = lang === "ar" ? "هل أنت متأكد أنك تريد إرسال استغاثة طارئة؟" : "Are you sure you want to send an Emergency Alert?";
-        
-        if (confirm(confirmMsg)) {
-            // Check for Geolocation support
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                alert(lang === "ar" ? "المتصفح لا يدعم تحديد الموقع." : "Geolocation is not supported by this browser.");
-            }
+        const savedNumber = localStorage.getItem("sosContactNumber");
+        if (!savedNumber) {
+            openContactModal();
+        } else {
+            openConfirmModal();
         }
     }
 
-    function showPosition(position) {
+    function openContactModal() {
+        const lang = localStorage.getItem("language") || "en";
+        document.getElementById('contactTitle').innerText = lang === "ar" ? "إعداد جهة الاتصال للطوارئ" : "Setup Emergency Contact";
+        document.getElementById('contactText').innerText = lang === "ar" ? "أدخل رقم الهاتف لاستلام رسائل الاستغاثة (مع كود الدولة)" : "Please enter the phone number to receive SOS alerts (with country code).";
+        
+        // Pre-fill if exists
+        const saved = localStorage.getItem("sosContactNumber");
+        if(saved) document.getElementById('emergencyInput').value = saved;
+        
+        document.getElementById('contactModal').classList.add('active');
+    }
+
+    function saveEmergencyContact() {
+        const num = document.getElementById('emergencyInput').value;
+        const lang = localStorage.getItem("language") || "en";
+        
+        if (num.length < 5) {
+            showToast(lang==="ar"?"رقم غير صحيح!":"Invalid Number!", "error");
+            return;
+        }
+        localStorage.setItem("sosContactNumber", num);
+        closeModals();
+        showToast(lang==="ar"?"تم حفظ الرقم بنجاح":"Contact Saved", "info");
+    }
+
+    function openConfirmModal() {
+        const lang = localStorage.getItem("language") || "en";
+        document.getElementById('confirmTitle').innerText = lang === "ar" ? "تنبيه طوارئ" : "Emergency Alert";
+        document.getElementById('confirmText').innerText = lang === "ar" ? "هل أنت متأكد من إرسال نداء استغاثة مع موقعك وحالتك؟" : "Are you sure you want to send an emergency SOS with your location and vitals?";
+        document.getElementById('confirmModal').classList.add('active');
+    }
+
+    function closeModals() {
+        document.getElementById('contactModal').classList.remove('active');
+        document.getElementById('confirmModal').classList.remove('active');
+    }
+
+    function executeSOS() {
+        closeModals();
+        const lang = localStorage.getItem("language") || "en";
+        
+        if (navigator.geolocation) {
+            showToast(lang==="ar"?"جاري تحديد الموقع...":"Locating...", "info");
+            navigator.geolocation.getCurrentPosition(sendPosition, showError);
+        } else {
+            alert(lang === "ar" ? "المتصفح لا يدعم تحديد الموقع." : "Geolocation is not supported by this browser.");
+        }
+    }
+
+    function sendPosition(position) {
         const lat = position.coords.latitude;
         const long = position.coords.longitude;
-        const mapLink = `https://www.google.com/maps?q=${lat},${long}`;
+        const mapLink = `http://maps.google.com/?q=${lat},${long}`;
         const lang = localStorage.getItem("language") || "en";
+        const contact = localStorage.getItem("sosContactNumber");
         
         let msg = "";
         if(lang === "ar") {
@@ -308,13 +429,13 @@
             msg = `🚨 *EMERGENCY SOS!* 🚨%0A I need help immediately.%0A📍 *Location:* ${mapLink}%0A🌡️ *Temp:* ${currentData.temp}%0A❤️ *Pulse:* ${currentData.bpm}`;
         }
         
-        // Open WhatsApp to pick a contact
-        window.open(`https://wa.me/?text=${msg}`, '_blank');
+        // DIRECT SEND to specific number
+        window.open(`https://wa.me/${contact}?text=${msg}`, '_blank');
     }
 
     function showError(error) {
         const lang = localStorage.getItem("language") || "en";
-        alert(lang === "ar" ? "تعذر الحصول على الموقع. تأكد من تفعيل GPS." : "Unable to retrieve location. Please enable GPS.");
+        showToast(lang === "ar" ? "تعذر تحديد الموقع" : "Location Error", "error");
     }
 
     // --- DATA PARSING & AI ---
@@ -428,6 +549,8 @@
     async function checkInternetConnection() { try { await fetch("https://www.google.com/favicon.ico?"+new Date().getTime(),{mode:"no-cors"});return true;}catch(e){return false;}}
     async function updateStatus(){const d=document.getElementById('connectionStatus');if(await checkInternetConnection()){d.classList.remove('offline');d.title="Online";}else{d.classList.add('offline');d.title="Offline";}}
     setInterval(updateStatus,3000);
+
+    function showToast(msg,type="info"){const c=document.getElementById("toastContainer");const t=document.createElement("div");t.className=`toast toast-${type}`;t.innerHTML=`<i class="fas fa-info-circle"></i><span>${msg}</span>`;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
 
     function sendWhatsAppReport(){
         let phone = currentUserId; 
