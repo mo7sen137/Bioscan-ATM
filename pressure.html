@@ -4,36 +4,82 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bioscan | Blood Pressure</title>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 <style>
   /* --- CSS Styles (Theme: Purple) --- */
   :root { --primary-color: #6a11cb; --danger-color: #ff0000; --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-color: #ffffff; }
   body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; transition: background 0.5s; }
   @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  
   @keyframes sos-flash { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); border-color: red; } 50% { box-shadow: 0 0 50px 20px rgba(255, 0, 0, 0.5); border-color: #ff4d4d; background: rgba(50, 0, 0, 0.6); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); border-color: red; } }
   .critical-state { animation: sos-flash 1s infinite; border: 2px solid red !important; }
   .critical-bg { background: radial-gradient(circle, #3a0000, #000) !important; }
+
   header { width: 100%; background: rgba(15, 32, 39, 0.9); backdrop-filter: blur(10px); padding: 15px 0; display: flex; justify-content: center; align-items: center; position: relative; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); z-index: 100; }
   header h1 { font-size: 1.4rem; margin: 0; font-weight: 600; letter-spacing: 1px; color: var(--primary-color); text-transform: uppercase; pointer-events: none; }
   .back-btn { position: absolute; left: 20px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--primary-color); color: white; padding: 8px 15px; border-radius: 50px; cursor: pointer; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 5px; z-index: 1000; }
   .back-btn:hover { background: var(--primary-color); color: #fff; }
+  
   .container { display: flex; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; }
   .card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 40px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: 0.3s; }
   .sos-banner { display: none; background: red; color: white; font-weight: bold; padding: 10px; border-radius: 10px; margin-bottom: 15px; animation: blink 0.5s infinite alternate; }
   @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
-  .icon-container { margin-bottom: 20px; }
-  .icon-container i { font-size: 5rem; background: -webkit-linear-gradient(#2575fc, #6a11cb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(106, 17, 203, 0.5)); animation: pulse 2s infinite; }
-  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+  /* --- GAUGE ANIMATION (The Meter) --- */
+  .gauge-wrapper {
+    position: relative; width: 200px; height: 100px; margin: 0 auto 20px;
+    overflow: hidden;
+  }
+  .gauge-body {
+    width: 200px; height: 100px;
+    background: #333; /* Fallback */
+    border-top-left-radius: 100px; border-top-right-radius: 100px;
+    /* Gradient: Green (Low/Normal) -> Yellow (Pre-High) -> Red (High) */
+    background: conic-gradient(from 180deg at 50% 100%, 
+      #2ecc71 0deg,   /* 0-60 (Green) */
+      #2ecc71 60deg, 
+      #f1c40f 60deg,  /* 60-120 (Yellow) */
+      #f1c40f 100deg, 
+      #e74c3c 100deg, /* 120-180 (Red) */
+      #e74c3c 180deg
+    );
+    position: relative;
+  }
+  .gauge-cover {
+    width: 160px; height: 80px; background: #152229; /* Matches card bg inside */
+    border-top-left-radius: 80px; border-top-right-radius: 80px;
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    z-index: 1;
+  }
+  .gauge-needle {
+    width: 4px; height: 90px; background: #fff;
+    position: absolute; bottom: 0; left: 50%; transform-origin: bottom center;
+    transform: translateX(-50%) rotate(-90deg); /* Start at 0 position */
+    z-index: 2; border-radius: 5px;
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth movement */
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  }
+  .gauge-hub {
+    width: 20px; height: 20px; background: #fff; border-radius: 50%;
+    position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+    z-index: 3; box-shadow: 0 0 5px rgba(0,0,0,0.5);
+  }
+
   .pressure-box { background: rgba(0, 0, 0, 0.3); border-radius: 15px; padding: 20px; margin: 20px 0; border: 1px solid rgba(106, 17, 203, 0.3); }
   #pressureValue { font-size: 2.5rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--primary-color); }
   .unit { font-size: 1.2rem; color: var(--primary-color); margin-left: 5px; }
+  
   .instructions-list { list-style: none; padding: 0; text-align: left; margin-bottom: 30px; }
   .instructions-list li { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #e0e0e0; }
   .instructions-list li i { color: var(--primary-color); width: 25px; text-align: center; }
+  
   .actions-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .advice-btn, .voice-btn, .save-btn { padding: 12px 20px; border-radius: 50px; border: none; cursor: pointer; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .advice-btn { flex: 2; background: linear-gradient(45deg, #6a11cb, #2575fc); color: white; box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4); }
@@ -44,7 +90,7 @@
   .advice-box { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 15px; margin-top: 20px; display: none; font-size: 1.1rem; color: #fff; border-left: 4px solid var(--primary-color); animation: slideDown 0.5s ease; }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Modal Styles */
+  /* Modal */
   .confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 5000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
   .confirm-modal.active { display: flex; opacity: 1; }
   .confirm-content { background: linear-gradient(145deg, #152229, #1c2e36); border: 2px solid var(--primary-color); border-radius: 25px; width: 90%; max-width: 400px; padding: 30px; text-align: center; box-shadow: 0 0 50px rgba(106, 17, 203, 0.3); transform: scale(0.8); transition: transform 0.3s ease; }
@@ -81,16 +127,27 @@
 
 <div class="container">
   <div id="sosBanner" class="sos-banner"><i class="fas fa-exclamation-triangle"></i> CRITICAL ALERT</div>
+  
   <div class="card" id="mainCard">
-    <div class="icon-container"><i class="fas fa-stethoscope"></i></div>
+    
+    <div class="gauge-wrapper">
+        <div class="gauge-body">
+            <div class="gauge-needle" id="gaugeNeedle"></div>
+            <div class="gauge-cover"></div>
+            <div class="gauge-hub"></div>
+        </div>
+    </div>
+
     <div class="pressure-box">
       <span id="pressureValue">--</span> <span class="unit">mmHg</span>
     </div>
+    
     <h3 id="instrTitle" style="color: var(--primary-color); font-weight: 400; margin-bottom: 15px;">Instructions</h3>
     <ul class="instructions-list" id="instructions">
       <li><i class="fas fa-chair"></i> Sit calmly.</li>
       <li><i class="fas fa-hand-holding-heart"></i> Relax arm.</li>
     </ul>
+    
     <div class="actions-row">
       <button class="save-btn" id="saveBtn" onclick="saveMeasurement()">
         <i class="fas fa-save"></i> <span id="saveBtnText">Save</span>
@@ -105,6 +162,7 @@
 </div>
 
 <script>
+  // --- 1. Config ---
   const firebaseConfig = {
     apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
     authDomain: "smart-a76a0.firebaseapp.com",
@@ -127,6 +185,31 @@
   const PATIENT_DATA_PATH = "PatientData";
   let isCritical = false;
 
+  // --- 2. Live Logic & Gauge ---
+  function updatePressureUI(valString) {
+      pressureBox.innerText = valString;
+      
+      const systolic = parseInt(valString.split('/')[0]);
+      
+      if(!isNaN(systolic)) {
+          // Calculate Angle for Gauge
+          // Range: 0 to 200 mmHg
+          // Map: 0 -> -90deg, 200 -> +90deg
+          // Formula: (value / 200 * 180) - 90
+          let angle = (systolic / 200 * 180) - 90;
+          
+          // Clamp angle
+          if(angle < -90) angle = -90;
+          if(angle > 90) angle = 90;
+          
+          document.getElementById('gaugeNeedle').style.transform = `translateX(-50%) rotate(${angle}deg)`;
+
+          // SOS Logic
+          if (systolic > 160 || systolic < 80) triggerSOS();
+          else clearSOS();
+      }
+  }
+
   if (userId) {
     db.ref(PATIENT_DATA_PATH + "/" + userId + "/SensorData").on("value", snapshot => {
        const str = snapshot.val() || "";
@@ -135,18 +218,13 @@
            const bpPart = parts.find(p => p.trim().startsWith("BP="));
            if(bpPart) {
                const val = bpPart.split("=")[1];
-               if(val) {
-                   pressureBox.innerText = val;
-                   const sys = parseInt(val.split('/')[0]);
-                   if (sys > 160 || sys < 80) triggerSOS();
-                   else clearSOS();
-               }
+               if(val) updatePressureUI(val);
            }
        }
     });
   }
 
-  // --- Save with Session ID ---
+  // --- 3. Save Function ---
   function saveMeasurement() {
     const val = pressureBox.innerText;
     if (val === "--" || val === "") return;
@@ -157,12 +235,13 @@
 
     const timestamp = new Date().toLocaleString();
     
-    // التحديث في نفس رقم الجلسة
+    // Save to History
     db.ref(`${PATIENT_DATA_PATH}/${userId}/History/${sessionId}`).update({
         pressure: val,
         createdAt: timestamp
     });
     
+    // Update Dashboard String
     db.ref(`${PATIENT_DATA_PATH}/${userId}/SensorData`).once('value').then(snapshot => {
         let currentStr = snapshot.val() || "";
         if (currentStr.includes("BP=")) currentStr = currentStr.replace(/BP=[^,]+/, `BP=${val}`);
@@ -225,8 +304,8 @@
 </script>
 
 <div style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; display: flex; gap: 5px;">
-  <button onclick="document.getElementById('pressureValue').innerText='180/110'; triggerSOS();" style="background: red; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🚨 Test High</button>
-  <button onclick="document.getElementById('pressureValue').innerText='120/80'; clearSOS();" style="background: green; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">✅ Test Normal</button>
+  <button onclick="updatePressureUI('180/110')" style="background: red; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🚨 Test High</button>
+  <button onclick="updatePressureUI('120/80')" style="background: green; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">✅ Test Normal</button>
 </div>
 </body>
 </html>
