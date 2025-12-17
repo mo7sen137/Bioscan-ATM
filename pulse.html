@@ -58,18 +58,6 @@
   #pulseValue { font-size: 3rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--primary-color); }
   .unit { font-size: 1.5rem; color: var(--primary-color); }
   
-  /* Sound Toggle Button */
-  .sound-toggle {
-    position: absolute; top: 10px; right: 10px;
-    background: rgba(255,255,255,0.1); border: none; color: #aaa;
-    width: 35px; height: 35px; border-radius: 50%; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; transition: 0.3s;
-    z-index: 10; font-size: 16px;
-  }
-  .sound-toggle:hover { background: rgba(255,255,255,0.2); color: white; }
-  .sound-toggle.active { background: var(--primary-color); color: white; box-shadow: 0 0 15px var(--primary-color); animation: pulseBtn 1s infinite; }
-  @keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-
   .instructions-list { list-style: none; padding: 0; text-align: left; margin-bottom: 30px; }
   .instructions-list li { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #e0e0e0; }
   .instructions-list li i { color: var(--primary-color); width: 25px; text-align: center; }
@@ -96,9 +84,7 @@
   .confirm-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 65, 108, 0.6); }
 </style>
 </head>
-<body>
-
-<div id="confirmModal" class="confirm-modal">
+<body onclick="unlockAudio()"> <div id="confirmModal" class="confirm-modal">
   <div class="confirm-content">
     <div class="success-icon"><i class="fas fa-check-circle"></i></div>
     <h3 class="confirm-title" id="modalTitle">Success!</h3>
@@ -107,10 +93,9 @@
   </div>
 </div>
 
-<audio id="beatSound">
-  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_298b046736.mp3?filename=heartbeat-128-bpm-9725.mp3" type="audio/mpeg">
+<audio id="beatSound" preload="auto">
+  <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
 </audio>
-
 <audio id="alarmSound" loop>
   <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
 </audio>
@@ -131,9 +116,6 @@
     </div>
     
     <div class="pulse-box">
-      <button class="sound-toggle" id="soundBtn" onclick="toggleBeep()" title="Toggle Heart Sound">
-        <i class="fas fa-volume-mute" id="soundIcon"></i>
-      </button>
       <span id="pulseValue">--</span> <span class="unit">BPM</span>
     </div>
     
@@ -185,62 +167,48 @@
   const PATIENT_DATA_PATH = "PatientData";
   
   let isCritical = false;
-  let beepEnabled = false;
+  let audioUnlocked = false; // Flag to check if audio is ready
   let beepInterval = null;
 
-  // --- 2. Live Logic ---
+  // --- 2. Magic Audio Unlocker ---
+  // This runs on ANY click on the body
+  function unlockAudio() {
+      if (!audioUnlocked) {
+          beatSound.play().then(() => {
+              beatSound.pause();
+              beatSound.currentTime = 0;
+              audioUnlocked = true;
+              // Remove the listener once unlocked
+              document.body.removeAttribute("onclick");
+          }).catch(()=>{});
+      }
+  }
+
+  // --- 3. Live Logic ---
   function updatePulseUI(val) {
       if(isNaN(val)) return;
       pulseBox.innerText = val;
 
-      // 1. SOS Logic
+      // SOS Logic
       if (val > 120 || val < 50) triggerSOS();
       else clearSOS();
 
-      // 2. Animation Speed (60 BPM = 1s, 120 BPM = 0.5s)
+      // Animation
       const duration = 60 / val; 
       heartIcon.style.animationDuration = `${duration}s`;
 
-      // 3. Sound Sync (Only if enabled)
-      // Clear old interval to sync with new speed
+      // Automatic Sound
       clearInterval(beepInterval);
       
-      if(beepEnabled && !isCritical) {
-          // Play sound at current BPM interval
+      // If user has interacted at least once (audioUnlocked), play sound loop
+      if(audioUnlocked && !isCritical) {
           beepInterval = setInterval(() => {
-              beatSound.pause();
               beatSound.currentTime = 0;
-              beatSound.play().catch(() => { /* Ignore auto-play errors silently */ });
+              beatSound.play().catch(() => {}); // Silent catch
           }, duration * 1000);
       }
   }
 
-  // --- SOUND TOGGLE ---
-  function toggleBeep() {
-      beepEnabled = !beepEnabled;
-      const btn = document.getElementById("soundBtn");
-      const icon = document.getElementById("soundIcon");
-      const currentBPM = parseInt(pulseBox.innerText);
-
-      if(beepEnabled) {
-          btn.classList.add("active");
-          icon.className = "fas fa-volume-up";
-          // Try playing immediately to confirm
-          beatSound.play().then(() => {
-              beatSound.pause();
-              beatSound.currentTime = 0;
-          }).catch(()=>{});
-          
-          // Resume loop if we have data
-          if(!isNaN(currentBPM)) updatePulseUI(currentBPM);
-      } else {
-          btn.classList.remove("active");
-          icon.className = "fas fa-volume-mute";
-          clearInterval(beepInterval);
-      }
-  }
-
-  // Firebase Listener
   if (userId) {
     db.ref(PATIENT_DATA_PATH + "/" + userId + "/SensorData").on("value", snapshot => {
        const str = snapshot.val() || "";
@@ -255,7 +223,7 @@
     });
   }
 
-  // --- 3. Save Function ---
+  // --- 4. Save Function ---
   function saveMeasurement() {
     const val = pulseBox.innerText;
     if (val === "--" || val === "") return;
@@ -297,7 +265,7 @@
   }
 
   function triggerSOS() { if(isCritical) return; isCritical = true; clearInterval(beepInterval); document.body.classList.add("critical-bg"); mainCard.classList.add("critical-state"); sosBanner.style.display = "block"; alarmSound.play().catch(e=>{}); const lang = localStorage.getItem("language") || "en"; sosBanner.innerText = lang === "ar" ? "🚨 خطر: نبض غير طبيعي!" : "🚨 CRITICAL HEART RATE!"; }
-  function clearSOS() { if(!isCritical) return; isCritical = false; document.body.classList.remove("critical-bg"); mainCard.classList.remove("critical-state"); sosBanner.style.display = "none"; alarmSound.pause(); alarmSound.currentTime = 0; if(beepEnabled && !isNaN(parseInt(pulseBox.innerText))) updatePulseUI(parseInt(pulseBox.innerText)); }
+  function clearSOS() { if(!isCritical) return; isCritical = false; document.body.classList.remove("critical-bg"); mainCard.classList.remove("critical-state"); sosBanner.style.display = "none"; alarmSound.pause(); alarmSound.currentTime = 0; if(audioUnlocked && !isNaN(parseInt(pulseBox.innerText))) updatePulseUI(parseInt(pulseBox.innerText)); }
   
   function speakResult() {
     let bpm = parseInt(pulseBox.innerText);
@@ -332,8 +300,8 @@
 </script>
 
 <div style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; display: flex; gap: 5px;">
-  <button onclick="updatePulseUI(140)" style="background: red; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🚨 Fast (140)</button>
-  <button onclick="updatePulseUI(60)" style="background: green; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">✅ Slow (60)</button>
+  <button onclick="updatePulseUI(140)" style="background: red; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🚨 Fast</button>
+  <button onclick="updatePulseUI(60)" style="background: green; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">✅ Slow</button>
 </div>
 </body>
 </html>
