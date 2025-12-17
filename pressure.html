@@ -14,7 +14,7 @@
 
 <style>
   /* --- CSS Styles (Theme: Purple) --- */
-  :root { --primary-color: #6a11cb; --danger-color: #ff0000; --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-color: #ffffff; }
+  :root { --primary-color: #6a11cb; --secondary-color: #2575fc; --danger-color: #ff0000; --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-color: #ffffff; }
   body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; transition: background 0.5s; }
   @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
   
@@ -32,45 +32,59 @@
   .sos-banner { display: none; background: red; color: white; font-weight: bold; padding: 10px; border-radius: 10px; margin-bottom: 15px; animation: blink 0.5s infinite alternate; }
   @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
 
-  /* --- GAUGE ANIMATION (The Meter) --- */
-  .gauge-wrapper {
-    position: relative; width: 200px; height: 100px; margin: 0 auto 20px;
-    overflow: hidden;
+  /* --- NEW CREATIVE BP ANIMATION (Neon Vital Ring) --- */
+  .bp-visual-container {
+    position: relative; width: 200px; height: 200px; margin: 0 auto 25px;
+    display: flex; justify-content: center; align-items: center;
   }
-  .gauge-body {
-    width: 200px; height: 100px;
-    background: #333; /* Fallback */
-    border-top-left-radius: 100px; border-top-right-radius: 100px;
-    /* Gradient: Green (Low/Normal) -> Yellow (Pre-High) -> Red (High) */
-    background: conic-gradient(from 180deg at 50% 100%, 
-      #2ecc71 0deg,   /* 0-60 (Green) */
-      #2ecc71 60deg, 
-      #f1c40f 60deg,  /* 60-120 (Yellow) */
-      #f1c40f 100deg, 
-      #e74c3c 100deg, /* 120-180 (Red) */
-      #e74c3c 180deg
-    );
-    position: relative;
+
+  /* The outer faint track */
+  .bp-track {
+    position: absolute; width: 100%; height: 100%;
+    border-radius: 50%;
+    border: 8px solid rgba(106, 17, 203, 0.1);
+    box-shadow: inset 0 0 15px rgba(106, 17, 203, 0.1);
   }
-  .gauge-cover {
-    width: 160px; height: 80px; background: #152229; /* Matches card bg inside */
-    border-top-left-radius: 80px; border-top-right-radius: 80px;
-    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-    z-index: 1;
+
+  /* The rotating indicators containers */
+  .indicator-container {
+    position: absolute; width: 100%; height: 100%;
+    border-radius: 50%; border: 8px solid transparent;
+    transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy effect */
   }
-  .gauge-needle {
-    width: 4px; height: 90px; background: #fff;
-    position: absolute; bottom: 0; left: 50%; transform-origin: bottom center;
-    transform: translateX(-50%) rotate(-90deg); /* Start at 0 position */
-    z-index: 2; border-radius: 5px;
-    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth movement */
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+
+  /* The glowing orbs (Systolic & Diastolic) */
+  .bp-orb {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--primary-color);
+    box-shadow: 0 0 20px var(--primary-color), 0 0 40px var(--secondary-color);
+    transition: background 0.3s, box-shadow 0.3s;
   }
-  .gauge-hub {
-    width: 20px; height: 20px; background: #fff; border-radius: 50%;
-    position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
-    z-index: 3; box-shadow: 0 0 5px rgba(0,0,0,0.5);
+  .diastolic-orb { 
+      width: 18px; height: 18px; top: -9px; /* Slightly smaller */
+      opacity: 0.8;
   }
+
+  /* Central Pulsing Core */
+  .bp-core {
+      position: absolute; font-size: 3.5rem;
+      background: -webkit-linear-gradient(#2575fc, #6a11cb); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 15px rgba(106, 17, 203, 0.6));
+      animation: corePulse 2s ease-in-out infinite;
+  }
+  @keyframes corePulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 25px rgba(106, 17, 203, 1)); } }
+
+  /* Critical State Coloring */
+  .bp-visual-container.danger .bp-orb {
+      background: var(--danger-color);
+      box-shadow: 0 0 25px var(--danger-color), 0 0 50px red;
+  }
+  .bp-visual-container.danger .bp-core {
+      background: -webkit-linear-gradient(red, darkred); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 20px red);
+  }
+  /* -------------------------------------------------- */
 
   .pressure-box { background: rgba(0, 0, 0, 0.3); border-radius: 15px; padding: 20px; margin: 20px 0; border: 1px solid rgba(106, 17, 203, 0.3); }
   #pressureValue { font-size: 2.5rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--primary-color); }
@@ -130,14 +144,19 @@
   
   <div class="card" id="mainCard">
     
-    <div class="gauge-wrapper">
-        <div class="gauge-body">
-            <div class="gauge-needle" id="gaugeNeedle"></div>
-            <div class="gauge-cover"></div>
-            <div class="gauge-hub"></div>
+    <div class="bp-visual-container" id="bpVisual">
+        <div class="bp-track"></div>
+        
+        <div class="indicator-container" id="sysContainer" style="transform: rotate(0deg);">
+            <div class="bp-orb systolic-orb"></div>
         </div>
-    </div>
+        
+        <div class="indicator-container" id="diaContainer" style="transform: rotate(0deg);">
+            <div class="bp-orb diastolic-orb"></div>
+        </div>
 
+        <i class="fas fa-heartbeat bp-core"></i>
+    </div>
     <div class="pressure-box">
       <span id="pressureValue">--</span> <span class="unit">mmHg</span>
     </div>
@@ -181,30 +200,41 @@
   const sosBanner = document.getElementById("sosBanner");
   const mainCard = document.getElementById("mainCard");
   const alarmSound = document.getElementById("alarmSound");
+  const bpVisual = document.getElementById("bpVisual");
+  const sysContainer = document.getElementById("sysContainer");
+  const diaContainer = document.getElementById("diaContainer");
+
   const userId = localStorage.getItem("selectedUserId");
   const PATIENT_DATA_PATH = "PatientData";
   let isCritical = false;
 
-  // --- 2. Live Logic & Gauge ---
+  // --- 2. Live Logic & Creative Animation ---
   function updatePressureUI(valString) {
       pressureBox.innerText = valString;
       
-      const systolic = parseInt(valString.split('/')[0]);
+      const parts = valString.split('/');
+      const systolic = parseInt(parts[0]);
+      const diastolic = parseInt(parts[1]);
       
-      if(!isNaN(systolic)) {
-          // Calculate Angle for Gauge
-          // Range: 0 to 200 mmHg
-          // Map: 0 -> -90deg, 200 -> +90deg
-          // Formula: (value / 200 * 180) - 90
-          let angle = (systolic / 200 * 180) - 90;
+      if(!isNaN(systolic) && !isNaN(diastolic)) {
+          // Map values to degrees (Max 220mmHg = 360 degrees)
+          // Using a max of 220 to allow some headroom
+          const maxBP = 220;
+          let sysAngle = (systolic / maxBP) * 360;
+          let diaAngle = (diastolic / maxBP) * 360;
           
-          // Clamp angle
-          if(angle < -90) angle = -90;
-          if(angle > 90) angle = 90;
-          
-          document.getElementById('gaugeNeedle').style.transform = `translateX(-50%) rotate(${angle}deg)`;
+          // Apply rotation with smooth transition
+          sysContainer.style.transform = `rotate(${sysAngle}deg)`;
+          diaContainer.style.transform = `rotate(${diaAngle}deg)`;
 
-          // SOS Logic
+          // Visual Alert Logic
+          if (systolic > 140 || diastolic > 90) {
+              bpVisual.classList.add('danger');
+          } else {
+              bpVisual.classList.remove('danger');
+          }
+
+          // SOS Logic (Higher Threshold)
           if (systolic > 160 || systolic < 80) triggerSOS();
           else clearSOS();
       }
@@ -218,7 +248,7 @@
            const bpPart = parts.find(p => p.trim().startsWith("BP="));
            if(bpPart) {
                const val = bpPart.split("=")[1];
-               if(val) updatePressureUI(val);
+               if(val && val.includes('/')) updatePressureUI(val);
            }
        }
     });
