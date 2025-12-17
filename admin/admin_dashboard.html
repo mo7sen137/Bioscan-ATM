@@ -15,14 +15,14 @@
     <style>
         /* --- 1. CORE THEME VARIABLES --- */
         :root {
-            --bg-panel: rgba(30, 35, 50, 0.6); 
+            --bg-panel: rgba(30, 35, 50, 0.7); 
             --primary-neon: #00e5ff; 
             --secondary-neon: #7000ff; 
             --text-main: #ffffff;
             --text-muted: #b0b0b0;
             --danger: #ff2a2a;
             --success: #00ff9d;
-            --glow-primary: 0 0 15px rgba(0, 229, 255, 0.4);
+            --warning: #f39c12;
         }
 
         /* --- 2. GLOBAL STYLES --- */
@@ -41,9 +41,9 @@
         ::-webkit-scrollbar-track { background: #0b0e14; }
         ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 4px; }
 
-        /* --- 3. LAYOUT --- */
         .main-wrapper { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; }
 
+        /* Neon Panels */
         .neon-block {
             background: var(--bg-panel); backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 25px;
@@ -57,92 +57,129 @@
 
         /* Header */
         header.neon-block { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-neon); }
-        .header-info h1 { margin: 0; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: var(--glow-primary); }
+        .header-info h1 { margin: 0; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
         
-        /* Buttons */
         .btn-base { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
         .btn-neon { background: rgba(0, 229, 255, 0.1); border: 1px solid var(--primary-neon); color: var(--primary-neon); }
-        .btn-neon:hover { background: var(--primary-neon); color: #000; box-shadow: var(--glow-primary); }
+        .btn-neon:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
         .btn-danger { background: rgba(255, 42, 42, 0.1); border: 1px solid var(--danger); color: var(--danger); }
         .btn-danger:hover { background: var(--danger); color: #fff; box-shadow: 0 0 15px var(--danger); }
 
-        /* Stats */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        /* --- 3. STATS CARDS (VISUALIZATIONS) --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        
         .stat-card {
             background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2));
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; text-align: center;
-            position: relative; overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 25px 20px; 
+            text-align: center; position: relative; overflow: visible; /* Important for tooltips */
+            transition: transform 0.3s; cursor: help; /* Cursor indicates interactivity */
         }
-        .stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; height: 3px; width: 100%; background: var(--primary-neon); }
-        .stat-card h4 { margin: 0; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
-        .stat-card .stat-value { font-size: 2.2rem; font-weight: 700; color: #fff; margin-top: 10px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .stat-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.08); }
 
-        /* Main Grid */
+        /* Chart Containers */
+        .chart-visual {
+            height: 100px; width: 100px; margin: 0 auto 15px; position: relative;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* A. EFFICIENCY (Circular Progress) */
+        .circle-chart {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: conic-gradient(var(--primary-neon) var(--percent), rgba(255,255,255,0.1) 0deg);
+            position: relative; box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+            transition: --percent 1s; /* Requires Houdini or JS redraw */
+        }
+        .circle-chart::before {
+            content: ''; position: absolute; inset: 10px; background: #131722; border-radius: 50%;
+        }
+        .circle-icon { position: absolute; font-size: 1.8rem; color: var(--primary-neon); z-index: 2; }
+
+        /* B. LATENCY (Waveform) */
+        .wave-container {
+            display: flex; align-items: flex-end; gap: 5px; height: 60px;
+        }
+        .wave-bar {
+            width: 8px; background: var(--success); border-radius: 4px;
+            animation: bounce 1s infinite ease-in-out;
+            box-shadow: 0 0 10px var(--success);
+        }
+        .wave-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+        .wave-bar:nth-child(2) { height: 70%; animation-delay: 0.2s; }
+        .wave-bar:nth-child(3) { height: 100%; animation-delay: 0.3s; }
+        .wave-bar:nth-child(4) { height: 60%; animation-delay: 0.4s; }
+        .wave-bar:nth-child(5) { height: 30%; animation-delay: 0.5s; }
+        @keyframes bounce { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.5); } }
+
+        /* C. RAM (Donut/Pie) */
+        .ram-chart {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: conic-gradient(var(--secondary-neon) var(--ram-percent), rgba(255,255,255,0.1) 0deg);
+            position: relative; box-shadow: 0 0 20px rgba(112, 0, 255, 0.3);
+        }
+        .ram-chart::before { content: ''; position: absolute; inset: 15px; background: #131722; border-radius: 50%; }
+        .ram-icon { position: absolute; font-size: 1.5rem; color: var(--secondary-neon); z-index: 2; }
+
+        /* Text Styles */
+        .stat-card h4 { margin: 0; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .stat-card .stat-value { font-size: 1.8rem; font-weight: 700; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+
+        /* TOOLTIP (Info on Hover) */
+        .stat-tooltip {
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.9); border: 1px solid var(--primary-neon);
+            color: #fff; padding: 10px; border-radius: 8px; font-size: 0.8rem;
+            width: 200px; text-align: center; opacity: 0; visibility: hidden;
+            transition: 0.3s; pointer-events: none; z-index: 10; margin-bottom: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .stat-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; margin-left: -5px;
+            border-width: 5px; border-style: solid; border-color: var(--primary-neon) transparent transparent transparent;
+        }
+        .stat-card:hover .stat-tooltip { opacity: 1; visibility: visible; bottom: 110%; }
+
+
+        /* --- 4. MAIN LAYOUT & TABLES (Same as before) --- */
         .content-grid { display: grid; grid-template-columns: 2.5fr 1fr; gap: 25px; }
-
-        /* Table Styles */
         .data-controls { display: flex; gap: 15px; margin-bottom: 20px; }
         .neon-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 15px; border-radius: 8px; flex-grow: 1; }
-        
         .table-responsive { overflow-x: auto; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); max-height: 500px; }
         .data-table { width: 100%; border-collapse: collapse; }
         .data-table th, .data-table td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .data-table th { background: rgba(0, 229, 255, 0.15); color: var(--primary-neon); position: sticky; top: 0; backdrop-filter: blur(5px); font-size: 0.9rem; text-transform: uppercase; }
-        
-        /* Interactive Rows */
         .data-table tbody tr { cursor: pointer; transition: background 0.2s; }
         .data-table tbody tr:hover { background: rgba(0, 229, 255, 0.1) !important; }
-        
+
         /* Topology */
         .topology-container { display: flex; flex-direction: column; align-items: center; gap: 25px; padding: 10px; }
-        .controller-box {
-            background: linear-gradient(145deg, #1e2230, #11141d); border: 2px solid var(--secondary-neon);
-            padding: 20px; border-radius: 16px; text-align: center; width: 240px; z-index: 2;
-            box-shadow: 0 0 25px rgba(112, 0, 255, 0.2);
-        }
+        .controller-box { background: linear-gradient(145deg, #1e2230, #11141d); border: 2px solid var(--secondary-neon); padding: 20px; border-radius: 16px; text-align: center; width: 240px; z-index: 2; box-shadow: 0 0 25px rgba(112, 0, 255, 0.2); }
         .controller-box i { font-size: 2.5rem; color: var(--secondary-neon); margin-bottom: 10px; display: block; }
         .controller-box .dev-name { font-weight: 700; color: #fff; display: block; margin-bottom: 10px; }
-
-        /* Lines */
         .lines-container { display: flex; flex-direction: column; align-items: center; width: 100%; margin: -15px 0; }
         .vertical-line { width: 2px; height: 35px; background: rgba(255, 255, 255, 0.15); }
         .horizontal-bar { width: 90%; height: 2px; background: rgba(255, 255, 255, 0.15); display: flex; justify-content: space-between; }
         .drop-line { width: 2px; height: 20px; background: rgba(255, 255, 255, 0.15); }
-
-        /* Sensors */
         .sensors-grid { display: flex; gap: 15px; width: 100%; justify-content: space-between; flex-wrap: wrap; }
-        .sensor-card {
-            flex: 1; min-width: 100px; background: linear-gradient(145deg, #232838, #151922);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px 10px; text-align: center;
-            transition: 0.3s; position: relative;
-        }
+        .sensor-card { flex: 1; min-width: 100px; background: linear-gradient(145deg, #232838, #151922); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px 10px; text-align: center; transition: 0.3s; position: relative; }
         .sensor-card i { font-size: 1.8rem; margin-bottom: 8px; color: #666; transition: 0.3s; }
         .sensor-card div.name { font-size: 0.85rem; color: #ccc; margin-bottom: 10px; font-weight: 600; }
-
-        /* Status & Animation */
-        .status-badge {
-            font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.1); display: inline-flex; align-items: center; gap: 5px; text-transform: uppercase;
-        }
-        .status-dot { width: 6px; height: 6px; border-radius: 50%; display: block; }
         
+        /* Status */
+        .status-badge { font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); display: inline-flex; align-items: center; gap: 5px; text-transform: uppercase; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; display: block; }
         .is-online { color: var(--success); border-color: var(--success); box-shadow: 0 0 10px rgba(0, 255, 157, 0.15); }
         .is-online .status-dot { background: var(--success); box-shadow: 0 0 8px var(--success); animation: pulseGreen 1.5s infinite; }
         .is-offline { color: var(--danger); border-color: var(--danger); }
         .is-offline .status-dot { background: var(--danger); }
-
         @keyframes pulseGreen { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-
         .sensor-card.active { border-color: var(--primary-neon); box-shadow: 0 0 15px rgba(0, 229, 255, 0.15); }
         .sensor-card.active i { color: var(--primary-neon); transform: scale(1.1); filter: drop-shadow(0 0 5px var(--primary-neon)); }
-        
+
         /* Modals */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; }
         .modal-content { background: #151922; border: 1px solid var(--primary-neon); padding: 30px; border-radius: 16px; width: 90%; max-width: 500px; box-shadow: 0 0 50px rgba(0, 229, 255, 0.2); }
         .modal-content h3 { color: var(--primary-neon); text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-top: 0; }
         .modal-content label { display: block; margin: 15px 0 5px; color: #ccc; font-size: 0.9rem; }
-
-        /* History Modal Specifics */
         .history-content { max-width: 800px; }
         .history-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .history-table th, .history-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; font-size: 0.9rem; }
@@ -166,16 +203,49 @@
         </header>
 
         <div class="stats-grid">
-            <div class="stat-card"><h4>System Efficiency</h4><span class="stat-value" id="statEfficiency">0%</span></div>
-            <div class="stat-card"><h4>Network Latency</h4><span class="stat-value" id="statLatency">0 ms</span></div>
-            <div class="stat-card" id="statRAMBox"><h4>RAM Usage</h4><span class="stat-value" id="statRAM">0%</span></div>
+            
+            <div class="stat-card">
+                <div class="chart-visual">
+                    <div class="circle-chart" id="circleChart" style="background: conic-gradient(var(--primary-neon) 0deg, rgba(255,255,255,0.1) 0deg);"></div>
+                    <i class="fas fa-tachometer-alt circle-icon"></i>
+                </div>
+                <h4>System Efficiency</h4>
+                <span class="stat-value" id="statEfficiency">0%</span>
+                <div class="stat-tooltip">Overall system health and uptime performance percentage.</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="chart-visual">
+                    <div class="wave-container" id="waveChart">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                </div>
+                <h4>Network Latency</h4>
+                <span class="stat-value" id="statLatency">0 ms</span>
+                <div class="stat-tooltip">Data transmission delay between ESP32 and Server (ms).</div>
+            </div>
+
+            <div class="stat-card" id="statRAMBox">
+                <div class="chart-visual">
+                    <div class="ram-chart" id="ramChart" style="background: conic-gradient(var(--secondary-neon) 0deg, rgba(255,255,255,0.1) 0deg);"></div>
+                    <i class="fas fa-memory ram-icon"></i>
+                </div>
+                <h4>RAM Usage</h4>
+                <span class="stat-value" id="statRAM">0%</span>
+                <div class="stat-tooltip">Current heap memory usage of the microcontroller.</div>
+            </div>
+
         </div>
 
         <div class="content-grid">
             <div class="neon-block">
                 <h3><i class="fas fa-users"></i> Patients Database</h3>
                 <div class="data-controls">
-                    <input type="text" id="patientSearch" class="neon-input" placeholder="Search Patient ID...">
+                    <input type="text" id="patientSearch" class="neon-input" placeholder="Search Patient ID..." onkeyup="filterPatientTable()">
                     <button class="btn-base btn-neon" onclick="showAddPatientModal()"><i class="fas fa-plus"></i> Add</button>
                 </div>
                 <div class="table-responsive">
@@ -184,7 +254,7 @@
                             <tr>
                                 <th>Patient ID</th>
                                 <th>Source</th>          
-                                <th>Last Measurement</th>       
+                                <th>Date Added</th>      
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -220,7 +290,8 @@
                                 <div class="status-badge is-offline" id="badge-pulse"><span class="status-dot"></span> <span id="text-pulse">Offline</span></div>
                             </div>
                             <div class="sensor-card" id="card-bp">
-                                <i class="fas fa-stethoscope sensor-icon"></i> <div class="name">BP</div>
+                                <i class="fas fa-stethoscope sensor-icon"></i>
+                                <div class="name">BP</div>
                                 <div class="status-badge is-offline" id="badge-bp"><span class="status-dot"></span> <span id="text-bp">Offline</span></div>
                             </div>
                             <div class="sensor-card" id="card-spo2">
@@ -270,23 +341,12 @@
         <div class="modal-content history-content">
             <h3>Measurement History</h3>
             <p id="historyPatientId" style="text-align:center; color:#aaa; margin-top:-10px; margin-bottom:20px;">User: --</p>
-            
             <div class="table-responsive" style="max-height:400px;">
                 <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Temp</th>
-                            <th>Pulse</th>
-                            <th>SpO2</th>
-                            <th>BP</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTableBody">
-                        </tbody>
+                    <thead><tr><th>Date</th><th>Temp</th><th>Pulse</th><th>SpO2</th><th>BP</th></tr></thead>
+                    <tbody id="historyTableBody"></tbody>
                 </table>
             </div>
-            
             <div style="margin-top:25px; text-align:right;">
                 <button class="btn-base btn-danger" onclick="closeModal('historyModal')">Close</button>
             </div>
@@ -294,7 +354,7 @@
     </div>
 
     <script>
-        // --- 1. FIREBASE CONFIG ---
+        // --- CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
             authDomain: "smart-a76a0.firebaseapp.com",
@@ -303,17 +363,14 @@
             messagingSenderId: "343693501983",
             appId: "1:343693501983:web:10ea3fce9d990a2455172a"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
-
         const DEVICE_PATH = 'DeviceStatus'; 
         const SYSTEM_HEALTH_PATH = 'SystemHealth/Metrics'; 
         const COMMAND_PATH = 'Commands/'; 
         const PATIENT_DATA_PATH = 'PatientData'; 
 
-        // --- 2. AUTHENTICATION ---
         auth.onAuthStateChanged(user => {
             if (!user) window.location.href = "login.html";
             else {
@@ -321,166 +378,149 @@
                 initializeDashboard();
             }
         });
-
         function logout() { auth.signOut().then(() => window.location.href = "login.html"); }
+        function initializeDashboard() { monitorSystemPerformance(); loadPatientData(); monitorTopology(); }
 
-        function initializeDashboard() {
-            monitorSystemPerformance();
-            loadPatientData();
-            monitorTopology(); 
+        // --- VISUAL STATS UPDATES ---
+        function monitorSystemPerformance() {
+            db.ref(SYSTEM_HEALTH_PATH).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // Get values
+                    const avgLatency = data.Avg_Latency_ms || data.Avg_Latency || 0; 
+                    const ramUsage = data.RAM_Usage_Percent || data.RAM || 0; 
+                    const efficiency = Math.min(100, Math.max(0, 100 - (avgLatency / 5))); 
+
+                    // 1. Efficiency Chart Update
+                    document.getElementById('statEfficiency').innerText = `${efficiency.toFixed(0)}%`;
+                    document.getElementById('circleChart').style.background = `conic-gradient(var(--primary-neon) ${efficiency * 3.6}deg, rgba(255,255,255,0.1) 0deg)`;
+
+                    // 2. Latency Wave Update (Color change)
+                    document.getElementById('statLatency').innerText = `${avgLatency.toFixed(0)} ms`;
+                    const waveBars = document.querySelectorAll('.wave-bar');
+                    let waveColor = 'var(--success)';
+                    if(avgLatency > 150) waveColor = 'var(--warning)';
+                    if(avgLatency > 300) waveColor = 'var(--danger)';
+                    waveBars.forEach(bar => {
+                        bar.style.backgroundColor = waveColor;
+                        bar.style.boxShadow = `0 0 10px ${waveColor}`;
+                    });
+
+                    // 3. RAM Chart Update
+                    document.getElementById('statRAM').innerText = `${ramUsage.toFixed(0)}%`;
+                    document.getElementById('ramChart').style.background = `conic-gradient(var(--secondary-neon) ${ramUsage * 3.6}deg, rgba(255,255,255,0.1) 0deg)`;
+                    
+                    // Critical RAM color
+                    if(ramUsage > 80) {
+                         document.getElementById('ramChart').style.background = `conic-gradient(var(--danger) ${ramUsage * 3.6}deg, rgba(255,255,255,0.1) 0deg)`;
+                         document.querySelector('.ram-icon').style.color = 'var(--danger)';
+                    }
+                }
+            });
         }
 
-        // --- 3. TOPOLOGY MONITORING ---
+        // --- TOPOLOGY ---
         function monitorTopology() {
             db.ref(DEVICE_PATH).on('value', snapshot => {
                 if(!snapshot.exists()) return;
                 const data = snapshot.val();
-                
                 const esp = data['ESP-32 Controller'];
                 updateUI('ctrl-status', 'ctrl-text', 'ctrl-box', esp ? esp.status : 'offline');
-
                 const temp = data['Temp'];
                 updateUI('badge-temp', 'text-temp', 'card-temp', temp ? temp.status : 'offline');
-
                 const pulse = data['Pulse'];
                 updateUI('badge-pulse', 'text-pulse', 'card-pulse', pulse ? pulse.status : 'offline');
-
                 const bp = data['BP'];
                 updateUI('badge-bp', 'text-bp', 'card-bp', bp ? bp.status : 'offline');
-
                 const spo2 = data['SpO2'];
                 updateUI('badge-spo2', 'text-spo2', 'card-spo2', spo2 ? spo2.status : 'offline');
             });
         }
-
         function updateUI(badgeId, textId, cardId, status) {
             const badgeEl = document.getElementById(badgeId);
             const textEl = document.getElementById(textId);
             const cardEl = document.getElementById(cardId);
             const currentStatus = status ? status.toLowerCase() : 'offline';
-
             if (currentStatus === 'online') {
-                textEl.innerText = "Online";
-                badgeEl.className = "status-badge is-online";
+                textEl.innerText = "Online"; badgeEl.className = "status-badge is-online";
                 if(cardEl) cardEl.classList.add('active');
             } else {
-                textEl.innerText = "Offline";
-                badgeEl.className = "status-badge is-offline";
+                textEl.innerText = "Offline"; badgeEl.className = "status-badge is-offline";
                 if(cardEl) cardEl.classList.remove('active');
             }
         }
 
-        // --- 4. PATIENT DATA & HISTORY ---
+        // --- PATIENTS ---
+        let allPatientsData = [];
         function loadPatientData() {
             const tableBody = document.getElementById('patientDataBody');
             db.ref(PATIENT_DATA_PATH).on('value', (snapshot) => {
-                tableBody.innerHTML = ''; 
+                allPatientsData = [];
                 if (!snapshot.exists()) {
                     tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#aaa;">No records found.</td></tr>`;
                     return;
                 }
                 snapshot.forEach((childSnapshot) => {
-                    const patientPhone = childSnapshot.key; 
-                    const data = childSnapshot.val();
-                    const row = tableBody.insertRow();
-                    
-                    // Clickable Row -> Open History
-                    row.onclick = (e) => {
-                        // Prevent click if deleting
-                        if(e.target.closest('.btn-danger')) return;
-                        viewPatientHistory(patientPhone);
-                    };
-                    row.style.cursor = "pointer";
-
-                    row.insertCell().innerText = patientPhone; 
-                    row.insertCell().innerText = data.AddedBy || 'N/A';
-                    row.insertCell().innerText = data.Timestamp || 'N/A';
-                    
-                    const actionCell = row.insertCell();
-                    actionCell.innerHTML = `<button class="btn-base btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deletePatient('${patientPhone}')"><i class="fas fa-trash"></i></button>`;
+                    allPatientsData.push({ id: childSnapshot.key, ...childSnapshot.val() });
                 });
+                renderPatientTable(allPatientsData);
             });
         }
-
-        // View History Function
+        function renderPatientTable(dataList) {
+            const tableBody = document.getElementById('patientDataBody');
+            tableBody.innerHTML = '';
+            if (dataList.length === 0) { tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#aaa;">No matches.</td></tr>`; return; }
+            dataList.forEach(data => {
+                const row = tableBody.insertRow();
+                row.onclick = (e) => { if(e.target.closest('.btn-danger')) return; viewPatientHistory(data.id); };
+                row.insertCell().innerText = data.id; 
+                row.insertCell().innerText = data.AddedBy || 'N/A';
+                row.insertCell().innerText = data.Timestamp || 'N/A';
+                const actionCell = row.insertCell();
+                actionCell.innerHTML = `<button class="btn-base btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deletePatient('${data.id}')"><i class="fas fa-trash"></i></button>`;
+            });
+        }
+        function filterPatientTable() {
+            const query = document.getElementById('patientSearch').value.toLowerCase();
+            const filteredData = allPatientsData.filter(p => p.id.toLowerCase().includes(query));
+            renderPatientTable(filteredData);
+        }
         function viewPatientHistory(patientId) {
             const historyBody = document.getElementById('historyTableBody');
             document.getElementById('historyPatientId').innerText = "User: " + patientId;
             historyBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
-            
             document.getElementById('historyModal').style.display = 'flex';
-
             db.ref(PATIENT_DATA_PATH + '/' + patientId + '/History').once('value', (snapshot) => {
                 historyBody.innerHTML = '';
-                if(!snapshot.exists()) {
-                    historyBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#aaa;">No history measurements found.</td></tr>';
-                    return;
-                }
-
+                if(!snapshot.exists()) { historyBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#aaa;">No history found.</td></tr>'; return; }
                 const records = [];
                 snapshot.forEach(child => { records.push(child.val()); });
-                // Sort by date (newest first) assuming standard date string, simple reverse for now
                 records.reverse().forEach(rec => {
-                    const r = `
-                        <tr>
-                            <td style="color:#fff;">${rec.createdAt || rec.timestamp || 'N/A'}</td>
-                            <td style="color:#f39c12;">${rec.temperature || '--'}</td>
-                            <td style="color:#e74c3c;">${rec.bpm || '--'}</td>
-                            <td style="color:#9b59b6;">${rec.spo2 || '--'}</td>
-                            <td style="color:#00e5ff;">${rec.pressure || '--'}</td>
-                        </tr>
-                    `;
+                    const r = `<tr><td style="color:#fff;">${rec.createdAt || rec.timestamp || 'N/A'}</td><td style="color:#f39c12;">${rec.temperature || '--'}</td><td style="color:#e74c3c;">${rec.bpm || '--'}</td><td style="color:#9b59b6;">${rec.spo2 || '--'}</td><td style="color:#00e5ff;">${rec.pressure || '--'}</td></tr>`;
                     historyBody.innerHTML += r;
                 });
             });
         }
 
-        // --- 5. MODALS & UTILS ---
+        // --- UTILS ---
         function showAddPatientModal() { document.getElementById('addPatientModal').style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
         document.getElementById('addPatientForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const phone = document.getElementById('patientPhone').value.trim();
             const source = document.getElementById('addedSource').value;
             if (!phone) return;
             let addedBy = source === 'Admin' ? auth.currentUser.email : source;
-
-            // Initialize with basic data (no readings needed for init)
-            db.ref(PATIENT_DATA_PATH + '/' + phone).update({
-                Phone: phone, Timestamp: new Date().toLocaleString(), AddedBy: addedBy, SensorData: "New Record"
-            }).then(() => { closeModal('addPatientModal'); });
+            db.ref(PATIENT_DATA_PATH + '/' + phone).update({ Phone: phone, Timestamp: new Date().toLocaleString(), AddedBy: addedBy }).then(() => { closeModal('addPatientModal'); });
         });
-
-        function deletePatient(id) {
-            if(confirm('Delete record for ' + id + '?')) db.ref(PATIENT_DATA_PATH + '/' + id).remove();
-        }
-
-        function monitorSystemPerformance() {
-            db.ref(SYSTEM_HEALTH_PATH).on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    const avgLatency = data.Avg_Latency_ms || data.Avg_Latency || 0; 
-                    const ramUsage = data.RAM_Usage_Percent || data.RAM || 0; 
-                    const efficiency = Math.min(100, Math.max(0, 100 - (avgLatency / 5))); 
-                    document.getElementById('statEfficiency').innerText = `${efficiency.toFixed(0)}%`;
-                    document.getElementById('statLatency').innerText = `${avgLatency.toFixed(0)} ms`;
-                    document.getElementById('statRAM').innerText = `${ramUsage.toFixed(0)}%`;
-                    const ramBox = document.getElementById('statRAMBox');
-                    ramBox.style.borderColor = ramUsage > 75 ? 'var(--danger)' : 'rgba(255, 255, 255, 0.1)';
-                }
-            });
-        }
-
+        function deletePatient(id) { if(confirm('Delete record for ' + id + '?')) db.ref(PATIENT_DATA_PATH + '/' + id).remove(); }
         function sendCommand(type) {
             const dev = document.getElementById('targetDeviceSelect').value;
             const url = document.getElementById('firmwareUrlInput').value;
             let val = type === 'REBOOT' ? 'REBOOT' : url;
             if (type === 'FOTA' && !url.startsWith('http')) { alert('Invalid URL'); return; }
-            db.ref(COMMAND_PATH + dev).set({ Action: type, Value: val, Timestamp: new Date().toLocaleString() })
-              .then(() => alert('Command Sent!'));
+            db.ref(COMMAND_PATH + dev).set({ Action: type, Value: val, Timestamp: new Date().toLocaleString() }).then(() => alert('Command Sent!'));
         }
     </script>
-
 </body>
 </html>
