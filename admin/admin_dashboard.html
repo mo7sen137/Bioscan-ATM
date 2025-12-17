@@ -35,8 +35,6 @@
             color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
-            
-            /* Dynamic Animated Background */
             background: linear-gradient(125deg, #000000, #0f172a, #1a1025, #000000);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
@@ -48,7 +46,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 4px; }
@@ -107,11 +104,12 @@
         .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); }
         .stat-card h4 { margin: 0; color: var(--text-muted); font-size: 0.9rem; font-weight: normal; }
         .stat-card .stat-value { font-size: 2.2rem; font-weight: 700; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); margin-top: 10px; }
-        
+        .stat-card.high-ram::before { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
+        .stat-card.high-ram .stat-value { color: var(--danger); text-shadow: 0 0 10px var(--danger); }
+
         /* --- 6. MAIN CONTENT --- */
         .content-grid { display: grid; grid-template-columns: 2.5fr 1fr; gap: 20px; }
 
-        /* Table Styles */
         .data-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .neon-input { background: rgba(0, 0, 0, 0.5); border: 1px solid #333; color: #fff; padding: 10px 15px; border-radius: 6px; flex-grow: 1; font-family: inherit; }
         .neon-input:focus { border-color: var(--primary-neon); box-shadow: 0 0 5px var(--primary-neon); }
@@ -120,75 +118,79 @@
         .data-table th, .data-table td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .data-table th { background: rgba(0, 229, 255, 0.1); color: var(--primary-neon); position: sticky; top: 0; backdrop-filter: blur(5px); }
 
-        /* --- 7. DEVICE TOPOLOGY (NEW DESIGN) --- */
+        /* --- 7. DEVICE TOPOLOGY (DARKER & ANIMATED) --- */
         
         .topology-container {
-            display: flex; flex-direction: column; align-items: center; gap: 15px;
-            padding: 10px;
+            display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 10px;
         }
 
-        /* Controller Box (ESP32) */
+        /* 7.1 Darker Controller Box */
         .controller-box {
-            background: rgba(112, 0, 255, 0.1);
+            background: linear-gradient(145deg, #121212, #000); /* Darker Black */
             border: 1px solid var(--secondary-neon);
             padding: 15px 30px;
             border-radius: 8px;
             text-align: center;
             position: relative;
-            box-shadow: 0 0 15px rgba(112, 0, 255, 0.2);
+            box-shadow: 0 0 20px rgba(112, 0, 255, 0.1);
             width: 180px;
+            z-index: 2;
         }
         .controller-box i { font-size: 2rem; color: var(--secondary-neon); margin-bottom: 5px; }
-        .controller-box .dev-name { display: block; font-weight: bold; color: #fff; }
+        .controller-box .dev-name { display: block; font-weight: bold; color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
         .controller-box .status-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
 
-        /* Connecting Lines */
-        .connector-vertical {
-            width: 2px; height: 20px; background: rgba(255, 255, 255, 0.2);
-        }
-        .connector-horizontal {
-            width: 80%; height: 2px; background: rgba(255, 255, 255, 0.2);
-            position: relative;
-        }
-        /* Small vertical lines dropping to sensors */
+        /* Connectors */
+        .connector-vertical { width: 2px; height: 20px; background: rgba(255, 255, 255, 0.2); }
+        .connector-horizontal { width: 80%; height: 2px; background: rgba(255, 255, 255, 0.2); position: relative; }
         .connector-horizontal::before, .connector-horizontal::after {
             content: ''; position: absolute; top: 0; width: 2px; height: 10px; background: rgba(255, 255, 255, 0.2);
         }
         .connector-horizontal::before { left: 0; }
         .connector-horizontal::after { right: 0; }
-        
-        /* Middle connectors trick */
-        .connector-branches {
-            display: flex; justify-content: space-around; width: 80%; margin-top: -2px;
-        }
+        .connector-branches { display: flex; justify-content: space-around; width: 80%; margin-top: -2px; }
         .branch { width: 2px; height: 10px; background: rgba(255, 255, 255, 0.2); }
 
-        /* Sensors Grid */
-        .sensors-row {
-            display: flex; gap: 10px; width: 100%; justify-content: center; flex-wrap: wrap;
-        }
+        /* 7.2 Darker Sensor Cards */
+        .sensors-row { display: flex; gap: 10px; width: 100%; justify-content: center; flex-wrap: wrap; }
 
         .sensor-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.8); /* High Opacity Black */
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             text-align: center;
-            flex: 1;
-            min-width: 80px;
+            flex: 1; min-width: 80px;
             transition: 0.3s;
+            box-shadow: inset 0 0 10px rgba(0,0,0,1);
         }
-        .sensor-card:hover { background: rgba(0, 229, 255, 0.1); border-color: var(--primary-neon); }
-        .sensor-card i { font-size: 1.2rem; color: var(--primary-neon); margin-bottom: 5px; }
-        .sensor-card div { font-size: 0.8rem; color: #ccc; }
+        .sensor-card:hover { border-color: var(--primary-neon); box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); transform: translateY(-3px); }
+        .sensor-card div { font-size: 0.8rem; color: #ccc; margin-top: 5px; }
         
-        /* Status Colors */
-        .online-text { color: var(--success); text-shadow: 0 0 5px var(--success); }
-        .offline-text { color: var(--danger); text-shadow: 0 0 5px var(--danger); }
-        
-        .pulse-anim { animation: pulseDot 1.5s infinite; }
-        @keyframes pulseDot { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        /* 7.3 Specific Animations */
+        /* Chip Glow */
+        @keyframes chipGlow { 0%, 100% { text-shadow: 0 0 5px var(--secondary-neon); } 50% { text-shadow: 0 0 20px var(--secondary-neon); color: #fff; } }
+        .anim-chip { animation: chipGlow 3s infinite; }
 
+        /* Heartbeat */
+        @keyframes heartbeat { 0% { transform: scale(1); } 15% { transform: scale(1.3); } 30% { transform: scale(1); } 45% { transform: scale(1.15); } 60% { transform: scale(1); } }
+        .anim-pulse { animation: heartbeat 1.5s infinite; color: #ff0055 !important; }
+
+        /* Breathing Lungs */
+        @keyframes breathe { 0%, 100% { opacity: 0.6; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } }
+        .anim-lungs { animation: breathe 4s infinite ease-in-out; color: #00d2ff !important; }
+
+        /* Squeeze BP */
+        @keyframes squeeze { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.8); } }
+        .anim-bp { animation: squeeze 3s infinite; color: #f39c12 !important; }
+
+        /* Temp Shake */
+        @keyframes shakeTemp { 0%, 100% { transform: translateY(0); color: var(--primary-neon); } 50% { transform: translateY(-2px); color: #ff4444; } }
+        .anim-temp { animation: shakeTemp 5s infinite; }
+
+        /* Status Text Colors */
+        .online-text { color: var(--success); text-shadow: 0 0 5px var(--success); }
+        
         /* --- 8. MODAL --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 999; }
         .modal-content { background: #0f1215; border: 1px solid var(--primary-neon); border-radius: 15px; padding: 30px; width: 90%; max-width: 500px; }
@@ -266,34 +268,36 @@
                     <div class="topology-container">
                         
                         <div class="controller-box">
-                            <i class="fas fa-microchip"></i>
+                            <i class="fas fa-microchip anim-chip"></i>
                             <span class="dev-name">ESP-32 Controller</span>
-                            <span class="status-badge online-text pulse-anim"><i class="fas fa-circle" style="font-size:8px;"></i> Online</span>
+                            <span class="status-badge online-text"><i class="fas fa-circle" style="font-size:8px;"></i> Online</span>
                         </div>
 
                         <div class="connector-vertical"></div>
-                        <div class="connector-horizontal"></div> <div class="connector-branches"> <div class="branch"></div>
+                        <div class="connector-horizontal"></div>
+                        <div class="connector-branches">
+                           <div class="branch"></div>
                            <div class="branch"></div>
                         </div>
 
                         <div class="sensors-row">
                             <div class="sensor-card">
-                                <i class="fas fa-thermometer-half"></i>
+                                <i class="fas fa-thermometer-half anim-temp"></i>
                                 <div>Temp</div>
                                 <div class="online-text" style="font-size:0.7rem;">Online</div>
                             </div>
                             <div class="sensor-card">
-                                <i class="fas fa-heartbeat"></i>
+                                <i class="fas fa-heartbeat anim-pulse"></i>
                                 <div>Pulse</div>
                                 <div class="online-text" style="font-size:0.7rem;">Online</div>
                             </div>
                             <div class="sensor-card">
-                                <i class="fas fa-compress-alt"></i>
+                                <i class="fas fa-compress-alt anim-bp"></i>
                                 <div>BP</div>
                                 <div class="online-text" style="font-size:0.7rem;">Online</div>
                             </div>
                             <div class="sensor-card">
-                                <i class="fas fa-lungs"></i>
+                                <i class="fas fa-lungs anim-lungs"></i>
                                 <div>SpO2</div>
                                 <div class="online-text" style="font-size:0.7rem;">Online</div>
                             </div>
@@ -390,7 +394,6 @@
 
         function initializeDashboard() {
             monitorSystemPerformance(); 
-            // Removed generic loadDeviceStatus, using hardcoded Topology for now
             loadPatientData();          
         }
 
