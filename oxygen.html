@@ -4,36 +4,98 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bioscan | Oxygen (SpO₂)</title>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 <style>
-  /* Theme Color: Blue */
-  :root { --primary-color: #00c6ff; --danger-color: #ff0000; --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-color: #ffffff; }
+  /* --- CSS Styles --- */
+  :root { --primary-color: #00c6ff; --secondary-color: #0072ff; --danger-color: #ff0000; --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-color: #ffffff; }
   body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; transition: background 0.5s; }
   @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  
+  /* SOS Styles */
   @keyframes sos-flash { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); border-color: red; } 50% { box-shadow: 0 0 50px 20px rgba(255, 0, 0, 0.5); border-color: #ff4d4d; background: rgba(50, 0, 0, 0.6); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); border-color: red; } }
   .critical-state { animation: sos-flash 1s infinite; border: 2px solid red !important; }
   .critical-bg { background: radial-gradient(circle, #3a0000, #000) !important; }
+
   header { width: 100%; background: rgba(15, 32, 39, 0.9); backdrop-filter: blur(10px); padding: 15px 0; display: flex; justify-content: center; align-items: center; position: relative; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); z-index: 100; }
   header h1 { font-size: 1.4rem; margin: 0; font-weight: 600; letter-spacing: 1px; color: var(--primary-color); text-transform: uppercase; pointer-events: none; }
   .back-btn { position: absolute; left: 20px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--primary-color); color: white; padding: 8px 15px; border-radius: 50px; cursor: pointer; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 5px; z-index: 1000; }
   .back-btn:hover { background: var(--primary-color); color: #000; box-shadow: 0 0 15px rgba(0, 198, 255, 0.5); }
+  
   .container { display: flex; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; }
   .card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 40px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: 0.3s; }
   .sos-banner { display: none; background: red; color: white; font-weight: bold; padding: 10px; border-radius: 10px; margin-bottom: 15px; animation: blink 0.5s infinite alternate; }
   @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
-  .icon-container { margin-bottom: 20px; }
-  .icon-container i { font-size: 5rem; background: -webkit-linear-gradient(#00c6ff, #0072ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(0, 198, 255, 0.5)); animation: breathe 3s ease-in-out infinite; }
-  @keyframes breathe { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(0, 198, 255, 0.5)); } 50% { transform: scale(1.1); filter: drop-shadow(0 0 25px rgba(0, 198, 255, 0.8)); } }
+
+  /* --- LIQUID OXYGEN ANIMATION --- */
+  .oxygen-visual {
+    position: relative; width: 200px; height: 200px; margin: 0 auto 30px;
+    border-radius: 50%; border: 4px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 20px rgba(0, 198, 255, 0.3);
+    overflow: hidden; background: rgba(0,0,0,0.3);
+  }
+
+  .liquid {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; /* Dynamic */
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    transition: height 1s ease-in-out, background 0.3s;
+    z-index: 1;
+  }
+
+  /* The Wave Effect */
+  .liquid::before, .liquid::after {
+    content: ""; position: absolute; width: 200%; height: 200%;
+    top: -150%; left: -50%; border-radius: 40%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: wave 6s linear infinite;
+  }
+  .liquid::after {
+    top: -155%; left: -45%; background: rgba(255, 255, 255, 0.2);
+    animation: wave 10s linear infinite;
+  }
+  @keyframes wave { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+  /* Bubbles Animation */
+  .bubbles span {
+    position: absolute; bottom: -20px;
+    background: rgba(255, 255, 255, 0.3); border-radius: 50%;
+    animation: rise 4s infinite ease-in; z-index: 2;
+  }
+  .bubbles span:nth-child(1) { width: 10px; height: 10px; left: 20%; animation-duration: 3s; }
+  .bubbles span:nth-child(2) { width: 15px; height: 15px; left: 50%; animation-duration: 5s; animation-delay: 1s; }
+  .bubbles span:nth-child(3) { width: 8px; height: 8px; left: 70%; animation-duration: 4s; animation-delay: 2s; }
+  @keyframes rise { 0% { bottom: -20px; opacity: 0; } 50% { opacity: 1; } 100% { bottom: 100%; opacity: 0; } }
+
+  /* Center Icon (Floating) */
+  .center-icon {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-size: 4rem; color: rgba(255,255,255,0.8); z-index: 3;
+      filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+      animation: floatIcon 3s ease-in-out infinite;
+  }
+  @keyframes floatIcon { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -55%); } }
+
+  /* Danger State for Liquid */
+  .oxygen-visual.danger .liquid {
+      background: linear-gradient(45deg, #ff416c, #ff0000);
+  }
+  /* -------------------------------- */
+
   .ox-box { background: rgba(0, 0, 0, 0.3); border-radius: 15px; padding: 20px; margin: 20px 0; border: 1px solid rgba(0, 198, 255, 0.3); }
   #oxValue { font-size: 3rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--primary-color); }
   .unit { font-size: 1.5rem; color: var(--primary-color); }
+  
   .instructions-list { list-style: none; padding: 0; text-align: left; margin-bottom: 30px; }
   .instructions-list li { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #e0e0e0; }
   .instructions-list li i { color: var(--primary-color); width: 25px; text-align: center; }
+  
   .actions-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .advice-btn, .voice-btn, .save-btn { padding: 12px 20px; border-radius: 50px; border: none; cursor: pointer; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .advice-btn { flex: 2; background: linear-gradient(45deg, #00c6ff, #0072ff); color: white; box-shadow: 0 4px 15px rgba(0, 198, 255, 0.4); }
@@ -44,7 +106,7 @@
   .advice-box { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 15px; margin-top: 20px; display: none; font-size: 1.1rem; color: #fff; border-left: 4px solid var(--primary-color); animation: slideDown 0.5s ease; }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Modal Styles */
+  /* Modal */
   .confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 5000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
   .confirm-modal.active { display: flex; opacity: 1; }
   .confirm-content { background: linear-gradient(145deg, #152229, #1c2e36); border: 2px solid var(--primary-color); border-radius: 25px; width: 90%; max-width: 400px; padding: 30px; text-align: center; box-shadow: 0 0 50px rgba(0, 198, 255, 0.3); transform: scale(0.8); transition: transform 0.3s ease; }
@@ -81,17 +143,28 @@
 
 <div class="container">
   <div id="sosBanner" class="sos-banner"><i class="fas fa-exclamation-triangle"></i> CRITICAL: LOW OXYGEN!</div>
+  
   <div class="card" id="mainCard">
-    <div class="icon-container"><i class="fas fa-lungs"></i></div>
+    
+    <div class="oxygen-visual" id="oxygenVisual">
+        <div class="liquid" id="oxLiquid"></div>
+        <div class="center-icon"><i class="fas fa-lungs"></i></div>
+        <div class="bubbles">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
     <div class="ox-box">
       <span id="oxValue">--</span> <span class="unit">%</span>
     </div>
+    
     <h3 id="instrTitle" style="color: var(--primary-color); font-weight: 400; margin-bottom: 15px;">Instructions</h3>
     <ul class="instructions-list" id="instructions">
       <li><i class="fas fa-fingerprint"></i> Place finger on sensor.</li>
       <li><i class="fas fa-hand-holding"></i> Keep hand steady.</li>
       <li><i class="fas fa-exclamation-circle"></i> Avoid movement.</li>
     </ul>
+    
     <div class="actions-row">
       <button class="save-btn" id="saveBtn" onclick="saveMeasurement()">
         <i class="fas fa-save"></i> <span id="saveBtnText">Save</span>
@@ -106,6 +179,7 @@
 </div>
 
 <script>
+  // --- 1. Config ---
   const firebaseConfig = {
     apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
     authDomain: "smart-a76a0.firebaseapp.com",
@@ -120,6 +194,8 @@
   auth.signInAnonymously().catch(console.error);
 
   const oxBox = document.getElementById("oxValue");
+  const oxLiquid = document.getElementById("oxLiquid");
+  const oxVisual = document.getElementById("oxygenVisual");
   const adviceBox = document.getElementById("adviceBox");
   const sosBanner = document.getElementById("sosBanner");
   const mainCard = document.getElementById("mainCard");
@@ -127,6 +203,32 @@
   const userId = localStorage.getItem("selectedUserId");
   const PATIENT_DATA_PATH = "PatientData";
   let isCritical = false;
+
+  // --- 2. Live Logic & Animation ---
+  function updateOxygenUI(val) {
+      if(isNaN(val)) return;
+      oxBox.innerText = val;
+      
+      // Update Liquid Height
+      // 100% -> Full height (100%)
+      // 0% -> Empty (0%)
+      // Since normal range is 90-100, we want it to look full mostly.
+      // Let's map it directly but ensure min height of 10%
+      let height = val;
+      if(height > 100) height = 100;
+      if(height < 10) height = 10;
+      
+      oxLiquid.style.height = height + "%";
+
+      // Color Change for Critical Low
+      if (val < 90) {
+          oxVisual.classList.add('danger');
+          triggerSOS();
+      } else {
+          oxVisual.classList.remove('danger');
+          clearSOS();
+      }
+  }
 
   if (userId) {
     db.ref(PATIENT_DATA_PATH + "/" + userId + "/SensorData").on("value", snapshot => {
@@ -136,17 +238,13 @@
            const oxPart = parts.find(p => p.trim().startsWith("SpO2=") || p.trim().startsWith("O2="));
            if(oxPart) {
                const val = parseFloat(oxPart.split("=")[1]);
-               if(!isNaN(val)) {
-                   oxBox.innerText = val;
-                   if (val < 90) triggerSOS();
-                   else clearSOS();
-               }
+               updateOxygenUI(val);
            }
        }
     });
   }
 
-  // --- Save with Session ID ---
+  // --- 3. Save Function ---
   function saveMeasurement() {
     const val = oxBox.innerText;
     if (val === "--" || val === "") return;
@@ -157,7 +255,6 @@
 
     const timestamp = new Date().toLocaleString();
 
-    // تحديث الجلسة الحالية
     db.ref(`${PATIENT_DATA_PATH}/${userId}/History/${sessionId}`).update({
         spo2: val,
         createdAt: timestamp
@@ -225,8 +322,8 @@
 </script>
 
 <div style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; display: flex; gap: 5px;">
-  <button onclick="document.getElementById('oxValue').innerText='85'; triggerSOS();" style="background: red; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🚨 Test Low</button>
-  <button onclick="document.getElementById('oxValue').innerText='98'; clearSOS();" style="background: green; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">✅ Test Normal</button>
+  <button onclick="updateOxygenUI(85)" style="background: red; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🚨 Low (85%)</button>
+  <button onclick="updateOxygenUI(98)" style="background: green; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">✅ Good (98%)</button>
 </div>
 </body>
 </html>
