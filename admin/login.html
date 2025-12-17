@@ -1,135 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <title>Bioscan | Login</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
     <style>
         /* General Styles */
         * {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             box-sizing: border-box;
             font-family: "Poppins", sans-serif;
         }
 
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-            background: #000; /* Fallback black */
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; overflow: hidden;
+            background: #000;
         }
 
-        /* Video Background (Dark Curtain Effect) */
+        /* Video Background */
         #video-background {
-            position: fixed;
-            right: 0;
-            bottom: 0;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
+            position: fixed; right: 0; bottom: 0;
+            min-width: 100%; min-height: 100%;
+            width: auto; height: auto;
             z-index: -1;
             object-fit: cover;
-            /* تغميق الفيديو بنسبة كبيرة (30% بس اللي ظاهر) */
             filter: brightness(30%) contrast(110%);
         }
 
-        /* Container with Neon Glow */
+        /* Login Container */
         .container {
-            position: relative;
-            width: 400px;
-            padding: 50px 40px; /* زودت الحشو شوية عشان الشكل */
-            background: rgba(0, 0, 0, 0.6); /* خلفية سوداء نصف شفافة */
+            position: relative; width: 400px;
+            padding: 50px 40px;
+            background: rgba(0, 0, 0, 0.6);
             border-radius: 20px;
             backdrop-filter: blur(10px);
-            
-            /* --- التعديل: إطار أزرق مشع --- */
-            border: 1px solid #00d2ff; 
-            box-shadow: 0 0 25px rgba(0, 210, 255, 0.3); 
-            /* --------------------------- */
-            
+            border: 1px solid #00d2ff;
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.3);
             text-align: center;
             z-index: 1;
         }
 
         .login-header {
-            font-size: 32px;
-            color: #fff;
-            margin-bottom: 40px;
-            font-weight: 700;
+            font-size: 32px; color: #fff;
+            margin-bottom: 40px; font-weight: 700;
             letter-spacing: 1px;
-            text-shadow: 0 0 10px #00d2ff; /* توهج للنص كمان */
+            text-shadow: 0 0 10px #00d2ff;
         }
 
-        /* Input Fields */
+        /* Inputs */
         .input-box {
-            position: relative;
-            width: 100%;
-            margin-bottom: 25px;
+            position: relative; width: 100%; margin-bottom: 25px;
         }
 
         .input-field {
-            width: 100%;
-            padding: 15px 20px;
+            width: 100%; padding: 15px 20px 15px 45px; /* مساحة للأيقونة */
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
-            outline: none;
-            color: #fff;
-            font-size: 16px;
+            outline: none; color: #fff; font-size: 16px;
             transition: 0.3s ease;
         }
 
         .input-field:focus {
-            border-color: #00d2ff; /* لون الإطار عند الكتابة */
+            border-color: #00d2ff;
             box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
             background: rgba(0, 210, 255, 0.05);
         }
 
-        .input-field::placeholder {
-            color: #aaa;
-        }
+        .input-field::placeholder { color: #aaa; }
 
         .input-box i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
+            position: absolute; left: 15px; top: 50%;
             transform: translateY(-50%);
-            color: #ccc;
-            font-size: 20px;
+            color: #ccc; font-size: 20px;
             pointer-events: none;
         }
 
-        /* Login Button */
-        .input-submit {
-            width: 100%;
-            margin-top: 10px;
-        }
+        /* Submit Button */
+        .input-submit { width: 100%; margin-top: 10px; }
 
         .submit-btn {
-            width: 100%;
-            padding: 15px;
+            width: 100%; padding: 15px;
             background: linear-gradient(90deg, #00d2ff, #0072ff);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: 600;
-            color: #fff;
-            transition: 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            border: none; border-radius: 10px;
+            cursor: pointer; font-size: 18px; font-weight: 600;
+            color: #fff; transition: 0.3s ease;
+            text-transform: uppercase; letter-spacing: 1px;
         }
 
         .submit-btn:hover {
             transform: scale(1.03);
             box-shadow: 0 0 20px rgba(0, 210, 255, 0.6);
+        }
+
+        /* Error Message */
+        #errorMessage {
+            margin-top: 15px;
+            color: #ff416c;
+            font-size: 0.9rem;
+            display: none;
+            text-shadow: 0 0 5px rgba(255, 65, 108, 0.5);
         }
     </style>
 </head>
@@ -156,12 +134,69 @@
         <div class="input-submit">
             <button class="submit-btn" onclick="adminLogin()">Login</button>
         </div>
+
+        <div id="errorMessage"></div>
     </div>
 
     <script>
         // --- 1. FIREBASE CONFIG ---
-        // (نفس الإعدادات السابقة - تأكد إنها موجودة هنا عشان الزرار يشتغل)
-        // يمكنك نسخها من الملف القديم لو مش موجودة هنا
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
+            authDomain: "smart-a76a0.firebaseapp.com",
+            databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
+            projectId: "smart-a76a0",
+            messagingSenderId: "343693501983",
+            appId: "1:343693501983:web:10ea3fce9d990a2455172a"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // --- 2. AUTH LOGIC ---
+        
+        // التحقق من حالة الدخول وتوجيه المستخدم
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                // لو المستخدم مسجل دخول بالفعل، حوله فوراً للداشبورد
+                console.log("User is logged in, redirecting...");
+                window.location.href = "admin_dashboard.html";
+            }
+        });
+
+        function adminLogin() {
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            const errorDiv = document.getElementById('errorMessage');
+
+            if (!email || !password) {
+                errorDiv.innerText = "Please enter both email and password.";
+                errorDiv.style.display = "block";
+                return;
+            }
+
+            // تغيير نص الزر ليدل على التحميل
+            document.querySelector('.submit-btn').innerText = "Checking...";
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // النجاح: الـ onAuthStateChanged اللي فوق هو اللي هيعمل التوجيه
+                    errorDiv.style.display = "none";
+                })
+                .catch((error) => {
+                    // الفشل: إظهار رسالة خطأ
+                    console.error(error);
+                    document.querySelector('.submit-btn').innerText = "LOGIN";
+                    errorDiv.innerText = "Login Failed: " + error.message;
+                    errorDiv.style.display = "block";
+                });
+        }
+
+        // دعم زر Enter للدخول
+        document.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                adminLogin();
+            }
+        });
     </script>
 
 </body>
