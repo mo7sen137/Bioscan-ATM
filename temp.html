@@ -13,30 +13,63 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
-  /* --- CSS Styles (نفس التصميم الأصلي) --- */
+  /* --- CSS Styles --- */
   :root { --primary-color: #ff7e5f; --danger-color: #ff0000; --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-color: #ffffff; }
   body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; transition: background 0.5s; }
   @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  
+  /* SOS Styles */
   @keyframes sos-flash { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); border-color: red; } 50% { box-shadow: 0 0 50px 20px rgba(255, 0, 0, 0.5); border-color: #ff4d4d; background: rgba(50, 0, 0, 0.6); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); border-color: red; } }
   .critical-state { animation: sos-flash 1s infinite; border: 2px solid red !important; }
   .critical-bg { background: radial-gradient(circle, #3a0000, #000) !important; }
+  
   header { width: 100%; background: rgba(15, 32, 39, 0.9); backdrop-filter: blur(10px); padding: 15px 0; display: flex; justify-content: center; align-items: center; position: relative; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); z-index: 100; }
   header h1 { font-size: 1.4rem; margin: 0; font-weight: 600; letter-spacing: 1px; color: var(--primary-color); text-transform: uppercase; pointer-events: none; }
   .back-btn { position: absolute; left: 20px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--primary-color); color: white; padding: 8px 15px; border-radius: 50px; cursor: pointer; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 5px; z-index: 1000; }
   .back-btn:hover { background: var(--primary-color); color: #fff; box-shadow: 0 0 15px rgba(255, 126, 95, 0.5); }
+  
   .container { display: flex; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; }
   .card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 40px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: 0.3s; }
   .sos-banner { display: none; background: red; color: white; font-weight: bold; padding: 10px; border-radius: 10px; margin-bottom: 15px; animation: blink 0.5s infinite alternate; }
   @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
-  .icon-container { margin-bottom: 20px; }
-  .icon-container i { font-size: 5rem; background: -webkit-linear-gradient(#feb47b, #ff7e5f); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(255, 126, 95, 0.4)); animation: warmGlow 2s ease-in-out infinite; }
-  @keyframes warmGlow { 0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255, 126, 95, 0.4)); } 50% { transform: scale(1.1); filter: drop-shadow(0 0 25px rgba(255, 126, 95, 0.8)); } }
-  .temp-box { background: rgba(0, 0, 0, 0.3); border-radius: 15px; padding: 20px; margin: 20px 0; border: 1px solid rgba(255, 126, 95, 0.3); }
+
+  /* --- THERMOMETER ANIMATION CSS --- */
+  .thermo-container { margin: 20px auto 30px; position: relative; width: 80px; height: 200px; display: flex; justify-content: center; }
+  .thermo-glass {
+    width: 24px; height: 160px; background: rgba(255, 255, 255, 0.1);
+    border: 3px solid rgba(255, 255, 255, 0.4); border-radius: 20px 20px 0 0; border-bottom: none;
+    position: relative; z-index: 2; overflow: hidden; backdrop-filter: blur(2px);
+  }
+  .thermo-liquid {
+    width: 100%; height: 0%; /* Dynamic Height */
+    background: linear-gradient(to top, #ff416c, #ff4b2b);
+    position: absolute; bottom: 0; left: 0;
+    transition: height 1s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+    box-shadow: 0 0 15px rgba(255, 65, 108, 0.5);
+  }
+  .thermo-bulb {
+    width: 50px; height: 50px; background: #ff416c;
+    border-radius: 50%; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    border: 3px solid rgba(255, 255, 255, 0.4);
+    z-index: 1; box-shadow: 0 0 20px rgba(255, 65, 108, 0.6);
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  .thermo-graduations {
+    position: absolute; top: 10px; right: 10px; height: 140px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; color: rgba(255,255,255,0.5); font-size: 0.7rem;
+  }
+  /* High Temp State */
+  .high-temp .thermo-liquid, .high-temp .thermo-bulb {
+    background: #ff0000; box-shadow: 0 0 30px #ff0000;
+  }
+
+  .temp-box { background: rgba(0, 0, 0, 0.3); border-radius: 15px; padding: 20px; margin: 10px 0 20px; border: 1px solid rgba(255, 126, 95, 0.3); }
   #tempValue { font-size: 3rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--primary-color); }
   .unit { font-size: 1.5rem; color: var(--primary-color); }
+  
   .instructions-list { list-style: none; padding: 0; text-align: left; margin-bottom: 30px; }
   .instructions-list li { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #e0e0e0; }
   .instructions-list li i { color: var(--primary-color); width: 25px; text-align: center; }
+  
   .actions-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   .advice-btn, .voice-btn, .save-btn { padding: 12px 20px; border-radius: 50px; border: none; cursor: pointer; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .advice-btn { flex: 2; background: linear-gradient(45deg, #ff7e5f, #feb47b); color: white; box-shadow: 0 4px 15px rgba(255, 126, 95, 0.4); }
@@ -47,7 +80,7 @@
   .advice-box { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 15px; margin-top: 20px; display: none; font-size: 1.1rem; color: #fff; border-left: 4px solid var(--primary-color); animation: slideDown 0.5s ease; }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* New Modal Styles */
+  /* Modal Styles */
   .confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 5000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
   .confirm-modal.active { display: flex; opacity: 1; }
   .confirm-content { background: linear-gradient(145deg, #152229, #1c2e36); border: 2px solid var(--primary-color); border-radius: 25px; width: 90%; max-width: 400px; padding: 30px; text-align: center; box-shadow: 0 0 50px rgba(255, 126, 95, 0.3); transform: scale(0.8); transition: transform 0.3s ease; }
@@ -84,17 +117,30 @@
 
 <div class="container">
   <div id="sosBanner" class="sos-banner"><i class="fas fa-exclamation-triangle"></i> CRITICAL FEVER / ALERT</div>
+  
   <div class="card" id="mainCard">
-    <div class="icon-container"><i class="fas fa-thermometer-half"></i></div>
+    
+    <div class="thermo-container" id="thermoContainer">
+        <div class="thermo-graduations">
+            <span>42°</span><span>40°</span><span>38°</span><span>36°</span><span>34°</span>
+        </div>
+        <div class="thermo-glass">
+            <div class="thermo-liquid" id="thermoLiquid"></div>
+        </div>
+        <div class="thermo-bulb"></div>
+    </div>
+
     <div class="temp-box">
       <span id="tempValue">--</span> <span class="unit">°C</span>
     </div>
+    
     <h3 id="instrTitle" style="color: var(--primary-color); font-weight: 400; margin-bottom: 15px;">Instructions</h3>
     <ul class="instructions-list" id="instructions">
       <li><i class="fas fa-bullseye"></i> Place the sensor close to the skin.</li>
       <li><i class="fas fa-user-clock"></i> Keep still (3-5s).</li>
       <li><i class="fas fa-wind"></i> Avoid sunlight.</li>
     </ul>
+    
     <div class="actions-row">
       <button class="save-btn" id="saveBtn" onclick="saveMeasurement()">
         <i class="fas fa-save"></i> <span id="saveBtnText">Save</span>
@@ -132,34 +178,53 @@
   const PATIENT_DATA_PATH = "PatientData";
   let isCritical = false;
 
-  // --- 2. Live Reading (القراءة الحية من الفايربيز) ---
+  // --- 2. Live Reading & Animation Logic ---
+  function updateThermometerUI(val) {
+      if(isNaN(val)) return;
+      tempBox.innerText = val;
+      
+      // Calculate Percentage (Range 34 - 42)
+      // If 34 -> 0%, If 42 -> 100%
+      const minTemp = 34;
+      const maxTemp = 42;
+      let percentage = ((val - minTemp) / (maxTemp - minTemp)) * 100;
+      
+      // Clamp percentage between 5% and 100%
+      if(percentage < 5) percentage = 5;
+      if(percentage > 100) percentage = 100;
+      
+      document.getElementById('thermoLiquid').style.height = percentage + "%";
+
+      // Visual Alert for Fever
+      const container = document.getElementById('thermoContainer');
+      if(val > 38.0) container.classList.add('high-temp');
+      else container.classList.remove('high-temp');
+
+      // SOS Logic
+      if (val > 38.5 || val < 35.0) triggerSOS();
+      else clearSOS();
+  }
+
   if (userId) {
     db.ref(PATIENT_DATA_PATH + "/" + userId + "/SensorData").on("value", snapshot => {
        const str = snapshot.val() || "";
-       // استخراج قيمة الحرارة
        if(str && str.includes("Temp=")) {
            const parts = str.split(",");
            const tempPart = parts.find(p => p.trim().toLowerCase().startsWith("temp="));
            if(tempPart) {
                const val = parseFloat(tempPart.split("=")[1]);
-               if(!isNaN(val)) {
-                   tempBox.innerText = val;
-                   // فحص الخطر
-                   if (val > 38.5 || val < 35.0) triggerSOS();
-                   else clearSOS();
-               }
+               updateThermometerUI(val);
            }
        }
     });
   }
 
-  // --- 3. Save Function (Updated for Session) ---
+  // --- 3. Save Function ---
   function saveMeasurement() {
     const val = tempBox.innerText;
     if (val === "--" || val === "") return;
     if (!userId) { window.location.href = "index.html"; return; }
     
-    // جلب رقم الجلسة
     let sessionId = localStorage.getItem("currentSessionId");
     if (!sessionId) {
         sessionId = Date.now().toString();
@@ -167,14 +232,11 @@
     }
 
     const timestamp = new Date().toLocaleString();
-    
-    // التعديل: استخدام update داخل الجلسة الحالية
     db.ref(`${PATIENT_DATA_PATH}/${userId}/History/${sessionId}`).update({
         temperature: val,
         createdAt: timestamp
     });
     
-    // تحديث البيانات الحالية للداشبورد (SensorData string)
     db.ref(`${PATIENT_DATA_PATH}/${userId}/SensorData`).once('value').then(snapshot => {
         let currentStr = snapshot.val() || "";
         if (currentStr.includes("Temp=")) currentStr = currentStr.replace(/Temp=[^,]+/, `Temp=${val}`);
@@ -224,7 +286,6 @@
 
   function goBack() { clearSOS(); window.location.href = "measurements.html"; }
 
-  // Localization
   const lang = localStorage.getItem("language") || "en";
   if (lang === "ar") {
     document.body.style.direction = "rtl";
@@ -239,8 +300,8 @@
 </script>
 
 <div style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; display: flex; gap: 5px;">
-  <button onclick="document.getElementById('tempValue').innerText='39.5'; triggerSOS();" style="background: red; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🚨 Test Fever</button>
-  <button onclick="document.getElementById('tempValue').innerText='37.0'; clearSOS();" style="background: green; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">✅ Test Normal</button>
+  <button onclick="updateThermometerUI(39.5)" style="background: red; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🚨 Test Fever</button>
+  <button onclick="updateThermometerUI(36.6)" style="background: green; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">✅ Test Normal</button>
 </div>
 </body>
 </html>
