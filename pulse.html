@@ -58,15 +58,17 @@
   #pulseValue { font-size: 3rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--primary-color); }
   .unit { font-size: 1.5rem; color: var(--primary-color); }
   
-  /* Sound Toggle */
+  /* Sound Toggle Button */
   .sound-toggle {
     position: absolute; top: 10px; right: 10px;
     background: rgba(255,255,255,0.1); border: none; color: #aaa;
-    width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+    width: 35px; height: 35px; border-radius: 50%; cursor: pointer;
     display: flex; align-items: center; justify-content: center; transition: 0.3s;
-    z-index: 10;
+    z-index: 10; font-size: 16px;
   }
-  .sound-toggle.active { background: var(--primary-color); color: white; box-shadow: 0 0 10px var(--primary-color); }
+  .sound-toggle:hover { background: rgba(255,255,255,0.2); color: white; }
+  .sound-toggle.active { background: var(--primary-color); color: white; box-shadow: 0 0 15px var(--primary-color); animation: pulseBtn 1s infinite; }
+  @keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
   .instructions-list { list-style: none; padding: 0; text-align: left; margin-bottom: 30px; }
   .instructions-list li { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #e0e0e0; }
@@ -79,7 +81,6 @@
   .voice-btn { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid var(--primary-color); color: var(--primary-color); }
   .advice-btn:hover, .voice-btn:hover, .save-btn:hover { transform: translateY(-3px); }
   .voice-btn:hover { background: var(--primary-color); color: white; }
-  
   .advice-box { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 15px; margin-top: 20px; display: none; font-size: 1.1rem; color: #fff; border-left: 4px solid var(--primary-color); animation: slideDown 0.5s ease; }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -106,12 +107,11 @@
   </div>
 </div>
 
-<audio id="beatSound">
-  <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
-</audio>
-
 <audio id="alarmSound" loop>
   <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+</audio>
+<audio id="beatSound" preload="auto">
+  <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
 </audio>
 
 <header>
@@ -186,30 +186,32 @@
   let beepEnabled = false;
   let beepInterval = null;
 
-  // --- 2. Live Logic ---
+  // --- 2. Live Reading & Logic ---
   function updatePulseUI(val) {
       if(isNaN(val)) return;
       pulseBox.innerText = val;
 
-      // SOS Check
+      // 1. SOS Logic
       if (val > 120 || val < 50) triggerSOS();
       else clearSOS();
 
-      // Animation: Higher BPM = Faster Animation
-      // 60 BPM = 1 sec. 120 BPM = 0.5 sec.
+      // 2. Animation Speed
       const duration = 60 / val; 
       heartIcon.style.animationDuration = `${duration}s`;
 
-      // Sound Sync
+      // 3. Sound Logic (Only plays if enabled)
       clearInterval(beepInterval);
       if(beepEnabled && !isCritical) {
           beepInterval = setInterval(() => {
+              // Forced replay logic
+              beatSound.pause();
               beatSound.currentTime = 0;
-              beatSound.play().catch(e => console.log("Audio block", e));
+              beatSound.play().catch(e => console.log("User must interact with page first"));
           }, duration * 1000);
       }
   }
 
+  // --- SOUND TOGGLE ---
   function toggleBeep() {
       beepEnabled = !beepEnabled;
       const btn = document.getElementById("soundBtn");
@@ -219,8 +221,9 @@
       if(beepEnabled) {
           btn.classList.add("active");
           icon.className = "fas fa-volume-up";
-          // Play once to unlock audio
-          beatSound.play().catch(()=>{}); 
+          // Try playing once immediately to "unlock" audio context
+          beatSound.play().catch(e => alert("Please click anywhere on the page first!"));
+          
           if(!isNaN(currentBPM)) updatePulseUI(currentBPM);
       } else {
           btn.classList.remove("active");
@@ -243,7 +246,7 @@
     });
   }
 
-  // --- 3. Save ---
+  // --- 3. Save Function ---
   function saveMeasurement() {
     const val = pulseBox.innerText;
     if (val === "--" || val === "") return;
@@ -269,6 +272,7 @@
     });
   }
 
+  // --- Helpers ---
   function showConfirmModal() {
       const isAr = localStorage.getItem("language") === "ar";
       document.getElementById("modalTitle").innerText = isAr ? "تم بنجاح!" : "Success!";
