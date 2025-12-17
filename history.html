@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     /* --- SCREEN STYLES --- */
@@ -20,6 +21,7 @@
       --primary-color: #00d2ff;
       --whatsapp-color: #25D366;
       --qr-color: #8e44ad;
+      --chart-color: #f39c12; /* New Color for Analysis */
       --delete-color: #ff416c;
     }
 
@@ -47,7 +49,7 @@
     .header-title h2 { margin: 0; font-size: 1.4rem; }
     .header-title span { font-size: 0.9rem; color: #ccc; }
 
-    .actions { display: flex; gap: 10px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
     .btn {
       border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer;
@@ -64,6 +66,10 @@
 
     .qr-btn { background: linear-gradient(45deg, #8e44ad, #9b59b6); }
     .qr-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(142, 68, 173, 0.5); }
+
+    /* New Analysis Button Style */
+    .chart-btn { background: linear-gradient(45deg, #f39c12, #e67e22); }
+    .chart-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(243, 156, 18, 0.5); }
 
     .table-container {
       width: 100%; max-width: 900px;
@@ -95,6 +101,7 @@
     }
     .modal-overlay.active { display: flex; opacity: 1; }
     
+    /* QR Card */
     .qr-card {
       background: white; color: black; padding: 30px; border-radius: 20px;
       text-align: center; width: 300px; position: relative;
@@ -105,9 +112,18 @@
     .close-qr { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #333; }
     .close-qr:hover { color: red; }
 
-    /* --- DELETE CONFIRMATION MODAL --- */
+    /* Chart Modal Card (New) */
+    .chart-card {
+      background: white; color: #333; padding: 20px; border-radius: 20px;
+      width: 95%; max-width: 800px; position: relative;
+      box-shadow: 0 0 40px rgba(243, 156, 18, 0.3); transform: scale(0.8); transition: transform 0.3s;
+    }
+    .modal-overlay.active .chart-card { transform: scale(1); }
+    .chart-wrapper { height: 400px; width: 100%; }
+
+    /* Delete Modal */
     .delete-card {
-      background: linear-gradient(145deg, #2c0b0e, #1a0506); /* Dark Red Theme */
+      background: linear-gradient(145deg, #2c0b0e, #1a0506);
       border: 1px solid var(--delete-color);
       padding: 30px; border-radius: 25px; text-align: center;
       width: 90%; max-width: 400px;
@@ -115,29 +131,22 @@
       transform: scale(0.8); transition: transform 0.3s;
     }
     .modal-overlay.active .delete-card { transform: scale(1); }
-    
     .del-icon { font-size: 3rem; color: var(--delete-color); margin-bottom: 20px; animation: shake 0.5s; }
     @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } 100% { transform: translateX(0); } }
-    
     .del-title { color: #fff; margin: 0 0 10px 0; font-size: 1.5rem; }
     .del-text { color: #ccc; margin-bottom: 25px; font-size: 0.9rem; }
-    
     .del-actions { display: flex; justify-content: center; gap: 15px; }
-    
-    .btn-cancel, .btn-confirm {
-      padding: 10px 25px; border-radius: 50px; border: none; font-size: 1rem; cursor: pointer; font-family: 'Poppins', sans-serif; transition: 0.3s;
-    }
+    .btn-cancel, .btn-confirm { padding: 10px 25px; border-radius: 50px; border: none; font-size: 1rem; cursor: pointer; font-family: 'Poppins', sans-serif; transition: 0.3s; }
     .btn-cancel { background: rgba(255,255,255,0.1); color: #fff; }
     .btn-cancel:hover { background: rgba(255,255,255,0.2); }
-    
     .btn-confirm { background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4); }
     .btn-confirm:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(255, 65, 108, 0.6); }
 
-    /* --- PRINT STYLES --- */
+    /* Print Styles */
     @media print {
       @page { size: A4; margin: 10mm; }
       body { background: white !important; color: #333 !important; display: block !important; padding: 0 !important; font-family: 'Helvetica', sans-serif !important; }
-      .screen-header, .back-btn, .whatsapp-btn, .print-btn, .qr-btn, ::-webkit-scrollbar, .toast-container, .modal-overlay, .delete-btn, th:last-child, td:last-child { display: none !important; }
+      .screen-header, .back-btn, .whatsapp-btn, .print-btn, .qr-btn, .chart-btn, ::-webkit-scrollbar, .toast-container, .modal-overlay, .delete-btn, th:last-child, td:last-child { display: none !important; }
       #printHeader { display: flex !important; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #00d2ff; }
       .report-info { text-align: left; font-size: 14px; line-height: 1.8; }
       .report-title { text-align: right; }
@@ -164,11 +173,21 @@
 
   <div id="qrModal" class="modal-overlay">
     <div class="qr-card">
-      <button class="close-qr" onclick="closeQR()">&times;</button>
+      <button class="close-qr" onclick="closeModal('qrModal')">&times;</button>
       <h3 style="margin-top:0; color:#8e44ad;">Doctor Scan</h3>
       <p style="font-size:0.8rem; color:#666;">Scan to see latest reading</p>
       <div id="qrcode"></div>
       <p style="font-size:0.7rem; color:#999; margin-bottom:0;">Generated by Bioscan ATM</p>
+    </div>
+  </div>
+
+  <div id="chartModal" class="modal-overlay">
+    <div class="chart-card">
+      <button class="close-qr" onclick="closeModal('chartModal')">&times;</button>
+      <h3 id="chartTitle" style="margin-top:0; color:#e67e22; text-align: center;">Health Trends Analysis</h3>
+      <div class="chart-wrapper">
+        <canvas id="healthChart"></canvas>
+      </div>
     </div>
   </div>
 
@@ -178,7 +197,7 @@
       <h3 id="delTitle" class="del-title">Delete Record?</h3>
       <p id="delText" class="del-text">This action cannot be undone.</p>
       <div class="del-actions">
-        <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn-cancel" onclick="closeModal('deleteModal')">Cancel</button>
         <button class="btn-confirm" onclick="confirmDelete()">Delete</button>
       </div>
     </div>
@@ -202,6 +221,10 @@
       <span id="userSubtitle">User: --</span>
     </div>
     <div class="actions">
+      <button class="btn chart-btn" onclick="showChart()" title="View Analysis Chart">
+        <i class="fas fa-chart-line"></i> <span>Analysis</span>
+      </button>
+      
       <button class="btn qr-btn" onclick="generateQR()" title="Generate QR Code">
         <i class="fas fa-qrcode"></i> <span>QR Code</span>
       </button>
@@ -280,20 +303,24 @@
         document.getElementById("pageTitle").innerText = "السجل الطبي";
         document.querySelector(".back-btn i").className = "fas fa-arrow-right";
         document.querySelector(".qr-btn span").innerText = "كود الطبيب";
+        document.querySelector(".chart-btn span").innerText = "تحليل بياني";
+        document.getElementById("chartTitle").innerText = "تحليل المسار الصحي";
+        
         document.getElementById("th-date").innerText = "الوقت / التاريخ";
         document.getElementById("th-temp").innerText = "الحرارة";
         document.getElementById("th-pulse").innerText = "النبض";
         document.getElementById("th-bp").innerText = "الضغط";
         document.getElementById("th-spo2").innerText = "الأكسجين";
         document.getElementById("th-action").innerHTML = '<i class="fas fa-trash-alt"></i>';
+        
         document.getElementById("loadingMsg").innerText = "جاري تحميل البيانات...";
         document.getElementById("emptyMsg").innerText = "لا توجد سجلات سابقة.";
+        
         document.querySelector(".report-title h1").innerText = "تقرير طبي";
         document.querySelector(".report-title p").innerText = "نظام بايو سكان";
         document.querySelector(".report-info").innerHTML = `<strong>رقم المريض:</strong> ${currentUserId}<br><strong>التاريخ:</strong> ${new Date().toLocaleString()}<br><strong>المصدر:</strong> تم الإنشاء بواسطة نظام Bioscan ATM`;
         document.getElementById("printFooter").innerText = "تنويه: هذا التقرير تم إنشاؤه آلياً بواسطة المستشعرات. يرجى مراجعة الطبيب للتشخيص الرسمي.";
         
-        // Modal Translations
         document.getElementById("delTitle").innerText = "حذف السجل؟";
         document.getElementById("delText").innerText = "لا يمكن التراجع عن هذا الإجراء.";
         document.querySelector(".btn-confirm").innerText = "حذف";
@@ -339,17 +366,19 @@
             snapshot.forEach(child => { 
                 rawList.push({ key: child.key, ...child.val() }); 
             });
-            rawList.reverse();
-
-            const groupedList = [];
+            // We want newest first in TABLE, but oldest first in CHART
+            // So we process rawList as chronological (if it comes sorted) then reverse for table
+            // Usually firebase returns chronological by key.
             
-            rawList.forEach(item => {
-                let itemDateStr = item.createdAt || item.Timestamp || "N/A";
-                let itemDate = new Date(itemDateStr);
+            // Let's process the list for display (Reversed)
+            const displayList = [...rawList].reverse();
+
+            displayList.forEach(item => {
                 let temp = item.temperature;
                 let bpm = item.bpm;
                 let pressure = item.pressure;
                 let spo2 = item.spo2;
+                let date = item.createdAt || item.Timestamp;
 
                 if (item.SensorData) {
                     const parsed = extractSensorValues(item.SensorData);
@@ -359,35 +388,12 @@
                     if(parsed.spo2) spo2 = parsed.spo2;
                 }
 
-                // Grouping Logic (Merge if within 2 minutes)
-                let addedToGroup = false;
-                if (groupedList.length > 0 && !isNaN(itemDate.getTime())) {
-                    const lastGroup = groupedList[groupedList.length - 1];
-                    const lastDate = new Date(lastGroup.createdAt);
-                    const diffMs = Math.abs(lastDate - itemDate);
-                    if (diffMs < 120000) {
-                        if (!lastGroup.temperature && temp) lastGroup.temperature = temp;
-                        if (!lastGroup.bpm && bpm) lastGroup.bpm = bpm;
-                        if (!lastGroup.pressure && pressure) lastGroup.pressure = pressure;
-                        if (!lastGroup.spo2 && spo2) lastGroup.spo2 = spo2;
-                        addedToGroup = true;
-                    }
-                }
-
-                if (!addedToGroup) {
-                    groupedList.push({ key: item.key, createdAt: itemDateStr, temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2 });
-                }
-            });
-
-            groupedList.forEach(data => {
-                const temp = data.temperature || "--";
-                const bpm = data.bpm || "--";
-                const pressure = data.pressure || "--";
-                const spo2 = data.spo2 || "--";
-                const date = data.createdAt;
-
-                if(temp !== "--" || bpm !== "--" || pressure !== "--" || spo2 !== "--") {
-                    records.push({ temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2, createdAt: date });
+                // Add to records array for logic
+                // Ensure we only add valid records
+                if(temp && bpm && pressure && spo2) {
+                    // Push to global records (chronological for charts, so push to beginning since we iterate reverse)
+                    records.unshift({ temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2, createdAt: date, key: item.key });
+                    
                     const row = `
                         <tr>
                             <td>${date}</td>
@@ -396,7 +402,7 @@
                             <td>${spo2}</td>
                             <td>${pressure}</td>
                             <td class="action-cell">
-                                <button class="delete-btn" onclick="askToDelete('${data.key}')" title="Delete">
+                                <button class="delete-btn" onclick="askToDelete('${item.key}')" title="Delete">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </td>
@@ -413,101 +419,166 @@
         }
     });
 
-    // --- CUSTOM DELETE MODAL LOGIC ---
-    let recordToDelete = null;
+    // --- CHART LOGIC (NEW) ---
+    let myChart = null;
 
+    function showChart() {
+        if(records.length < 2) {
+            showToast(lang === "ar" ? "يجب توفر سجلين على الأقل للتحليل" : "Need at least 2 records for analysis", "error");
+            return;
+        }
+
+        const modal = document.getElementById("chartModal");
+        modal.style.display = "flex";
+        setTimeout(() => modal.classList.add("active"), 10);
+
+        // Prepare Data
+        // Sort records by date just in case (Oldest first for chart)
+        const chartData = [...records].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+        const labels = chartData.map(r => r.createdAt.split(',')[0]); // Just date part
+        const sysData = [];
+        const diaData = [];
+        const pulseData = [];
+
+        chartData.forEach(r => {
+            // Split BP "120/80" -> 120, 80
+            if(r.pressure.includes('/')) {
+                const parts = r.pressure.split('/');
+                sysData.push(parseInt(parts[0]));
+                diaData.push(parseInt(parts[1]));
+            } else {
+                sysData.push(parseInt(r.pressure) || 0);
+                diaData.push(0);
+            }
+            pulseData.push(parseInt(r.bpm));
+        });
+
+        const ctx = document.getElementById('healthChart').getContext('2d');
+        
+        // Destroy previous chart if exists to avoid overlay
+        if(myChart) myChart.destroy();
+
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: lang==="ar" ? 'الضغط الانقباضي (عالي)' : 'Systolic BP (High)',
+                        data: sysData,
+                        borderColor: '#e74c3c', // Red
+                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: lang==="ar" ? 'الضغط الانبساطي (منخفض)' : 'Diastolic BP (Low)',
+                        data: diaData,
+                        borderColor: '#3498db', // Blue
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: lang==="ar" ? 'نبض القلب' : 'Heart Rate',
+                        data: pulseData,
+                        borderColor: '#2ecc71', // Green
+                        borderDash: [5, 5], // Dashed line
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointStyle: 'rectRot'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: { display: true, text: 'Value' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' }
+                }
+            }
+        });
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove("active");
+        setTimeout(() => { modal.style.display = "none"; }, 300);
+        
+        // If closing QR, clear it
+        if(modalId === 'qrModal') document.getElementById("qrcode").innerHTML = "";
+    }
+
+    // --- QR & Delete Logic (Existing) ---
+    let recordToDelete = null;
     function askToDelete(key) {
         recordToDelete = key;
         const modal = document.getElementById("deleteModal");
         modal.style.display = "flex";
         setTimeout(() => modal.classList.add("active"), 10);
     }
-
     function confirmDelete() {
         if(recordToDelete) {
             db.ref(`${PATIENT_DATA_PATH}/${currentUserId}/History/${recordToDelete}`).remove()
-            .then(() => {
-                showToast(lang === "ar" ? "تم الحذف بنجاح" : "Record deleted", "success");
-            })
-            .catch(error => {
-                console.error(error);
-                showToast("Error deleting", "error");
-            });
+            .then(() => showToast(lang === "ar" ? "تم الحذف" : "Deleted", "success"))
+            .catch(() => showToast("Error", "error"));
         }
-        closeDeleteModal();
+        closeModal('deleteModal');
     }
 
-    function closeDeleteModal() {
-        recordToDelete = null;
-        const modal = document.getElementById("deleteModal");
-        modal.classList.remove("active");
-        setTimeout(() => { modal.style.display = "none"; }, 300);
-    }
-
-    // --- QR CODE LOGIC ---
     function generateQR() {
-        if(records.length === 0) {
-            showToast(lang === "ar" ? "لا توجد بيانات!" : "No data available!", "error");
-            return;
-        }
+        if(records.length === 0) return showToast(lang === "ar" ? "لا بيانات!" : "No data!", "error");
         const modal = document.getElementById("qrModal");
         modal.style.display = "flex"; 
         void modal.offsetWidth; 
         modal.classList.add("active");
-
-        const qrContainer = document.getElementById("qrcode");
-        qrContainer.innerHTML = "";
-        const latest = records[0];
+        const latest = records[records.length - 1]; // Latest is last in this array because we unshifted
         
-        const qrData = `ID:${currentUserId}
-D:${latest.createdAt.split(',')[0]}
-T:${latest.temperature}
-HR:${latest.bpm}
-BP:${latest.pressure}
-O2:${latest.spo2}`;
-
-        setTimeout(() => {
-            new QRCode(qrContainer, {
-                text: qrData, width: 150, height: 150, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.L
-            });
-        }, 300);
-    }
-
-    function closeQR() {
-        const modal = document.getElementById("qrModal");
-        modal.classList.remove("active");
-        setTimeout(() => {
-            modal.style.display = "none";
-            document.getElementById("qrcode").innerHTML = ""; 
-        }, 300);
+        // Actually, records array has items unshifted (newest at index 0 because of reverse logic in loop?)
+        // Let's check table loop: rawList (Old->New), Reversed (New->Old).
+        // records.unshift puts newest at index 0 if we iterate reversed array. 
+        // Wait, logic check:
+        // displayList is Raw reversed (Newest first).
+        // records.unshift(item) puts Newest item at BEGINNING of records. So records is Newest -> Oldest.
+        // So records[0] is newest.
+        
+        const qrData = `ID:${currentUserId}\nD:${latest.createdAt}\nT:${latest.temperature}\nHR:${latest.bpm}\nBP:${latest.pressure}`;
+        document.getElementById("qrcode").innerHTML = "";
+        new QRCode(document.getElementById("qrcode"), {
+            text: qrData, width: 150, height: 150
+        });
     }
 
     function sendHistoryToWhatsApp() {
-        if (records.length === 0) {
-            showToast(lang === "ar" ? "لا توجد بيانات!" : "No records!", "error");
-            return;
-        }
+        if (records.length === 0) return showToast(lang === "ar" ? "لا بيانات!" : "No data!", "error");
         let phone = currentUserId;
         if (phone.startsWith('0')) phone = '20' + phone.substring(1);
-        let report = lang === "ar" ? `📄 *تقرير السجل الطبي*%0A` : `📄 *Medical History Report*%0A`;
-        report += `👤 ID: ${currentUserId}%0A📅 ${new Date().toLocaleDateString()}%0A-----------------%0A`;
-        const limit = Math.min(records.length, 5); 
-        for(let i = 0; i < limit; i++) {
+        let report = lang === "ar" ? `📄 *تقرير السجل الطبي*\n` : `📄 *Medical Report*\n`;
+        // Send last 5 records (records[0] is newest)
+        for(let i = 0; i < Math.min(records.length, 5); i++) {
             const r = records[i];
-            report += `⏰ ${r.createdAt}%0A🌡️ ${r.temperature || '--'}°C | ❤️ ${r.bpm || '--'} bpm%0A🫁 ${r.spo2 || '--'}% | 🩸 ${r.pressure || '--'}%0A-----------------%0A`;
+            report += `📅 ${r.createdAt}\n🌡️ ${r.temperature} | ❤️ ${r.bpm}\n🩸 ${r.pressure} | 🫁 ${r.spo2}\n-----------------\n`;
         }
-        window.open(`https://wa.me/${phone}?text=${report}`, '_blank');
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(report)}`, '_blank');
     }
 
     function goBack() { window.location.href = "measurements.html"; }
-
     function showToast(message, type = "info") {
-      const container = document.getElementById("toastContainer");
-      const toast = document.createElement("div");
-      toast.className = `toast`;
-      toast.innerHTML = `<i class="fas fa-info-circle"></i> <span>${message}</span>`;
-      container.appendChild(toast);
-      setTimeout(() => { toast.remove(); }, 3000);
+        const container = document.getElementById("toastContainer");
+        const toast = document.createElement("div");
+        toast.className = `toast`;
+        toast.innerHTML = `<i class="fas fa-info-circle"></i> <span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.remove(); }, 3000);
     }
   </script>
 </body>
