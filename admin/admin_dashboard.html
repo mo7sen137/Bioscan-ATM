@@ -3,30 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Admin Dashboard | Smart System</title>
+    <title>Admin Dashboard | Smart System</title>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        /* --- 1. CORE THEME VARIABLES --- */
+        /* --- THEME VARIABLES --- */
         :root {
             --bg-dark: #050505; 
-            --bg-panel: rgba(20, 30, 40, 0.7); 
             --primary-neon: #00e5ff; 
             --secondary-neon: #7000ff; 
             --text-main: #ffffff;
             --text-muted: #a0a0a0;
-            --border-glow: 0 0 10px rgba(0, 229, 255, 0.3);
             --danger: #ff2a2a;
             --success: #00ff9d;
         }
 
-        /* --- 2. GLOBAL RESET & DYNAMIC BACKGROUND --- */
         * { box-sizing: border-box; outline: none; }
         
         body {
@@ -34,170 +31,136 @@
             margin: 0; padding: 20px;
             color: var(--text-main);
             min-height: 100vh;
-            overflow-x: hidden;
-            background: linear-gradient(125deg, #000000, #0f172a, #1a1025, #000000);
+            background: linear-gradient(135deg, #000000, #0f172a, #000000);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
         }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        @keyframes gradientBG { 
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        /* --- LAYOUT --- */
+        .main-wrapper { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; }
 
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 4px; }
-
-        /* --- 3. LAYOUT STRUCTURE --- */
-        .main-wrapper {
-            max-width: 1400px; margin: 0 auto; width: 100%;
-            display: flex; flex-direction: column; gap: 20px;
-        }
-
+        /* Neon Panels */
         .neon-block {
-            background: var(--bg-panel);
-            backdrop-filter: blur(12px);
+            background: rgba(20, 30, 40, 0.7);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(0, 229, 255, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            position: relative;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-            transition: 0.3s ease;
+            border-radius: 15px; padding: 25px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
-
         .neon-block h3 {
-            margin-top: 0;
-            color: var(--primary-neon);
-            font-size: 1.2rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            display: flex; align-items: center; gap: 10px;
-            text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);
+            margin-top: 0; color: var(--primary-neon); border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px; margin-bottom: 25px; font-size: 1.3rem; letter-spacing: 1px;
         }
 
-        /* --- 4. HEADER --- */
-        header.neon-block {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid var(--primary-neon);
-        }
-
-        .header-info h1 { margin: 0; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 10px rgba(0, 229, 255, 0.7); }
-        .header-info p { margin: 5px 0 0; color: var(--text-muted); font-size: 0.9rem; }
-
-        .btn-neon { background: transparent; border: 1px solid var(--primary-neon); color: var(--primary-neon); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.3s; }
-        .btn-neon:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
-
-        .btn-danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.3s; }
-        .btn-danger:hover { background: var(--danger); color: #fff; box-shadow: 0 0 15px var(--danger); }
-
-        /* --- 5. STATS ROW --- */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        
-        .stat-card {
-            background: rgba(0, 229, 255, 0.05); border: 1px solid rgba(0, 229, 255, 0.2);
-            border-radius: 10px; padding: 15px; text-align: center;
-            display: flex; flex-direction: column; justify-content: center; height: 120px; position: relative; overflow: hidden;
-        }
-        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); }
-        .stat-card h4 { margin: 0; color: var(--text-muted); font-size: 0.9rem; font-weight: normal; }
-        .stat-card .stat-value { font-size: 2.2rem; font-weight: 700; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); margin-top: 10px; }
-        .stat-card.high-ram::before { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
-        .stat-card.high-ram .stat-value { color: var(--danger); text-shadow: 0 0 10px var(--danger); }
-
-        /* --- 6. MAIN CONTENT --- */
-        .content-grid { display: grid; grid-template-columns: 2.5fr 1fr; gap: 20px; }
-
-        .data-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .neon-input { background: rgba(0, 0, 0, 0.5); border: 1px solid #333; color: #fff; padding: 10px 15px; border-radius: 6px; flex-grow: 1; font-family: inherit; }
-        .neon-input:focus { border-color: var(--primary-neon); box-shadow: 0 0 5px var(--primary-neon); }
-        .table-responsive { overflow-x: auto; max-height: 500px; border-radius: 8px; border: 1px solid #333; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th, .data-table td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .data-table th { background: rgba(0, 229, 255, 0.1); color: var(--primary-neon); position: sticky; top: 0; backdrop-filter: blur(5px); }
-
-        /* --- 7. DEVICE TOPOLOGY (DARKER & ANIMATED) --- */
-        
+        /* --- TOPOLOGY DIAGRAM (Dark & Glowing) --- */
         .topology-container {
-            display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 10px;
+            display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 20px;
         }
 
-        /* 7.1 Darker Controller Box */
+        /* 1. Controller Box (ESP32) */
         .controller-box {
-            background: linear-gradient(145deg, #121212, #000); /* Darker Black */
-            border: 1px solid var(--secondary-neon);
-            padding: 15px 30px;
-            border-radius: 8px;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 0 20px rgba(112, 0, 255, 0.1);
-            width: 180px;
-            z-index: 2;
+            width: 220px; padding: 20px;
+            background: linear-gradient(145deg, #0a0a0a, #000); /* Darker */
+            border: 2px solid var(--secondary-neon);
+            border-radius: 12px; text-align: center;
+            box-shadow: 0 0 25px rgba(112, 0, 255, 0.15);
+            position: relative; z-index: 2; transition: 0.3s;
         }
-        .controller-box i { font-size: 2rem; color: var(--secondary-neon); margin-bottom: 5px; }
-        .controller-box .dev-name { display: block; font-weight: bold; color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
-        .controller-box .status-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
-
-        /* Connectors */
-        .connector-vertical { width: 2px; height: 20px; background: rgba(255, 255, 255, 0.2); }
-        .connector-horizontal { width: 80%; height: 2px; background: rgba(255, 255, 255, 0.2); position: relative; }
-        .connector-horizontal::before, .connector-horizontal::after {
-            content: ''; position: absolute; top: 0; width: 2px; height: 10px; background: rgba(255, 255, 255, 0.2);
+        .controller-box i.chip-icon { font-size: 2.5rem; color: var(--secondary-neon); margin-bottom: 10px; display: block; }
+        .controller-box .title { font-weight: 700; color: #fff; display: block; margin-bottom: 10px; }
+        
+        /* --- STATUS BADGE & DOT STYLES (NEW) --- */
+        .status-badge {
+            font-size: 0.85rem; padding: 5px 15px; border-radius: 20px;
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(0,0,0,0.8); border: 1px solid #333;
+            transition: 0.3s all ease;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
-        .connector-horizontal::before { left: 0; }
-        .connector-horizontal::after { right: 0; }
-        .connector-branches { display: flex; justify-content: space-around; width: 80%; margin-top: -2px; }
-        .branch { width: 2px; height: 10px; background: rgba(255, 255, 255, 0.2); }
+        
+        .status-dot { 
+            width: 10px; height: 10px; border-radius: 50%; display: block; 
+            transition: 0.3s all;
+        }
+        
+        /* ONLINE STATE (Green Glow) */
+        .is-online { 
+            color: var(--success); 
+            border-color: var(--success); 
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.2);
+            text-shadow: 0 0 8px var(--success); /* Text Glow */
+        }
+        .is-online .status-dot { 
+            background: var(--success); 
+            box-shadow: 0 0 10px var(--success), 0 0 20px var(--success); /* Dot Glow */
+            animation: pulseGreen 1.5s infinite; 
+        }
+        
+        /* OFFLINE STATE (Red Glow) */
+        .is-offline { 
+            color: var(--danger); 
+            border-color: var(--danger); 
+            box-shadow: 0 0 15px rgba(255, 42, 42, 0.2);
+            text-shadow: 0 0 8px var(--danger); /* Text Glow */
+        }
+        .is-offline .status-dot { 
+            background: var(--danger); 
+            box-shadow: 0 0 10px var(--danger); /* Dot Glow */
+        }
 
-        /* 7.2 Darker Sensor Cards */
-        .sensors-row { display: flex; gap: 10px; width: 100%; justify-content: center; flex-wrap: wrap; }
+        @keyframes pulseGreen { 0% { opacity: 0.5; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.5; transform: scale(0.9); } }
+
+        /* 2. Connectors (Lines) */
+        .lines-container {
+            display: flex; flex-direction: column; align-items: center; width: 100%; margin: -10px 0;
+        }
+        .vertical-line { width: 2px; height: 30px; background: rgba(255, 255, 255, 0.15); }
+        .horizontal-bar { 
+            width: 80%; height: 2px; background: rgba(255, 255, 255, 0.15); position: relative;
+            display: flex; justify-content: space-between;
+        }
+        .drop-line { width: 2px; height: 15px; background: rgba(255, 255, 255, 0.15); margin-top: 0; }
+
+        /* 3. Sensors Row */
+        .sensors-grid {
+            display: flex; gap: 15px; width: 100%; justify-content: space-between; flex-wrap: wrap;
+        }
 
         .sensor-card {
-            background: rgba(0, 0, 0, 0.8); /* High Opacity Black */
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-            flex: 1; min-width: 80px;
+            flex: 1; min-width: 100px;
+            background: rgba(0, 0, 0, 0.9); /* Dark background */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px; padding: 15px; text-align: center;
             transition: 0.3s;
-            box-shadow: inset 0 0 10px rgba(0,0,0,1);
         }
-        .sensor-card:hover { border-color: var(--primary-neon); box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); transform: translateY(-3px); }
-        .sensor-card div { font-size: 0.8rem; color: #ccc; margin-top: 5px; }
         
-        /* 7.3 Specific Animations */
-        /* Chip Glow */
-        @keyframes chipGlow { 0%, 100% { text-shadow: 0 0 5px var(--secondary-neon); } 50% { text-shadow: 0 0 20px var(--secondary-neon); color: #fff; } }
-        .anim-chip { animation: chipGlow 3s infinite; }
+        .sensor-icon { font-size: 1.5rem; margin-bottom: 8px; color: #555; transition: 0.3s; }
+        .sensor-name { font-size: 0.9rem; color: #ccc; margin-bottom: 12px; display: block; }
 
-        /* Heartbeat */
-        @keyframes heartbeat { 0% { transform: scale(1); } 15% { transform: scale(1.3); } 30% { transform: scale(1); } 45% { transform: scale(1.15); } 60% { transform: scale(1); } }
-        .anim-pulse { animation: heartbeat 1.5s infinite; color: #ff0055 !important; }
-
-        /* Breathing Lungs */
-        @keyframes breathe { 0%, 100% { opacity: 0.6; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } }
-        .anim-lungs { animation: breathe 4s infinite ease-in-out; color: #00d2ff !important; }
-
-        /* Squeeze BP */
-        @keyframes squeeze { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.8); } }
-        .anim-bp { animation: squeeze 3s infinite; color: #f39c12 !important; }
-
-        /* Temp Shake */
-        @keyframes shakeTemp { 0%, 100% { transform: translateY(0); color: var(--primary-neon); } 50% { transform: translateY(-2px); color: #ff4444; } }
-        .anim-temp { animation: shakeTemp 5s infinite; }
-
-        /* Status Text Colors */
-        .online-text { color: var(--success); text-shadow: 0 0 5px var(--success); }
+        /* Active Sensor Styles */
+        .sensor-card.active { border-color: var(--primary-neon); box-shadow: 0 0 15px rgba(0, 229, 255, 0.15); }
+        .sensor-card.active .sensor-icon { color: var(--primary-neon); transform: scale(1.1); }
         
-        /* --- 8. MODAL --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 999; }
-        .modal-content { background: #0f1215; border: 1px solid var(--primary-neon); border-radius: 15px; padding: 30px; width: 90%; max-width: 500px; }
-        .modal-content h3 { color: var(--primary-neon); text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px; }
-        .modal-content label { display: block; margin: 15px 0 5px; color: #ccc; }
-        
-        @media (max-width: 992px) { .content-grid { grid-template-columns: 1fr; } }
+        /* Animations */
+        .sensor-card.active .fa-heartbeat { animation: beat 1s infinite; color: #ff0055; }
+        .sensor-card.active .fa-thermometer-half { color: #ffae00; }
+        .sensor-card.active .fa-lungs { animation: breathe 3s infinite; color: #00d2ff; }
+        .sensor-card.active .fa-compress-alt { color: #00ff9d; }
+
+        @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        @keyframes breathe { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+
+        /* Header & Buttons */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { margin: 0; color: var(--primary-neon); text-transform: uppercase; text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); }
+        .logout-btn { 
+            background: transparent; border: 1px solid var(--danger); color: var(--danger); 
+            padding: 8px 20px; border-radius: 5px; cursor: pointer; transition: 0.3s; font-weight: bold;
+        }
+        .logout-btn:hover { background: var(--danger); color: #fff; box-shadow: 0 0 15px var(--danger); }
+
     </style>
 </head>
 
@@ -205,160 +168,79 @@
 
     <div class="main-wrapper">
         
-        <header class="neon-block">
-            <div class="header-info">
-                <h1 id="headerTitle">Bioscan System</h1>
-                <p id="welcomeMessage">Welcome, Administrator</p>
+        <header>
+            <div>
+                <h1>Bioscan Control</h1>
+                <p style="color:#888; margin:5px 0 0;">System Status Dashboard</p>
             </div>
-            <div class="header-controls">
-                <button class="btn-danger" onclick="adminLogout()"><i class="fas fa-power-off"></i> Logout</button>
-            </div>
+            <button class="logout-btn" onclick="logout()">LOGOUT</button>
         </header>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h4>System Efficiency</h4>
-                <span class="stat-value" id="statEfficiency">0%</span>
-            </div>
-            <div class="stat-card">
-                <h4>Network Latency</h4>
-                <span class="stat-value" id="statLatency">0 ms</span>
-            </div>
-            <div class="stat-card" id="statRAMBox">
-                <h4>RAM Usage</h4>
-                <span class="stat-value" id="statRAM">0%</span>
-            </div>
-        </div>
-
-        <div class="content-grid">
+        <div class="neon-block">
+            <h3><i class="fas fa-network-wired"></i> Live Device Topology</h3>
             
-            <div class="neon-block">
-                <h3><i class="fas fa-users"></i> Patients Database</h3>
+            <div class="topology-container">
                 
-                <div class="data-controls">
-                    <input type="text" id="patientSearch" class="neon-input" placeholder="Search ID...">
-                    <select id="filterSelect" class="neon-input" style="flex-grow:0.5;">
-                        <option value="all">All Records</option>
-                        <option value="critical">Critical Only</option>
-                    </select>
-                    <button class="btn-neon" onclick="showAddPatientModal()"><i class="fas fa-plus"></i></button>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Readings</th> 
-                                <th>Source</th>          
-                                <th>Time</th>       
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="patientDataBody">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-                
-                <div class="neon-block">
-                    <h3><i class="fas fa-project-diagram"></i> Hardware Topology</h3>
-                    <div class="topology-container">
-                        
-                        <div class="controller-box">
-                            <i class="fas fa-microchip anim-chip"></i>
-                            <span class="dev-name">ESP-32 Controller</span>
-                            <span class="status-badge online-text"><i class="fas fa-circle" style="font-size:8px;"></i> Online</span>
-                        </div>
-
-                        <div class="connector-vertical"></div>
-                        <div class="connector-horizontal"></div>
-                        <div class="connector-branches">
-                           <div class="branch"></div>
-                           <div class="branch"></div>
-                        </div>
-
-                        <div class="sensors-row">
-                            <div class="sensor-card">
-                                <i class="fas fa-thermometer-half anim-temp"></i>
-                                <div>Temp</div>
-                                <div class="online-text" style="font-size:0.7rem;">Online</div>
-                            </div>
-                            <div class="sensor-card">
-                                <i class="fas fa-heartbeat anim-pulse"></i>
-                                <div>Pulse</div>
-                                <div class="online-text" style="font-size:0.7rem;">Online</div>
-                            </div>
-                            <div class="sensor-card">
-                                <i class="fas fa-compress-alt anim-bp"></i>
-                                <div>BP</div>
-                                <div class="online-text" style="font-size:0.7rem;">Online</div>
-                            </div>
-                            <div class="sensor-card">
-                                <i class="fas fa-lungs anim-lungs"></i>
-                                <div>SpO2</div>
-                                <div class="online-text" style="font-size:0.7rem;">Online</div>
-                            </div>
-                        </div>
-
+                <div class="controller-box" id="ctrl-box">
+                    <i class="fas fa-microchip chip-icon"></i>
+                    <span class="title">ESP-32 Controller</span>
+                    <div class="status-badge is-offline" id="ctrl-status">
+                        <span class="status-dot"></span> <span id="ctrl-text">Offline</span>
                     </div>
                 </div>
 
-                <div class="neon-block">
-                    <h3><i class="fas fa-terminal"></i> Command Center</h3>
+                <div class="lines-container">
+                    <div class="vertical-line"></div>
+                    <div class="horizontal-bar">
+                        <div class="drop-line"></div>
+                        <div class="drop-line"></div>
+                        <div class="drop-line"></div>
+                        <div class="drop-line"></div>
+                    </div>
+                </div>
+
+                <div class="sensors-grid">
                     
-                    <div style="margin-bottom:15px;">
-                        <label style="color:#aaa; font-size:0.9rem;">Target:</label>
-                        <select id="targetDeviceSelect" class="neon-input" style="width:100%;">
-                            <option value="Device_001">ESP32_Main_Unit</option>
-                        </select>
-                        <button class="btn-neon" style="width:100%; margin-top:10px;" onclick="sendCommand('REBOOT')">
-                            <i class="fas fa-sync"></i> Reboot System
-                        </button>
+                    <div class="sensor-card" id="card-temp">
+                        <i class="fas fa-thermometer-half sensor-icon"></i>
+                        <span class="sensor-name">Temperature</span>
+                        <div class="status-badge is-offline" id="badge-temp">
+                            <span class="status-dot"></span> <span id="text-temp">Offline</span>
+                        </div>
                     </div>
 
-                    <div>
-                        <label style="color:#aaa; font-size:0.9rem;">FOTA Update:</label>
-                        <input type="url" id="firmwareUrlInput" class="neon-input" style="width:100%;" placeholder="Firmware URL...">
-                        <button class="btn-neon" style="width:100%; margin-top:10px; border-color:#9b59b6; color:#9b59b6;" onclick="sendCommand('FOTA')">
-                            <i class="fas fa-cloud-upload-alt"></i> Deploy
-                        </button>
+                    <div class="sensor-card" id="card-pulse">
+                        <i class="fas fa-heartbeat sensor-icon"></i>
+                        <span class="sensor-name">Pulse Rate</span>
+                        <div class="status-badge is-offline" id="badge-pulse">
+                            <span class="status-dot"></span> <span id="text-pulse">Offline</span>
+                        </div>
                     </div>
+
+                    <div class="sensor-card" id="card-bp">
+                        <i class="fas fa-compress-alt sensor-icon"></i>
+                        <span class="sensor-name">Blood Pressure</span>
+                        <div class="status-badge is-offline" id="badge-bp">
+                            <span class="status-dot"></span> <span id="text-bp">Offline</span>
+                        </div>
+                    </div>
+
+                    <div class="sensor-card" id="card-spo2">
+                        <i class="fas fa-lungs sensor-icon"></i>
+                        <span class="sensor-name">SpO2 / Oxygen</span>
+                        <div class="status-badge is-offline" id="badge-spo2">
+                            <span class="status-dot"></span> <span id="text-spo2">Offline</span>
+                        </div>
+                    </div>
+
                 </div>
-
             </div>
         </div>
 
-    </div>
-
-    <div id="addPatientModal" class="modal-overlay">
-        <div class="modal-content neon-block">
-            <h3>New Record</h3>
-            <form id="addPatientForm">
-                <label>Patient ID / Phone</label>
-                <input type="text" id="patientPhone" class="neon-input" required>
-
-                <label>Initial Readings</label>
-                <input type="text" id="sensorReading" class="neon-input" placeholder="Temp=37, HR=80..." required>
-                
-                <label>Source</label>
-                <select id="addedSource" class="neon-input">
-                    <option value="Admin">Admin</option>
-                    <option value="Self">Self</option>
-                </select>
-
-                <div style="margin-top:25px; display:flex; justify-content:space-between;">
-                    <button type="button" class="btn-danger" onclick="closeAddPatientModal()">Cancel</button>
-                    <button type="submit" class="btn-neon">Save</button>
-                </div>
-            </form>
-        </div>
     </div>
 
     <script>
-        // --- FIREBASE CONFIGURATION ---
+        // --- 1. FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
             authDomain: "smart-a76a0.firebaseapp.com",
@@ -372,143 +254,77 @@
         const auth = firebase.auth();
         const db = firebase.database();
 
-        const SYSTEM_HEALTH_PATH = 'SystemHealth/Metrics'; 
-        const COMMAND_PATH = 'Commands/'; 
-        const PATIENT_DATA_PATH = 'PatientData'; 
+        // Path to your Device Status Root (As per your image)
+        const DEVICE_PATH = 'DeviceStatus'; 
 
-        // --- 1. INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuthentication();
+        // --- 2. AUTH CHECK ---
+        auth.onAuthStateChanged(user => {
+            if (!user) window.location.href = "login.html";
+            else initMonitoring();
         });
 
-        function checkAuthentication() {
-            auth.onAuthStateChanged(function(user) {
-                if (!user) {
-                    window.location.href = "login.html"; 
-                } else {
-                    document.getElementById('welcomeMessage').innerText = "Welcome, " + user.email;
-                    initializeDashboard();
-                }
-            });
+        function logout() {
+            auth.signOut().then(() => window.location.href = "login.html");
         }
 
-        function initializeDashboard() {
-            monitorSystemPerformance(); 
-            loadPatientData();          
-        }
-
-        function adminLogout() {
-            auth.signOut().then(() => {
-                window.location.href = "login.html"; 
-            });
-        }
-        
-        // --- 2. MONITORING ---
-        function monitorSystemPerformance() {
-            db.ref(SYSTEM_HEALTH_PATH).on('value', (snapshot) => {
+        // --- 3. MONITORING LOGIC ---
+        function initMonitoring() {
+            console.log("Listening to: " + DEVICE_PATH);
+            
+            db.ref(DEVICE_PATH).on('value', snapshot => {
+                if (!snapshot.exists()) return;
                 const data = snapshot.val();
-                let efficiency = 0, avgLatency = 0, ramUsage = 0;
-                const ramBox = document.getElementById('statRAMBox');
 
-                if (data) {
-                    avgLatency = data.Avg_Latency_ms || data.Avg_Latency || 0; 
-                    ramUsage = data.RAM_Usage_Percent || data.RAM || 0; 
-                    efficiency = Math.min(100, Math.max(0, 100 - (avgLatency / 5))); 
-                }
-
-                document.getElementById('statEfficiency').innerText = `${efficiency.toFixed(0)}%`;
-                document.getElementById('statLatency').innerText = `${avgLatency.toFixed(0)} ms`;
-                document.getElementById('statRAM').innerText = `${ramUsage.toFixed(0)}%`;
+                // قراءة البيانات حسب الهيكلة المسطحة في الفايربيز
+                // Mapping keys: 'ESP-32 Controller', 'Temp', 'Pulse', 'BP', 'SpO2'
                 
-                if (ramUsage > 75) ramBox.classList.add('high-ram');
-                else ramBox.classList.remove('high-ram');
+                // 1. ESP-32 Controller
+                const espStatus = data['ESP-32 Controller'] ? data['ESP-32 Controller'].status : 'offline';
+                updateUI('ctrl-status', 'ctrl-text', 'ctrl-box', espStatus);
+
+                // 2. Temp
+                const tempStatus = data['Temp'] ? data['Temp'].status : 'offline';
+                updateUI('badge-temp', 'text-temp', 'card-temp', tempStatus);
+
+                // 3. Pulse
+                const pulseStatus = data['Pulse'] ? data['Pulse'].status : 'offline';
+                updateUI('badge-pulse', 'text-pulse', 'card-pulse', pulseStatus);
+
+                // 4. BP
+                const bpStatus = data['BP'] ? data['BP'].status : 'offline';
+                updateUI('badge-bp', 'text-bp', 'card-bp', bpStatus);
+
+                // 5. SpO2
+                const spo2Status = data['SpO2'] ? data['SpO2'].status : 'offline';
+                updateUI('badge-spo2', 'text-spo2', 'card-spo2', spo2Status);
             });
         }
 
-        // --- 3. PATIENT DATA ---
-        function loadPatientData() {
-            const tableBody = document.getElementById('patientDataBody');
-            tableBody.innerHTML = ''; 
+        // Helper to switch classes based on "online" / "offline"
+        function updateUI(badgeId, textId, cardId, status) {
+            const badgeEl = document.getElementById(badgeId);
+            const textEl = document.getElementById(textId);
+            const cardEl = document.getElementById(cardId); // The container (for borders/animations)
 
-            db.ref(PATIENT_DATA_PATH).on('value', (snapshot) => {
-                tableBody.innerHTML = ''; 
-                if (!snapshot.exists()) {
-                    tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#777;">No patient records found.</td></tr>`;
-                    return;
-                }
+            // Normalize status to lowercase for comparison
+            const currentStatus = status ? status.toLowerCase() : 'offline';
 
-                snapshot.forEach((childSnapshot) => {
-                    const patientPhone = childSnapshot.key; 
-                    const data = childSnapshot.val();
-                    const row = tableBody.insertRow();
-                    
-                    row.insertCell().innerText = patientPhone; 
-                    row.insertCell().innerText = data.SensorData || 'N/A';
-                    row.insertCell().innerText = data.AddedBy || 'N/A';
-                    row.insertCell().innerText = data.Timestamp || 'N/A';
-                    
-                    const actionCell = row.insertCell();
-                    actionCell.innerHTML = `<button class="btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deletePatient('${patientPhone}')"><i class="fas fa-trash"></i></button>`;
-                });
-            });
-        }
-
-        function showAddPatientModal() {
-            document.getElementById('patientPhone').value = '';
-            document.getElementById('sensorReading').value = '';
-            document.getElementById('addPatientModal').style.display = 'flex';
-        }
-
-        function closeAddPatientModal() {
-            document.getElementById('addPatientModal').style.display = 'none';
-        }
-
-        document.getElementById('addPatientForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const phone = document.getElementById('patientPhone').value.trim();
-            const sensorData = document.getElementById('sensorReading').value.trim();
-            const source = document.getElementById('addedSource').value;
-            
-            if (!phone || !sensorData) { alert('Please fill in all required fields.'); return; }
-
-            let addedBy = source === 'Admin' ? auth.currentUser.email : source;
-
-            db.ref(PATIENT_DATA_PATH + '/' + phone).set({
-                Phone: phone, SensorData: sensorData, Timestamp: new Date().toLocaleString(), AddedBy: addedBy
-            })
-            .then(() => {
-                alert('Patient record added successfully.');
-                closeAddPatientModal();
-            })
-            .catch(error => alert('Failed to add patient record: ' + error.message));
-        });
-
-        function deletePatient(patientId) {
-            if (confirm('Are you sure you want to delete patient ' + patientId + '?')) {
-                db.ref(PATIENT_DATA_PATH + '/' + patientId).remove()
-                    .then(() => alert('Patient record deleted successfully.'))
-                    .catch(error => alert('Failed to delete patient record: ' + error.message));
+            if (currentStatus === 'online') {
+                // Online State
+                textEl.innerText = "Online";
+                badgeEl.className = "status-badge is-online"; // Green Glow
+                
+                // Add Glow/Animation to the Card Border/Icon
+                if(cardEl) cardEl.classList.add('active');
+                
+            } else {
+                // Offline State
+                textEl.innerText = "Offline";
+                badgeEl.className = "status-badge is-offline"; // Red Glow
+                
+                // Remove Glow
+                if(cardEl) cardEl.classList.remove('active');
             }
-        }
-        
-        // --- 4. COMMANDS ---
-        function sendCommand(commandType) {
-            const targetDeviceId = document.getElementById('targetDeviceSelect').value;
-            const inputUrl = document.getElementById('firmwareUrlInput').value;
-            
-            let commandValue = commandType === 'REBOOT' ? 'REBOOT' : inputUrl;
-            
-            if (commandType === 'FOTA' && (!inputUrl || !inputUrl.startsWith('http'))) {
-                alert('Please enter a valid firmware URL.'); return;
-            }
-
-            db.ref(COMMAND_PATH + targetDeviceId).set({
-                Action: commandType, Value: commandValue, Timestamp: new Date().toLocaleString()
-            })
-            .then(() => alert('Command successfully sent to Firebase.'))
-            .catch(error => alert('Failed to send command: ' + error.message));
-            
-            if (commandType === 'FOTA') document.getElementById('firmwareUrlInput').value = '';
         }
     </script>
 
