@@ -107,7 +107,7 @@
 </div>
 
 <audio id="beatSound">
-  <source src="data:audio/mp3;base64,//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" type="audio/mpeg">
+  <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
 </audio>
 
 <audio id="alarmSound" loop>
@@ -130,7 +130,7 @@
     </div>
     
     <div class="pulse-box">
-      <button class="sound-toggle" id="soundBtn" onclick="toggleBeep()" title="Enable Heart Sound">
+      <button class="sound-toggle" id="soundBtn" onclick="toggleBeep()" title="Toggle Heart Sound">
         <i class="fas fa-volume-mute" id="soundIcon"></i>
       </button>
       <span id="pulseValue">--</span> <span class="unit">BPM</span>
@@ -156,7 +156,7 @@
 </div>
 
 <script>
-  // 1. Firebase Config
+  // --- 1. Config ---
   const firebaseConfig = {
     apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
     authDomain: "smart-a76a0.firebaseapp.com",
@@ -177,8 +177,7 @@
   const heartIcon = document.getElementById("heartIcon");
   
   const alarmSound = document.getElementById("alarmSound");
-  const beatSound = document.getElementById("beatSound"); // The Base64 Sound
-  beatSound.volume = 0.5; 
+  const beatSound = document.getElementById("beatSound");
   
   const userId = localStorage.getItem("selectedUserId");
   const PATIENT_DATA_PATH = "PatientData";
@@ -187,27 +186,26 @@
   let beepEnabled = false;
   let beepInterval = null;
 
-  // --- 2. Logic ---
+  // --- 2. Live Logic ---
   function updatePulseUI(val) {
       if(isNaN(val)) return;
       pulseBox.innerText = val;
 
-      // SOS Logic
+      // SOS Check
       if (val > 120 || val < 50) triggerSOS();
       else clearSOS();
 
-      // Animation Logic: Faster beat for higher pulse
-      // 60 BPM = 1 sec duration. 120 BPM = 0.5 sec.
+      // Animation: Higher BPM = Faster Animation
+      // 60 BPM = 1 sec. 120 BPM = 0.5 sec.
       const duration = 60 / val; 
       heartIcon.style.animationDuration = `${duration}s`;
 
-      // Sound Logic
+      // Sound Sync
       clearInterval(beepInterval);
       if(beepEnabled && !isCritical) {
-          // Play sound every beat
           beepInterval = setInterval(() => {
               beatSound.currentTime = 0;
-              beatSound.play().catch(e => console.log("Audio play blocked", e));
+              beatSound.play().catch(e => console.log("Audio block", e));
           }, duration * 1000);
       }
   }
@@ -221,7 +219,7 @@
       if(beepEnabled) {
           btn.classList.add("active");
           icon.className = "fas fa-volume-up";
-          // Attempt to play once to unlock audio context
+          // Play once to unlock audio
           beatSound.play().catch(()=>{}); 
           if(!isNaN(currentBPM)) updatePulseUI(currentBPM);
       } else {
@@ -245,6 +243,7 @@
     });
   }
 
+  // --- 3. Save ---
   function saveMeasurement() {
     const val = pulseBox.innerText;
     if (val === "--" || val === "") return;
