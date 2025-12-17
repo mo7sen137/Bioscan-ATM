@@ -107,11 +107,12 @@
   </div>
 </div>
 
+<audio id="beatSound">
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_298b046736.mp3?filename=heartbeat-128-bpm-9725.mp3" type="audio/mpeg">
+</audio>
+
 <audio id="alarmSound" loop>
   <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
-</audio>
-<audio id="beatSound" preload="auto">
-  <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
 </audio>
 
 <header>
@@ -178,6 +179,7 @@
   
   const alarmSound = document.getElementById("alarmSound");
   const beatSound = document.getElementById("beatSound");
+  beatSound.volume = 0.6; 
   
   const userId = localStorage.getItem("selectedUserId");
   const PATIENT_DATA_PATH = "PatientData";
@@ -186,7 +188,7 @@
   let beepEnabled = false;
   let beepInterval = null;
 
-  // --- 2. Live Reading & Logic ---
+  // --- 2. Live Logic ---
   function updatePulseUI(val) {
       if(isNaN(val)) return;
       pulseBox.innerText = val;
@@ -195,18 +197,20 @@
       if (val > 120 || val < 50) triggerSOS();
       else clearSOS();
 
-      // 2. Animation Speed
+      // 2. Animation Speed (60 BPM = 1s, 120 BPM = 0.5s)
       const duration = 60 / val; 
       heartIcon.style.animationDuration = `${duration}s`;
 
-      // 3. Sound Logic (Only plays if enabled)
+      // 3. Sound Sync (Only if enabled)
+      // Clear old interval to sync with new speed
       clearInterval(beepInterval);
+      
       if(beepEnabled && !isCritical) {
+          // Play sound at current BPM interval
           beepInterval = setInterval(() => {
-              // Forced replay logic
               beatSound.pause();
               beatSound.currentTime = 0;
-              beatSound.play().catch(e => console.log("User must interact with page first"));
+              beatSound.play().catch(() => { /* Ignore auto-play errors silently */ });
           }, duration * 1000);
       }
   }
@@ -221,9 +225,13 @@
       if(beepEnabled) {
           btn.classList.add("active");
           icon.className = "fas fa-volume-up";
-          // Try playing once immediately to "unlock" audio context
-          beatSound.play().catch(e => alert("Please click anywhere on the page first!"));
+          // Try playing immediately to confirm
+          beatSound.play().then(() => {
+              beatSound.pause();
+              beatSound.currentTime = 0;
+          }).catch(()=>{});
           
+          // Resume loop if we have data
           if(!isNaN(currentBPM)) updatePulseUI(currentBPM);
       } else {
           btn.classList.remove("active");
@@ -232,6 +240,7 @@
       }
   }
 
+  // Firebase Listener
   if (userId) {
     db.ref(PATIENT_DATA_PATH + "/" + userId + "/SensorData").on("value", snapshot => {
        const str = snapshot.val() || "";
@@ -272,7 +281,6 @@
     });
   }
 
-  // --- Helpers ---
   function showConfirmModal() {
       const isAr = localStorage.getItem("language") === "ar";
       document.getElementById("modalTitle").innerText = isAr ? "تم بنجاح!" : "Success!";
