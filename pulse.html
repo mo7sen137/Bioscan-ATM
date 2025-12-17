@@ -15,7 +15,7 @@
 <style>
   /* --- CSS Styles --- */
   :root { --primary-color: #ff416c; --danger-color: #ff0000; --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-color: #ffffff; }
-  body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; transition: background 0.5s; }
+  body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; transition: background 0.5s; cursor: pointer; }
   @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
   
   @keyframes sos-flash { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); border-color: red; } 50% { box-shadow: 0 0 50px 20px rgba(255, 0, 0, 0.5); border-color: #ff4d4d; background: rgba(50, 0, 0, 0.6); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); border-color: red; } }
@@ -28,29 +28,30 @@
   .back-btn:hover { background: var(--primary-color); color: #fff; box-shadow: 0 0 15px rgba(255, 65, 108, 0.5); }
   
   .container { display: flex; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; }
-  .card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 40px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: 0.3s; }
+  .card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 40px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: 0.3s; position: relative;}
   .sos-banner { display: none; background: red; color: white; font-weight: bold; padding: 10px; border-radius: 10px; margin-bottom: 15px; animation: blink 0.5s infinite alternate; }
   @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
 
   .icon-container { margin-bottom: 20px; position: relative; height: 100px; display: flex; align-items: center; justify-content: center; }
   
+  /* ECG Line Effect behind heart */
+  .ecg-line {
+      position: absolute; width: 100%; height: 2px; background: rgba(255, 65, 108, 0.2); top: 50%; z-index: 0;
+  }
+
   #heartIcon { 
-    font-size: 6rem; 
+    font-size: 6rem; position: relative; z-index: 1;
     background: -webkit-linear-gradient(#ff4b2b, #ff416c); 
     -webkit-background-clip: text; 
     -webkit-text-fill-color: transparent; 
     filter: drop-shadow(0 0 15px rgba(255, 65, 108, 0.6)); 
-    animation-name: pumping; 
-    animation-timing-function: ease-in-out; 
-    animation-iteration-count: infinite;
+    /* Animation set by JS */
   }
 
   @keyframes pumping { 
     0% { transform: scale(1); } 
-    15% { transform: scale(1.25); filter: drop-shadow(0 0 25px rgba(255, 65, 108, 0.9)); }
-    30% { transform: scale(1); } 
-    45% { transform: scale(1.15); filter: drop-shadow(0 0 20px rgba(255, 65, 108, 0.8)); }
-    60% { transform: scale(1); } 
+    10% { transform: scale(1.15); filter: drop-shadow(0 0 25px rgba(255, 65, 108, 0.9)); }
+    20% { transform: scale(1); } 
     100% { transform: scale(1); } 
   }
   
@@ -58,13 +59,13 @@
   #pulseValue { font-size: 3rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--primary-color); }
   .unit { font-size: 1.5rem; color: var(--primary-color); }
   
-  /* Tap overlay hint */
+  /* Audio Unlock Hint */
   #tapHint {
-      position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
-      background: var(--primary-color); color: white; padding: 5px 10px;
-      border-radius: 20px; font-size: 0.8rem; white-space: nowrap;
-      animation: bounce 1s infinite;
-      display: none;
+      position: absolute; top: -35px; left: 50%; transform: translateX(-50%);
+      background: var(--primary-color); color: white; padding: 5px 15px;
+      border-radius: 20px; font-size: 0.85rem; white-space: nowrap;
+      box-shadow: 0 0 10px var(--primary-color);
+      animation: bounce 1s infinite; pointer-events: none;
   }
   @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-5px); } }
 
@@ -94,7 +95,7 @@
   .confirm-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 65, 108, 0.6); }
 </style>
 </head>
-<body onclick="enableAudio()"> <div id="confirmModal" class="confirm-modal">
+<body onclick="unlockAudio()"> <div id="confirmModal" class="confirm-modal">
   <div class="confirm-content">
     <div class="success-icon"><i class="fas fa-check-circle"></i></div>
     <h3 class="confirm-title" id="modalTitle">Success!</h3>
@@ -102,6 +103,14 @@
     <button class="confirm-btn" onclick="closeConfirmModal()">OK</button>
   </div>
 </div>
+
+<audio id="beatSound">
+  <source src="data:audio/mp3;base64,//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" type="audio/mpeg">
+  </audio>
+
+<audio id="alarmSound" loop>
+  <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+</audio>
 
 <header>
   <button id="backBtn" class="back-btn" onclick="goBack()">
@@ -115,11 +124,12 @@
   
   <div class="card" id="mainCard">
     <div class="icon-container">
+        <div class="ecg-line"></div>
         <i class="fas fa-heartbeat" id="heartIcon" style="animation-duration: 1s;"></i>
     </div>
     
     <div class="pulse-box">
-      <div id="tapHint">Tap here to enable sound 🔊</div>
+      <div id="tapHint">Tap anywhere to enable sound 🔊</div>
       <span id="pulseValue">--</span> <span class="unit">BPM</span>
     </div>
     
@@ -164,51 +174,61 @@
   const heartIcon = document.getElementById("heartIcon");
   const tapHint = document.getElementById("tapHint");
   
+  const alarmSound = document.getElementById("alarmSound");
+  // Using Audio Context for Realistic Synthesis (Better than Base64 string for precise pitch)
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+  
   const userId = localStorage.getItem("selectedUserId");
   const PATIENT_DATA_PATH = "PatientData";
   
   let isCritical = false;
-  let audioContext = null; // Web Audio API
+  let audioUnlocked = false; 
   let beepInterval = null;
-  let isAudioEnabled = false;
 
-  // --- 2. THE MEDICAL BEEP GENERATOR (No Files) ---
-  function playBeep() {
-      if (!audioContext || isCritical) return; // Don't beep regular if critical (SOS alarm handles it)
+  // --- 2. THE REALISTIC BEEP GENERATOR (Web Audio API) ---
+  // This mimics a GE/Philips Patient Monitor Sound
+  function playMonitorBeep() {
+      if (!audioCtx || isCritical) return;
+
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      // Medical Beep Settings
+      osc.type = 'triangle'; // Triangle wave sounds more electronic/clean
+      osc.frequency.setValueAtTime(1000, audioCtx.currentTime); // 1KHz standard pitch
       
-      const osc = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-      
-      osc.connect(gain);
-      gain.connect(audioContext.destination);
-      
-      // Medical Monitor Beep Sound Settings
-      osc.type = 'sine'; // Pure tone
-      osc.frequency.value = 880; // High pitch like hospital monitor
-      
-      // Volume Envelope (Short and sharp)
-      gain.gain.setValueAtTime(0.1, audioContext.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
-      
+      // Envelope (Attack & Decay)
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.01); // Fast attack
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15); // Short decay (150ms)
+
       osc.start();
-      osc.stop(audioContext.currentTime + 0.1); // Stop after 100ms
+      osc.stop(audioCtx.currentTime + 0.2);
   }
 
-  // --- 3. Enable Audio (Run on first click) ---
-  function enableAudio() {
-      if (!audioContext) {
-          audioContext = new (window.AudioContext || window.webkitAudioContext)();
-          // Create dummy oscillator to unlock iOS/Chrome audio
-          const buffer = audioContext.createBuffer(1, 1, 22050);
-          const source = audioContext.createBufferSource();
+  // --- 3. Magic Unlock (Runs on any click) ---
+  function unlockAudio() {
+      if (!audioUnlocked) {
+          audioCtx = new AudioContext();
+          // Resume context if suspended (Chrome policy)
+          if (audioCtx.state === 'suspended') {
+              audioCtx.resume();
+          }
+          // Play a silent buffer to fully unlock iOS/Android
+          const buffer = audioCtx.createBuffer(1, 1, 22050);
+          const source = audioCtx.createBufferSource();
           source.buffer = buffer;
-          source.connect(audioContext.destination);
+          source.connect(audioCtx.destination);
           source.start(0);
-          
-          isAudioEnabled = true;
+
+          audioUnlocked = true;
           tapHint.style.display = 'none'; // Hide hint
           
-          // If we already have a reading, start beeping
+          // Force start loop if value exists
           const val = parseInt(pulseBox.innerText);
           if(!isNaN(val)) updatePulseUI(val);
       }
@@ -223,21 +243,23 @@
       if (val > 120 || val < 50) triggerSOS();
       else clearSOS();
 
-      // 2. Animation Speed
+      // 2. Animation (CSS)
+      // 60 BPM = 1s cycle.
       const duration = 60 / val; 
       heartIcon.style.animationDuration = `${duration}s`;
+      heartIcon.style.animationName = 'pumping'; // Ensure animation is active
 
       // 3. Sound Loop
       clearInterval(beepInterval);
-      if(isAudioEnabled && !isCritical) {
-          // Play generated beep
-          beepInterval = setInterval(playBeep, duration * 1000);
-      } else if (!isAudioEnabled) {
-          // Show hint if audio not enabled yet
-          tapHint.style.display = 'block';
+      if(audioUnlocked && !isCritical) {
+          // Play sound immediately to sync with animation start
+          playMonitorBeep();
+          // Loop based on BPM
+          beepInterval = setInterval(playMonitorBeep, duration * 1000);
       }
   }
 
+  // --- Firebase ---
   if (userId) {
     db.ref(PATIENT_DATA_PATH + "/" + userId + "/SensorData").on("value", snapshot => {
        const str = snapshot.val() || "";
@@ -293,32 +315,8 @@
       setTimeout(() => modal.style.display = "none", 300);
   }
 
-  // Use Audio Object for Alarm (MP3 file is fine for this occasional event)
-  const alarmFile = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
-  alarmFile.loop = true;
-
-  function triggerSOS() { 
-      if(isCritical) return; 
-      isCritical = true; 
-      clearInterval(beepInterval); 
-      document.body.classList.add("critical-bg"); 
-      mainCard.classList.add("critical-state"); 
-      sosBanner.style.display = "block"; 
-      if(isAudioEnabled) alarmFile.play().catch(()=>{}); 
-      const lang = localStorage.getItem("language") || "en"; 
-      sosBanner.innerText = lang === "ar" ? "🚨 خطر: نبض غير طبيعي!" : "🚨 CRITICAL HEART RATE!"; 
-  }
-  
-  function clearSOS() { 
-      if(!isCritical) return; 
-      isCritical = false; 
-      document.body.classList.remove("critical-bg"); 
-      mainCard.classList.remove("critical-state"); 
-      sosBanner.style.display = "none"; 
-      alarmFile.pause(); 
-      alarmFile.currentTime = 0; 
-      if(isAudioEnabled && !isNaN(parseInt(pulseBox.innerText))) updatePulseUI(parseInt(pulseBox.innerText)); 
-  }
+  function triggerSOS() { if(isCritical) return; isCritical = true; clearInterval(beepInterval); document.body.classList.add("critical-bg"); mainCard.classList.add("critical-state"); sosBanner.style.display = "block"; alarmSound.play().catch(e=>{}); const lang = localStorage.getItem("language") || "en"; sosBanner.innerText = lang === "ar" ? "🚨 خطر: نبض غير طبيعي!" : "🚨 CRITICAL HEART RATE!"; }
+  function clearSOS() { if(!isCritical) return; isCritical = false; document.body.classList.remove("critical-bg"); mainCard.classList.remove("critical-state"); sosBanner.style.display = "none"; alarmSound.pause(); alarmSound.currentTime = 0; if(audioUnlocked && !isNaN(parseInt(pulseBox.innerText))) updatePulseUI(parseInt(pulseBox.innerText)); }
   
   function speakResult() {
     let bpm = parseInt(pulseBox.innerText);
@@ -349,7 +347,7 @@
     document.getElementById("btnText").innerText = "النصيحة الطبية";
     document.getElementById("saveBtnText").innerText = "حفظ القياس";
     document.getElementById("instructions").innerHTML = `<li><i class="fas fa-fingerprint"></i> ضع إصبعك بثبات.</li><li><i class="fas fa-hand-paper"></i> لا تتحرك.</li>`;
-    document.getElementById("tapHint").innerText = "اضغط هنا لتفعيل الصوت 🔊";
+    document.getElementById("tapHint").innerText = "اضغط في أي مكان لتفعيل الصوت 🔊";
   }
 </script>
 
