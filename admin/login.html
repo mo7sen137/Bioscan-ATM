@@ -6,8 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="style.css">
-    <title>Ludiflex | Login</title>
+    <title>Bioscan | Login</title>
     <style>
         /* General Styles */
         * {
@@ -23,10 +22,10 @@
             align-items: center;
             min-height: 100vh;
             overflow: hidden;
-            background: #0a0a0a; /* Dark background as fallback */
+            background: #000; /* Fallback black */
         }
 
-        /* Video Background */
+        /* Video Background (Dark Curtain Effect) */
         #video-background {
             position: fixed;
             right: 0;
@@ -37,19 +36,24 @@
             height: auto;
             z-index: -1;
             object-fit: cover;
-            filter: brightness(40%); /* Darken the video */
+            /* تغميق الفيديو بنسبة كبيرة (30% بس اللي ظاهر) */
+            filter: brightness(30%) contrast(110%);
         }
 
-        /* Container for Login Form */
+        /* Container with Neon Glow */
         .container {
             position: relative;
             width: 400px;
-            padding: 40px;
-            background: rgba(20, 20, 20, 0.7); /* Semi-transparent dark background */
+            padding: 50px 40px; /* زودت الحشو شوية عشان الشكل */
+            background: rgba(0, 0, 0, 0.6); /* خلفية سوداء نصف شفافة */
             border-radius: 20px;
-            backdrop-filter: blur(15px); /* Glass morphism effect */
-            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
-            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            
+            /* --- التعديل: إطار أزرق مشع --- */
+            border: 1px solid #00d2ff; 
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.3); 
+            /* --------------------------- */
+            
             text-align: center;
             z-index: 1;
         }
@@ -57,31 +61,39 @@
         .login-header {
             font-size: 32px;
             color: #fff;
-            margin-bottom: 30px;
-            font-weight: 600;
+            margin-bottom: 40px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px #00d2ff; /* توهج للنص كمان */
         }
 
         /* Input Fields */
         .input-box {
             position: relative;
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .input-field {
             width: 100%;
-            padding: 12px 20px;
-            background: rgba(255, 255, 255, 0.05); /* Transparent input field */
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             outline: none;
             color: #fff;
             font-size: 16px;
-            transition: border-color 0.3s ease;
+            transition: 0.3s ease;
         }
 
         .input-field:focus {
-            border-color: #5a67d8; /* Highlight color on focus */
+            border-color: #00d2ff; /* لون الإطار عند الكتابة */
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
+            background: rgba(0, 210, 255, 0.05);
+        }
+
+        .input-field::placeholder {
+            color: #aaa;
         }
 
         .input-box i {
@@ -89,81 +101,35 @@
             right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: #aaa;
+            color: #ccc;
             font-size: 20px;
             pointer-events: none;
-        }
-
-        /* Options */
-        .remember {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #aaa;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .remember label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .remember input {
-            margin-right: 8px;
-            accent-color: #5a67d8;
-        }
-
-        .remember a {
-            color: #5a67d8;
-            text-decoration: none;
-        }
-
-        .remember a:hover {
-            text-decoration: underline;
         }
 
         /* Login Button */
         .input-submit {
             width: 100%;
+            margin-top: 10px;
         }
 
         .submit-btn {
             width: 100%;
-            padding: 12px;
-            background: #5a67d8;
+            padding: 15px;
+            background: linear-gradient(90deg, #00d2ff, #0072ff);
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             color: #fff;
-            transition: background 0.3s ease, transform 0.2s ease;
+            transition: 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .submit-btn:hover {
-            background: #4c51bf;
-            transform: scale(1.02);
-        }
-
-        /* Social Login */
-        .social-login {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .social-Login i {
-            font-size: 24px;
-            color: #fff;
-            margin: 0 10px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .social-Login i:hover {
-            color: #5a67d8;
+            transform: scale(1.03);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.6);
         }
     </style>
 </head>
@@ -172,35 +138,31 @@
 
     <video autoplay muted loop id="video-background">
         <source src="background-video.mp4" type="video/mp4">
-        Your browser does not support the video tag.
     </video>
 
     <div class="container">
-        <header class="login-header">Login</header>
+        <header class="login-header">Admin Login</header>
+        
         <div class="input-box">
-            <input type="text" class="input-field" placeholder="Email" required>
+            <input type="text" class="input-field" placeholder="Email" id="adminEmail" required>
             <i class="bx bx-user"></i>
         </div>
+        
         <div class="input-box">
-            <input type="password" class="input-field" placeholder="Password" required>
+            <input type="password" class="input-field" placeholder="Password" id="adminPassword" required>
             <i class="bx bx-lock-alt"></i>
         </div>
-        <div class="remember">
-            <label>
-                <input type="checkbox"> Remember me
-            </label>
-            <a href="#">Forgot password?</a>
-        </div>
+
         <div class="input-submit">
-            <button class="submit-btn">Login</button>
-        </div>
-        <div class="social-Login">
-            <i class="bx bxl-google"></i>
-            <i class="bx bxl-facebook"></i>
-            <i class="bx bxl-twitter"></i>
+            <button class="submit-btn" onclick="adminLogin()">Login</button>
         </div>
     </div>
 
-</body>
+    <script>
+        // --- 1. FIREBASE CONFIG ---
+        // (نفس الإعدادات السابقة - تأكد إنها موجودة هنا عشان الزرار يشتغل)
+        // يمكنك نسخها من الملف القديم لو مش موجودة هنا
+    </script>
 
+</body>
 </html>
