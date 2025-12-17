@@ -1,304 +1,206 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">تسجيل دخول المسؤول | Smart System</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+    <title>Ludiflex | Login</title>
     <style>
-        :root {
-            --primary-color: #00d2ff;
-            --admin-color: #6c5ce7;
-            --error-color: #ff416c;
-            --success-color: #00ff88;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-color: #ffffff;
-            --input-bg: rgba(255, 255, 255, 0.1);
-            --input-focus: #00d2ff;
-        }
-        
-        /* --- GLOBAL STYLES --- */
-        body {
-            font-family: 'Cairo', 'Poppins', sans-serif;
-            margin: 0; padding: 0;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            min-height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            color: var(--text-color);
-        }
-        
-        /* --- LOGIN CARD --- */
-        .login-container {
-            width: 90%; max-width: 400px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 40px 30px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
-            text-align: center;
-            position: relative;
-        }
-
-        .login-container h2 {
-            font-size: 2rem;
-            color: var(--admin-color);
-            margin-bottom: 30px;
-            font-weight: 700;
-        }
-        
-        /* --- FORM STYLES --- */
-        .input-group {
-            margin-bottom: 25px;
-            text-align: start;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #ccc;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            background: var(--input-bg);
-            color: var(--text-color);
-            font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s;
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif; /* للحفاظ على تنسيق الإيميل والباسورد */
-        }
-        
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--input-focus);
-            box-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+            font-family: "Poppins", sans-serif;
         }
 
-        .login-btn {
-            width: 100%;
-            background: linear-gradient(45deg, #6c5ce7, #8e44ad);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 15px;
-        }
-
-        .login-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(108, 92, 231, 0.7);
-        }
-
-        /* --- ALERT MESSAGE --- */
-        .alert-message {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            opacity: 0;
-            max-height: 0;
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             overflow: hidden;
-            display: none; /* Initially hide it */
+            background: #0a0a0a; /* Dark background as fallback */
         }
 
-        .alert-message.active {
-            opacity: 1;
-            max-height: 100px; 
-            display: block;
+        /* Video Background */
+        #video-background {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            object-fit: cover;
+            filter: brightness(40%); /* Darken the video */
         }
 
-        .alert-message.error {
-            background: rgba(255, 65, 108, 0.2);
-            border: 1px solid var(--error-color);
-            color: var(--error-color);
+        /* Container for Login Form */
+        .container {
+            position: relative;
+            width: 400px;
+            padding: 40px;
+            background: rgba(20, 20, 20, 0.7); /* Semi-transparent dark background */
+            border-radius: 20px;
+            backdrop-filter: blur(15px); /* Glass morphism effect */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            z-index: 1;
         }
 
-        /* --- LANGUAGE TOGGLE --- */
-        .language-toggle {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-        }
-
-        .language-btn {
-            background-color: var(--admin-color);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
+        .login-header {
+            font-size: 32px;
+            color: #fff;
+            margin-bottom: 30px;
             font-weight: 600;
-            transition: background-color 0.3s;
         }
 
-        .language-btn:hover {
-            background-color: #5d48c8;
+        /* Input Fields */
+        .input-box {
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px;
         }
 
-        /* RTL/LTR adjustments */
-        [dir="rtl"] .language-toggle {
-            left: 15px; /* Move to the left when direction is RTL */
-            right: auto;
+        .input-field {
+            width: 100%;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.05); /* Transparent input field */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            outline: none;
+            color: #fff;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
         }
-        [dir="rtl"] .input-group {
-            text-align: right;
+
+        .input-field:focus {
+            border-color: #5a67d8; /* Highlight color on focus */
         }
-        [dir="rtl"] .input-group input {
-            text-align: right;
+
+        .input-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: 20px;
+            pointer-events: none;
+        }
+
+        /* Options */
+        .remember {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .remember label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .remember input {
+            margin-right: 8px;
+            accent-color: #5a67d8;
+        }
+
+        .remember a {
+            color: #5a67d8;
+            text-decoration: none;
+        }
+
+        .remember a:hover {
+            text-decoration: underline;
+        }
+
+        /* Login Button */
+        .input-submit {
+            width: 100%;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #5a67d8;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            background: #4c51bf;
+            transform: scale(1.02);
+        }
+
+        /* Social Login */
+        .social-login {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .social-Login i {
+            font-size: 24px;
+            color: #fff;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .social-Login i:hover {
+            color: #5a67d8;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="login-container">
-        
-        <div class="language-toggle">
-            <button class="language-btn" id="langToggleBtn" onclick="toggleLanguage()">English</button>
+    <video autoplay muted loop id="video-background">
+        <source src="background-video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="container">
+        <header class="login-header">Login</header>
+        <div class="input-box">
+            <input type="text" class="input-field" placeholder="Email" required>
+            <i class="bx bx-user"></i>
         </div>
-
-        <h2 id="loginTitle">تسجيل دخول المسؤول</h2>
-
-        <div class="input-group">
-            <label for="adminEmail" id="emailLabel">البريد الإلكتروني</label>
-            <input type="email" id="adminEmail" placeholder="admin@example.com">
+        <div class="input-box">
+            <input type="password" class="input-field" placeholder="Password" required>
+            <i class="bx bx-lock-alt"></i>
         </div>
-
-        <div class="input-group">
-            <label for="adminPassword" id="passwordLabel">كلمة المرور</label>
-            <input type="password" id="adminPassword" placeholder="********">
+        <div class="remember">
+            <label>
+                <input type="checkbox"> Remember me
+            </label>
+            <a href="#">Forgot password?</a>
         </div>
-
-        <button class="login-btn" onclick="adminLogin()" id="loginBtn">تسجيل الدخول</button>
-
-        <div class="alert-message error" id="errorMessage">
-            </div>
-
+        <div class="input-submit">
+            <button class="submit-btn">Login</button>
+        </div>
+        <div class="social-Login">
+            <i class="bx bxl-google"></i>
+            <i class="bx bxl-facebook"></i>
+            <i class="bx bxl-twitter"></i>
+        </div>
     </div>
 
-    <script>
-        // --- FIREBASE CONFIGURATION ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
-            authDomain: "smart-a76a0.firebaseapp.com",
-            databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
-            projectId: "smart-a76a0",
-            messagingSenderId: "343693501983",
-            appId: "1:343693501983:web:10ea3fce9d990a2455172a"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        // ===============================================
-        // 1. LANGUAGE SUPPORT FUNCTIONS
-        // ===============================================
-        
-        const languageTexts = {
-            'pageTitle': { ar: 'تسجيل دخول المسؤول | Smart System', en: 'Admin Login | Smart System' },
-            'loginTitle': { ar: 'تسجيل دخول المسؤول', en: 'Admin Login' },
-            'emailLabel': { ar: 'البريد الإلكتروني', en: 'Email' },
-            'passwordLabel': { ar: 'كلمة المرور', en: 'Password' },
-            'loginBtn': { ar: 'تسجيل الدخول', en: 'Login' },
-            'errorEmailPass': { ar: 'يرجى إدخال بريد إلكتروني وكلمة مرور.', en: 'Please enter both email and password.' },
-            'errorAuth': { ar: 'فشل تسجيل الدخول. تأكد من البريد وكلمة المرور.', en: 'Login failed. Check your email and password.' },
-            'langToggleBtnAr': { ar: 'English', en: 'العربية' },
-        };
-        
-        // Load language preference from localStorage, default to Arabic
-        let currentLang = localStorage.getItem("language") || "ar";
-
-        function applyLanguage(lang) {
-            currentLang = lang;
-            document.documentElement.lang = lang;
-            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            
-            // Update Text
-            document.getElementById('pageTitle').innerText = languageTexts['pageTitle'][lang];
-            document.getElementById('loginTitle').innerText = languageTexts['loginTitle'][lang];
-            document.getElementById('emailLabel').innerText = languageTexts['emailLabel'][lang];
-            document.getElementById('passwordLabel').innerText = languageTexts['passwordLabel'][lang];
-            document.getElementById('loginBtn').innerText = languageTexts['loginBtn'][lang];
-            document.getElementById('langToggleBtn').innerText = languageTexts['langToggleBtnAr'][lang];
-            
-            // Placeholder and Input direction
-            document.getElementById('adminEmail').style.textAlign = lang === 'ar' ? 'right' : 'left';
-            document.getElementById('adminPassword').style.textAlign = lang === 'ar' ? 'right' : 'left';
-            
-            // Store preference
-            localStorage.setItem("language", lang);
-        }
-        
-        function toggleLanguage() {
-            const newLang = currentLang === 'ar' ? 'en' : 'ar';
-            applyLanguage(newLang);
-        }
-        
-        // ===============================================
-        // 2. AUTHENTICATION FUNCTIONS
-        // ===============================================
-
-        // Check if user is already logged in (to redirect to dashboard)
-        auth.onAuthStateChanged(function(user) {
-            if (user) {
-                // If user is logged in, redirect to dashboard
-                window.location.href = "admin_dashboard.html";
-            } else {
-                // Apply language only if not redirected (i.e., stay on login page)
-                applyLanguage(currentLang);
-            }
-        });
-
-        function showMessage(messageKey, isError = true) {
-            const messageDiv = document.getElementById('errorMessage');
-            const messageText = languageTexts[messageKey][currentLang] || messageKey;
-
-            messageDiv.innerText = messageText;
-            messageDiv.className = `alert-message ${isError ? 'error' : 'success'} active`;
-            
-            setTimeout(() => {
-                messageDiv.className = 'alert-message';
-            }, 5000);
-        }
-
-        function adminLogin() {
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
-
-            if (!email || !password) {
-                showMessage('errorEmailPass');
-                return;
-            }
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Sign-in successful. Redirect is handled by onAuthStateChanged listener.
-                })
-                .catch((error) => {
-                    // Sign-in failed. Show error message.
-                    showMessage('errorAuth');
-                });
-        }
-    </script>
-
 </body>
+
 </html>
