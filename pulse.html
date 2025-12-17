@@ -18,6 +18,7 @@
   body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; transition: background 0.5s; cursor: pointer; }
   @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
   
+  /* SOS Styles */
   @keyframes sos-flash { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); border-color: red; } 50% { box-shadow: 0 0 50px 20px rgba(255, 0, 0, 0.5); border-color: #ff4d4d; background: rgba(50, 0, 0, 0.6); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); border-color: red; } }
   .critical-state { animation: sos-flash 1s infinite; border: 2px solid red !important; }
   .critical-bg { background: radial-gradient(circle, #3a0000, #000) !important; }
@@ -28,30 +29,33 @@
   .back-btn:hover { background: var(--primary-color); color: #fff; box-shadow: 0 0 15px rgba(255, 65, 108, 0.5); }
   
   .container { display: flex; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; }
-  .card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 40px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: 0.3s; position: relative;}
+  .card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 40px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: 0.3s; }
   .sos-banner { display: none; background: red; color: white; font-weight: bold; padding: 10px; border-radius: 10px; margin-bottom: 15px; animation: blink 0.5s infinite alternate; }
   @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
 
+  /* --- RESTORED HEART ANIMATION --- */
   .icon-container { margin-bottom: 20px; position: relative; height: 100px; display: flex; align-items: center; justify-content: center; }
   
-  /* ECG Line Effect behind heart */
-  .ecg-line {
-      position: absolute; width: 100%; height: 2px; background: rgba(255, 65, 108, 0.2); top: 50%; z-index: 0;
-  }
-
   #heartIcon { 
-    font-size: 6rem; position: relative; z-index: 1;
+    font-size: 6rem; 
     background: -webkit-linear-gradient(#ff4b2b, #ff416c); 
     -webkit-background-clip: text; 
     -webkit-text-fill-color: transparent; 
     filter: drop-shadow(0 0 15px rgba(255, 65, 108, 0.6)); 
-    /* Animation set by JS */
+    /* Important: Animation name must match the keyframes */
+    animation-name: pumping; 
+    animation-timing-function: ease-in-out; 
+    animation-iteration-count: infinite;
+    transform-origin: center;
   }
 
+  /* Original Smooth Animation */
   @keyframes pumping { 
     0% { transform: scale(1); } 
-    10% { transform: scale(1.15); filter: drop-shadow(0 0 25px rgba(255, 65, 108, 0.9)); }
-    20% { transform: scale(1); } 
+    15% { transform: scale(1.3); filter: drop-shadow(0 0 25px rgba(255, 65, 108, 0.8)); }
+    30% { transform: scale(1); } 
+    45% { transform: scale(1.15); filter: drop-shadow(0 0 20px rgba(255, 65, 108, 0.6)); }
+    60% { transform: scale(1); } 
     100% { transform: scale(1); } 
   }
   
@@ -59,7 +63,7 @@
   #pulseValue { font-size: 3rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--primary-color); }
   .unit { font-size: 1.5rem; color: var(--primary-color); }
   
-  /* Audio Unlock Hint */
+  /* Tap Hint */
   #tapHint {
       position: absolute; top: -35px; left: 50%; transform: translateX(-50%);
       background: var(--primary-color); color: white; padding: 5px 15px;
@@ -104,10 +108,6 @@
   </div>
 </div>
 
-<audio id="beatSound">
-  <source src="data:audio/mp3;base64,//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" type="audio/mpeg">
-  </audio>
-
 <audio id="alarmSound" loop>
   <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
 </audio>
@@ -124,7 +124,6 @@
   
   <div class="card" id="mainCard">
     <div class="icon-container">
-        <div class="ecg-line"></div>
         <i class="fas fa-heartbeat" id="heartIcon" style="animation-duration: 1s;"></i>
     </div>
     
@@ -175,7 +174,8 @@
   const tapHint = document.getElementById("tapHint");
   
   const alarmSound = document.getElementById("alarmSound");
-  // Using Audio Context for Realistic Synthesis (Better than Base64 string for precise pitch)
+  
+  // Audio Context for Realistic Synthesis
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   let audioCtx = null;
   
@@ -186,39 +186,46 @@
   let audioUnlocked = false; 
   let beepInterval = null;
 
-  // --- 2. THE REALISTIC BEEP GENERATOR (Web Audio API) ---
-  // This mimics a GE/Philips Patient Monitor Sound
+  // --- 2. ADVANCED MEDICAL BEEP (Dual Oscillator) ---
+  // This mimics a GE Patient Monitor Sound
   function playMonitorBeep() {
       if (!audioCtx || isCritical) return;
 
-      const osc = audioCtx.createOscillator();
+      const t = audioCtx.currentTime;
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
       const gainNode = audioCtx.createGain();
 
-      osc.connect(gainNode);
+      // Main Tone (High Pitch)
+      osc1.type = 'square'; 
+      osc1.frequency.setValueAtTime(880, t); 
+
+      // Harmonic Tone (To make it richer)
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(1760, t); 
+
+      osc1.connect(gainNode);
+      osc2.connect(gainNode);
       gainNode.connect(audioCtx.destination);
 
-      // Medical Beep Settings
-      osc.type = 'triangle'; // Triangle wave sounds more electronic/clean
-      osc.frequency.setValueAtTime(1000, audioCtx.currentTime); // 1KHz standard pitch
-      
-      // Envelope (Attack & Decay)
-      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.01); // Fast attack
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15); // Short decay (150ms)
+      // Sound Envelope (Sharp Blip)
+      gainNode.gain.setValueAtTime(0, t);
+      gainNode.gain.linearRampToValueAtTime(0.1, t + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
 
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.2);
+      osc1.start(t);
+      osc2.start(t);
+      osc1.stop(t + 0.15);
+      osc2.stop(t + 0.15);
   }
 
   // --- 3. Magic Unlock (Runs on any click) ---
   function unlockAudio() {
       if (!audioUnlocked) {
           audioCtx = new AudioContext();
-          // Resume context if suspended (Chrome policy)
-          if (audioCtx.state === 'suspended') {
-              audioCtx.resume();
-          }
-          // Play a silent buffer to fully unlock iOS/Android
+          if (audioCtx.state === 'suspended') audioCtx.resume();
+          
+          // Silent buffer to unlock iOS
           const buffer = audioCtx.createBuffer(1, 1, 22050);
           const source = audioCtx.createBufferSource();
           source.buffer = buffer;
@@ -226,9 +233,8 @@
           source.start(0);
 
           audioUnlocked = true;
-          tapHint.style.display = 'none'; // Hide hint
+          tapHint.style.display = 'none';
           
-          // Force start loop if value exists
           const val = parseInt(pulseBox.innerText);
           if(!isNaN(val)) updatePulseUI(val);
       }
@@ -243,18 +249,15 @@
       if (val > 120 || val < 50) triggerSOS();
       else clearSOS();
 
-      // 2. Animation (CSS)
-      // 60 BPM = 1s cycle.
+      // 2. Animation (Restored Original)
       const duration = 60 / val; 
       heartIcon.style.animationDuration = `${duration}s`;
-      heartIcon.style.animationName = 'pumping'; // Ensure animation is active
 
-      // 3. Sound Loop
+      // 3. Sound Loop (Synthesized)
       clearInterval(beepInterval);
       if(audioUnlocked && !isCritical) {
-          // Play sound immediately to sync with animation start
+          // Sync sound with animation immediately
           playMonitorBeep();
-          // Loop based on BPM
           beepInterval = setInterval(playMonitorBeep, duration * 1000);
       }
   }
