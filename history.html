@@ -19,10 +19,10 @@
       --glass-border: rgba(255, 255, 255, 0.2);
       --text-color: #ffffff;
       --primary-color: #00d2ff;
-      --whatsapp-color: #25D366;
-      --qr-color: #8e44ad;
-      --chart-color: #f39c12; /* New Color for Analysis */
+      --chart-bg: #ffffff;
       --delete-color: #ff416c;
+      --safe-zone: rgba(46, 204, 113, 0.1);
+      --danger-zone: rgba(231, 76, 60, 0.1);
     }
 
     body {
@@ -57,19 +57,11 @@
     }
     .back-btn { background: rgba(255,255,255,0.1); }
     .back-btn:hover { background: var(--primary-color); }
-
     .print-btn { background: linear-gradient(45deg, #00d2ff, #3a7bd5); }
-    .print-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(0, 210, 255, 0.5); }
-
     .whatsapp-btn { background: linear-gradient(45deg, #25D366, #128C7E); }
-    .whatsapp-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(37, 211, 102, 0.5); }
-
     .qr-btn { background: linear-gradient(45deg, #8e44ad, #9b59b6); }
-    .qr-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(142, 68, 173, 0.5); }
-
-    /* New Analysis Button Style */
     .chart-btn { background: linear-gradient(45deg, #f39c12, #e67e22); }
-    .chart-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(243, 156, 18, 0.5); }
+    .btn:hover { transform: scale(1.05); }
 
     .table-container {
       width: 100%; max-width: 900px;
@@ -83,17 +75,10 @@
     th { background: rgba(0, 210, 255, 0.2); color: var(--primary-color); position: sticky; top: 0; backdrop-filter: blur(5px); }
     tr:hover { background: rgba(255,255,255,0.05); }
 
-    .delete-btn {
-      background: transparent; border: none; color: rgba(255, 255, 255, 0.6);
-      cursor: pointer; font-size: 1.1rem; transition: 0.3s; padding: 5px;
-    }
+    .delete-btn { background: transparent; border: none; color: rgba(255, 255, 255, 0.6); cursor: pointer; font-size: 1.1rem; }
     .delete-btn:hover { color: var(--delete-color); transform: scale(1.2); }
 
-    .status-msg { margin-top: 50px; font-size: 1.2rem; color: #aaa; text-align: center; }
-
-    #printHeader, #printFooter { display: none; }
-
-    /* --- COMMON MODAL STYLES --- */
+    /* --- MODALS --- */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
       z-index: 4000; display: none; justify-content: center; align-items: center;
@@ -101,70 +86,58 @@
     }
     .modal-overlay.active { display: flex; opacity: 1; }
     
-    /* QR Card */
-    .qr-card {
+    .qr-card, .delete-card {
       background: white; color: black; padding: 30px; border-radius: 20px;
       text-align: center; width: 300px; position: relative;
-      box-shadow: 0 0 30px rgba(142, 68, 173, 0.5); transform: scale(0.8); transition: transform 0.3s;
-    }
-    .modal-overlay.active .qr-card { transform: scale(1); }
-    #qrcode { display: flex; justify-content: center; margin: 20px 0; min-height: 150px; }
-    .close-qr { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #333; }
-    .close-qr:hover { color: red; }
-
-    /* Chart Modal Card (New) */
-    .chart-card {
-      background: white; color: #333; padding: 20px; border-radius: 20px;
-      width: 95%; max-width: 800px; position: relative;
-      box-shadow: 0 0 40px rgba(243, 156, 18, 0.3); transform: scale(0.8); transition: transform 0.3s;
-    }
-    .modal-overlay.active .chart-card { transform: scale(1); }
-    .chart-wrapper { height: 400px; width: 100%; }
-
-    /* Delete Modal */
-    .delete-card {
-      background: linear-gradient(145deg, #2c0b0e, #1a0506);
-      border: 1px solid var(--delete-color);
-      padding: 30px; border-radius: 25px; text-align: center;
-      width: 90%; max-width: 400px;
-      box-shadow: 0 0 40px rgba(255, 65, 108, 0.2);
       transform: scale(0.8); transition: transform 0.3s;
     }
-    .modal-overlay.active .delete-card { transform: scale(1); }
-    .del-icon { font-size: 3rem; color: var(--delete-color); margin-bottom: 20px; animation: shake 0.5s; }
-    @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } 100% { transform: translateX(0); } }
-    .del-title { color: #fff; margin: 0 0 10px 0; font-size: 1.5rem; }
-    .del-text { color: #ccc; margin-bottom: 25px; font-size: 0.9rem; }
-    .del-actions { display: flex; justify-content: center; gap: 15px; }
-    .btn-cancel, .btn-confirm { padding: 10px 25px; border-radius: 50px; border: none; font-size: 1rem; cursor: pointer; font-family: 'Poppins', sans-serif; transition: 0.3s; }
-    .btn-cancel { background: rgba(255,255,255,0.1); color: #fff; }
-    .btn-cancel:hover { background: rgba(255,255,255,0.2); }
-    .btn-confirm { background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4); }
-    .btn-confirm:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(255, 65, 108, 0.6); }
-
-    /* Print Styles */
-    @media print {
-      @page { size: A4; margin: 10mm; }
-      body { background: white !important; color: #333 !important; display: block !important; padding: 0 !important; font-family: 'Helvetica', sans-serif !important; }
-      .screen-header, .back-btn, .whatsapp-btn, .print-btn, .qr-btn, .chart-btn, ::-webkit-scrollbar, .toast-container, .modal-overlay, .delete-btn, th:last-child, td:last-child { display: none !important; }
-      #printHeader { display: flex !important; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #00d2ff; }
-      .report-info { text-align: left; font-size: 14px; line-height: 1.8; }
-      .report-title { text-align: right; }
-      .report-title h1 { font-size: 28px; color: #333; margin: 0; font-weight: 700; text-transform: uppercase; }
-      .table-container { background: white !important; border: none !important; max-height: none !important; overflow: visible !important; box-shadow: none !important; width: 100% !important; margin-top: 20px; }
-      table { width: 100%; border-collapse: collapse; }
-      thead th { background-color: #00ced1 !important; color: white !important; padding: 12px 15px; text-align: left; font-size: 13px; text-transform: uppercase; border: none !important; -webkit-print-color-adjust: exact; }
-      tbody td { padding: 12px 15px; border-bottom: 1px solid #eee !important; color: #444 !important; font-size: 13px; text-align: left; }
-      tbody tr:nth-child(even) { background-color: #f9f9f9 !important; -webkit-print-color-adjust: exact; }
-      #printFooter { display: block !important; position: fixed; bottom: 20px; left: 0; width: 100%; text-align: left; font-size: 11px; color: #999; border-top: 1px solid #ddd; padding-top: 10px; }
+    .delete-card { background: linear-gradient(145deg, #2c0b0e, #1a0506); color: white; width: 90%; max-width: 400px; }
+    .modal-overlay.active .qr-card, .modal-overlay.active .delete-card { transform: scale(1); }
+    
+    /* --- CHART CARD STYLES --- */
+    .chart-card {
+      background: #fff; color: #333; padding: 25px; border-radius: 20px;
+      width: 95%; max-width: 800px; position: relative;
+      box-shadow: 0 0 50px rgba(0,0,0,0.5); transform: scale(0.8); transition: transform 0.3s;
+      max-height: 90vh; overflow-y: auto;
     }
+    .modal-overlay.active .chart-card { transform: scale(1); }
 
-    /* Toast */
+    .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .chart-select { padding: 8px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Poppins', sans-serif; }
+    
+    .chart-wrapper { height: 350px; width: 100%; position: relative; }
+    
+    /* AI Summary Box */
+    .ai-summary-box {
+      margin-top: 20px;
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      border-left: 5px solid #00d2ff;
+      border-radius: 10px; padding: 15px;
+      font-size: 0.95rem; line-height: 1.6;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .ai-title { font-weight: bold; color: #2c3e50; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .ai-content { color: #555; }
+    .status-badge { display: inline-block; padding: 3px 8px; border-radius: 5px; color: white; font-size: 0.8rem; font-weight: bold; }
+    .status-good { background: #2ecc71; }
+    .status-warning { background: #f39c12; }
+    .status-danger { background: #e74c3c; }
+
+    .close-qr { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #333; }
+    
+    /* Print & Toast (Existing) */
+    @media print { 
+      .screen-header, .btn, .modal-overlay, .delete-btn { display: none !important; } 
+      body { background: white !important; color: black !important; display: block !important; }
+      .table-container { background: white !important; border: none !important; width: 100% !important; max-height: none !important; overflow: visible !important; }
+      #printHeader, #printFooter { display: block !important; }
+    }
+    #printHeader, #printFooter { display: none; }
     .toast-container { position: fixed; top: 20px; right: 20px; z-index: 3000; }
-    .toast { background: rgba(16, 30, 40, 0.95); color: white; padding: 15px 25px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); border-left: 5px solid var(--primary-color); animation: slideIn 0.4s ease, fadeOut 0.5s ease 3s forwards; }
+    .toast { background: rgba(16, 30, 40, 0.95); color: white; padding: 15px 25px; border-radius: 12px; display: flex; align-items: center; gap: 12px; border-left: 5px solid var(--primary-color); animation: slideIn 0.4s ease, fadeOut 0.5s ease 3s forwards; }
     @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
     @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-
   </style>
 </head>
 <body>
@@ -175,43 +148,48 @@
     <div class="qr-card">
       <button class="close-qr" onclick="closeModal('qrModal')">&times;</button>
       <h3 style="margin-top:0; color:#8e44ad;">Doctor Scan</h3>
-      <p style="font-size:0.8rem; color:#666;">Scan to see latest reading</p>
-      <div id="qrcode"></div>
-      <p style="font-size:0.7rem; color:#999; margin-bottom:0;">Generated by Bioscan ATM</p>
+      <div id="qrcode" style="display:flex; justify-content:center; margin:20px 0;"></div>
     </div>
   </div>
 
   <div id="chartModal" class="modal-overlay">
     <div class="chart-card">
       <button class="close-qr" onclick="closeModal('chartModal')">&times;</button>
-      <h3 id="chartTitle" style="margin-top:0; color:#e67e22; text-align: center;">Health Trends Analysis</h3>
+      
+      <div class="chart-header">
+        <h3 style="margin:0; color:#2c3e50;">📊 Health Trends</h3>
+        <select id="chartTypeSelector" class="chart-select" onchange="updateChartType()">
+          <option value="bp">Cardio (BP & Pulse) / القلب والضغط</option>
+          <option value="vital">Vitals (Temp & Oxygen) / الحرارة والأكسجين</option>
+        </select>
+      </div>
+
       <div class="chart-wrapper">
         <canvas id="healthChart"></canvas>
+      </div>
+
+      <div class="ai-summary-box">
+        <div class="ai-title"><i class="fas fa-robot"></i> <span>Smart Analysis / تحليل الذكاء الاصطناعي</span></div>
+        <div id="aiAnalysisText" class="ai-content">Analyzing data...</div>
       </div>
     </div>
   </div>
 
   <div id="deleteModal" class="modal-overlay">
     <div class="delete-card">
-      <i class="fas fa-trash-alt del-icon"></i>
-      <h3 id="delTitle" class="del-title">Delete Record?</h3>
-      <p id="delText" class="del-text">This action cannot be undone.</p>
-      <div class="del-actions">
-        <button class="btn-cancel" onclick="closeModal('deleteModal')">Cancel</button>
-        <button class="btn-confirm" onclick="confirmDelete()">Delete</button>
+      <i class="fas fa-trash-alt del-icon" style="font-size:3rem; margin-bottom:15px; display:block;"></i>
+      <h3>Delete Record?</h3>
+      <div style="margin-top:20px; display:flex; justify-content:center; gap:10px;">
+        <button style="padding:10px 20px; border-radius:20px; border:none;" onclick="closeModal('deleteModal')">Cancel</button>
+        <button style="padding:10px 20px; border-radius:20px; border:none; background:#ff416c; color:white;" onclick="confirmDelete()">Delete</button>
       </div>
     </div>
   </div>
 
   <div id="printHeader">
-    <div class="report-info">
-      <strong>Patient ID:</strong> <span id="printUserId">--</span><br>
-      <strong>Date:</strong> <span id="printDate">--</span><br>
-      <strong>Source:</strong> Generated via Bioscan ATM System
-    </div>
-    <div class="report-title">
+    <div style="border-bottom:2px solid #00d2ff; padding-bottom:10px; margin-bottom:20px;">
       <h1>Medical Report</h1>
-      <p>BioScan Health Monitor</p>
+      <p>Patient ID: <span id="printUserId">--</span> | Date: <span id="printDate">--</span></p>
     </div>
   </div>
 
@@ -221,17 +199,16 @@
       <span id="userSubtitle">User: --</span>
     </div>
     <div class="actions">
-      <button class="btn chart-btn" onclick="showChart()" title="View Analysis Chart">
-        <i class="fas fa-chart-line"></i> <span>Analysis</span>
+      <button class="btn chart-btn" onclick="openChartModal()">
+        <i class="fas fa-chart-area"></i> <span>Analysis</span>
       </button>
-      
-      <button class="btn qr-btn" onclick="generateQR()" title="Generate QR Code">
-        <i class="fas fa-qrcode"></i> <span>QR Code</span>
+      <button class="btn qr-btn" onclick="generateQR()">
+        <i class="fas fa-qrcode"></i> <span>QR</span>
       </button>
-      <button class="btn whatsapp-btn" onclick="sendHistoryToWhatsApp()" title="Send to WhatsApp">
+      <button class="btn whatsapp-btn" onclick="sendHistoryToWhatsApp()">
         <i class="fab fa-whatsapp"></i>
       </button>
-      <button class="btn print-btn" onclick="window.print()" title="Download PDF">
+      <button class="btn print-btn" onclick="window.print()">
         <i class="fas fa-print"></i>
       </button>
       <button class="btn back-btn" onclick="goBack()">
@@ -244,23 +221,21 @@
     <table id="historyTable">
       <thead>
         <tr>
-          <th id="th-date">Time / Date</th>
-          <th id="th-temp">Temperature</th>
-          <th id="th-pulse">Pulse (BPM)</th>
-          <th id="th-spo2">Oxygen (%)</th>
-          <th id="th-bp">Pressure</th>
-          <th id="th-action" style="width: 50px;"></th>
+          <th id="th-date">Date</th>
+          <th id="th-temp">Temp</th>
+          <th id="th-pulse">Pulse</th>
+          <th id="th-spo2">SpO2</th>
+          <th id="th-bp">BP</th>
+          <th style="width:50px;"></th>
         </tr>
       </thead>
-      <tbody id="tableBody">
-        </tbody>
+      <tbody id="tableBody"></tbody>
     </table>
-    <div id="loadingMsg" class="status-msg">Loading records...</div>
-    <div id="emptyMsg" class="status-msg" style="display:none;">No records found.</div>
+    <div id="loadingMsg" style="text-align:center; padding:20px; color:#aaa;">Loading...</div>
   </div>
 
-  <div id="printFooter">
-    Disclaimer: This report is generated automatically by sensors. Please consult a doctor for official diagnosis.
+  <div id="printFooter" style="display:none; text-align:center; font-size:0.8rem; margin-top:20px;">
+    Generated by Bioscan ATM System
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -280,71 +255,47 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
-
-    auth.signInAnonymously().catch((error) => {
-        console.error("Auth Error:", error);
-    });
+    auth.signInAnonymously().catch(console.error);
 
     const currentUserId = localStorage.getItem("selectedUserId");
     const lang = localStorage.getItem("language") || "en";
     const PATIENT_DATA_PATH = "PatientData"; 
 
+    // --- SETUP UI ---
     if(currentUserId) {
-        const userText = (lang === "ar" ? "المستخدم: " : "User: ") + currentUserId;
-        document.getElementById("userSubtitle").innerText = userText;
+        document.getElementById("userSubtitle").innerText = (lang==="ar"?"المستخدم: ":"User: ") + currentUserId;
         document.getElementById("printUserId").innerText = currentUserId;
-        document.getElementById("printDate").innerText = new Date().toLocaleString();
-    } else {
-        window.location.href = "index.html";
-    }
+        document.getElementById("printDate").innerText = new Date().toLocaleDateString();
+    } else window.location.href = "index.html";
 
     if(lang === "ar") {
         document.body.style.direction = "rtl";
         document.getElementById("pageTitle").innerText = "السجل الطبي";
-        document.querySelector(".back-btn i").className = "fas fa-arrow-right";
-        document.querySelector(".qr-btn span").innerText = "كود الطبيب";
         document.querySelector(".chart-btn span").innerText = "تحليل بياني";
-        document.getElementById("chartTitle").innerText = "تحليل المسار الصحي";
-        
-        document.getElementById("th-date").innerText = "الوقت / التاريخ";
+        document.getElementById("th-date").innerText = "التاريخ";
         document.getElementById("th-temp").innerText = "الحرارة";
         document.getElementById("th-pulse").innerText = "النبض";
         document.getElementById("th-bp").innerText = "الضغط";
         document.getElementById("th-spo2").innerText = "الأكسجين";
-        document.getElementById("th-action").innerHTML = '<i class="fas fa-trash-alt"></i>';
-        
-        document.getElementById("loadingMsg").innerText = "جاري تحميل البيانات...";
-        document.getElementById("emptyMsg").innerText = "لا توجد سجلات سابقة.";
-        
-        document.querySelector(".report-title h1").innerText = "تقرير طبي";
-        document.querySelector(".report-title p").innerText = "نظام بايو سكان";
-        document.querySelector(".report-info").innerHTML = `<strong>رقم المريض:</strong> ${currentUserId}<br><strong>التاريخ:</strong> ${new Date().toLocaleString()}<br><strong>المصدر:</strong> تم الإنشاء بواسطة نظام Bioscan ATM`;
-        document.getElementById("printFooter").innerText = "تنويه: هذا التقرير تم إنشاؤه آلياً بواسطة المستشعرات. يرجى مراجعة الطبيب للتشخيص الرسمي.";
-        
-        document.getElementById("delTitle").innerText = "حذف السجل؟";
-        document.getElementById("delText").innerText = "لا يمكن التراجع عن هذا الإجراء.";
-        document.querySelector(".btn-confirm").innerText = "حذف";
-        document.querySelector(".btn-cancel").innerText = "إلغاء";
-    } else {
-        document.getElementById("th-action").innerHTML = '<i class="fas fa-trash-alt"></i>';
+        document.getElementById("loadingMsg").innerText = "جاري التحميل...";
     }
 
-    function extractSensorValues(sensorString) {
-        const values = {};
-        if (sensorString && sensorString !== "No measurement recorded yet") {
-            sensorString.split(',').forEach(item => {
-                const parts = item.trim().split('=');
-                if (parts.length === 2) {
-                    const key = parts[0].trim().toLowerCase();
-                    const value = parts[1].trim();
-                    if (key.includes('temp')) values.temp = value;
-                    else if (key === 'hr' || key.includes('pulse')) values.bpm = value;
-                    else if (key === 'bp' || key.includes('pressure')) values.pressure = value;
-                    else if (key.includes('o2') || key.includes('spo2')) values.spo2 = value;
+    // --- DATA HANDLING ---
+    function extractValues(str) {
+        const v = {};
+        if(str && str!=="No measurement recorded yet") {
+            str.split(',').forEach(p => {
+                const [k,val] = p.trim().split('=');
+                if(k && val) {
+                    const key = k.trim().toLowerCase();
+                    if(key.includes('temp')) v.temp = val;
+                    if(key.includes('hr')||key.includes('pulse')) v.bpm = val;
+                    if(key.includes('bp')||key.includes('pressure')) v.bp = val;
+                    if(key.includes('o2')||key.includes('spo2')) v.spo2 = val;
                 }
             });
         }
-        return values;
+        return v;
     }
 
     const records = [];
@@ -352,233 +303,172 @@
     
     historyRef.on("value", (snapshot) => {
         const tbody = document.getElementById("tableBody");
-        const loading = document.getElementById("loadingMsg");
-        const empty = document.getElementById("emptyMsg");
-        
+        document.getElementById("loadingMsg").style.display = "none";
         tbody.innerHTML = "";
         records.length = 0;
-        const rawList = [];
-
+        
         if (snapshot.exists()) {
-            loading.style.display = "none";
-            empty.style.display = "none";
+            const raw = [];
+            snapshot.forEach(c => raw.push({ key: c.key, ...c.val() }));
             
-            snapshot.forEach(child => { 
-                rawList.push({ key: child.key, ...child.val() }); 
-            });
-            // We want newest first in TABLE, but oldest first in CHART
-            // So we process rawList as chronological (if it comes sorted) then reverse for table
-            // Usually firebase returns chronological by key.
+            // Sort: Oldest to Newest for Chart, Reverse for Table
+            raw.sort((a,b) => new Date(a.createdAt||a.Timestamp) - new Date(b.createdAt||b.Timestamp));
             
-            // Let's process the list for display (Reversed)
-            const displayList = [...rawList].reverse();
-
-            displayList.forEach(item => {
-                let temp = item.temperature;
-                let bpm = item.bpm;
-                let pressure = item.pressure;
-                let spo2 = item.spo2;
-                let date = item.createdAt || item.Timestamp;
-
-                if (item.SensorData) {
-                    const parsed = extractSensorValues(item.SensorData);
-                    if(parsed.temp) temp = parsed.temp;
-                    if(parsed.bpm) bpm = parsed.bpm;
-                    if(parsed.pressure) pressure = parsed.pressure;
-                    if(parsed.spo2) spo2 = parsed.spo2;
+            raw.forEach(item => {
+                let d = item.createdAt || item.Timestamp;
+                let t = item.temperature, b = item.bpm, p = item.pressure, s = item.spo2;
+                if(item.SensorData) {
+                    const ex = extractValues(item.SensorData);
+                    if(ex.temp) t = ex.temp;
+                    if(ex.bpm) b = ex.bpm;
+                    if(ex.bp) p = ex.bp;
+                    if(ex.spo2) s = ex.spo2;
                 }
-
-                // Add to records array for logic
-                // Ensure we only add valid records
-                if(temp && bpm && pressure && spo2) {
-                    // Push to global records (chronological for charts, so push to beginning since we iterate reverse)
-                    records.unshift({ temperature: temp, bpm: bpm, pressure: pressure, spo2: spo2, createdAt: date, key: item.key });
-                    
-                    const row = `
-                        <tr>
-                            <td>${date}</td>
-                            <td>${temp}</td>
-                            <td>${bpm}</td>
-                            <td>${spo2}</td>
-                            <td>${pressure}</td>
-                            <td class="action-cell">
-                                <button class="delete-btn" onclick="askToDelete('${item.key}')" title="Delete">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += row;
-                }
+                if(t && b && p && s) records.push({ date: d, temp: t, bpm: b, bp: p, spo2: s, key: item.key });
             });
-            
-            if(records.length === 0) empty.style.display = "block";
+
+            // Populate Table (Newest First)
+            [...records].reverse().forEach(r => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${r.date}</td><td>${r.temp}</td><td>${r.bpm}</td><td>${r.spo2}</td><td>${r.bp}</td>
+                        <td><button class="delete-btn" onclick="askToDelete('${r.key}')"><i class="fas fa-trash-alt"></i></button></td>
+                    </tr>`;
+            });
         } else {
-            loading.style.display = "none";
-            empty.style.display = "block";
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">${lang==="ar"?"لا توجد بيانات":"No Data"}</td></tr>`;
         }
     });
 
-    // --- CHART LOGIC (NEW) ---
+    // --- CHART & AI LOGIC ---
     let myChart = null;
 
-    function showChart() {
-        if(records.length < 2) {
-            showToast(lang === "ar" ? "يجب توفر سجلين على الأقل للتحليل" : "Need at least 2 records for analysis", "error");
-            return;
-        }
+    function openChartModal() {
+        if(records.length < 2) return showToast(lang==="ar"?"يجب توفر قراءتين على الأقل":"Need 2+ records", "error");
+        document.getElementById("chartModal").classList.add("active");
+        updateChartType();
+    }
 
-        const modal = document.getElementById("chartModal");
-        modal.style.display = "flex";
-        setTimeout(() => modal.classList.add("active"), 10);
-
-        // Prepare Data
-        // Sort records by date just in case (Oldest first for chart)
-        const chartData = [...records].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-
-        const labels = chartData.map(r => r.createdAt.split(',')[0]); // Just date part
-        const sysData = [];
-        const diaData = [];
-        const pulseData = [];
-
-        chartData.forEach(r => {
-            // Split BP "120/80" -> 120, 80
-            if(r.pressure.includes('/')) {
-                const parts = r.pressure.split('/');
-                sysData.push(parseInt(parts[0]));
-                diaData.push(parseInt(parts[1]));
-            } else {
-                sysData.push(parseInt(r.pressure) || 0);
-                diaData.push(0);
-            }
-            pulseData.push(parseInt(r.bpm));
-        });
-
+    function updateChartType() {
+        const type = document.getElementById("chartTypeSelector").value;
         const ctx = document.getElementById('healthChart').getContext('2d');
-        
-        // Destroy previous chart if exists to avoid overlay
         if(myChart) myChart.destroy();
+
+        const labels = records.map(r => r.date.split(',')[0]); // Short date
+        let datasets = [];
+        
+        // --- 1. CARDIO CHART (BP & Pulse) ---
+        if(type === 'bp') {
+            const sys = records.map(r => parseInt(r.bp.split('/')[0]) || 0);
+            const dia = records.map(r => parseInt(r.bp.split('/')[1]) || 0);
+            const pulse = records.map(r => parseInt(r.bpm));
+
+            datasets = [
+                { label: 'Systolic (High)', data: sys, borderColor: '#e74c3c', backgroundColor: 'rgba(231,76,60,0.1)', fill: true, tension: 0.4 },
+                { label: 'Diastolic (Low)', data: dia, borderColor: '#3498db', backgroundColor: 'rgba(52,152,219,0.1)', fill: true, tension: 0.4 },
+                { label: 'Pulse', data: pulse, borderColor: '#2ecc71', borderDash: [5,5], tension: 0.4 }
+            ];
+            generateReport('bp', sys, dia, pulse);
+        } 
+        // --- 2. VITALS CHART (Temp & Oxygen) ---
+        else {
+            const temp = records.map(r => parseFloat(r.temp));
+            const spo2 = records.map(r => parseFloat(r.spo2));
+
+            datasets = [
+                { label: 'Temperature (°C)', data: temp, borderColor: '#f39c12', backgroundColor: 'rgba(243,156,18,0.1)', yAxisID: 'y', tension: 0.4 },
+                { label: 'Oxygen (%)', data: spo2, borderColor: '#9b59b6', backgroundColor: 'rgba(155,89,182,0.1)', yAxisID: 'y1', tension: 0.4 }
+            ];
+            generateReport('vital', temp, spo2);
+        }
 
         myChart = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: lang==="ar" ? 'الضغط الانقباضي (عالي)' : 'Systolic BP (High)',
-                        data: sysData,
-                        borderColor: '#e74c3c', // Red
-                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        fill: true
-                    },
-                    {
-                        label: lang==="ar" ? 'الضغط الانبساطي (منخفض)' : 'Diastolic BP (Low)',
-                        data: diaData,
-                        borderColor: '#3498db', // Blue
-                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        fill: true
-                    },
-                    {
-                        label: lang==="ar" ? 'نبض القلب' : 'Heart Rate',
-                        data: pulseData,
-                        borderColor: '#2ecc71', // Green
-                        borderDash: [5, 5], // Dashed line
-                        borderWidth: 2,
-                        tension: 0.3,
-                        pointStyle: 'rectRot'
-                    }
-                ]
-            },
+            data: { labels: labels, datasets: datasets },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        title: { display: true, text: 'Value' }
-                    }
-                },
+                scales: type === 'vital' ? {
+                    y: { type: 'linear', display: true, position: 'left', title: {display:true, text:'Temp'} },
+                    y1: { type: 'linear', display: true, position: 'right', grid: {drawOnChartArea: false}, title: {display:true, text:'Oxygen %'} }
+                } : { y: { beginAtZero: false } },
                 plugins: {
-                    legend: { position: 'top' }
+                    annotation: {
+                        annotations: type === 'bp' ? {
+                            line1: { type: 'line', yMin: 140, yMax: 140, borderColor: 'red', borderWidth: 1, label: { content: 'Max Limit', enabled: true } }
+                        } : {}
+                    }
                 }
             }
         });
     }
 
-    function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.classList.remove("active");
-        setTimeout(() => { modal.style.display = "none"; }, 300);
+    // --- AI REPORT GENERATOR ---
+    function generateReport(type, data1, data2, data3) {
+        let html = "";
+        const lastIdx = records.length - 1;
         
-        // If closing QR, clear it
-        if(modalId === 'qrModal') document.getElementById("qrcode").innerHTML = "";
+        if(type === 'bp') {
+            const avgSys = (data1.reduce((a,b)=>a+b,0)/data1.length).toFixed(0);
+            const highReadings = data1.filter(v => v > 140).length;
+            
+            html += `<span class="status-badge ${highReadings>0?'status-warning':'status-good'}">${highReadings>0?'⚠️ Warning':'✅ Stable'}</span><br>`;
+            html += lang==="ar" 
+                ? `متوسط ضغط الدم لديك هو <b>${avgSys}</b>. تم رصد <b>${highReadings}</b> قراءات مرتفعة.` 
+                : `Your average systolic BP is <b>${avgSys}</b>. We detected <b>${highReadings}</b> high readings above limit.`;
+            
+            if(highReadings > 0) html += lang==="ar" 
+                ? `<br>💡 <b>نصيحة:</b> قلل من الملح في طعامك وحاول الاسترخاء.` 
+                : `<br>💡 <b>Tip:</b> Reduce salt intake and try to monitor daily.`;
+                
+        } else {
+            const avgTemp = (data1.reduce((a,b)=>a+b,0)/data1.length).toFixed(1);
+            const lowO2 = data2.filter(v => v < 95).length;
+            
+            html += `<span class="status-badge ${avgTemp>37.5?'status-danger':'status-good'}">${avgTemp>37.5?'🔥 Fever':'✅ Normal Temp'}</span> `;
+            html += `<span class="status-badge ${lowO2>0?'status-warning':'status-good'}">${lowO2>0?'⚠️ Low Oxygen':'✅ Good Oxygen'}</span><br>`;
+            
+            html += lang==="ar"
+                ? `متوسط الحرارة: <b>${avgTemp}°C</b>. نسبة الأكسجين جيدة في معظم الأوقات.`
+                : `Average Temp: <b>${avgTemp}°C</b>. Oxygen saturation levels look stable.`;
+                
+            if(lowO2 > 0) html += lang==="ar" ? `<br>🌬️ تنفس بعمق وابق في مكان جيد التهوية.` : `<br>🌬️ Practice deep breathing exercises.`;
+        }
+        
+        document.getElementById("aiAnalysisText").innerHTML = html;
     }
 
-    // --- QR & Delete Logic (Existing) ---
-    let recordToDelete = null;
-    function askToDelete(key) {
-        recordToDelete = key;
-        const modal = document.getElementById("deleteModal");
-        modal.style.display = "flex";
-        setTimeout(() => modal.classList.add("active"), 10);
-    }
-    function confirmDelete() {
-        if(recordToDelete) {
-            db.ref(`${PATIENT_DATA_PATH}/${currentUserId}/History/${recordToDelete}`).remove()
-            .then(() => showToast(lang === "ar" ? "تم الحذف" : "Deleted", "success"))
-            .catch(() => showToast("Error", "error"));
-        }
-        closeModal('deleteModal');
+    // --- COMMON UTILS ---
+    function closeModal(id) { document.getElementById(id).classList.remove("active"); }
+    
+    let delKey = null;
+    function askToDelete(k) { delKey = k; document.getElementById("deleteModal").classList.add("active"); }
+    function confirmDelete() { 
+        if(delKey) db.ref(`${PATIENT_DATA_PATH}/${currentUserId}/History/${delKey}`).remove().then(()=>closeModal("deleteModal"));
     }
 
     function generateQR() {
-        if(records.length === 0) return showToast(lang === "ar" ? "لا بيانات!" : "No data!", "error");
-        const modal = document.getElementById("qrModal");
-        modal.style.display = "flex"; 
-        void modal.offsetWidth; 
-        modal.classList.add("active");
-        const latest = records[records.length - 1]; // Latest is last in this array because we unshifted
-        
-        // Actually, records array has items unshifted (newest at index 0 because of reverse logic in loop?)
-        // Let's check table loop: rawList (Old->New), Reversed (New->Old).
-        // records.unshift puts newest at index 0 if we iterate reversed array. 
-        // Wait, logic check:
-        // displayList is Raw reversed (Newest first).
-        // records.unshift(item) puts Newest item at BEGINNING of records. So records is Newest -> Oldest.
-        // So records[0] is newest.
-        
-        const qrData = `ID:${currentUserId}\nD:${latest.createdAt}\nT:${latest.temperature}\nHR:${latest.bpm}\nBP:${latest.pressure}`;
+        if(records.length===0) return showToast("No Data","error");
+        document.getElementById("qrModal").classList.add("active");
         document.getElementById("qrcode").innerHTML = "";
-        new QRCode(document.getElementById("qrcode"), {
-            text: qrData, width: 150, height: 150
-        });
+        const r = records[records.length-1];
+        new QRCode(document.getElementById("qrcode"), { text: `ID:${currentUserId}\nT:${r.temp}\nBP:${r.bp}`, width:150, height:150 });
     }
 
     function sendHistoryToWhatsApp() {
-        if (records.length === 0) return showToast(lang === "ar" ? "لا بيانات!" : "No data!", "error");
-        let phone = currentUserId;
-        if (phone.startsWith('0')) phone = '20' + phone.substring(1);
-        let report = lang === "ar" ? `📄 *تقرير السجل الطبي*\n` : `📄 *Medical Report*\n`;
-        // Send last 5 records (records[0] is newest)
-        for(let i = 0; i < Math.min(records.length, 5); i++) {
-            const r = records[i];
-            report += `📅 ${r.createdAt}\n🌡️ ${r.temperature} | ❤️ ${r.bpm}\n🩸 ${r.pressure} | 🫁 ${r.spo2}\n-----------------\n`;
-        }
-        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(report)}`, '_blank');
+        if(records.length===0) return;
+        let ph = currentUserId.replace(/\D/g,'');
+        if(ph.startsWith('01')) ph = '20'+ph.substring(1);
+        let txt = lang==="ar" ? "تقرير طبي:\n" : "Medical Report:\n";
+        [...records].reverse().slice(0,5).forEach(r => txt += `${r.date}: T ${r.temp} | BP ${r.bp}\n`);
+        window.open(`https://wa.me/${ph}?text=${encodeURIComponent(txt)}`);
     }
 
     function goBack() { window.location.href = "measurements.html"; }
-    function showToast(message, type = "info") {
-        const container = document.getElementById("toastContainer");
-        const toast = document.createElement("div");
-        toast.className = `toast`;
-        toast.innerHTML = `<i class="fas fa-info-circle"></i> <span>${message}</span>`;
-        container.appendChild(toast);
-        setTimeout(() => { toast.remove(); }, 3000);
+    function showToast(m,t) {
+        const d = document.createElement("div"); d.className="toast"; d.innerHTML = m;
+        document.getElementById("toastContainer").appendChild(d);
+        setTimeout(()=>d.remove(),3000);
     }
   </script>
 </body>
