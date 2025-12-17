@@ -18,7 +18,6 @@
   body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; transition: background 0.5s; }
   @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
   
-  /* SOS Styles */
   @keyframes sos-flash { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); border-color: red; } 50% { box-shadow: 0 0 50px 20px rgba(255, 0, 0, 0.5); border-color: #ff4d4d; background: rgba(50, 0, 0, 0.6); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); border-color: red; } }
   .critical-state { animation: sos-flash 1s infinite; border: 2px solid red !important; }
   .critical-bg { background: radial-gradient(circle, #3a0000, #000) !important; }
@@ -33,28 +32,24 @@
   .sos-banner { display: none; background: red; color: white; font-weight: bold; padding: 10px; border-radius: 10px; margin-bottom: 15px; animation: blink 0.5s infinite alternate; }
   @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
 
-  /* --- ANIMATED HEART UI --- */
   .icon-container { margin-bottom: 20px; position: relative; height: 100px; display: flex; align-items: center; justify-content: center; }
   
-  /* The Heart Icon with Dynamic Animation */
   #heartIcon { 
     font-size: 6rem; 
     background: -webkit-linear-gradient(#ff4b2b, #ff416c); 
     -webkit-background-clip: text; 
     -webkit-text-fill-color: transparent; 
     filter: drop-shadow(0 0 15px rgba(255, 65, 108, 0.6)); 
-    /* Animation duration will be set by JS */
     animation-name: pumping; 
     animation-timing-function: ease-in-out; 
     animation-iteration-count: infinite;
   }
 
-  /* Realistic Heartbeat (Lub-Dub) */
   @keyframes pumping { 
     0% { transform: scale(1); } 
-    15% { transform: scale(1.25); filter: drop-shadow(0 0 25px rgba(255, 65, 108, 0.9)); } /* Systole */
+    15% { transform: scale(1.25); filter: drop-shadow(0 0 25px rgba(255, 65, 108, 0.9)); }
     30% { transform: scale(1); } 
-    45% { transform: scale(1.15); filter: drop-shadow(0 0 20px rgba(255, 65, 108, 0.8)); } /* Diastole */
+    45% { transform: scale(1.15); filter: drop-shadow(0 0 20px rgba(255, 65, 108, 0.8)); }
     60% { transform: scale(1); } 
     100% { transform: scale(1); } 
   }
@@ -63,12 +58,13 @@
   #pulseValue { font-size: 3rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--primary-color); }
   .unit { font-size: 1.5rem; color: var(--primary-color); }
   
-  /* Sound Toggle Button */
+  /* Sound Toggle */
   .sound-toggle {
     position: absolute; top: 10px; right: 10px;
     background: rgba(255,255,255,0.1); border: none; color: #aaa;
     width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
     display: flex; align-items: center; justify-content: center; transition: 0.3s;
+    z-index: 10;
   }
   .sound-toggle.active { background: var(--primary-color); color: white; box-shadow: 0 0 10px var(--primary-color); }
 
@@ -83,10 +79,10 @@
   .voice-btn { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid var(--primary-color); color: var(--primary-color); }
   .advice-btn:hover, .voice-btn:hover, .save-btn:hover { transform: translateY(-3px); }
   .voice-btn:hover { background: var(--primary-color); color: white; }
+  
   .advice-box { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 15px; margin-top: 20px; display: none; font-size: 1.1rem; color: #fff; border-left: 4px solid var(--primary-color); animation: slideDown 0.5s ease; }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Modal */
   .confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 5000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
   .confirm-modal.active { display: flex; opacity: 1; }
   .confirm-content { background: linear-gradient(145deg, #152229, #1c2e36); border: 2px solid var(--primary-color); border-radius: 25px; width: 90%; max-width: 400px; padding: 30px; text-align: center; box-shadow: 0 0 50px rgba(255, 65, 108, 0.3); transform: scale(0.8); transition: transform 0.3s ease; }
@@ -110,11 +106,12 @@
   </div>
 </div>
 
+<audio id="beatSound">
+  <source src="data:audio/mp3;base64,//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQxAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" type="audio/mpeg">
+</audio>
+
 <audio id="alarmSound" loop>
   <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
-</audio>
-<audio id="beatSound">
-  <source src="https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3" type="audio/mpeg">
 </audio>
 
 <header>
@@ -129,11 +126,11 @@
   
   <div class="card" id="mainCard">
     <div class="icon-container">
-        <i class="fas fa-heartbeat" id="heartIcon" style="animation-duration: 1.5s;"></i>
+        <i class="fas fa-heartbeat" id="heartIcon" style="animation-duration: 1s;"></i>
     </div>
     
     <div class="pulse-box">
-      <button class="sound-toggle" id="soundBtn" onclick="toggleBeep()" title="Toggle Heart Sound">
+      <button class="sound-toggle" id="soundBtn" onclick="toggleBeep()" title="Enable Heart Sound">
         <i class="fas fa-volume-mute" id="soundIcon"></i>
       </button>
       <span id="pulseValue">--</span> <span class="unit">BPM</span>
@@ -159,7 +156,7 @@
 </div>
 
 <script>
-  // --- 1. Config ---
+  // 1. Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
     authDomain: "smart-a76a0.firebaseapp.com",
@@ -173,17 +170,15 @@
   const auth = firebase.auth();
   auth.signInAnonymously().catch(console.error);
 
-  // UI Elements
   const pulseBox = document.getElementById("pulseValue");
   const adviceBox = document.getElementById("adviceBox");
   const sosBanner = document.getElementById("sosBanner");
   const mainCard = document.getElementById("mainCard");
   const heartIcon = document.getElementById("heartIcon");
   
-  // Audio Elements
   const alarmSound = document.getElementById("alarmSound");
-  const beatSound = document.getElementById("beatSound");
-  beatSound.volume = 0.5; // Set volume to 50%
+  const beatSound = document.getElementById("beatSound"); // The Base64 Sound
+  beatSound.volume = 0.5; 
   
   const userId = localStorage.getItem("selectedUserId");
   const PATIENT_DATA_PATH = "PatientData";
@@ -192,34 +187,31 @@
   let beepEnabled = false;
   let beepInterval = null;
 
-  // --- 2. Live Reading & Animation Logic ---
+  // --- 2. Logic ---
   function updatePulseUI(val) {
       if(isNaN(val)) return;
       pulseBox.innerText = val;
 
-      // 1. SOS Logic (Critical Range)
+      // SOS Logic
       if (val > 120 || val < 50) triggerSOS();
       else clearSOS();
 
-      // 2. Animation Speed Logic (Dynamic)
-      // Standard: 60 BPM = 1 beat per second.
-      // Formula: 60 / BPM = seconds per beat.
-      // Example: 120 BPM -> 0.5s duration (Fast)
-      const duration = 60 / val;
+      // Animation Logic: Faster beat for higher pulse
+      // 60 BPM = 1 sec duration. 120 BPM = 0.5 sec.
+      const duration = 60 / val; 
       heartIcon.style.animationDuration = `${duration}s`;
 
-      // 3. Audio Sync (Beep)
-      clearInterval(beepInterval); // Clear old interval
-      if(beepEnabled && !isCritical) { // Only beep if enabled and not in alarm mode
+      // Sound Logic
+      clearInterval(beepInterval);
+      if(beepEnabled && !isCritical) {
+          // Play sound every beat
           beepInterval = setInterval(() => {
-              // Play short beep
               beatSound.currentTime = 0;
-              beatSound.play().catch(()=>{});
-          }, duration * 1000); // Convert seconds to ms
+              beatSound.play().catch(e => console.log("Audio play blocked", e));
+          }, duration * 1000);
       }
   }
 
-  // Toggle Sound Button Logic
   function toggleBeep() {
       beepEnabled = !beepEnabled;
       const btn = document.getElementById("soundBtn");
@@ -229,7 +221,8 @@
       if(beepEnabled) {
           btn.classList.add("active");
           icon.className = "fas fa-volume-up";
-          // Start beeping immediately if we have a reading
+          // Attempt to play once to unlock audio context
+          beatSound.play().catch(()=>{}); 
           if(!isNaN(currentBPM)) updatePulseUI(currentBPM);
       } else {
           btn.classList.remove("active");
@@ -252,7 +245,6 @@
     });
   }
 
-  // --- 3. Save Function ---
   function saveMeasurement() {
     const val = pulseBox.innerText;
     if (val === "--" || val === "") return;
@@ -278,7 +270,6 @@
     });
   }
 
-  // --- Helpers ---
   function showConfirmModal() {
       const isAr = localStorage.getItem("language") === "ar";
       document.getElementById("modalTitle").innerText = isAr ? "تم بنجاح!" : "Success!";
@@ -295,7 +286,7 @@
   }
 
   function triggerSOS() { if(isCritical) return; isCritical = true; clearInterval(beepInterval); document.body.classList.add("critical-bg"); mainCard.classList.add("critical-state"); sosBanner.style.display = "block"; alarmSound.play().catch(e=>{}); const lang = localStorage.getItem("language") || "en"; sosBanner.innerText = lang === "ar" ? "🚨 خطر: نبض غير طبيعي!" : "🚨 CRITICAL HEART RATE!"; }
-  function clearSOS() { if(!isCritical) return; isCritical = false; document.body.classList.remove("critical-bg"); mainCard.classList.remove("critical-state"); sosBanner.style.display = "none"; alarmSound.pause(); alarmSound.currentTime = 0; if(beepEnabled) updatePulseUI(parseInt(pulseBox.innerText)); }
+  function clearSOS() { if(!isCritical) return; isCritical = false; document.body.classList.remove("critical-bg"); mainCard.classList.remove("critical-state"); sosBanner.style.display = "none"; alarmSound.pause(); alarmSound.currentTime = 0; if(beepEnabled && !isNaN(parseInt(pulseBox.innerText))) updatePulseUI(parseInt(pulseBox.innerText)); }
   
   function speakResult() {
     let bpm = parseInt(pulseBox.innerText);
