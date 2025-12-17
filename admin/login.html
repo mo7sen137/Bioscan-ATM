@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bioscan | Login</title>
+    <title>Bioscan | Admin Login</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* General Styles */
+        /* --- 1. GENERAL STYLES --- */
         * {
             margin: 0; padding: 0;
             box-sizing: border-box;
@@ -25,25 +25,29 @@
             background: #000;
         }
 
-        /* Video Background */
+        /* --- 2. VIDEO BACKGROUND (SMOOTH LOOP STYLE) --- */
         #video-background {
             position: fixed; right: 0; bottom: 0;
             min-width: 100%; min-height: 100%;
             width: auto; height: auto;
             z-index: -1;
             object-fit: cover;
+            /* جعل الفيديو داكن لظهور النصوص */
             filter: brightness(30%) contrast(110%);
+            /* خاصية التلاشي الناعم */
+            transition: opacity 1s ease-in-out;
+            opacity: 1;
         }
 
-        /* Login Container */
+        /* --- 3. LOGIN CARD DESIGN --- */
         .container {
             position: relative; width: 400px;
             padding: 50px 40px;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.6); /* خلفية نصف شفافة */
             border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid #00d2ff;
-            box-shadow: 0 0 25px rgba(0, 210, 255, 0.3);
+            backdrop-filter: blur(10px); /* تأثير الزجاج */
+            border: 1px solid #00d2ff; /* إطار أزرق */
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.3); /* توهج أزرق */
             text-align: center;
             z-index: 1;
         }
@@ -55,13 +59,15 @@
             text-shadow: 0 0 10px #00d2ff;
         }
 
-        /* Inputs */
+        /* --- 4. INPUT FIELDS --- */
         .input-box {
             position: relative; width: 100%; margin-bottom: 25px;
         }
 
         .input-field {
-            width: 100%; padding: 15px 20px 15px 45px; /* مساحة للأيقونة */
+            width: 100%; 
+            /* مساحة للأيقونات (يمين ويسار) */
+            padding: 15px 45px 15px 45px; 
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
@@ -77,14 +83,28 @@
 
         .input-field::placeholder { color: #aaa; }
 
-        .input-box i {
+        /* Left Icon (User/Lock) */
+        .input-box .icon-left {
             position: absolute; left: 15px; top: 50%;
             transform: translateY(-50%);
             color: #ccc; font-size: 20px;
             pointer-events: none;
         }
 
-        /* Submit Button */
+        /* Right Icon (Eye Toggle) */
+        .input-box .icon-right {
+            position: absolute; right: 15px; top: 50%;
+            transform: translateY(-50%);
+            color: #ccc; font-size: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 10;
+        }
+        .input-box .icon-right:hover {
+            color: #00d2ff;
+        }
+
+        /* --- 5. SUBMIT BUTTON --- */
         .input-submit { width: 100%; margin-top: 10px; }
 
         .submit-btn {
@@ -101,7 +121,7 @@
             box-shadow: 0 0 20px rgba(0, 210, 255, 0.6);
         }
 
-        /* Error Message */
+        /* --- 6. ERROR MESSAGE --- */
         #errorMessage {
             margin-top: 15px;
             color: #ff416c;
@@ -123,23 +143,26 @@
         
         <div class="input-box">
             <input type="text" class="input-field" placeholder="Email" id="adminEmail" required>
-            <i class="bx bx-user"></i>
+            <i class="bx bx-user icon-left"></i>
         </div>
         
         <div class="input-box">
             <input type="password" class="input-field" placeholder="Password" id="adminPassword" required>
-            <i class="bx bx-lock-alt"></i>
+            <i class="bx bx-lock-alt icon-left"></i>
+            <i class="bx bx-show icon-right" id="togglePassword" onclick="togglePassVisibility()"></i>
         </div>
 
         <div class="input-submit">
-            <button class="submit-btn" onclick="adminLogin()">Login</button>
+            <button class="submit-btn" onclick="adminLogin()">LOGIN</button>
         </div>
 
         <div id="errorMessage"></div>
     </div>
 
     <script>
-        // --- 1. FIREBASE CONFIG ---
+        // ==========================================
+        // 1. FIREBASE CONFIGURATION
+        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
             authDomain: "smart-a76a0.firebaseapp.com",
@@ -152,21 +175,24 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // --- 2. AUTH LOGIC ---
+        // ==========================================
+        // 2. AUTHENTICATION LOGIC
+        // ==========================================
         
-        // التحقق من حالة الدخول وتوجيه المستخدم
+        // التحقق من حالة المستخدم (لو مسجل يدخل علطول)
         auth.onAuthStateChanged(function(user) {
             if (user) {
-                // لو المستخدم مسجل دخول بالفعل، حوله فوراً للداشبورد
-                console.log("User is logged in, redirecting...");
+                console.log("User detected, redirecting...");
                 window.location.href = "admin_dashboard.html";
             }
         });
 
+        // دالة تسجيل الدخول
         function adminLogin() {
             const email = document.getElementById('adminEmail').value;
             const password = document.getElementById('adminPassword').value;
             const errorDiv = document.getElementById('errorMessage');
+            const btn = document.querySelector('.submit-btn');
 
             if (!email || !password) {
                 errorDiv.innerText = "Please enter both email and password.";
@@ -174,27 +200,68 @@
                 return;
             }
 
-            // تغيير نص الزر ليدل على التحميل
-            document.querySelector('.submit-btn').innerText = "Checking...";
+            // تغيير نص الزر أثناء التحميل
+            btn.innerText = "CHECKING...";
+            btn.style.opacity = "0.7";
 
             auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
-                    // النجاح: الـ onAuthStateChanged اللي فوق هو اللي هيعمل التوجيه
+                    // تسجيل ناجح: onAuthStateChanged ستتولى التوجيه
                     errorDiv.style.display = "none";
                 })
                 .catch((error) => {
-                    // الفشل: إظهار رسالة خطأ
+                    // فشل التسجيل
                     console.error(error);
-                    document.querySelector('.submit-btn').innerText = "LOGIN";
-                    errorDiv.innerText = "Login Failed: " + error.message;
+                    btn.innerText = "LOGIN";
+                    btn.style.opacity = "1";
+                    errorDiv.innerText = "Error: " + error.message;
                     errorDiv.style.display = "block";
                 });
         }
 
-        // دعم زر Enter للدخول
+        // دعم زر Enter
         document.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                adminLogin();
+            if (e.key === 'Enter') adminLogin();
+        });
+
+        // ==========================================
+        // 3. TOGGLE PASSWORD VISIBILITY (EYE ICON)
+        // ==========================================
+        function togglePassVisibility() {
+            const passwordInput = document.getElementById('adminPassword');
+            const toggleIcon = document.getElementById('togglePassword');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bx-show');
+                toggleIcon.classList.add('bx-hide'); // تغيير العين لمغلقة
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bx-hide');
+                toggleIcon.classList.add('bx-show'); // إرجاع العين مفتوحة
+            }
+        }
+
+        // ==========================================
+        // 4. VIDEO SMOOTH LOOP (FADE EFFECT)
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.getElementById('video-background');
+            
+            if(video) {
+                video.addEventListener('timeupdate', function() {
+                    const timeLeft = this.duration - this.currentTime;
+                    
+                    // قبل النهاية بـ 0.8 ثانية، ابدأ التلاشي (يظلم)
+                    if (timeLeft < 0.8) {
+                        this.style.opacity = 0;
+                    }
+                    
+                    // عند البداية من جديد، اظهر مرة أخرى بنعومة
+                    if (this.currentTime < 0.8 && getComputedStyle(this).opacity == "0") {
+                        this.style.opacity = 1;
+                    }
+                });
             }
         });
     </script>
