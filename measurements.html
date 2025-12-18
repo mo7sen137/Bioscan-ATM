@@ -21,7 +21,7 @@
       --success: #00ff88;
       --warning: #f39c12;
       
-      /* Colors */
+      /* Base Colors for Modules */
       --temp-color: #ff9f43;
       --pulse-color: #ff4757;
       --bp-color: #a29bfe;
@@ -71,38 +71,47 @@
     ::-webkit-scrollbar-track { background: #050b14; }
     ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 10px; }
 
-    /* --- 4. HEADER (PC DEFAULT) --- */
+    /* --- 4. HEADER --- */
     .user-card { 
       position: fixed; top: 0; left: 0; width: 100%; height: 75px;
       background: rgba(5, 10, 18, 0.98); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--primary-neon); 
       box-shadow: 0 0 25px rgba(0, 242, 255, 0.15); z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px; margin: 0; border-radius: 0;
+      padding: 0 15px; margin: 0; border-radius: 0;
+      gap: 15px; 
     }
-    .user-left { display: flex; align-items: center; gap: 12px; }
-    .user-avatar { font-size: 1.8rem; color: var(--primary-neon); filter: drop-shadow(0 0 8px var(--primary-neon)); flex-shrink: 0; }
-    .user-info { display: flex; flex-direction: column; overflow: hidden; }
-    .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: #888; letter-spacing: 1px; white-space: nowrap; }
-    .user-info span { font-size: 1rem; color: #fff; font-weight: 700; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .user-left { 
+        display: flex; align-items: center; gap: 10px; 
+        flex: 1; min-width: 0; 
+    }
+    .user-avatar { font-size: 1.6rem; color: var(--primary-neon); filter: drop-shadow(0 0 8px var(--primary-neon)); flex-shrink: 0; }
+    .user-info { display: flex; flex-direction: column; overflow: hidden; }
+    .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.65rem; color: #888; letter-spacing: 1px; white-space: nowrap; }
+    .user-info span { font-size: 0.95rem; color: #fff; font-weight: 700; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    .top-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    
     .icon-btn { 
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
-      color: var(--primary-neon); width: 38px; height: 38px; border-radius: 8px;
-      cursor: pointer; transition: 0.3s; font-size: 1rem;
+      color: var(--primary-neon); width: 34px; height: 34px; border-radius: 8px;
+      cursor: pointer; transition: 0.3s; font-size: 0.9rem;
       display: flex; justify-content: center; align-items: center;
     }
     .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
     .icon-btn.active { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); border-color: var(--success); }
     .icon-btn.listening { background: var(--error); color: #fff; animation: pulseRed 1s infinite; border-color: var(--error); }
     @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(255, 65, 108, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0); } }
+    
     .whatsapp-btn { color: #25D366; border-color: #25D366; }
     .whatsapp-btn:hover { background: #25D366; color: #fff; box-shadow: 0 0 15px #25D366; }
+    
+    #langBtn { font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.75rem; width: 34px; }
+    
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 10px var(--success); margin-left: 5px; }
     .status-dot.offline { background-color: var(--error); box-shadow: 0 0 10px var(--error); animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0.5; } }
-    #langBtn { font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.75rem; width: 38px; }
 
     /* --- 5. AI CONSOLE --- */
     .ai-card { 
@@ -173,6 +182,8 @@
     @keyframes breathe { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
 
     .measure-btn i { font-size: 2rem; margin-bottom: 5px; }
+    
+    /* COLORED LABELS */
     .measure-btn span { 
         font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
         text-shadow: none; 
@@ -212,6 +223,7 @@
     .dock-title { display: block; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; }
     .dock-sub { display: none; }
 
+    /* EXIT BUTTON */
     .close-btn { 
       background: rgba(255, 42, 42, 0.1); color: var(--error); border: 1px solid var(--error);
       padding: 10px 20px; border-radius: 50px; font-size: 0.85rem; font-family: 'Orbitron', sans-serif; 
@@ -265,30 +277,10 @@
     .toast-info { border-color: var(--primary-neon); } .toast-info i { color: var(--primary-neon); }
     .toast-success { border-color: var(--success); } .toast-success i { color: var(--success); }
 
-    /* MOBILE SPECIFIC FIXES */
-    @media screen and (max-width: 768px) {
-      .user-card { 
-          padding: 0 10px; /* Less Padding */
-          height: 65px; 
-          gap: 10px; /* Space between ID and Buttons */
-      }
-      .user-avatar { font-size: 1.4rem; }
-      
-      .user-info h2 { font-size: 0.6rem; }
-      .user-info span { 
-          font-size: 0.85rem; 
-          letter-spacing: 0.5px; 
-      }
-      
-      .top-actions { gap: 5px; } /* Tighter Buttons */
-      .icon-btn { width: 32px; height: 32px; font-size: 0.85rem; }
-      #langBtn { width: 32px; font-size: 0.65rem; }
-
-      .measure-container { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-      .measure-btn { height: 150px; }
-      .dock-container { grid-template-columns: 1fr; }
-      .fab-right { right: 20px; bottom: 20px; }
-      .fab-left { left: 20px; bottom: 20px; }
+    @media screen and (min-width: 769px) {
+        .dock-sub { display: block; }
+        .ai-advice-container { flex-wrap: wrap; justify-content: flex-start; overflow-x: visible; }
+        .advice-box { flex: 1; min-width: 200px; }
     }
   </style>
 </head>
@@ -309,7 +301,6 @@
       <button class="icon-btn" id="langBtn" onclick="toggleLanguage()" title="Switch Language">
         AR
       </button>
-      
       <button class="icon-btn" id="micBtn" onclick="startListening()" title="Voice Commands">
         <i class="fas fa-microphone"></i>
       </button>
@@ -791,8 +782,18 @@
 
     // Modal & Sidebar
     function triggerSOS(){const s=localStorage.getItem("sosContactNumber"); if(!s) openContactModal(); else openConfirmModal();}
-    function openContactModal(){document.getElementById('contactModal').classList.add('active');}
-    function saveEmergencyContact(){const n=document.getElementById('emergencyInput').value; if(n.length<5) return; localStorage.setItem("sosContactNumber",n); closeModals();}
+    
+    function openContactModal() {
+        const lang = currentLang;
+        document.getElementById('contactTitle').innerText = lang === "ar" ? "جهة اتصال الطوارئ" : "Emergency Contact";
+        document.getElementById('contactText').innerText = lang === "ar" ? "أدخل رقم الهاتف" : "Enter phone number";
+        const saved = localStorage.getItem("sosContactNumber"); 
+        if(saved) document.getElementById('emergencyInput').value = saved; // Pre-fill
+        else document.getElementById('emergencyInput').value = ""; // Clear if new
+        document.getElementById('contactModal').classList.add('active');
+    }
+
+    function saveEmergencyContact(){const n=document.getElementById('emergencyInput').value; if(n.length<5) return; localStorage.setItem("sosContactNumber",n); closeModals(); showToast(currentLang==="ar"?"تم الحفظ":"Saved", "success");}
     function openConfirmModal(){document.getElementById('confirmModal').classList.add('active');}
     function closeModals(){document.getElementById('contactModal').classList.remove('active'); document.getElementById('confirmModal').classList.remove('active');}
     
