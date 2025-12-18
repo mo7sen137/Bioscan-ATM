@@ -71,35 +71,25 @@
     ::-webkit-scrollbar-track { background: #050b14; }
     ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 10px; }
 
-    /* --- 4. HEADER (FIXED SPACING) --- */
+    /* --- 4. HEADER (PC DEFAULT) --- */
     .user-card { 
       position: fixed; top: 0; left: 0; width: 100%; height: 75px;
       background: rgba(5, 10, 18, 0.98); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--primary-neon); 
       box-shadow: 0 0 25px rgba(0, 242, 255, 0.15); z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 15px; margin: 0; border-radius: 0;
-      gap: 15px; /* FORCE GAP BETWEEN SIDES */
+      padding: 0 20px; margin: 0; border-radius: 0;
     }
-    
-    .user-left { 
-        display: flex; align-items: center; gap: 10px; 
-        flex: 1; /* Allow taking available space */
-        min-width: 0; /* Enable truncation for very long names */
-    }
+    .user-left { display: flex; align-items: center; gap: 12px; }
     .user-avatar { font-size: 1.8rem; color: var(--primary-neon); filter: drop-shadow(0 0 8px var(--primary-neon)); flex-shrink: 0; }
     .user-info { display: flex; flex-direction: column; overflow: hidden; }
     .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: #888; letter-spacing: 1px; white-space: nowrap; }
     .user-info span { font-size: 1rem; color: #fff; font-weight: 700; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    .top-actions { 
-        display: flex; align-items: center; gap: 8px; 
-        flex-shrink: 0; /* PREVENT BUTTONS FROM SHRINKING */
-    }
-    
+    .top-actions { display: flex; align-items: center; gap: 10px; }
     .icon-btn { 
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
-      color: var(--primary-neon); width: 35px; height: 35px; border-radius: 8px;
+      color: var(--primary-neon); width: 38px; height: 38px; border-radius: 8px;
       cursor: pointer; transition: 0.3s; font-size: 1rem;
       display: flex; justify-content: center; align-items: center;
     }
@@ -112,7 +102,7 @@
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 10px var(--success); margin-left: 5px; }
     .status-dot.offline { background-color: var(--error); box-shadow: 0 0 10px var(--error); animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0.5; } }
-    #langBtn { font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.75rem; width: 34px; }
+    #langBtn { font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.75rem; width: 38px; }
 
     /* --- 5. AI CONSOLE --- */
     .ai-card { 
@@ -159,7 +149,7 @@
 
     @keyframes pulseAI { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
 
-    /* --- 6. MODULES (FIXED COLORS) --- */
+    /* --- 6. MODULES --- */
     .measure-container { 
       display: grid; grid-template-columns: repeat(2, 1fr); 
       gap: 15px; width: 95%; max-width: 900px; margin-bottom: 20px; 
@@ -183,18 +173,14 @@
     @keyframes breathe { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
 
     .measure-btn i { font-size: 2rem; margin-bottom: 5px; }
-    
-    /* --- NEW: COLORED LABELS (DARKER SHADES) --- */
     .measure-btn span { 
         font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
         text-shadow: none; 
     }
-    
-    /* Darker readable colors matching the icons */
-    .temp span { color: #d35400; } /* Dark Orange */
-    .pulse span { color: #c0392b; } /* Dark Red */
-    .pressure span { color: #8e44ad; } /* Dark Purple */
-    .oxygen span { color: #008b8b; } /* Dark Cyan */
+    .temp span { color: #d35400; } 
+    .pulse span { color: #c0392b; } 
+    .pressure span { color: #8e44ad; } 
+    .oxygen span { color: #008b8b; } 
     
     .value-display { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 700; color: #fff; margin-top: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
 
@@ -226,7 +212,6 @@
     .dock-title { display: block; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; }
     .dock-sub { display: none; }
 
-    /* EXIT BUTTON - WITH GLOW */
     .close-btn { 
       background: rgba(255, 42, 42, 0.1); color: var(--error); border: 1px solid var(--error);
       padding: 10px 20px; border-radius: 50px; font-size: 0.85rem; font-family: 'Orbitron', sans-serif; 
@@ -280,10 +265,30 @@
     .toast-info { border-color: var(--primary-neon); } .toast-info i { color: var(--primary-neon); }
     .toast-success { border-color: var(--success); } .toast-success i { color: var(--success); }
 
-    @media screen and (min-width: 769px) {
-        .dock-sub { display: block; }
-        .ai-advice-container { flex-wrap: wrap; justify-content: flex-start; overflow-x: visible; }
-        .advice-box { flex: 1; min-width: 200px; }
+    /* MOBILE SPECIFIC FIXES */
+    @media screen and (max-width: 768px) {
+      .user-card { 
+          padding: 0 10px; /* Less Padding */
+          height: 65px; 
+          gap: 10px; /* Space between ID and Buttons */
+      }
+      .user-avatar { font-size: 1.4rem; }
+      
+      .user-info h2 { font-size: 0.6rem; }
+      .user-info span { 
+          font-size: 0.85rem; 
+          letter-spacing: 0.5px; 
+      }
+      
+      .top-actions { gap: 5px; } /* Tighter Buttons */
+      .icon-btn { width: 32px; height: 32px; font-size: 0.85rem; }
+      #langBtn { width: 32px; font-size: 0.65rem; }
+
+      .measure-container { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .measure-btn { height: 150px; }
+      .dock-container { grid-template-columns: 1fr; }
+      .fab-right { right: 20px; bottom: 20px; }
+      .fab-left { left: 20px; bottom: 20px; }
     }
   </style>
 </head>
