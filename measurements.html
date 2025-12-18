@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <title>Bioscan | Command Center</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bioscan | Command Center</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -39,7 +40,7 @@
       overflow-x: hidden;
       display: flex; flex-direction: column; align-items: center;
       padding-top: 85px; /* Space for fixed header */
-      padding-bottom: 80px; /* Space for FABs */
+      padding-bottom: 90px; /* Space for FABs */
     }
 
     /* --- 2. SKELETON LOADING --- */
@@ -67,7 +68,7 @@
     }
 
     /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 4px; height: 4px; } /* Thinner for mobile */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: #050b14; }
     ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 10px; }
 
@@ -125,22 +126,20 @@
     .ai-title h3 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--primary-neon); letter-spacing: 1px; }
     .ai-title p { margin: 2px 0 0; font-size: 0.7rem; color: #888; }
 
-    /* Updated Timestamp Location */
     #lastReadingTime {
         font-size: 0.65rem; color: var(--primary-neon); font-family: 'Orbitron', sans-serif;
         background: rgba(0, 242, 255, 0.1); padding: 4px 8px; border-radius: 12px; border: 1px solid rgba(0, 242, 255, 0.2);
     }
 
-    /* Scrollable Advice Grid for Mobile */
+    /* Scrollable Advice Grid */
     .ai-advice-container { 
         display: flex; gap: 10px; width: 100%; 
-        overflow-x: auto; /* Enable Horizontal Scroll */
-        padding-bottom: 5px; scroll-behavior: smooth;
+        overflow-x: auto; padding-bottom: 5px; scroll-behavior: smooth;
     }
     .advice-box {
         background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
         border-radius: 12px; padding: 12px; 
-        min-width: 140px; flex: 0 0 auto; /* Keep width fixed for scroll */
+        min-width: 140px; flex: 0 0 auto;
         display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
         transition: 0.3s;
     }
@@ -153,7 +152,7 @@
 
     /* --- 6. MODULES --- */
     .measure-container { 
-      display: grid; grid-template-columns: repeat(2, 1fr); /* Force 2 columns for mobile */
+      display: grid; grid-template-columns: repeat(2, 1fr); 
       gap: 15px; width: 95%; max-width: 900px; margin-bottom: 20px; 
     }
     
@@ -166,7 +165,6 @@
     }
     .measure-btn:hover { transform: translateY(-5px); background: rgba(20, 30, 45, 0.95); }
     
-    /* Colors & Animations */
     .temp { border-bottom: 3px solid var(--temp-color); } .temp i { color: var(--temp-color); filter: drop-shadow(0 0 8px var(--temp-color)); }
     .pulse { border-bottom: 3px solid var(--pulse-color); } .pulse i { color: var(--pulse-color); animation: heartBeat 1.5s infinite; }
     .pressure { border-bottom: 3px solid var(--bp-color); } .pressure i { color: var(--bp-color); }
@@ -205,7 +203,7 @@
     .history-dock { border-bottom: 2px solid var(--secondary-neon); } .history-dock i { font-size: 1.5rem; color: var(--secondary-neon); }
     .dock-text { margin-top: 5px; }
     .dock-title { display: block; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; }
-    .dock-sub { display: none; } /* Hide subtext on mobile to save space */
+    .dock-sub { display: none; } /* Hide subtext on mobile */
 
     .close-btn { 
       background: rgba(255, 42, 42, 0.1); color: var(--error); border: 1px solid var(--error);
@@ -486,15 +484,15 @@
             showToast(localStorage.getItem("language") === "ar" ? "لا توجد بيانات للحفظ!" : "No data to save!", "error");
             return;
         }
-        const timestamp = new Date().toLocaleString();
+        const readableDate = new Date().toLocaleString('en-US'); 
         const historyRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId + '/History');
         historyRef.push({
-            timestamp: timestamp,
+            timestamp: readableDate,
+            sortKey: firebase.database.ServerValue.TIMESTAMP,
             temperature: currentData.temp,
             bpm: currentData.bpm,
             pressure: currentData.bp,
-            spo2: currentData.spo2,
-            createdAt: firebase.database.ServerValue.TIMESTAMP
+            spo2: currentData.spo2
         }).then(() => {
             showToast(localStorage.getItem("language") === "ar" ? "تم حفظ الجلسة بنجاح" : "Session Saved Successfully", "success");
         }).catch(err => {
@@ -616,11 +614,11 @@
         window.open(`https://wa.me/${phone}?text=${m}`,'_blank');
     }
     
-    function findHospitals(){window.open("http://maps.google.com/maps?q=nearest+hospitals","_blank");}
+    function findHospitals(){window.open("https://www.google.com/maps/search/hospitals+near+me","_blank");}
     function toggleFullScreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else if(document.exitFullscreen)document.exitFullscreen();}
     function closeMeasurements(){localStorage.removeItem("selectedUserId");window.location.href="index.html";}
     
-    let idle=0; setInterval(()=>{idle++;if(idle>=90)closeMeasurements();},1000);
+    let idle=0; setInterval(()=>{idle++;if(idle>=120)closeMeasurements();},1000);
     document.onmousemove=document.onkeypress=document.ontouchstart=document.onclick=()=>{idle=0;};
 
     let voiceEnabled=true;
@@ -676,8 +674,8 @@
       const h_m = height / 100; const bmi = (weight / (h_m * h_m)).toFixed(1); const waterNeed = (weight * 0.035).toFixed(1);
       let status="", color="", dietTip="", exerciseTip="";
       if(bmi<18.5){ status=lang==="ar"?"نحافة":"Underweight"; color="#3498db"; dietTip=lang==="ar"?"🥑 أكثر من المكسرات":"🥑 Eat nuts"; exerciseTip=lang==="ar"?"🏋️‍♂️ تمارين مقاومة":"🏋️‍♂️ Strength training"; }
-      else if(bmi<25){ status=lang==="ar"?"وزن مثالي":"Healthy"; color="#2ecc71"; dietTip=lang==="ar"?"🥗 حافظ على السلطة":"🥗 Eat salads"; exerciseTip=lang==="ar"?"🏃‍♂️ مشي يومي":"🏃‍♂️ Daily walk"; }
-      else if(bmi<30){ status=lang==="ar"?"وزن زائد":"Overweight"; color="#f1c40f"; dietTip=lang==="ar"?"📉 قلل السكر":"📉 Cut sugar"; exerciseTip=lang==="ar"?"🚴‍♂️ ركوب الدراجة":"🚴‍♂️ Cycling"; }
+      else if(bmi<25){ status=lang==="ar"?"مثالي":"Healthy"; color="#2ecc71"; dietTip=lang==="ar"?"🥗 حافظ على السلطة":"🥗 Eat salads"; exerciseTip=lang==="ar"?"🏃‍♂️ مشي يومي":"🏃‍♂️ Daily walk"; }
+      else if(bmi<30){ status=lang==="ar"?"زائد":"Overweight"; color="#f1c40f"; dietTip=lang==="ar"?"📉 قلل السكر":"📉 Cut sugar"; exerciseTip=lang==="ar"?"🚴‍♂️ ركوب الدراجة":"🚴‍♂️ Cycling"; }
       else{ status=lang==="ar"?"سمنة":"Obese"; color="#e74c3c"; dietTip=lang==="ar"?"🚫 لا للمقليات":"🚫 No fried food"; exerciseTip=lang==="ar"?"🚶‍♂️ مشي خفيف":"🚶‍♂️ Light walking"; }
 
       resultBox.style.display="block"; resultBox.style.borderLeftColor=color;
@@ -691,7 +689,41 @@
     function saveEmergencyContact(){const n=document.getElementById('emergencyInput').value; if(n.length<5) return; localStorage.setItem("sosContactNumber",n); closeModals();}
     function openConfirmModal(){document.getElementById('confirmModal').classList.add('active');}
     function closeModals(){document.getElementById('contactModal').classList.remove('active'); document.getElementById('confirmModal').classList.remove('active');}
-    function executeSOS(){closeModals(); navigator.geolocation.getCurrentPosition(sendPosition, showError);}
+    
+    function executeSOS(){
+        closeModals(); 
+        const lang = localStorage.getItem("language") || "en";
+        showToast(lang==="ar"?"جاري تحديد الموقع...":"Locating...", "info");
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(sendPosition, (err) => {
+                showToast("GPS Error: " + err.message, "error");
+            });
+        } else {
+            showToast("GPS not supported", "error");
+        }
+    }
+
+    function sendPosition(position) {
+        const lat = position.coords.latitude;
+        const long = position.coords.longitude;
+        const mapLink = `https://www.google.com/maps?q=${lat},${long}`;
+        const lang = localStorage.getItem("language") || "en";
+        
+        let rawPhone = localStorage.getItem("sosContactNumber");
+        let cleanPhone = rawPhone.replace(/\D/g, ''); 
+        if (cleanPhone.startsWith('01')) cleanPhone = '20' + cleanPhone.substring(1); // Egypt
+
+        let msg = "";
+        if(lang === "ar") {
+            msg = `🚨 *استغاثة طارئة!* 🚨\nأحتاج للمساعدة فوراً.\n📍 *الموقع:* ${mapLink}\n🌡️ *الحرارة:* ${currentData.temp}\n❤️ *النبض:* ${currentData.bpm}`;
+        } else {
+            msg = `🚨 *EMERGENCY SOS!* 🚨\nI need help immediately.\n📍 *Location:* ${mapLink}\n🌡️ *Temp:* ${currentData.temp}\n❤️ *Pulse:* ${currentData.bpm}`;
+        }
+        
+        const finalUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+        window.open(finalUrl, '_blank');
+    }
 
     function goToTemperature(){window.location.href="temp.html";}
     function goToPulse(){window.location.href="pulse.html";}
