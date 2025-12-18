@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    /* --- 1. THEME VARIABLES (MATCHING LOGIN PAGE) --- */
+    /* --- 1. THEME VARIABLES (Cyber-Medical) --- */
     :root {
       --primary-neon: #00f2ff;
       --secondary-neon: #7000ff;
@@ -20,26 +20,30 @@
       --error: #ff2a2a;
       --success: #00ff88;
       --warning: #f39c12;
-      /* Specific Measure Colors */
-      --temp-color: #ff7e5f;
-      --pulse-color: #ff416c;
+      
+      /* Distinct Colors for Modules */
+      --temp-color: #ff9f43;
+      --pulse-color: #ff4757;
       --bp-color: #a29bfe;
-      --ox-color: #00c6ff;
+      --ox-color: #48dbfb;
+      --vision-color: #1dd1a1;
     }
 
     * { box-sizing: border-box; outline: none; user-select: none; }
 
     body {
-      margin: 0; padding: 20px;
+      margin: 0; padding: 0;
       font-family: 'Rajdhani', sans-serif;
       background-color: var(--bg-dark);
       color: var(--text-main);
       min-height: 100vh;
       overflow-x: hidden;
       display: flex; flex-direction: column; align-items: center;
+      padding-top: 80px; /* Space for fixed header */
+      padding-bottom: 40px;
     }
 
-    /* --- 2. BIO BACKGROUND (Integrated) --- */
+    /* --- 2. ANIMATED BIO BACKGROUND --- */
     #bio-background {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
         overflow: hidden; background: radial-gradient(circle at center, #0f1c2e 0%, #000000 100%);
@@ -55,346 +59,230 @@
     }
 
     /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #050b14; }
     ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 10px; }
 
-    /* --- 3. LAYOUT COMPONENTS --- */
-    
-    /* User Profile Card (HUD Style) */
+    /* --- 3. TOP HEADER (STATUS BAR) --- */
     .user-card { 
-      background: var(--glass-panel); backdrop-filter: blur(15px);
-      border: 1px solid var(--border-color); border-radius: 15px;
-      padding: 15px 25px; margin-bottom: 25px; 
-      box-shadow: 0 0 30px rgba(0,0,0,0.5);
-      display: flex; align-items: center; gap: 20px; 
-      width: 100%; max-width: 900px; 
-      animation: slideDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-      position: relative; overflow: hidden;
+      position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+      background: rgba(5, 10, 18, 0.95); backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--border-color); z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+      margin: 0; border-radius: 0; /* Override old card style */
     }
-    .user-card::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--primary-neon); }
-    
-    @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
+    .user-left { display: flex; align-items: center; gap: 15px; }
     .user-avatar { 
-        font-size: 2.5rem; color: var(--primary-neon); 
-        text-shadow: 0 0 15px var(--primary-neon);
+        font-size: 2rem; color: var(--primary-neon); 
+        filter: drop-shadow(0 0 5px var(--primary-neon));
     }
-    .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #aaa; letter-spacing: 1px; }
-    .user-info span { font-size: 1.4rem; color: #fff; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+    .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #888; letter-spacing: 1px; }
+    .user-info span { font-size: 1.2rem; color: #fff; font-weight: 700; letter-spacing: 1px; }
 
-    .top-actions { margin-left: auto; display: flex; align-items: center; gap: 15px; }
+    .top-actions { display: flex; align-items: center; gap: 12px; }
     .icon-btn { 
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
-      color: var(--primary-neon); width: 40px; height: 40px; border-radius: 8px;
-      cursor: pointer; transition: 0.3s; font-size: 1.2rem;
+      color: var(--primary-neon); width: 38px; height: 38px; border-radius: 8px;
+      cursor: pointer; transition: 0.3s; font-size: 1.1rem;
       display: flex; justify-content: center; align-items: center;
     }
     .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
     .icon-btn.active { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); border-color: var(--success); }
     .whatsapp-btn { color: #25D366; border-color: #25D366; }
-    .whatsapp-btn:hover { background: #25D366; color: #fff; }
+    .whatsapp-btn:hover { background: #25D366; color: #fff; box-shadow: 0 0 15px #25D366; }
 
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 10px var(--success); transition: 0.3s; margin-left: 10px; }
     .status-dot.offline { background-color: var(--error); box-shadow: 0 0 10px var(--error); animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0.5; } }
 
-    /* AI Analysis Card (The Brain) */
+    /* --- 4. AI CONSOLE (HERO SECTION) --- */
     .ai-card { 
-      width: 100%; max-width: 900px; 
-      background: linear-gradient(135deg, rgba(5, 12, 22, 0.9), rgba(10, 20, 40, 0.9));
-      border: 1px solid var(--secondary-neon); border-radius: 15px; 
+      width: 95%; max-width: 900px; margin-top: 20px;
+      background: linear-gradient(135deg, rgba(10, 20, 35, 0.9), rgba(5, 10, 20, 0.9));
+      border: 1px solid var(--border-color); border-radius: 15px; 
       padding: 25px; margin-bottom: 30px; 
-      display: flex; align-items: flex-start; gap: 25px; 
-      box-shadow: 0 0 40px rgba(112, 0, 255, 0.15); 
-      position: relative; overflow: hidden;
+      display: flex; align-items: flex-start; gap: 20px; 
+      box-shadow: 0 0 40px rgba(0, 242, 255, 0.1); 
+      position: relative; overflow: hidden; transition: border-color 0.5s;
     }
-    /* Animated Scan Line Background */
+    /* Holographic Scan Effect */
     .ai-card::after {
         content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(transparent 90%, rgba(112, 0, 255, 0.1) 95%, transparent 100%);
-        background-size: 100% 20px; animation: scan 3s linear infinite; pointer-events: none;
+        background: linear-gradient(to bottom, transparent, rgba(0, 242, 255, 0.05), transparent);
+        transform: translateY(-100%); animation: scanDown 4s infinite; pointer-events: none;
     }
-    @keyframes scan { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+    @keyframes scanDown { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
 
     .ai-icon { 
-      font-size: 2.5rem; color: var(--secondary-neon); 
-      background: rgba(112, 0, 255, 0.1); width: 70px; height: 70px; 
+      font-size: 2.2rem; color: var(--primary-neon); 
+      background: rgba(0, 242, 255, 0.1); width: 60px; height: 60px; 
       border-radius: 12px; display: flex; justify-content: center; align-items: center; 
-      border: 1px solid var(--secondary-neon);
+      border: 1px solid var(--primary-neon);
       animation: pulseAI 2s infinite; flex-shrink: 0;
     }
-    @keyframes pulseAI { 0% { box-shadow: 0 0 0 0 rgba(112, 0, 255, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(112, 0, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(112, 0, 255, 0); } }
+    @keyframes pulseAI { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
 
     .ai-content { z-index: 2; width: 100%; }
     .ai-content h3 { 
-        margin: 0 0 10px 0; font-family: 'Orbitron', sans-serif; font-size: 1.2rem; 
-        color: var(--secondary-neon); letter-spacing: 1px; display: flex; align-items: center; gap: 10px;
+        margin: 0 0 10px 0; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; 
+        color: var(--primary-neon); letter-spacing: 1px; display: flex; align-items: center; gap: 10px;
     }
-    .ai-content h3::after { content: ''; height: 1px; flex-grow: 1; background: linear-gradient(90deg, var(--secondary-neon), transparent); }
-    
     .ai-content div { font-size: 1rem; line-height: 1.6; color: #ddd; }
     .ai-content ul { padding-left: 20px; margin: 10px 0; }
-    .ai-content li { margin-bottom: 5px; color: #ccc; }
+    .ai-content li { margin-bottom: 5px; color: #ccc; font-size: 0.9rem; }
 
-    /* Measurement Grid (Tech Modules) */
+    /* --- 5. MEASUREMENT MODULES (GRID) --- */
     .measure-container { 
       display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
-      gap: 20px; width: 100%; max-width: 900px; margin-bottom: 30px; 
+      gap: 20px; width: 95%; max-width: 900px; margin-bottom: 30px; 
     }
     
     .measure-btn { 
-      background: rgba(15, 25, 35, 0.7); backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; 
-      padding: 20px 10px; cursor: pointer; position: relative; overflow: hidden; height: 170px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-      transition: 0.3s;
+      background: var(--glass-panel); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; 
+      padding: 20px 10px; cursor: pointer; position: relative; overflow: hidden; height: 180px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+      transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .measure-btn:hover { transform: translateY(-5px); background: rgba(20, 30, 45, 0.9); }
+    .measure-btn:hover { transform: translateY(-8px); background: rgba(20, 30, 45, 0.95); }
     
-    /* Specific Colors & Glows */
-    .temp { border-bottom: 3px solid var(--temp-color); }
-    .temp:hover { box-shadow: 0 10px 30px rgba(255, 126, 95, 0.2); }
-    .temp i { color: var(--temp-color); }
+    /* Specific Colors & Animations */
+    .temp { border-bottom: 4px solid var(--temp-color); }
+    .temp i { color: var(--temp-color); filter: drop-shadow(0 0 8px var(--temp-color)); }
+    .temp:hover { box-shadow: 0 10px 30px rgba(255, 159, 67, 0.2); border-color: var(--temp-color); }
     
-    .pulse { border-bottom: 3px solid var(--pulse-color); }
-    .pulse:hover { box-shadow: 0 10px 30px rgba(255, 65, 108, 0.2); }
-    .pulse i { color: var(--pulse-color); }
+    .pulse { border-bottom: 4px solid var(--pulse-color); }
+    .pulse i { color: var(--pulse-color); animation: heartBeat 1.5s infinite; }
+    .pulse:hover { box-shadow: 0 10px 30px rgba(255, 71, 87, 0.2); border-color: var(--pulse-color); }
+    @keyframes heartBeat { 0% { transform: scale(1); } 15% { transform: scale(1.2); } 30% { transform: scale(1); } 45% { transform: scale(1.1); } 60% { transform: scale(1); } }
     
-    .pressure { border-bottom: 3px solid var(--bp-color); }
-    .pressure:hover { box-shadow: 0 10px 30px rgba(162, 155, 254, 0.2); }
+    .pressure { border-bottom: 4px solid var(--bp-color); }
     .pressure i { color: var(--bp-color); }
+    .pressure:hover { box-shadow: 0 10px 30px rgba(162, 155, 254, 0.2); border-color: var(--bp-color); }
     
-    .oxygen { border-bottom: 3px solid var(--ox-color); }
-    .oxygen:hover { box-shadow: 0 10px 30px rgba(0, 198, 255, 0.2); }
-    .oxygen i { color: var(--ox-color); }
-    
-    .vision { border-bottom: 3px solid var(--success); }
-    .vision:hover { box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2); }
-    .vision i { color: var(--success); }
+    .oxygen { border-bottom: 4px solid var(--ox-color); }
+    .oxygen i { color: var(--ox-color); animation: breathe 3s infinite ease-in-out; }
+    .oxygen:hover { box-shadow: 0 10px 30px rgba(72, 219, 251, 0.2); border-color: var(--ox-color); }
+    @keyframes breathe { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
 
-    .measure-btn i { font-size: 2.2rem; margin-bottom: 5px; filter: drop-shadow(0 0 5px currentColor); }
-    .measure-btn span { font-size: 0.9rem; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+    .measure-btn i { font-size: 2.5rem; margin-bottom: 5px; }
+    .measure-btn span { font-size: 0.85rem; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 1px; }
     
     .value-display {
-        font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 700; color: #fff;
-        margin-top: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 700; color: #fff;
+        margin-top: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.2);
     }
 
-    /* History Button */
-    .history-bar { 
-      width: 100%; max-width: 900px; 
-      background: linear-gradient(90deg, rgba(112, 0, 255, 0.1), rgba(0, 242, 255, 0.1));
-      border: 1px solid var(--border-color); border-radius: 12px; 
-      padding: 18px; display: flex; align-items: center; justify-content: center; gap: 15px; 
-      cursor: pointer; margin-bottom: 40px; transition: 0.3s;
+    /* --- 6. ACTION DOCK (Footer Area) --- */
+    .dock-container {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+        width: 95%; max-width: 900px; margin-bottom: 30px;
     }
-    .history-bar:hover { 
-      background: linear-gradient(90deg, rgba(112, 0, 255, 0.2), rgba(0, 242, 255, 0.2));
-      box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); border-color: var(--primary-neon); 
+
+    .dock-btn {
+        background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06));
+        border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+        padding: 20px; display: flex; align-items: center; justify-content: center; gap: 15px;
+        cursor: pointer; transition: 0.3s;
     }
-    .history-bar span { font-family: 'Orbitron', sans-serif; letter-spacing: 2px; }
+    .dock-btn:hover { transform: scale(1.02); }
+
+    .vision-dock { border-bottom: 3px solid var(--vision-color); }
+    .vision-dock i { font-size: 1.8rem; color: var(--vision-color); }
+    .vision-dock:hover { box-shadow: 0 0 20px rgba(29, 209, 161, 0.2); border-color: var(--vision-color); }
+
+    .history-dock { border-bottom: 3px solid var(--secondary-neon); }
+    .history-dock i { font-size: 1.8rem; color: var(--secondary-neon); }
+    .history-dock:hover { box-shadow: 0 0 20px rgba(112, 0, 255, 0.2); border-color: var(--secondary-neon); }
+
+    .dock-text { text-align: left; }
+    .dock-title { display: block; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1rem; }
+    .dock-sub { display: block; color: #666; font-size: 0.8rem; margin-top: 2px; }
 
     /* Exit Button */
     .close-btn { 
       background: rgba(255, 42, 42, 0.1); color: var(--error); border: 1px solid var(--error);
-      padding: 12px 30px; border-radius: 50px; font-size: 1rem; font-family: 'Orbitron', sans-serif; 
-      cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; margin-top: auto; 
+      padding: 12px 30px; border-radius: 50px; font-size: 0.9rem; font-family: 'Orbitron', sans-serif; 
+      cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; margin-top: 20px;
     }
     .close-btn:hover { background: var(--error); color: #fff; box-shadow: 0 0 20px var(--error); }
 
-    /* --- FAB BUTTONS (Orbs) --- */
+    /* --- 7. FAB & MODALS (Dark Theme) --- */
     .fab-container { position: fixed; bottom: 30px; z-index: 1000; display: flex; flex-direction: column; gap: 20px; }
     .fab-right { right: 30px; align-items: flex-end; }
     .fab-left { left: 30px; align-items: flex-start; }
 
-    .sos-wrapper { position: relative; }
-    .sos-settings-btn {
-        position: absolute; top: 0; right: 0; transform: translate(30%, -30%);
-        width: 28px; height: 28px; background: #111; border-radius: 50%;
-        color: var(--error); border: 1px solid var(--error); font-size: 12px; 
-        display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1001;
+    .sos-fab, .hospital-fab, .analyze-fab {
+        width: 60px; height: 60px; border-radius: 50%; color: white; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; font-size: 24px;
+        transition: 0.3s; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px);
     }
-
-    .sos-fab {
-        width: 70px; height: 70px; border-radius: 50%;
-        background: radial-gradient(circle at 30% 30%, #ff416c, #ff0000);
-        color: white; border: 2px solid rgba(255,255,255,0.2);
-        box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
-        cursor: pointer; display: flex; align-items: center; justify-content: center;
-        font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 18px;
-        animation: sos-pulse 2s infinite; transition: 0.3s;
-    }
-    .sos-fab:hover { transform: scale(1.1); }
-    @keyframes sos-pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(255, 0, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); } }
-
-    .hospital-fab, .analyze-fab {
-        width: 60px; height: 60px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
-        color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        font-size: 24px; transition: 0.3s; backdrop-filter: blur(5px);
-    }
-    .hospital-fab { background: linear-gradient(135deg, #00d2ff, #3a7bd5); box-shadow: 0 0 15px rgba(0, 210, 255, 0.4); }
-    .hospital-fab:hover { box-shadow: 0 0 25px rgba(0, 210, 255, 0.6); transform: scale(1.1); }
+    .sos-fab { background: radial-gradient(circle at 30% 30%, #ff416c, #ff0000); animation: sosPulse 2s infinite; font-weight: bold; font-size: 16px; font-family: 'Orbitron', sans-serif; }
+    .hospital-fab { background: linear-gradient(135deg, #00d2ff, #3a7bd5); }
+    .analyze-fab { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+    .sos-fab:hover, .hospital-fab:hover, .analyze-fab:hover { transform: scale(1.1); box-shadow: 0 0 20px currentColor; }
     
-    .analyze-fab { background: linear-gradient(135deg, #6c5ce7, #a29bfe); box-shadow: 0 0 15px rgba(108, 92, 231, 0.5); }
-    .analyze-fab:hover { box-shadow: 0 0 25px rgba(108, 92, 231, 0.7); transform: scale(1.1); }
+    @keyframes sosPulse { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(255, 0, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); } }
 
-    /* --- SIDEBAR & MODALS (Dark Theme) --- */
-    .sidebar-overlay, .custom-modal-overlay { 
-        position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); 
-        z-index: 1999; display: none; opacity: 0; transition: opacity 0.3s; 
-    }
+    .sos-settings-btn { position: absolute; top: -5px; right: -5px; width: 25px; height: 25px; background: #111; border-radius: 50%; color: var(--error); border: 1px solid var(--error); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; }
+
+    /* Sidebar & Modal styles adapted to Dark */
+    .sidebar-overlay, .custom-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 1999; display: none; opacity: 0; transition: 0.3s; }
     .sidebar-overlay.active, .custom-modal-overlay.active { display: flex; opacity: 1; }
     
-    .sidebar { 
-        position: fixed; top: 0; left: -360px; width: 340px; height: 100%; 
-        background: #080d16; border-right: 1px solid var(--primary-neon); 
-        box-shadow: 10px 0 50px rgba(0,0,0,0.7); z-index: 2000; 
-        transition: left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 30px 20px; 
-    }
+    .sidebar { position: fixed; top: 0; left: -360px; width: 340px; height: 100%; background: #0b101a; border-right: 1px solid var(--primary-neon); z-index: 2000; transition: 0.4s; padding: 30px 20px; box-shadow: 10px 0 50px rgba(0,0,0,0.8); }
     .sidebar.active { left: 0; }
+    .sidebar-header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+    .sidebar-header h3 { color: var(--primary-neon); margin: 0; font-family: 'Orbitron', sans-serif; }
+    .close-sidebar { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
     
-    .sidebar-header { border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-    .sidebar-header h3 { margin: 0; color: var(--primary-neon); font-family: 'Orbitron', sans-serif; font-size: 1.4rem; }
-    .close-sidebar { background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; transition: 0.3s; }
-    .close-sidebar:hover { color: var(--error); transform: rotate(90deg); }
-
-    .sidebar-input {
-        width: 100%; padding: 15px; margin-bottom: 20px; 
-        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
-        border-radius: 10px; color: white; font-size: 1.1rem; text-align: center;
-        font-family: 'Orbitron', sans-serif;
-    }
-    .sidebar-input:focus { border-color: var(--primary-neon); background: rgba(0,0,0,0.3); }
-    
-    .calc-btn { 
-        width: 100%; padding: 15px; background: linear-gradient(90deg, rgba(0,242,255,0.1), rgba(0,242,255,0.2)); 
-        border: 1px solid var(--primary-neon); color: #fff; border-radius: 50px; 
-        font-family: 'Orbitron', sans-serif; letter-spacing: 1px; cursor: pointer; transition: 0.3s; 
-    }
-    .calc-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 20px var(--primary-neon); }
-
-    .result-box { 
-        margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.03); 
-        border-radius: 10px; border-left: 4px solid var(--primary-neon); 
-        font-size: 1rem; line-height: 1.6; color: #ddd; display: none; 
-    }
-
-    /* Modal Boxes */
-    .custom-modal-box {
-        background: #0b101a; border: 1px solid var(--primary-neon); padding: 35px; 
-        border-radius: 20px; width: 90%; max-width: 450px; text-align: center; 
-        box-shadow: 0 0 50px rgba(0, 242, 255, 0.15); transform: scale(0.9); transition: 0.3s;
-    }
-    .custom-modal-overlay.active .custom-modal-box { transform: scale(1); }
-    
-    .modal-icon { font-size: 3.5rem; margin-bottom: 20px; color: var(--primary-neon); }
-    .modal-icon.warning { color: var(--error); }
-    .modal-title { font-family: 'Orbitron', sans-serif; color: #fff; margin-bottom: 15px; }
-    .modal-input { width: 100%; padding: 12px; margin-bottom: 25px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; color: #fff; text-align: center; font-size: 1.2rem; }
-    
-    .modal-btn { padding: 12px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 1rem; transition: 0.3s; }
-    .btn-confirm { background: var(--primary-neon); color: #000; }
-    .btn-confirm:hover { box-shadow: 0 0 20px var(--primary-neon); }
-    .btn-danger { background: var(--error); color: #fff; }
-    .btn-danger:hover { box-shadow: 0 0 20px var(--error); }
-    .btn-cancel { background: transparent; border: 1px solid #555; color: #aaa; margin-right: 10px; }
-    .btn-cancel:hover { border-color: #fff; color: #fff; }
+    .sidebar-input { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; margin-bottom: 15px; text-align: center; font-size: 1.1rem; }
+    .calc-btn { width: 100%; padding: 12px; background: var(--primary-neon); color: #000; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; }
+    .result-box { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid var(--primary-neon); display: none; }
 
     /* Toast */
-    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
+    .toast-container { position: fixed; top: 90px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
     .toast { background: rgba(5, 11, 20, 0.95); color: white; padding: 15px 25px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.6); border-left: 4px solid; animation: slideIn 0.4s ease, fadeOut 0.5s ease 4s forwards; }
     @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
     @keyframes fadeOut { to { opacity: 0; } }
     .toast-error { border-color: var(--error); } .toast-error i { color: var(--error); }
     .toast-info { border-color: var(--primary-neon); } .toast-info i { color: var(--primary-neon); }
 
-    /* Responsive */
+    /* Custom Modals Box */
+    .custom-modal-box { background: #0b101a; border: 1px solid var(--primary-neon); padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 50px rgba(0, 242, 255, 0.15); transform: scale(0.9); transition: 0.3s; }
+    .custom-modal-overlay.active .custom-modal-box { transform: scale(1); }
+    .modal-icon { font-size: 3rem; margin-bottom: 15px; color: var(--primary-neon); }
+    .modal-input { width: 100%; padding: 12px; margin-bottom: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; color: #fff; text-align: center; font-size: 1.2rem; }
+    .modal-btn { padding: 10px 25px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+    .btn-confirm { background: var(--primary-neon); color: #000; }
+    .btn-danger { background: var(--error); color: #fff; }
+    .btn-cancel { background: transparent; border: 1px solid #555; color: #aaa; margin-right: 10px; }
+
     @media screen and (max-width: 768px) {
-      body { padding: 10px; }
-      .user-card, .ai-card { flex-direction: column; text-align: center; gap: 15px; padding: 20px; }
-      .user-card::before { width: 100%; height: 4px; top: 0; left: 0; }
-      .top-actions { margin: 0; justify-content: center; width: 100%; }
-      .measure-container { grid-template-columns: repeat(2, 1fr); gap: 15px; }
-      .measure-btn { height: 140px; }
+      body { padding: 80px 10px 40px; }
+      .user-card { padding: 0 15px; }
+      .measure-container { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .measure-btn { height: 150px; }
+      .dock-container { grid-template-columns: 1fr; }
       .fab-right { right: 20px; bottom: 20px; }
       .fab-left { left: 20px; bottom: 20px; }
-      .sidebar { width: 100%; left: -100%; }
     }
   </style>
 </head>
 <body>
 
   <div id="bio-background"></div>
-
   <div class="toast-container" id="toastContainer"></div>
 
-  <div class="fab-container fab-right">
-    <button class="hospital-fab" id="hospitalBtn" onclick="findHospitals()" title="Nearest Hospitals">
-      <i class="fas fa-hospital"></i>
-    </button>
-    <div class="sos-wrapper">
-        <button class="sos-settings-btn" onclick="openContactModal()" title="Edit SOS Number">
-            <i class="fas fa-cog"></i>
-        </button>
-        <button class="sos-fab" id="sosBtn" onclick="triggerSOS()" title="EMERGENCY HELP">
-          SOS
-        </button>
-    </div>
-  </div>
-
-  <div class="fab-container fab-left">
-    <button class="analyze-fab" id="analyzeBtn" onclick="toggleSidebar(true)" title="Smart Body Analysis">
-      <i class="fas fa-chart-pie"></i>
-    </button>
-  </div>
-
-  <div class="custom-modal-overlay" id="contactModal">
-      <div class="custom-modal-box">
-          <div class="modal-icon"><i class="fas fa-address-book"></i></div>
-          <h3 class="modal-title" id="contactTitle">Setup Emergency Contact</h3>
-          <p class="modal-text" id="contactText">Please enter the phone number (e.g., 010xxxxxxxx).</p>
-          <input type="number" id="emergencyInput" class="modal-input" placeholder="010xxxxxxxx">
-          <div class="modal-actions">
-              <button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button>
-              <button class="modal-btn btn-confirm" onclick="saveEmergencyContact()">Save & Continue</button>
-          </div>
-      </div>
-  </div>
-
-  <div class="custom-modal-overlay" id="confirmModal">
-      <div class="custom-modal-box">
-          <div class="modal-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
-          <h3 class="modal-title" id="confirmTitle">Emergency Alert</h3>
-          <p class="modal-text" id="confirmText">Are you sure you want to send an emergency SOS?</p>
-          <div class="modal-actions">
-              <button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button>
-              <button class="modal-btn btn-danger" onclick="executeSOS()">YES, SEND HELP</button>
-          </div>
-      </div>
-  </div>
-
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
-  <div class="sidebar" id="smartSidebar">
-    <div class="sidebar-header">
-      <h3 id="sidebarTitle"><i class="fas fa-brain"></i> SMART CHECK</h3>
-      <button class="close-sidebar" onclick="toggleSidebar(false)">×</button>
-    </div>
-    <div class="sidebar-content">
-      <label id="lblWeight">Weight (kg) / الوزن</label>
-      <input type="number" id="inputWeight" class="sidebar-input" placeholder="e.g. 75">
-      <label id="lblHeight">Height (cm) / الطول</label>
-      <input type="number" id="inputHeight" class="sidebar-input" placeholder="e.g. 175">
-      <button class="calc-btn" onclick="calculateHealthRisk()" id="btnAnalyze">ANALYZE DATA</button>
-      <div id="analysisResult" class="result-box"></div>
-    </div>
-  </div>
-
   <div class="user-card">
-    <div class="user-avatar"><i class="fas fa-user-astronaut"></i></div>
-    <div class="user-info">
-        <h2>ACTIVE USER</h2>
-        <span id="currentUserName">Loading...</span>
+    <div class="user-left">
+        <div class="user-avatar"><i class="fas fa-user-astronaut"></i></div>
+        <div class="user-info">
+            <h2>USER ID</h2>
+            <span id="currentUserName">Loading...</span>
+        </div>
     </div>
     <div class="top-actions">
       <button class="icon-btn whatsapp-btn" id="whatsappBtn" onclick="sendWhatsAppReport()" title="Send Report">
@@ -436,27 +324,77 @@
       <i class="fas fa-lungs"></i> <span>Oxygen (SpO2)</span>
       <div class="value-display" id="spo2Value">--</div>
     </div>
-    <div class="measure-btn vision" id="visionBtn" onclick="goToVisionPage()">
-      <i class="fas fa-eye"></i> <span>Vision Test</span>
-      <div class="value-display" style="font-size: 0.9rem; color: #777;">START TEST</div>
-    </div>
   </div>
 
-  <div class="history-bar" id="historyBtn" onclick="goToHistory()">
-    <i class="fas fa-file-medical-alt"></i>
-    <span>ACCESS HISTORY LOGS</span>
+  <div class="dock-container">
+      <div class="dock-btn vision-dock" id="visionBtn" onclick="goToVisionPage()">
+          <i class="fas fa-eye"></i>
+          <div class="dock-text">
+              <span class="dock-title">VISION TEST</span>
+              <span class="dock-sub">Start eye exam</span>
+          </div>
+      </div>
+      <div class="dock-btn history-dock" id="historyBtn" onclick="goToHistory()">
+          <i class="fas fa-file-medical-alt"></i>
+          <div class="dock-text">
+              <span class="dock-title">HISTORY LOGS</span>
+              <span class="dock-sub">View previous data</span>
+          </div>
+      </div>
   </div>
 
   <button class="close-btn" id="exitBtn" onclick="closeMeasurements()">
     <i class="fas fa-power-off"></i> TERMINATE SESSION
   </button>
 
+  <div class="fab-container fab-right">
+    <button class="hospital-fab" id="hospitalBtn" onclick="findHospitals()" title="Nearest Hospitals"><i class="fas fa-hospital"></i></button>
+    <div class="sos-wrapper">
+        <button class="sos-settings-btn" onclick="openContactModal()"><i class="fas fa-cog"></i></button>
+        <button class="sos-fab" id="sosBtn" onclick="triggerSOS()">SOS</button>
+    </div>
+  </div>
+
+  <div class="fab-container fab-left">
+    <button class="analyze-fab" id="analyzeBtn" onclick="toggleSidebar(true)"><i class="fas fa-chart-pie"></i></button>
+  </div>
+
+  <div class="custom-modal-overlay" id="contactModal">
+      <div class="custom-modal-box">
+          <div class="modal-icon"><i class="fas fa-address-book"></i></div>
+          <h3 class="modal-title" id="contactTitle">Emergency Contact</h3>
+          <p id="contactText" style="color:#aaa; margin-bottom:10px;">Enter phone number</p>
+          <input type="number" id="emergencyInput" class="modal-input" placeholder="010xxxxxxxx">
+          <div class="modal-actions"><button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button><button class="modal-btn btn-confirm" onclick="saveEmergencyContact()">Save</button></div>
+      </div>
+  </div>
+
+  <div class="custom-modal-overlay" id="confirmModal">
+      <div class="custom-modal-box">
+          <div class="modal-icon warning" style="color:var(--error);"><i class="fas fa-exclamation-triangle"></i></div>
+          <h3 class="modal-title" id="confirmTitle">Emergency Alert</h3>
+          <p id="confirmText" style="color:#aaa; margin-bottom:10px;">Confirm SOS?</p>
+          <div class="modal-actions"><button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button><button class="modal-btn btn-danger" onclick="executeSOS()">YES, SEND HELP</button></div>
+      </div>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+  <div class="sidebar" id="smartSidebar">
+    <div class="sidebar-header"><h3 id="sidebarTitle"><i class="fas fa-brain"></i> SMART CHECK</h3><button class="close-sidebar" onclick="toggleSidebar(false)">×</button></div>
+    <div class="sidebar-content">
+      <label id="lblWeight" style="color:#aaa; display:block; margin-bottom:5px;">Weight (kg)</label><input type="number" id="inputWeight" class="sidebar-input" placeholder="e.g. 75">
+      <label id="lblHeight" style="color:#aaa; display:block; margin-bottom:5px;">Height (cm)</label><input type="number" id="inputHeight" class="sidebar-input" placeholder="e.g. 175">
+      <button class="calc-btn" onclick="calculateHealthRisk()" id="btnAnalyze">ANALYZE DATA</button>
+      <div id="analysisResult" class="result-box"></div>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
   <script>
-    // --- 1. SETUP BACKGROUND ---
+    // --- 1. SETUP BACKGROUND (New) ---
     function createBioBackground() {
         const container = document.getElementById('bio-background');
         const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-pills', 'fa-virus', 'fa-microscope', 'fa-user-md', 'fa-syringe', 'fa-lungs', 'fa-brain'];
@@ -475,7 +413,7 @@
     }
     createBioBackground();
 
-    // --- 2. LOGIC PRESERVED ---
+    // --- 2. LOGIC (UNTOUCHED) ---
     const firebaseConfig = {
       apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
       authDomain: "smart-a76a0.firebaseapp.com",
@@ -488,13 +426,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth(); 
-    
     auth.signInAnonymously().catch(console.error);
 
     const PATIENT_DATA_PATH = 'PatientData';
     const currentUserId = localStorage.getItem("selectedUserId");
     const userSpan = document.getElementById('currentUserName');
-    
     if(!currentUserId) window.location.href="index.html"; 
     else userSpan.innerText = currentUserId;
 
@@ -806,9 +742,10 @@
             document.querySelector("#pulseBtn span").innerText="نبض القلب";
             document.querySelector("#bpBtn span").innerText="ضغط الدم";
             document.querySelector("#oxygenBtn span").innerText="نسبة الأكسجين";
-            document.querySelector("#visionBtn span").innerText="فحص النظر";
-            document.querySelector("#visionBtn div").innerText="بدء الفحص";
-            document.querySelector("#historyBtn span").innerText="السجل والتقارير";
+            document.querySelector("#visionBtn .dock-title").innerText="فحص النظر";
+            document.querySelector("#visionBtn .dock-sub").innerText="بدء الفحص";
+            document.querySelector("#historyBtn .dock-title").innerText="السجل والتقارير";
+            document.querySelector("#historyBtn .dock-sub").innerText="عرض البيانات السابقة";
             document.querySelector("#exitBtn").innerHTML='<i class="fas fa-power-off"></i> إنهاء الجلسة';
         }
     }
