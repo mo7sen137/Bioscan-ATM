@@ -3,201 +3,329 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bioscan | Dashboard</title>
+  <title>Bioscan | Command Center</title>
   
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    /* --- CSS Styles --- */
+    /* --- 1. THEME VARIABLES (MATCHING LOGIN PAGE) --- */
     :root {
-      --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      --glass-bg: rgba(255, 255, 255, 0.1);
-      --glass-border: rgba(255, 255, 255, 0.2);
-      --text-color: #ffffff;
-      --history-color: #a18cd1;
-      --ai-color: #00d2ff;
-      --error-color: #ff416c;
-      --success-color: #00ff88;
-      --whatsapp-color: #25D366;
+      --primary-neon: #00f2ff;
+      --secondary-neon: #7000ff;
+      --bg-dark: #020408;
+      --glass-panel: rgba(8, 15, 25, 0.85);
+      --border-color: rgba(0, 242, 255, 0.3);
+      --text-main: #e0f7fa;
+      --error: #ff2a2a;
+      --success: #00ff88;
+      --warning: #f39c12;
+      /* Specific Measure Colors */
+      --temp-color: #ff7e5f;
+      --pulse-color: #ff416c;
+      --bp-color: #a29bfe;
+      --ox-color: #00c6ff;
     }
-    ::-webkit-scrollbar { width: 10px; }
-    ::-webkit-scrollbar-track { background: #1a1a1a; }
-    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--ai-color), var(--history-color)); border-radius: 10px; border: 2px solid #1a1a1a; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--success-color); }
-    body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; color: var(--text-color); box-sizing: border-box; overflow-x: hidden; }
-    @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+    * { box-sizing: border-box; outline: none; user-select: none; }
+
+    body {
+      margin: 0; padding: 20px;
+      font-family: 'Rajdhani', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    /* --- 2. BIO BACKGROUND (Integrated) --- */
+    #bio-background {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+        overflow: hidden; background: radial-gradient(circle at center, #0f1c2e 0%, #000000 100%);
+    }
+    .bio-symbol {
+        position: absolute; color: var(--primary-neon); opacity: 0.15;
+        animation: floatBio 20s linear infinite; pointer-events: none;
+    }
+    @keyframes floatBio {
+        0% { transform: translateY(110vh) rotate(0deg) scale(0.8); opacity: 0; }
+        50% { opacity: 0.2; }
+        100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #050b14; }
+    ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 10px; }
+
+    /* --- 3. LAYOUT COMPONENTS --- */
     
-    .user-card { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 10px 30px; border-radius: 50px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 15px; width: 100%; max-width: 900px; box-sizing: border-box; animation: slideDown 0.8s ease; }
+    /* User Profile Card (HUD Style) */
+    .user-card { 
+      background: var(--glass-panel); backdrop-filter: blur(15px);
+      border: 1px solid var(--border-color); border-radius: 15px;
+      padding: 15px 25px; margin-bottom: 25px; 
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+      display: flex; align-items: center; gap: 20px; 
+      width: 100%; max-width: 900px; 
+      animation: slideDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+      position: relative; overflow: hidden;
+    }
+    .user-card::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--primary-neon); }
+    
     @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .user-card i.fa-user-circle { font-size: 1.5rem; color: #00d2ff; }
-    .user-card h2 { margin: 0; font-size: 1.1rem; font-weight: 400; flex-grow: 1; }
-    .user-card span { font-weight: 600; color: #00d2ff; text-transform: uppercase; }
+
+    .user-avatar { 
+        font-size: 2.5rem; color: var(--primary-neon); 
+        text-shadow: 0 0 15px var(--primary-neon);
+    }
+    .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 1rem; color: #aaa; letter-spacing: 1px; }
+    .user-info span { font-size: 1.4rem; color: #fff; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+
+    .top-actions { margin-left: auto; display: flex; align-items: center; gap: 15px; }
+    .icon-btn { 
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
+      color: var(--primary-neon); width: 40px; height: 40px; border-radius: 8px;
+      cursor: pointer; transition: 0.3s; font-size: 1.2rem;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
+    .icon-btn.active { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); border-color: var(--success); }
+    .whatsapp-btn { color: #25D366; border-color: #25D366; }
+    .whatsapp-btn:hover { background: #25D366; color: #fff; }
+
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 10px var(--success); transition: 0.3s; margin-left: 10px; }
+    .status-dot.offline { background-color: var(--error); box-shadow: 0 0 10px var(--error); animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: 0.5; } }
+
+    /* AI Analysis Card (The Brain) */
+    .ai-card { 
+      width: 100%; max-width: 900px; 
+      background: linear-gradient(135deg, rgba(5, 12, 22, 0.9), rgba(10, 20, 40, 0.9));
+      border: 1px solid var(--secondary-neon); border-radius: 15px; 
+      padding: 25px; margin-bottom: 30px; 
+      display: flex; align-items: flex-start; gap: 25px; 
+      box-shadow: 0 0 40px rgba(112, 0, 255, 0.15); 
+      position: relative; overflow: hidden;
+    }
+    /* Animated Scan Line Background */
+    .ai-card::after {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(transparent 90%, rgba(112, 0, 255, 0.1) 95%, transparent 100%);
+        background-size: 100% 20px; animation: scan 3s linear infinite; pointer-events: none;
+    }
+    @keyframes scan { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+
+    .ai-icon { 
+      font-size: 2.5rem; color: var(--secondary-neon); 
+      background: rgba(112, 0, 255, 0.1); width: 70px; height: 70px; 
+      border-radius: 12px; display: flex; justify-content: center; align-items: center; 
+      border: 1px solid var(--secondary-neon);
+      animation: pulseAI 2s infinite; flex-shrink: 0;
+    }
+    @keyframes pulseAI { 0% { box-shadow: 0 0 0 0 rgba(112, 0, 255, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(112, 0, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(112, 0, 255, 0); } }
+
+    .ai-content { z-index: 2; width: 100%; }
+    .ai-content h3 { 
+        margin: 0 0 10px 0; font-family: 'Orbitron', sans-serif; font-size: 1.2rem; 
+        color: var(--secondary-neon); letter-spacing: 1px; display: flex; align-items: center; gap: 10px;
+    }
+    .ai-content h3::after { content: ''; height: 1px; flex-grow: 1; background: linear-gradient(90deg, var(--secondary-neon), transparent); }
     
-    .top-actions { display: flex; align-items: center; gap: 10px; }
-    .icon-btn { background: transparent; border: none; color: white; cursor: pointer; font-size: 1.2rem; transition: 0.3s; padding: 5px; opacity: 0.8; }
-    .icon-btn:hover { transform: scale(1.2); opacity: 1; color: var(--primary-color); }
-    .icon-btn.active { color: var(--success-color); text-shadow: 0 0 10px var(--success-color); }
-    .whatsapp-btn { color: var(--whatsapp-color) !important; }
-    .whatsapp-btn:hover { text-shadow: 0 0 10px var(--whatsapp-color); }
-    
-    .status-dot { width: 12px; height: 12px; border-radius: 50%; background-color: var(--success-color); box-shadow: 0 0 10px var(--success-color); transition: all 0.3s ease; margin-left: 15px; }
-    .status-dot.offline { background-color: var(--error-color) !important; box-shadow: 0 0 15px var(--error-color) !important; animation: blinkRed 1s infinite; }
-    @keyframes blinkRed { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-    
-    .ai-card { width: 100%; max-width: 900px; background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(58, 123, 213, 0.1)); border: 1px solid var(--ai-color); border-radius: 20px; padding: 20px; margin-bottom: 30px; display: flex; align-items: flex-start; gap: 20px; box-shadow: 0 0 20px rgba(0, 210, 255, 0.15); position: relative; overflow: hidden; box-sizing: border-box; }
-    .ai-icon { font-size: 2.5rem; color: var(--ai-color); background: rgba(0, 0, 0, 0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; animation: pulseAI 2s infinite; flex-shrink: 0; }
-    @keyframes pulseAI { 0% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 210, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 210, 255, 0); } }
-    .ai-content h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: var(--ai-color); }
-    .ai-content p { margin: 0; font-size: 0.95rem; line-height: 1.5; color: #eee; }
+    .ai-content div { font-size: 1rem; line-height: 1.6; color: #ddd; }
     .ai-content ul { padding-left: 20px; margin: 10px 0; }
-    .ai-content li { margin-bottom: 8px; color: #ddd; font-size: 0.9rem; list-style-type: none; }
+    .ai-content li { margin-bottom: 5px; color: #ccc; }
+
+    /* Measurement Grid (Tech Modules) */
+    .measure-container { 
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+      gap: 20px; width: 100%; max-width: 900px; margin-bottom: 30px; 
+    }
     
-    .measure-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; width: 100%; max-width: 900px; margin-bottom: 30px; }
-    .measure-btn { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; overflow: hidden; height: 160px; }
-    .measure-btn:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.4); }
-    .measure-btn i { font-size: 2.5rem; transition: 0.3s; }
-    .measure-btn span { font-size: 1rem; font-weight: 600; text-align: center; color: #fff; }
-    .temp { border-bottom: 4px solid #ff7e5f; } .temp i { color: #ff7e5f; }
-    .pulse { border-bottom: 4px solid #ff416c; } .pulse i { color: #ff416c; }
-    .pressure { border-bottom: 4px solid #6a11cb; } .pressure i { color: #6a11cb; }
-    .oxygen { border-bottom: 4px solid #00c6ff; } .oxygen i { color: #00c6ff; }
-    .vision { border-bottom: 4px solid #43e97b; } .vision i { color: #43e97b; }
+    .measure-btn { 
+      background: rgba(15, 25, 35, 0.7); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; 
+      padding: 20px 10px; cursor: pointer; position: relative; overflow: hidden; height: 170px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+      transition: 0.3s;
+    }
+    .measure-btn:hover { transform: translateY(-5px); background: rgba(20, 30, 45, 0.9); }
     
-    .history-bar { width: 100%; max-width: 900px; background: linear-gradient(90deg, rgba(161, 140, 209, 0.1), rgba(251, 194, 235, 0.1)); border: 1px solid rgba(161, 140, 209, 0.4); border-radius: 20px; padding: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; cursor: pointer; margin-bottom: 40px; transition: 0.3s; backdrop-filter: blur(10px); box-sizing: border-box; }
-    .history-bar:hover { transform: scale(1.02); border-color: var(--history-color); box-shadow: 0 0 25px rgba(161, 140, 209, 0.3); }
-    .history-bar i { font-size: 2rem; color: var(--history-color); }
-    .history-bar span { font-size: 1.2rem; font-weight: 600; color: #fff; text-transform: uppercase; }
+    /* Specific Colors & Glows */
+    .temp { border-bottom: 3px solid var(--temp-color); }
+    .temp:hover { box-shadow: 0 10px 30px rgba(255, 126, 95, 0.2); }
+    .temp i { color: var(--temp-color); }
     
-    .close-btn { background: linear-gradient(45deg, #cb2d3e, #ef473a); color: white; border: none; padding: 12px 40px; border-radius: 50px; font-size: 16px; font-family: 'Poppins', sans-serif; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(239, 71, 58, 0.4); transition: 0.3s; display: flex; align-items: center; gap: 10px; margin-top: auto; }
+    .pulse { border-bottom: 3px solid var(--pulse-color); }
+    .pulse:hover { box-shadow: 0 10px 30px rgba(255, 65, 108, 0.2); }
+    .pulse i { color: var(--pulse-color); }
     
-    /* --- FAB BUTTONS --- */
-    .fab-container { position: fixed; bottom: 30px; z-index: 1000; display: flex; flex-direction: column; gap: 15px; align-items: center; }
-    .fab-right { right: 30px; }
-    .fab-left { left: 30px; }
+    .pressure { border-bottom: 3px solid var(--bp-color); }
+    .pressure:hover { box-shadow: 0 10px 30px rgba(162, 155, 254, 0.2); }
+    .pressure i { color: var(--bp-color); }
+    
+    .oxygen { border-bottom: 3px solid var(--ox-color); }
+    .oxygen:hover { box-shadow: 0 10px 30px rgba(0, 198, 255, 0.2); }
+    .oxygen i { color: var(--ox-color); }
+    
+    .vision { border-bottom: 3px solid var(--success); }
+    .vision:hover { box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2); }
+    .vision i { color: var(--success); }
+
+    .measure-btn i { font-size: 2.2rem; margin-bottom: 5px; filter: drop-shadow(0 0 5px currentColor); }
+    .measure-btn span { font-size: 0.9rem; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+    
+    .value-display {
+        font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 700; color: #fff;
+        margin-top: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+
+    /* History Button */
+    .history-bar { 
+      width: 100%; max-width: 900px; 
+      background: linear-gradient(90deg, rgba(112, 0, 255, 0.1), rgba(0, 242, 255, 0.1));
+      border: 1px solid var(--border-color); border-radius: 12px; 
+      padding: 18px; display: flex; align-items: center; justify-content: center; gap: 15px; 
+      cursor: pointer; margin-bottom: 40px; transition: 0.3s;
+    }
+    .history-bar:hover { 
+      background: linear-gradient(90deg, rgba(112, 0, 255, 0.2), rgba(0, 242, 255, 0.2));
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); border-color: var(--primary-neon); 
+    }
+    .history-bar span { font-family: 'Orbitron', sans-serif; letter-spacing: 2px; }
+
+    /* Exit Button */
+    .close-btn { 
+      background: rgba(255, 42, 42, 0.1); color: var(--error); border: 1px solid var(--error);
+      padding: 12px 30px; border-radius: 50px; font-size: 1rem; font-family: 'Orbitron', sans-serif; 
+      cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; margin-top: auto; 
+    }
+    .close-btn:hover { background: var(--error); color: #fff; box-shadow: 0 0 20px var(--error); }
+
+    /* --- FAB BUTTONS (Orbs) --- */
+    .fab-container { position: fixed; bottom: 30px; z-index: 1000; display: flex; flex-direction: column; gap: 20px; }
+    .fab-right { right: 30px; align-items: flex-end; }
+    .fab-left { left: 30px; align-items: flex-start; }
 
     .sos-wrapper { position: relative; }
     .sos-settings-btn {
-        position: absolute; top: -5px; right: -5px;
-        width: 25px; height: 25px; background: #333; border-radius: 50%;
-        color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center;
-        border: 2px solid #ff416c; cursor: pointer; z-index: 1001;
+        position: absolute; top: 0; right: 0; transform: translate(30%, -30%);
+        width: 28px; height: 28px; background: #111; border-radius: 50%;
+        color: var(--error); border: 1px solid var(--error); font-size: 12px; 
+        display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1001;
     }
 
     .sos-fab {
         width: 70px; height: 70px; border-radius: 50%;
-        background: linear-gradient(135deg, #ff0000, #cc0000);
-        color: white; border: 3px solid rgba(255,255,255,0.3);
+        background: radial-gradient(circle at 30% 30%, #ff416c, #ff0000);
+        color: white; border: 2px solid rgba(255,255,255,0.2);
         box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
         cursor: pointer; display: flex; align-items: center; justify-content: center;
-        font-size: 24px; font-weight: bold;
-        transition: 0.3s;
-        animation: sos-pulse 1.5s infinite;
+        font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 18px;
+        animation: sos-pulse 2s infinite; transition: 0.3s;
     }
-    .sos-fab:active { transform: scale(0.9); }
-    @keyframes sos-pulse {
-        0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); transform: scale(1); }
-        70% { box-shadow: 0 0 0 15px rgba(255, 0, 0, 0); transform: scale(1.05); }
-        100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); transform: scale(1); }
-    }
+    .sos-fab:hover { transform: scale(1.1); }
+    @keyframes sos-pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(255, 0, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); } }
 
-    .hospital-fab {
-        width: 55px; height: 55px; border-radius: 50%;
-        background: linear-gradient(135deg, #00d2ff, #3a7bd5);
-        color: white; border: none;
-        box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
-        cursor: pointer; display: flex; align-items: center; justify-content: center;
-        font-size: 22px; transition: 0.3s;
+    .hospital-fab, .analyze-fab {
+        width: 60px; height: 60px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
+        color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        font-size: 24px; transition: 0.3s; backdrop-filter: blur(5px);
     }
-    .hospital-fab:hover { transform: scale(1.1); background: linear-gradient(135deg, #3a7bd5, #00d2ff); }
-
-    .analyze-fab {
-        width: 65px; height: 65px; border-radius: 50%;
-        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-        color: white; border: none;
-        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.5);
-        cursor: pointer; display: flex; align-items: center; justify-content: center;
-        font-size: 28px; transition: 0.3s;
-        animation: float-fab 3s ease-in-out infinite;
-    }
-    .analyze-fab:hover { transform: scale(1.1); }
-    @keyframes float-fab { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-    /* --- CUSTOM MODALS --- */
-    .custom-modal-overlay {
-        position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
-        z-index: 4000; display: none; align-items: center; justify-content: center;
-        opacity: 0; transition: opacity 0.3s;
-    }
-    .custom-modal-overlay.active { display: flex; opacity: 1; }
+    .hospital-fab { background: linear-gradient(135deg, #00d2ff, #3a7bd5); box-shadow: 0 0 15px rgba(0, 210, 255, 0.4); }
+    .hospital-fab:hover { box-shadow: 0 0 25px rgba(0, 210, 255, 0.6); transform: scale(1.1); }
     
+    .analyze-fab { background: linear-gradient(135deg, #6c5ce7, #a29bfe); box-shadow: 0 0 15px rgba(108, 92, 231, 0.5); }
+    .analyze-fab:hover { box-shadow: 0 0 25px rgba(108, 92, 231, 0.7); transform: scale(1.1); }
+
+    /* --- SIDEBAR & MODALS (Dark Theme) --- */
+    .sidebar-overlay, .custom-modal-overlay { 
+        position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); 
+        z-index: 1999; display: none; opacity: 0; transition: opacity 0.3s; 
+    }
+    .sidebar-overlay.active, .custom-modal-overlay.active { display: flex; opacity: 1; }
+    
+    .sidebar { 
+        position: fixed; top: 0; left: -360px; width: 340px; height: 100%; 
+        background: #080d16; border-right: 1px solid var(--primary-neon); 
+        box-shadow: 10px 0 50px rgba(0,0,0,0.7); z-index: 2000; 
+        transition: left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 30px 20px; 
+    }
+    .sidebar.active { left: 0; }
+    
+    .sidebar-header { border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+    .sidebar-header h3 { margin: 0; color: var(--primary-neon); font-family: 'Orbitron', sans-serif; font-size: 1.4rem; }
+    .close-sidebar { background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; transition: 0.3s; }
+    .close-sidebar:hover { color: var(--error); transform: rotate(90deg); }
+
+    .sidebar-input {
+        width: 100%; padding: 15px; margin-bottom: 20px; 
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
+        border-radius: 10px; color: white; font-size: 1.1rem; text-align: center;
+        font-family: 'Orbitron', sans-serif;
+    }
+    .sidebar-input:focus { border-color: var(--primary-neon); background: rgba(0,0,0,0.3); }
+    
+    .calc-btn { 
+        width: 100%; padding: 15px; background: linear-gradient(90deg, rgba(0,242,255,0.1), rgba(0,242,255,0.2)); 
+        border: 1px solid var(--primary-neon); color: #fff; border-radius: 50px; 
+        font-family: 'Orbitron', sans-serif; letter-spacing: 1px; cursor: pointer; transition: 0.3s; 
+    }
+    .calc-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 20px var(--primary-neon); }
+
+    .result-box { 
+        margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.03); 
+        border-radius: 10px; border-left: 4px solid var(--primary-neon); 
+        font-size: 1rem; line-height: 1.6; color: #ddd; display: none; 
+    }
+
+    /* Modal Boxes */
     .custom-modal-box {
-        background: rgba(20, 30, 48, 0.95); border: 1px solid var(--ai-color);
-        padding: 30px; border-radius: 20px; width: 90%; max-width: 400px;
-        text-align: center; box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
-        transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: #0b101a; border: 1px solid var(--primary-neon); padding: 35px; 
+        border-radius: 20px; width: 90%; max-width: 450px; text-align: center; 
+        box-shadow: 0 0 50px rgba(0, 242, 255, 0.15); transform: scale(0.9); transition: 0.3s;
     }
     .custom-modal-overlay.active .custom-modal-box { transform: scale(1); }
     
-    .modal-icon { font-size: 3rem; margin-bottom: 15px; color: var(--ai-color); }
-    .modal-icon.warning { color: var(--error-color); }
-    .modal-title { font-size: 1.4rem; color: #fff; margin-bottom: 10px; font-weight: 600; }
-    .modal-text { color: #ccc; margin-bottom: 25px; line-height: 1.5; font-size: 0.95rem; }
+    .modal-icon { font-size: 3.5rem; margin-bottom: 20px; color: var(--primary-neon); }
+    .modal-icon.warning { color: var(--error); }
+    .modal-title { font-family: 'Orbitron', sans-serif; color: #fff; margin-bottom: 15px; }
+    .modal-input { width: 100%; padding: 12px; margin-bottom: 25px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; color: #fff; text-align: center; font-size: 1.2rem; }
     
-    .modal-input {
-        width: 100%; padding: 12px; margin-bottom: 20px;
-        background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 10px; color: white; font-size: 1.1rem; text-align: center;
-        box-sizing: border-box;
-    }
-    .modal-input:focus { outline: none; border-color: var(--success-color); }
+    .modal-btn { padding: 12px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 1rem; transition: 0.3s; }
+    .btn-confirm { background: var(--primary-neon); color: #000; }
+    .btn-confirm:hover { box-shadow: 0 0 20px var(--primary-neon); }
+    .btn-danger { background: var(--error); color: #fff; }
+    .btn-danger:hover { box-shadow: 0 0 20px var(--error); }
+    .btn-cancel { background: transparent; border: 1px solid #555; color: #aaa; margin-right: 10px; }
+    .btn-cancel:hover { border-color: #fff; color: #fff; }
 
-    .modal-actions { display: flex; justify-content: center; gap: 15px; }
-    .modal-btn {
-        padding: 10px 25px; border: none; border-radius: 50px; font-weight: 600; cursor: pointer;
-        transition: 0.3s; font-family: 'Poppins', sans-serif;
-    }
-    .btn-confirm { background: linear-gradient(45deg, #00d2ff, #3a7bd5); color: white; }
-    .btn-danger { background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; }
-    .btn-cancel { background: rgba(255,255,255,0.1); color: #ccc; }
-    .modal-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
-
-    .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1999; display: none; opacity: 0; transition: opacity 0.3s; }
-    .sidebar-overlay.active { display: block; opacity: 1; }
-    .sidebar { position: fixed; top: 0; left: -350px; width: 320px; height: 100%; background: rgba(15, 32, 39, 0.95); backdrop-filter: blur(15px); border-right: 1px solid var(--ai-color); box-shadow: 5px 0 30px rgba(0,0,0,0.5); z-index: 2000; transition: left 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; }
-    .sidebar.active { left: 0; }
-    .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; }
-    .sidebar-header h3 { margin: 0; color: var(--ai-color); font-size: 1.3rem; display: flex; gap: 10px; align-items: center; }
-    .close-sidebar { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
-    .close-sidebar:hover { color: var(--error-color); transform: rotate(90deg); }
-    .sidebar-content label { display: block; color: #ccc; margin-bottom: 5px; font-size: 0.9rem; text-align: left; }
-    .sidebar-input { width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: white; font-size: 1rem; box-sizing: border-box; }
-    .sidebar-input:focus { outline: none; border-color: var(--ai-color); }
-    .calc-btn { width: 100%; padding: 12px; background: var(--ai-color); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
-    .calc-btn:hover { background: #3a7bd5; transform: scale(1.02); }
-    .result-box { margin-top: 25px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-left: 4px solid var(--ai-color); font-size: 0.95rem; line-height: 1.5; color: #eee; display: none; }
-    
+    /* Toast */
     .toast-container { position: fixed; top: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
-    .toast { background: rgba(16, 30, 40, 0.95); color: white; padding: 15px 25px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); border-left: 5px solid; animation: slideIn 0.4s ease, fadeOut 0.5s ease 4s forwards; }
+    .toast { background: rgba(5, 11, 20, 0.95); color: white; padding: 15px 25px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.6); border-left: 4px solid; animation: slideIn 0.4s ease, fadeOut 0.5s ease 4s forwards; }
     @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-    .toast-error { border-color: var(--error-color); } .toast-error i { color: var(--error-color); }
-    .toast-info { border-color: var(--ai-color); } .toast-info i { color: var(--ai-color); }
+    @keyframes fadeOut { to { opacity: 0; } }
+    .toast-error { border-color: var(--error); } .toast-error i { color: var(--error); }
+    .toast-info { border-color: var(--primary-neon); } .toast-info i { color: var(--primary-neon); }
 
+    /* Responsive */
     @media screen and (max-width: 768px) {
       body { padding: 10px; }
-      header { padding: 5px 0; }
-      .user-card, .ai-card { padding: 15px; flex-direction: column; align-items: flex-start; gap: 10px; }
-      .user-card .top-actions { width: 100%; justify-content: space-between; margin-top: 10px; }
-      .measure-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .measure-btn { height: 110px; padding: 10px; }
+      .user-card, .ai-card { flex-direction: column; text-align: center; gap: 15px; padding: 20px; }
+      .user-card::before { width: 100%; height: 4px; top: 0; left: 0; }
+      .top-actions { margin: 0; justify-content: center; width: 100%; }
+      .measure-container { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+      .measure-btn { height: 140px; }
       .fab-right { right: 20px; bottom: 20px; }
       .fab-left { left: 20px; bottom: 20px; }
-      .sidebar { width: 85%; }
+      .sidebar { width: 100%; left: -100%; }
     }
   </style>
 </head>
 <body>
+
+  <div id="bio-background"></div>
 
   <div class="toast-container" id="toastContainer"></div>
 
@@ -205,7 +333,6 @@
     <button class="hospital-fab" id="hospitalBtn" onclick="findHospitals()" title="Nearest Hospitals">
       <i class="fas fa-hospital"></i>
     </button>
-    
     <div class="sos-wrapper">
         <button class="sos-settings-btn" onclick="openContactModal()" title="Edit SOS Number">
             <i class="fas fa-cog"></i>
@@ -250,7 +377,7 @@
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
   <div class="sidebar" id="smartSidebar">
     <div class="sidebar-header">
-      <h3 id="sidebarTitle"><i class="fas fa-brain"></i> Smart Check</h3>
+      <h3 id="sidebarTitle"><i class="fas fa-brain"></i> SMART CHECK</h3>
       <button class="close-sidebar" onclick="toggleSidebar(false)">×</button>
     </div>
     <div class="sidebar-content">
@@ -258,19 +385,22 @@
       <input type="number" id="inputWeight" class="sidebar-input" placeholder="e.g. 75">
       <label id="lblHeight">Height (cm) / الطول</label>
       <input type="number" id="inputHeight" class="sidebar-input" placeholder="e.g. 175">
-      <button class="calc-btn" onclick="calculateHealthRisk()" id="btnAnalyze">Analyze Health / تحليل</button>
+      <button class="calc-btn" onclick="calculateHealthRisk()" id="btnAnalyze">ANALYZE DATA</button>
       <div id="analysisResult" class="result-box"></div>
     </div>
   </div>
 
   <div class="user-card">
-    <i class="fas fa-user-circle"></i>
-    <h2 id="titleText">User: <span id="currentUserName">Unknown</span></h2>
+    <div class="user-avatar"><i class="fas fa-user-astronaut"></i></div>
+    <div class="user-info">
+        <h2>ACTIVE USER</h2>
+        <span id="currentUserName">Loading...</span>
+    </div>
     <div class="top-actions">
-      <button class="icon-btn whatsapp-btn" id="whatsappBtn" onclick="sendWhatsAppReport()" title="Send Report to WhatsApp">
+      <button class="icon-btn whatsapp-btn" id="whatsappBtn" onclick="sendWhatsAppReport()" title="Send Report">
         <i class="fab fa-whatsapp"></i>
       </button>
-      <button class="icon-btn active" id="voiceToggle" onclick="toggleHoverVoice()" title="Toggle Voice Guide">
+      <button class="icon-btn active" id="voiceToggle" onclick="toggleHoverVoice()" title="Voice Guide">
         <i class="fas fa-volume-up"></i>
       </button>
       <button class="icon-btn" onclick="toggleFullScreen()" title="Full Screen">
@@ -283,41 +413,42 @@
   <div class="ai-card">
     <div class="ai-icon"><i class="fas fa-robot"></i></div>
     <div class="ai-content">
-      <h3 id="aiTitle">AI Health Analysis</h3>
-      <div id="aiText">Waiting for measurements...</div>
+      <h3 id="aiTitle">AI DIAGNOSTICS</h3>
+      <div id="aiText">System Initializing... Awaiting sensor data.</div>
     </div>
-    <div id="lastReadingTime" style="position: absolute; bottom: 8px; right: 20px; font-size: 0.8rem; color: #aaa;">Last updated: --</div>
+    <div id="lastReadingTime" style="position: absolute; bottom: 10px; right: 20px; font-size: 0.75rem; color: #666; font-family: 'Orbitron', sans-serif;">Last updated: --</div>
   </div>
 
   <div class="measure-container">
     <div class="measure-btn temp" id="tempBtn" onclick="goToTemperature()">
       <i class="fas fa-thermometer-half"></i> <span>Temperature</span>
-      <div id="tempValue" style="font-weight: 700; color: #fff; font-size: 1.1rem; position: absolute; bottom: 5px;">--</div>
+      <div class="value-display" id="tempValue">--</div>
     </div>
     <div class="measure-btn pulse" id="pulseBtn" onclick="goToPulse()">
       <i class="fas fa-heartbeat"></i> <span>Pulse Rate</span>
-      <div id="pulseValue" style="font-weight: 700; color: #fff; font-size: 1.1rem; position: absolute; bottom: 5px;">--</div>
+      <div class="value-display" id="pulseValue">--</div>
     </div>
     <div class="measure-btn pressure" id="bpBtn" onclick="goToPressure()">
       <i class="fas fa-stethoscope"></i> <span>Blood Pressure</span>
-      <div id="bpValue" style="font-weight: 700; color: #fff; font-size: 1.1rem; position: absolute; bottom: 5px;">--</div>
+      <div class="value-display" id="bpValue">--</div>
     </div>
     <div class="measure-btn oxygen" id="oxygenBtn" onclick="goToOxygen()">
       <i class="fas fa-lungs"></i> <span>Oxygen (SpO2)</span>
-      <div id="spo2Value" style="font-weight: 700; color: #fff; font-size: 1.1rem; position: absolute; bottom: 5px;">--</div>
+      <div class="value-display" id="spo2Value">--</div>
     </div>
     <div class="measure-btn vision" id="visionBtn" onclick="goToVisionPage()">
       <i class="fas fa-eye"></i> <span>Vision Test</span>
+      <div class="value-display" style="font-size: 0.9rem; color: #777;">START TEST</div>
     </div>
   </div>
 
   <div class="history-bar" id="historyBtn" onclick="goToHistory()">
     <i class="fas fa-file-medical-alt"></i>
-    <span>View History & Reports</span>
+    <span>ACCESS HISTORY LOGS</span>
   </div>
 
   <button class="close-btn" id="exitBtn" onclick="closeMeasurements()">
-    <i class="fas fa-sign-out-alt"></i> Exit Dashboard
+    <i class="fas fa-power-off"></i> TERMINATE SESSION
   </button>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -325,6 +456,26 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
   <script>
+    // --- 1. SETUP BACKGROUND ---
+    function createBioBackground() {
+        const container = document.getElementById('bio-background');
+        const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-pills', 'fa-virus', 'fa-microscope', 'fa-user-md', 'fa-syringe', 'fa-lungs', 'fa-brain'];
+        const count = 30; 
+        for (let i = 0; i < count; i++) {
+            const el = document.createElement('i');
+            el.classList.add('fas', icons[Math.floor(Math.random() * icons.length)], 'bio-symbol');
+            el.style.left = Math.random() * 100 + 'vw';
+            const size = Math.random() * 2 + 0.5;
+            el.style.fontSize = size + 'rem';
+            el.style.opacity = Math.random() * 0.2;
+            el.style.animationDuration = (Math.random() * 20 + 15) + 's';
+            el.style.animationDelay = (Math.random() * 10) + 's';
+            container.appendChild(el);
+        }
+    }
+    createBioBackground();
+
+    // --- 2. LOGIC PRESERVED ---
     const firebaseConfig = {
       apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
       authDomain: "smart-a76a0.firebaseapp.com",
@@ -347,7 +498,6 @@
     if(!currentUserId) window.location.href="index.html"; 
     else userSpan.innerText = currentUserId;
 
-    // --- SIDEBAR ---
     function toggleSidebar(show) {
       const sidebar = document.getElementById("smartSidebar");
       const overlay = document.getElementById("sidebarOverlay");
@@ -355,7 +505,6 @@
       else { sidebar.classList.remove("active"); overlay.classList.remove("active"); }
     }
 
-    // --- SOS LOGIC (FIXED) ---
     function triggerSOS() {
         const savedNumber = localStorage.getItem("sosContactNumber");
         if (!savedNumber) { openContactModal(); } else { openConfirmModal(); }
@@ -408,27 +557,16 @@
     function sendPosition(position) {
         const lat = position.coords.latitude;
         const long = position.coords.longitude;
-        // CLICKABLE MAP LINK
         const mapLink = `https://www.google.com/maps?q=${lat},${long}`;
         const lang = localStorage.getItem("language") || "en";
-        
-        // --- SMART PHONE FORMATTING ---
         let rawPhone = localStorage.getItem("sosContactNumber");
-        // Remove non-digits
         let cleanPhone = rawPhone.replace(/\D/g, ''); 
-        // If Egyptian number starts with 01, replace with 201
-        if (cleanPhone.startsWith('01')) {
-            cleanPhone = '20' + cleanPhone.substring(1);
-        }
+        if (cleanPhone.startsWith('01')) cleanPhone = '20' + cleanPhone.substring(1);
 
         let msg = "";
-        if(lang === "ar") {
-            msg = `🚨 *استغاثة طارئة!* 🚨\nأحتاج للمساعدة فوراً.\n📍 *الموقع:* ${mapLink}\n🌡️ *الحرارة:* ${currentData.temp}\n❤️ *النبض:* ${currentData.bpm}`;
-        } else {
-            msg = `🚨 *EMERGENCY SOS!* 🚨\nI need help immediately.\n📍 *Location:* ${mapLink}\n🌡️ *Temp:* ${currentData.temp}\n❤️ *Pulse:* ${currentData.bpm}`;
-        }
+        if(lang === "ar") msg = `🚨 *استغاثة طارئة!* 🚨\nأحتاج للمساعدة فوراً.\n📍 *الموقع:* ${mapLink}\n🌡️ *الحرارة:* ${currentData.temp}\n❤️ *النبض:* ${currentData.bpm}`;
+        else msg = `🚨 *EMERGENCY SOS!* 🚨\nI need help immediately.\n📍 *Location:* ${mapLink}\n🌡️ *Temp:* ${currentData.temp}\n❤️ *Pulse:* ${currentData.bpm}`;
         
-        // ENCODE URL
         const finalUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
         window.open(finalUrl, '_blank');
     }
@@ -438,7 +576,6 @@
         showToast(lang === "ar" ? "تعذر تحديد الموقع" : "Location Error", "error");
     }
 
-    // --- DATA & AI ---
     function extractSensorValues(sensorString) {
         const values = {};
         if (sensorString && sensorString !== "No measurement recorded yet") {
@@ -457,7 +594,6 @@
         return values;
     }
 
-    // --- DETAILED BMI LOGIC WITH EMOJIS & EXERCISES ---
     function calculateHealthRisk() {
       const weight = parseFloat(document.getElementById("inputWeight").value);
       const height = parseFloat(document.getElementById("inputHeight").value);
@@ -516,7 +652,6 @@
     let currentData = { temp: "--", bpm: "--", bp: "--", spo2: "--" };
     let lastTimestamp = "--";
 
-    // --- EXPANDED AI ANALYSIS LOGIC (FOOD, DRINK, REST, EMOJIS) ---
     function updateAIAnalysis() {
       if(!currentUserId) return;
       const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
@@ -553,50 +688,39 @@
             if (sensorDataString === "No measurement recorded yet") {
                 headerMsg = localStorage.getItem("language") === "ar" ? "⏳ بانتظار بدء القياسات..." : "⏳ Waiting for measurements...";
             } else {
-                // 1. HIGH BLOOD PRESSURE
                 if(sys > 140) {
                     statusColor = "#ff416c";
                     headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ ضغط الدم مرتفع" : "⚠️ High Blood Pressure";
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🍌 <b>أكل:</b> تناول الموز، السبانخ، والشوكولاتة الداكنة." : "🍌 <b>Eat:</b> Bananas, Spinach, Dark Chocolate.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🍵 <b>شرب:</b> اشرب الكركديه البارد وعصير البنجر." : "🍵 <b>Drink:</b> Cold Hibiscus tea, Beet juice.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🧘‍♂️ <b>راحة:</b> جرب التأمل وتنفس ببطء." : "🧘‍♂️ <b>Rest:</b> Try meditation & deep breathing.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🍌 <b>أكل:</b> تناول الموز، السبانخ." : "🍌 <b>Eat:</b> Bananas, Spinach.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🧘‍♂️ <b>راحة:</b> جرب التأمل." : "🧘‍♂️ <b>Rest:</b> Try meditation.");
                 } 
-                // 2. LOW BLOOD PRESSURE
                 else if (sys > 0 && sys < 90) {
                      statusColor = "#f1c40f";
                      headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ ضغط الدم منخفض" : "⚠️ Low Blood Pressure";
-                     adviceList.push(localStorage.getItem("language")==="ar" ? "🧂 <b>أكل:</b> تناول وجبة خفيفة مالحة (مكسرات/جبن)." : "🧂 <b>Eat:</b> Salty snacks (nuts/cheese).");
-                     adviceList.push(localStorage.getItem("language")==="ar" ? "☕ <b>شرب:</b> اشرب قهوة أو سوائل كثيرة." : "☕ <b>Drink:</b> Coffee or plenty of fluids.");
+                     adviceList.push(localStorage.getItem("language")==="ar" ? "🧂 <b>أكل:</b> تناول وجبة مالحة." : "🧂 <b>Eat:</b> Salty snacks.");
+                     adviceList.push(localStorage.getItem("language")==="ar" ? "☕ <b>شرب:</b> اشرب قهوة." : "☕ <b>Drink:</b> Coffee.");
                 }
 
-                // 3. HIGH TEMP
                 if(temp > 37.5) {
                     statusColor = "#ff416c";
                     headerMsg = localStorage.getItem("language") === "ar" ? "🌡️ حرارة مرتفعة (حمى)" : "🌡️ High Fever";
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🧊 <b>علاج:</b> استخدم كمادات باردة فوراً." : "🧊 <b>Action:</b> Use cold compresses immediately.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "💧 <b>شرب:</b> اشرب ماء وعصائر لتعويض السوائل." : "💧 <b>Drink:</b> Water & juices to hydrate.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🛌 <b>راحة:</b> الزم الراحة التامة في السرير." : "🛌 <b>Rest:</b> Complete bed rest.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🧊 <b>علاج:</b> استخدم كمادات باردة." : "🧊 <b>Action:</b> Use cold compresses.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "💧 <b>شرب:</b> اشرب سوائل كثيرة." : "💧 <b>Drink:</b> Hydrate well.");
                 }
 
-                // 4. LOW OXYGEN
                 if(spo2 > 0 && spo2 < 95) {
                     statusColor = "#ff416c";
                     headerMsg = localStorage.getItem("language") === "ar" ? "🫁 نقص في الأكسجين" : "🫁 Low Oxygen Level";
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🪟 <b>بيئة:</b> افتح النوافذ لتجديد الهواء." : "🪟 <b>Env:</b> Open windows for fresh air.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🌬️ <b>تمرين:</b> تنفس بعمق (شهيق وزفير ببطء)." : "🌬️ <b>Exercise:</b> Deep breathing exercises.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🛌 <b>وضعية:</b> استلقِ على بطنك لتحسين التنفس." : "🛌 <b>Position:</b> Lie on your stomach (Prone).");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🌬️ <b>تمرين:</b> تنفس بعمق." : "🌬️ <b>Exercise:</b> Deep breathing.");
                 }
                 
-                // NORMAL CONDITION
                 if(adviceList.length === 0 && sensorDataString !== "No measurement recorded yet") {
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "💧 استمر في شرب 2-3 لتر ماء يومياً." : "💧 Drink 2-3L water daily.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🚶‍♂️ حافظ على المشي لمدة 30 دقيقة." : "🚶‍♂️ Maintain 30 mins walking.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🥗 أكثر من الخضروات والفواكه." : "🥗 Eat more veggies & fruits.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "💧 اشرب 2-3 لتر ماء يومياً." : "💧 Drink 2-3L water daily.");
+                    adviceList.push(localStorage.getItem("language")==="ar" ? "🥗 أكثر من الخضروات." : "🥗 Eat veggies.");
                 }
             }
 
-            // Build List HTML
-            let finalHtml = `<strong>${headerMsg}</strong>`;
+            let finalHtml = `<strong style="color:${statusColor}">${headerMsg}</strong>`;
             if(adviceList.length > 0) {
                 finalHtml += `<ul>`;
                 adviceList.forEach(tip => finalHtml += `<li>${tip}</li>`);
@@ -609,7 +733,6 @@
       });
     }
 
-    // --- UTILS ---
     async function checkInternetConnection() { try { await fetch("https://www.google.com/favicon.ico?"+new Date().getTime(),{mode:"no-cors"});return true;}catch(e){return false;}}
     async function updateStatus(){const d=document.getElementById('connectionStatus');if(await checkInternetConnection()){d.classList.remove('offline');d.title="Online";}else{d.classList.add('offline');d.title="Offline";}}
     setInterval(updateStatus,3000);
@@ -630,7 +753,6 @@
     let idle=0; setInterval(()=>{idle++;if(idle>=90)closeMeasurements();},1000);
     document.onmousemove=document.onkeypress=document.ontouchstart=document.onclick=()=>{idle=0;};
 
-    // --- HOVER VOICE & LANG ---
     let voiceEnabled=true;
     function toggleHoverVoice(){voiceEnabled=!voiceEnabled;document.getElementById('voiceToggle').classList.toggle('active');}
     function setupHoverVoice(){
@@ -667,11 +789,11 @@
     function goToVisionPage(){window.location.href="instruction.html";}
     function goToHistory(){window.location.href="history.html";}
 
-    const lang = localStorage.getItem("language") || "en";
     function applyLanguage(){
+        const lang = localStorage.getItem("language") || "en";
         if(lang==="ar"){
             document.body.style.direction="rtl";
-            document.getElementById("titleText").innerHTML=`المستخدم: <span>${currentUserId}</span>`;
+            document.querySelector(".user-info h2").innerText="المستخدم الحالي";
             document.getElementById("aiTitle").innerText="التحليل الذكي";
             document.getElementById("sidebarTitle").innerHTML='<i class="fas fa-brain"></i> الفحص الذكي';
             document.getElementById("lblWeight").innerText="الوزن (كجم)";
@@ -685,8 +807,9 @@
             document.querySelector("#bpBtn span").innerText="ضغط الدم";
             document.querySelector("#oxygenBtn span").innerText="نسبة الأكسجين";
             document.querySelector("#visionBtn span").innerText="فحص النظر";
+            document.querySelector("#visionBtn div").innerText="بدء الفحص";
             document.querySelector("#historyBtn span").innerText="السجل والتقارير";
-            document.querySelector("#exitBtn").innerHTML='<i class="fas fa-sign-out-alt"></i> خروج';
+            document.querySelector("#exitBtn").innerHTML='<i class="fas fa-power-off"></i> إنهاء الجلسة';
         }
     }
 
