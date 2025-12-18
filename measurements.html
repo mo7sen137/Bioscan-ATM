@@ -39,9 +39,14 @@
       min-height: 100vh;
       overflow-x: hidden;
       display: flex; flex-direction: column; align-items: center;
-      padding-top: 85px; /* Space for fixed header */
-      padding-bottom: 90px; /* Space for FABs */
+      padding-top: 85px; 
+      padding-bottom: 90px;
     }
+
+    /* RTL Support */
+    body.rtl { font-family: 'Cairo', sans-serif; direction: rtl; }
+    body.rtl .dock-text { text-align: right; }
+    body.rtl .user-left { flex-direction: row; } /* Fix alignment in RTL */
 
     /* --- 2. SKELETON LOADING --- */
     .skeleton {
@@ -67,7 +72,6 @@
         100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
     }
 
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: #050b14; }
     ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 10px; }
@@ -97,6 +101,10 @@
     .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
     .icon-btn.active { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); border-color: var(--success); }
     .icon-btn.listening { background: var(--error); color: #fff; animation: pulseRed 1s infinite; border-color: var(--error); }
+    
+    /* Language Button Style */
+    #langBtn { font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; letter-spacing: 1px; width: 40px; }
+
     @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(255, 65, 108, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0); } }
     .whatsapp-btn { color: #25D366; border-color: #25D366; }
     .whatsapp-btn:hover { background: #25D366; color: #fff; box-shadow: 0 0 15px #25D366; }
@@ -104,7 +112,7 @@
     .status-dot.offline { background-color: var(--error); box-shadow: 0 0 10px var(--error); animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0.5; } }
 
-    /* --- 5. AI CONSOLE (MOBILE OPTIMIZED) --- */
+    /* --- 5. AI CONSOLE --- */
     .ai-card { 
       width: 95%; max-width: 900px; margin-top: 10px;
       background: linear-gradient(135deg, rgba(10, 20, 35, 0.95), rgba(5, 10, 20, 0.95));
@@ -131,7 +139,6 @@
         background: rgba(0, 242, 255, 0.1); padding: 4px 8px; border-radius: 12px; border: 1px solid rgba(0, 242, 255, 0.2);
     }
 
-    /* Scrollable Advice Grid */
     .ai-advice-container { 
         display: flex; gap: 10px; width: 100%; 
         overflow-x: auto; padding-bottom: 5px; scroll-behavior: smooth;
@@ -174,7 +181,14 @@
     @keyframes breathe { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
 
     .measure-btn i { font-size: 2rem; margin-bottom: 5px; }
-    .measure-btn span { font-size: 0.8rem; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+    
+    /* UPDATED VISIBILITY FOR LABELS */
+    .measure-btn span { 
+        font-size: 0.85rem; font-weight: 700; color: #ffffff; /* WHITE */
+        text-transform: uppercase; letter-spacing: 1px; 
+        text-shadow: 0 0 5px rgba(0,0,0,0.8); /* SHADOW FOR CONTRAST */
+    }
+    
     .value-display { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 700; color: #fff; margin-top: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
 
     /* SAVE BUTTON */
@@ -203,7 +217,7 @@
     .history-dock { border-bottom: 2px solid var(--secondary-neon); } .history-dock i { font-size: 1.5rem; color: var(--secondary-neon); }
     .dock-text { margin-top: 5px; }
     .dock-title { display: block; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; }
-    .dock-sub { display: none; } /* Hide subtext on mobile */
+    .dock-sub { display: none; }
 
     .close-btn { 
       background: rgba(255, 42, 42, 0.1); color: var(--error); border: 1px solid var(--error);
@@ -278,6 +292,10 @@
         </div>
     </div>
     <div class="top-actions">
+      <button class="icon-btn" id="langBtn" onclick="toggleLanguage()" title="Switch Language">
+        AR
+      </button>
+      
       <button class="icon-btn" id="micBtn" onclick="startListening()" title="Voice Commands">
         <i class="fas fa-microphone"></i>
       </button>
@@ -312,19 +330,19 @@
 
   <div class="measure-container">
     <div class="measure-btn temp" id="tempBtn" onclick="goToTemperature()">
-      <i class="fas fa-thermometer-half"></i> <span>Temperature</span>
+      <i class="fas fa-thermometer-half"></i> <span id="lblTemp">Temperature</span>
       <div class="value-display skeleton" id="tempValue">--</div>
     </div>
     <div class="measure-btn pulse" id="pulseBtn" onclick="goToPulse()">
-      <i class="fas fa-heartbeat"></i> <span>Pulse Rate</span>
+      <i class="fas fa-heartbeat"></i> <span id="lblPulse">Pulse Rate</span>
       <div class="value-display skeleton" id="pulseValue">--</div>
     </div>
     <div class="measure-btn pressure" id="bpBtn" onclick="goToPressure()">
-      <i class="fas fa-stethoscope"></i> <span>Blood Pressure</span>
+      <i class="fas fa-stethoscope"></i> <span id="lblBp">Blood Pressure</span>
       <div class="value-display skeleton" id="bpValue">--</div>
     </div>
     <div class="measure-btn oxygen" id="oxygenBtn" onclick="goToOxygen()">
-      <i class="fas fa-lungs"></i> <span>Oxygen (SpO2)</span>
+      <i class="fas fa-lungs"></i> <span id="lblO2">Oxygen (SpO2)</span>
       <div class="value-display skeleton" id="spo2Value">--</div>
     </div>
   </div>
@@ -337,21 +355,21 @@
       <div class="dock-btn vision-dock" id="visionBtn" onclick="goToVisionPage()">
           <i class="fas fa-eye"></i>
           <div class="dock-text">
-              <span class="dock-title">VISION TEST</span>
-              <span class="dock-sub">Start eye exam</span>
+              <span class="dock-title" id="lblVision">VISION TEST</span>
+              <span class="dock-sub" id="subVision">Start eye exam</span>
           </div>
       </div>
       <div class="dock-btn history-dock" id="historyBtn" onclick="goToHistory()">
           <i class="fas fa-file-medical-alt"></i>
           <div class="dock-text">
-              <span class="dock-title">HISTORY LOGS</span>
-              <span class="dock-sub">View previous data</span>
+              <span class="dock-title" id="lblHistory">HISTORY LOGS</span>
+              <span class="dock-sub" id="subHistory">View previous data</span>
           </div>
       </div>
   </div>
 
   <button class="close-btn" id="exitBtn" onclick="closeMeasurements()">
-    <i class="fas fa-power-off"></i> TERMINATE SESSION
+    <i class="fas fa-power-off"></i> <span id="lblExit">TERMINATE SESSION</span>
   </button>
 
   <div class="fab-container fab-right">
@@ -457,7 +475,7 @@
     function startListening() {
         if (!('webkitSpeechRecognition' in window)) { showToast("Voice not supported", "error"); return; }
         const recognition = new webkitSpeechRecognition();
-        recognition.lang = localStorage.getItem("language") === "ar" ? "ar-SA" : "en-US";
+        recognition.lang = currentLang === "ar" ? "ar-SA" : "en-US";
         recognition.start();
         const btn = document.getElementById('micBtn'); btn.classList.add('listening');
         recognition.onresult = (event) => {
@@ -475,13 +493,91 @@
         recognition.onend = () => btn.classList.remove('listening');
     }
 
-    // --- 4. DATA & SAVING ---
+    // --- 4. LANGUAGE LOGIC (NEW) ---
+    let currentLang = 'en'; // Default to English as requested
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'en' ? 'ar' : 'en';
+        localStorage.setItem("language", currentLang); // Save preference if needed later
+        applyLanguage();
+    }
+
+    function applyLanguage() {
+        const isAr = currentLang === 'ar';
+        document.body.classList.toggle('rtl', isAr);
+        document.getElementById('langBtn').innerText = isAr ? 'EN' : 'AR'; // Button shows target lang
+
+        // Mappings
+        const texts = {
+            en: {
+                uid: "USER ID", aiT: "AI DIAGNOSTICS", aiSub: "Real-time Health Analysis",
+                temp: "Temperature", pulse: "Pulse Rate", bp: "Blood Pressure", ox: "Oxygen (SpO2)",
+                vision: "VISION TEST", vSub: "Start eye exam", hist: "HISTORY LOGS", hSub: "View previous data",
+                save: "SAVE ALL READINGS", exit: "TERMINATE SESSION",
+                sbTitle: "SMART CHECK", w: "Weight (kg)", h: "Height (cm)", calc: "ANALYZE DATA",
+                conTitle: "Emergency Contact", conTxt: "Enter phone number",
+                sosTitle: "Emergency Alert", sosTxt: "Confirm SOS?",
+                saveBtn: "Save", cancel: "Cancel", yes: "YES, SEND HELP"
+            },
+            ar: {
+                uid: "المستخدم", aiT: "التحليل الذكي", aiSub: "تحليل صحي فوري",
+                temp: "درجة الحرارة", pulse: "نبض القلب", bp: "ضغط الدم", ox: "نسبة الأكسجين",
+                vision: "فحص النظر", vSub: "بدء الفحص", hist: "سجل البيانات", hSub: "عرض القراءات السابقة",
+                save: "حفظ جميع القراءات", exit: "إنهاء الجلسة",
+                sbTitle: "الفحص الذكي", w: "الوزن (كجم)", h: "الطول (سم)", calc: "تحليل النتائج",
+                conTitle: "جهة اتصال الطوارئ", conTxt: "أدخل رقم الهاتف",
+                sosTitle: "تنبيه طوارئ", sosTxt: "هل تود إرسال استغاثة؟",
+                saveBtn: "حفظ", cancel: "إلغاء", yes: "نعم، أرسل المساعدة"
+            }
+        };
+
+        const t = isAr ? texts.ar : texts.en;
+
+        // Apply text
+        document.querySelector(".user-info h2").innerText = t.uid;
+        document.getElementById("aiTitle").innerText = t.aiT;
+        document.querySelector(".ai-title p").innerText = t.aiSub;
+        
+        document.getElementById("lblTemp").innerText = t.temp;
+        document.getElementById("lblPulse").innerText = t.pulse;
+        document.getElementById("lblBp").innerText = t.bp;
+        document.getElementById("lblO2").innerText = t.ox;
+        
+        document.getElementById("lblVision").innerText = t.vision;
+        document.getElementById("subVision").innerText = t.vSub;
+        document.getElementById("lblHistory").innerText = t.hist;
+        document.getElementById("subHistory").innerText = t.hSub;
+        
+        document.getElementById("saveBtnText").innerText = t.save;
+        document.getElementById("lblExit").innerText = t.exit;
+        
+        // Sidebar & Modals
+        document.getElementById("sidebarTitle").innerHTML = `<i class="fas fa-brain"></i> ${t.sbTitle}`;
+        document.getElementById("lblWeight").innerText = t.w;
+        document.getElementById("lblHeight").innerText = t.h;
+        document.getElementById("btnAnalyze").innerText = t.calc;
+        
+        document.getElementById("contactTitle").innerText = t.conTitle;
+        document.getElementById("contactText").innerText = t.conTxt;
+        document.querySelector("#contactModal .btn-confirm").innerText = t.saveBtn;
+        document.querySelector("#contactModal .btn-cancel").innerText = t.cancel;
+        
+        document.getElementById("confirmTitle").innerText = t.sosTitle;
+        document.getElementById("confirmText").innerText = t.sosTxt;
+        document.querySelector("#confirmModal .btn-danger").innerText = t.yes;
+        document.querySelector("#confirmModal .btn-cancel").innerText = t.cancel;
+
+        // Trigger AI update to translate dynamic content
+        updateAIAnalysis();
+    }
+
+    // --- 5. DATA & SAVING ---
     let currentData = { temp: "--", bpm: "--", bp: "--", spo2: "--" };
     let lastTimestamp = "--";
 
     function saveCurrentSession() {
         if (currentData.temp === "--" && currentData.bpm === "--") {
-            showToast(localStorage.getItem("language") === "ar" ? "لا توجد بيانات للحفظ!" : "No data to save!", "error");
+            showToast(currentLang === "ar" ? "لا توجد بيانات للحفظ!" : "No data to save!", "error");
             return;
         }
         const readableDate = new Date().toLocaleString('en-US'); 
@@ -494,13 +590,13 @@
             pressure: currentData.bp,
             spo2: currentData.spo2
         }).then(() => {
-            showToast(localStorage.getItem("language") === "ar" ? "تم حفظ الجلسة بنجاح" : "Session Saved Successfully", "success");
+            showToast(currentLang === "ar" ? "تم حفظ الجلسة بنجاح" : "Session Saved Successfully", "success");
         }).catch(err => {
             showToast("Save Error", "error");
         });
     }
 
-    // --- 5. AI LOGIC (SCROLLABLE & DETAILED) ---
+    // --- 6. AI LOGIC (UPDATED WITH LANG CHECK) ---
     function updateAIAnalysis() {
       if(!currentUserId) return;
       const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
@@ -527,7 +623,7 @@
                 }
             });
 
-            document.getElementById('lastReadingTime').innerText = (localStorage.getItem("language") === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + lastTimestamp;
+            document.getElementById('lastReadingTime').innerText = (currentLang === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + lastTimestamp;
             
             const temp = parseFloat(currentData.temp) || 0;
             const bpm = parseInt(currentData.bpm) || 0;
@@ -536,12 +632,12 @@
 
             let statusColor = "#00ff88"; 
             let adviceList = [];
-            let headerMsg = localStorage.getItem("language") === "ar" ? "✅ الحالة العامة مستقرة." : "✅ General condition is stable.";
+            let headerMsg = currentLang === "ar" ? "✅ الحالة العامة مستقرة." : "✅ General condition is stable.";
 
             if (sensorDataString === "No measurement recorded yet") {
-                headerMsg = localStorage.getItem("language") === "ar" ? "⏳ بانتظار بدء القياسات..." : "⏳ Waiting for measurements...";
+                headerMsg = currentLang === "ar" ? "⏳ بانتظار بدء القياسات..." : "⏳ Waiting for measurements...";
             } else {
-                const isAr = localStorage.getItem("language") === "ar";
+                const isAr = currentLang === "ar";
                 
                 if(sys > 140) {
                     statusColor = "#ff416c";
@@ -635,8 +731,8 @@
             if(b){
                 b.onmouseenter=()=>{
                     if(!voiceEnabled) return; window.speechSynthesis.cancel();
-                    const u=new SpeechSynthesisUtterance(localStorage.getItem('language')==='ar'?map[id].ar:map[id].en);
-                    u.lang=localStorage.getItem('language')==='ar'?'ar-SA':'en-US'; window.speechSynthesis.speak(u);
+                    const u=new SpeechSynthesisUtterance(currentLang==='ar'?map[id].ar:map[id].en);
+                    u.lang=currentLang==='ar'?'ar-SA':'en-US'; window.speechSynthesis.speak(u);
                 };
                 b.onmouseleave=()=>{ window.speechSynthesis.cancel(); }
             }
@@ -665,7 +761,7 @@
       const weight = parseFloat(document.getElementById("inputWeight").value);
       const height = parseFloat(document.getElementById("inputHeight").value);
       const resultBox = document.getElementById("analysisResult");
-      const lang = localStorage.getItem("language") || "en";
+      const lang = currentLang;
 
       if(!weight || !height) {
         resultBox.style.display = "block"; resultBox.style.borderLeftColor = "#ff416c";
@@ -692,7 +788,7 @@
     
     function executeSOS(){
         closeModals(); 
-        const lang = localStorage.getItem("language") || "en";
+        const lang = currentLang;
         showToast(lang==="ar"?"جاري تحديد الموقع...":"Locating...", "info");
         
         if (navigator.geolocation) {
@@ -708,11 +804,11 @@
         const lat = position.coords.latitude;
         const long = position.coords.longitude;
         const mapLink = `https://www.google.com/maps?q=${lat},${long}`;
-        const lang = localStorage.getItem("language") || "en";
+        const lang = currentLang;
         
         let rawPhone = localStorage.getItem("sosContactNumber");
         let cleanPhone = rawPhone.replace(/\D/g, ''); 
-        if (cleanPhone.startsWith('01')) cleanPhone = '20' + cleanPhone.substring(1); // Egypt
+        if (cleanPhone.startsWith('01')) cleanPhone = '20' + cleanPhone.substring(1); 
 
         let msg = "";
         if(lang === "ar") {
@@ -732,33 +828,7 @@
     function goToVisionPage(){window.location.href="instruction.html";}
     function goToHistory(){window.location.href="history.html";}
 
-    function applyLanguage(){
-        const lang = localStorage.getItem("language") || "en";
-        if(lang==="ar"){
-            document.body.style.direction="rtl";
-            document.querySelector(".user-info h2").innerText="المستخدم الحالي";
-            document.getElementById("aiTitle").innerText="التحليل الذكي";
-            document.getElementById("sidebarTitle").innerHTML='<i class="fas fa-brain"></i> الفحص الذكي';
-            document.getElementById("lblWeight").innerText="الوزن (كجم)";
-            document.getElementById("lblHeight").innerText="الطول (سم)";
-            document.getElementById("btnAnalyze").innerText="تحليل النتائج";
-            document.getElementById("saveBtnText").innerText="حفظ الجلسة الحالية";
-            document.getElementById("hospitalBtn").title="أقرب مستشفى";
-            document.getElementById("analyzeBtn").title="تحليل الجسم";
-            document.getElementById("sosBtn").title="طوارئ";
-            document.querySelector("#tempBtn span").innerText="درجة الحرارة";
-            document.querySelector("#pulseBtn span").innerText="نبض القلب";
-            document.querySelector("#bpBtn span").innerText="ضغط الدم";
-            document.querySelector("#oxygenBtn span").innerText="نسبة الأكسجين";
-            document.querySelector("#visionBtn .dock-title").innerText="فحص النظر";
-            document.querySelector("#visionBtn .dock-sub").innerText="بدء الفحص";
-            document.querySelector("#historyBtn .dock-title").innerText="السجل والتقارير";
-            document.querySelector("#historyBtn .dock-sub").innerText="عرض البيانات السابقة";
-            document.querySelector("#exitBtn").innerHTML='<i class="fas fa-power-off"></i> إنهاء الجلسة';
-        }
-    }
-
-    applyLanguage();
+    // Init Logic
     window.onload = () => { 
         updateAIAnalysis(); 
         if ('speechSynthesis' in window) {
