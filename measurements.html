@@ -43,16 +43,12 @@
       padding-bottom: 40px;
     }
 
-    /* --- 2. SKELETON LOADING ANIMATION --- */
+    /* --- 2. SKELETON LOADING --- */
     .skeleton {
         color: transparent !important;
         background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.15), rgba(255,255,255,0.05));
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite linear;
-        border-radius: 5px;
-        display: inline-block;
-        min-width: 60px;
-        min-height: 20px;
+        background-size: 200% 100%; animation: shimmer 1.5s infinite linear;
+        border-radius: 5px; display: inline-block; min-width: 60px; min-height: 20px;
     }
     @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
@@ -71,7 +67,6 @@
         100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
     }
 
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #050b14; }
     ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 10px; }
@@ -81,17 +76,15 @@
       position: fixed; top: 0; left: 0; width: 100%; height: 75px;
       background: rgba(5, 10, 18, 0.98); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--primary-neon); 
-      box-shadow: 0 0 25px rgba(0, 242, 255, 0.15); 
-      z-index: 100;
+      box-shadow: 0 0 25px rgba(0, 242, 255, 0.15); z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 30px; margin: 0; border-radius: 0;
     }
-
     .user-left { display: flex; align-items: center; gap: 15px; }
     .user-avatar { font-size: 2rem; color: var(--primary-neon); filter: drop-shadow(0 0 8px var(--primary-neon)); }
     .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #888; letter-spacing: 1px; }
     .user-info span { font-size: 1.3rem; color: #fff; font-weight: 700; letter-spacing: 1px; }
-
+    
     .top-actions { display: flex; align-items: center; gap: 12px; }
     .icon-btn { 
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
@@ -101,52 +94,54 @@
     }
     .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
     .icon-btn.active { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); border-color: var(--success); }
-    
-    /* Voice Active State */
     .icon-btn.listening { background: var(--error); color: #fff; animation: pulseRed 1s infinite; border-color: var(--error); }
     @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(255, 65, 108, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0); } }
-
     .whatsapp-btn { color: #25D366; border-color: #25D366; }
     .whatsapp-btn:hover { background: #25D366; color: #fff; box-shadow: 0 0 15px #25D366; }
-
     .status-dot { width: 10px; height: 10px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 10px var(--success); transition: 0.3s; margin-left: 10px; }
     .status-dot.offline { background-color: var(--error); box-shadow: 0 0 10px var(--error); animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0.5; } }
 
-    /* --- 5. AI CONSOLE (Restored Design + New Glow) --- */
+    /* --- 5. AI CONSOLE (ENHANCED DESIGN) --- */
     .ai-card { 
       width: 95%; max-width: 900px; margin-top: 10px;
-      background: linear-gradient(135deg, rgba(0, 210, 255, 0.05), rgba(58, 123, 213, 0.05)); /* Previous Subtle Gradient */
+      background: linear-gradient(135deg, rgba(10, 20, 35, 0.95), rgba(5, 10, 20, 0.95));
       border: 1px solid var(--primary-neon); border-radius: 20px; 
-      padding: 25px; margin-bottom: 30px; 
-      display: flex; align-items: flex-start; gap: 20px; 
-      /* Dynamic Glow will be applied via JS */
-      box-shadow: 0 0 20px rgba(0, 210, 255, 0.1); 
+      padding: 25px; margin-bottom: 25px; 
+      display: flex; flex-direction: column; gap: 20px; 
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.1); 
       position: relative; overflow: hidden; transition: all 0.5s ease;
     }
     
+    .ai-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; width: 100%; }
     .ai-icon { 
-      font-size: 2.5rem; color: var(--primary-neon); 
-      background: rgba(0, 0, 0, 0.3); width: 65px; height: 65px; 
-      border-radius: 50%; display: flex; justify-content: center; align-items: center; 
-      border: 1px solid var(--primary-neon);
-      animation: pulseAI 2s infinite; flex-shrink: 0;
+      font-size: 2rem; color: var(--primary-neon); 
+      background: rgba(0, 242, 255, 0.1); width: 50px; height: 50px; 
+      border-radius: 12px; display: flex; justify-content: center; align-items: center; 
+      border: 1px solid var(--primary-neon); animation: pulseAI 2s infinite;
     }
+    .ai-title h3 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: var(--primary-neon); letter-spacing: 1px; }
+    .ai-title p { margin: 2px 0 0; font-size: 0.8rem; color: #888; }
+
+    /* AI Advice Grid */
+    .ai-advice-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; width: 100%; }
+    .advice-box {
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px; padding: 15px; display: flex; align-items: flex-start; gap: 15px;
+        transition: 0.3s;
+    }
+    .advice-box:hover { background: rgba(255,255,255,0.07); transform: translateY(-3px); }
+    .advice-icon { font-size: 1.5rem; padding-top: 5px; }
+    .advice-content h4 { margin: 0 0 5px 0; font-size: 1rem; color: #fff; font-family: 'Cairo', sans-serif; }
+    .advice-content p { margin: 0; font-size: 0.95rem; color: #ccc; line-height: 1.5; font-family: 'Cairo', sans-serif; }
+
     @keyframes pulseAI { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
 
-    .ai-content { z-index: 2; width: 100%; }
-    .ai-content h3 { margin: 0 0 5px 0; font-size: 1.2rem; color: var(--primary-neon); font-family: 'Orbitron', sans-serif; }
-    .ai-content div { font-size: 1rem; line-height: 1.6; color: #eee; }
-    
-    /* Detailed AI List */
-    .ai-list { list-style: none; padding: 0; margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-    .ai-list li {
-        background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 8px;
-        border-left: 3px solid var(--primary-neon); font-size: 0.9rem; color: #fff;
+    /* --- 6. MODULES & SAVE BUTTON --- */
+    .measure-container { 
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+      gap: 20px; width: 95%; max-width: 900px; margin-bottom: 30px; 
     }
-
-    /* --- 6. MODULES --- */
-    .measure-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; width: 95%; max-width: 900px; margin-bottom: 30px; }
     
     .measure-btn { 
       background: var(--glass-panel); backdrop-filter: blur(10px);
@@ -157,18 +152,33 @@
     }
     .measure-btn:hover { transform: translateY(-8px); background: rgba(20, 30, 45, 0.95); }
     
+    /* Colors */
     .temp { border-bottom: 4px solid var(--temp-color); } .temp i { color: var(--temp-color); filter: drop-shadow(0 0 8px var(--temp-color)); }
     .pulse { border-bottom: 4px solid var(--pulse-color); } .pulse i { color: var(--pulse-color); animation: heartBeat 1.5s infinite; }
-    @keyframes heartBeat { 0% { transform: scale(1); } 15% { transform: scale(1.2); } 30% { transform: scale(1); } 45% { transform: scale(1.1); } 60% { transform: scale(1); } }
     .pressure { border-bottom: 4px solid var(--bp-color); } .pressure i { color: var(--bp-color); }
     .oxygen { border-bottom: 4px solid var(--ox-color); } .oxygen i { color: var(--ox-color); animation: breathe 3s infinite ease-in-out; }
+    
+    @keyframes heartBeat { 0% { transform: scale(1); } 15% { transform: scale(1.2); } 30% { transform: scale(1); } 45% { transform: scale(1.1); } 60% { transform: scale(1); } }
     @keyframes breathe { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
 
     .measure-btn i { font-size: 2.5rem; margin-bottom: 5px; }
     .measure-btn span { font-size: 0.85rem; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 1px; }
     .value-display { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 700; color: #fff; margin-top: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
 
-    /* --- 7. DOCK & FOOTER --- */
+    /* SAVE ALL BUTTON (NEW) */
+    .save-session-btn {
+        width: 95%; max-width: 900px; padding: 18px; border: none; border-radius: 12px;
+        background: linear-gradient(90deg, #11998e, #38ef7d);
+        color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px; font-weight: bold;
+        cursor: pointer; transition: 0.3s; margin-bottom: 30px;
+        box-shadow: 0 0 20px rgba(56, 239, 125, 0.4); text-align: center;
+        display: flex; align-items: center; justify-content: center; gap: 15px;
+        animation: glowGreen 3s infinite ease-in-out;
+    }
+    .save-session-btn:hover { transform: scale(1.02); box-shadow: 0 0 40px rgba(56, 239, 125, 0.6); }
+    @keyframes glowGreen { 0%, 100% { box-shadow: 0 0 20px rgba(56, 239, 125, 0.4); } 50% { box-shadow: 0 0 40px rgba(56, 239, 125, 0.7); } }
+
+    /* --- 7. ACTION DOCK --- */
     .dock-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 95%; max-width: 900px; margin-bottom: 30px; }
     .dock-btn {
         background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06));
@@ -183,6 +193,7 @@
     .dock-title { display: block; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1rem; }
     .dock-sub { display: block; color: #666; font-size: 0.8rem; margin-top: 2px; }
 
+    /* Exit */
     .close-btn { 
       background: rgba(255, 42, 42, 0.1); color: var(--error); border: 1px solid var(--error);
       padding: 12px 30px; border-radius: 50px; font-size: 0.9rem; font-family: 'Orbitron', sans-serif; 
@@ -190,18 +201,13 @@
     }
     .close-btn:hover { background: var(--error); color: #fff; box-shadow: 0 0 20px var(--error); }
 
-    /* --- 8. FABs --- */
+    /* --- 8. FAB & MODALS --- */
     .fab-container { position: fixed; bottom: 30px; z-index: 1000; display: flex; flex-direction: column; gap: 20px; }
     .fab-right { right: 30px; align-items: flex-end; }
     .fab-left { left: 30px; align-items: flex-start; }
 
     .sos-wrapper { position: relative; width: 70px; height: 70px; margin-top: 10px; }
-    .sos-fab {
-        width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ff416c, #ff0000);
-        color: white; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
-        cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 18px;
-        animation: sosPulse 2s infinite; transition: 0.3s;
-    }
+    .sos-fab { width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ff416c, #ff0000); color: white; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 0 20px rgba(255, 0, 0, 0.6); cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 18px; animation: sosPulse 2s infinite; transition: 0.3s; }
     .sos-fab:hover { transform: scale(1.1); }
     @keyframes sosPulse { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(255, 0, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); } }
     .sos-settings-btn { position: absolute; top: -5px; right: -5px; width: 28px; height: 28px; background: #111; border-radius: 50%; color: var(--error); border: 1px solid var(--error); font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1002; transition: 0.3s; }
@@ -213,27 +219,20 @@
     .analyze-fab { background: linear-gradient(135deg, #6c5ce7, #a29bfe); box-shadow: 0 0 15px rgba(108, 92, 231, 0.5); }
     .analyze-fab:hover { transform: scale(1.1); }
 
-    /* --- 9. SIDEBAR & MODALS (FIXED BLUR) --- */
-    .sidebar-overlay, .custom-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 3000; display: none; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
+    /* Modals & Sidebar */
+    .sidebar-overlay, .custom-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 4000; display: none; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
     .sidebar-overlay.active, .custom-modal-overlay.active { display: flex; opacity: 1; }
     
-    .sidebar { 
-        position: fixed; top: 0; left: -360px; width: 340px; height: 100%; 
-        background: #0b101a; border-right: 1px solid var(--primary-neon); 
-        box-shadow: 10px 0 50px rgba(0,0,0,0.8); z-index: 3001; /* Higher than overlay */
-        transition: left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 30px 20px; 
-    }
+    .sidebar { position: fixed; top: 0; left: -360px; width: 340px; height: 100%; background: #0b101a; border-right: 1px solid var(--primary-neon); box-shadow: 10px 0 50px rgba(0,0,0,0.8); z-index: 4001; transition: left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 30px 20px; }
     .sidebar.active { left: 0; }
     .sidebar-header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
     .sidebar-header h3 { color: var(--primary-neon); margin: 0; font-family: 'Orbitron', sans-serif; }
     .close-sidebar { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
-    
     .sidebar-input { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; margin-bottom: 15px; text-align: center; font-size: 1.1rem; }
     .calc-btn { width: 100%; padding: 12px; background: var(--primary-neon); color: #000; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; }
     .result-box { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid var(--primary-neon); display: none; }
 
-    /* Centered Modals */
-    .custom-modal-box { background: #0b101a; border: 1px solid var(--primary-neon); padding: 40px; border-radius: 20px; width: 90%; max-width: 450px; text-align: center; box-shadow: 0 0 60px rgba(0, 242, 255, 0.2); transform: scale(0.9); transition: 0.3s; z-index: 3002; }
+    .custom-modal-box { background: #0b101a; border: 1px solid var(--primary-neon); padding: 40px; border-radius: 20px; width: 90%; max-width: 450px; text-align: center; box-shadow: 0 0 60px rgba(0, 242, 255, 0.2); transform: scale(0.9); transition: 0.3s; z-index: 4002; }
     .custom-modal-overlay.active .custom-modal-box { transform: scale(1); }
     .modal-icon { font-size: 3rem; margin-bottom: 20px; color: var(--primary-neon); }
     .modal-input { width: 100%; padding: 15px; margin-bottom: 25px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.3); border-radius: 10px; color: #fff; text-align: center; font-size: 1.3rem; font-family: 'Orbitron', sans-serif; }
@@ -244,12 +243,13 @@
     .btn-cancel { background: transparent; border: 1px solid #555; color: #aaa; }
 
     /* Toast */
-    .toast-container { position: fixed; top: 100px; right: 20px; z-index: 4000; display: flex; flex-direction: column; gap: 10px; }
+    .toast-container { position: fixed; top: 100px; right: 20px; z-index: 5000; display: flex; flex-direction: column; gap: 10px; }
     .toast { background: rgba(5, 11, 20, 0.95); color: white; padding: 15px 25px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.6); border-left: 4px solid; animation: slideIn 0.4s ease, fadeOut 0.5s ease 4s forwards; }
     @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
     @keyframes fadeOut { to { opacity: 0; } }
     .toast-error { border-color: var(--error); } .toast-error i { color: var(--error); }
     .toast-info { border-color: var(--primary-neon); } .toast-info i { color: var(--primary-neon); }
+    .toast-success { border-color: var(--success); } .toast-success i { color: var(--success); }
 
     @media screen and (max-width: 768px) {
       body { padding: 90px 10px 40px; }
@@ -293,9 +293,14 @@
   </div>
 
   <div class="ai-card">
-    <div class="ai-icon"><i class="fas fa-robot"></i></div>
+    <div class="ai-header">
+        <div class="ai-icon"><i class="fas fa-robot"></i></div>
+        <div class="ai-title">
+            <h3 id="aiTitle">AI DIAGNOSTICS</h3>
+            <p>Real-time Health Analysis</p>
+        </div>
+    </div>
     <div class="ai-content">
-      <h3 id="aiTitle">AI DIAGNOSTICS</h3>
       <div id="aiText">System Initializing... Awaiting sensor data.</div>
     </div>
     <div id="lastReadingTime" style="position: absolute; bottom: 10px; right: 20px; font-size: 0.75rem; color: #666; font-family: 'Orbitron', sans-serif;">Last updated: --</div>
@@ -319,6 +324,10 @@
       <div class="value-display skeleton" id="spo2Value">--</div>
     </div>
   </div>
+
+  <button class="save-session-btn" onclick="saveCurrentSession()">
+      <i class="fas fa-save"></i> <span id="saveBtnText">SAVE ALL READINGS</span>
+  </button>
 
   <div class="dock-container">
       <div class="dock-btn vision-dock" id="visionBtn" onclick="goToVisionPage()">
@@ -428,127 +437,211 @@
     if(!currentUserId) window.location.href="index.html"; 
     else userSpan.innerText = currentUserId;
 
-    // --- 3. NEW FEATURES: VOICE & SIDEBAR FIX ---
-    
-    // Toggle Sidebar
+    // --- 3. VOICE & UI LOGIC ---
     function toggleSidebar(show) {
       const sidebar = document.getElementById("smartSidebar");
       const overlay = document.getElementById("sidebarOverlay");
       if(show) { 
           sidebar.classList.add("active"); 
-          overlay.style.display = "block"; // Explicit display
-          setTimeout(() => overlay.classList.add("active"), 10);
+          overlay.style.display = "block"; setTimeout(() => overlay.classList.add("active"), 10);
       } else { 
-          sidebar.classList.remove("active"); 
-          overlay.classList.remove("active");
+          sidebar.classList.remove("active"); overlay.classList.remove("active");
           setTimeout(() => overlay.style.display = "none", 300);
       }
     }
 
-    // Voice Command Logic
     function startListening() {
-        if (!('webkitSpeechRecognition' in window)) {
-            showToast("Voice control not supported in this browser.", "error");
-            return;
-        }
-        
+        if (!('webkitSpeechRecognition' in window)) { showToast("Voice not supported", "error"); return; }
         const recognition = new webkitSpeechRecognition();
         recognition.lang = localStorage.getItem("language") === "ar" ? "ar-SA" : "en-US";
         recognition.start();
-        
-        const btn = document.getElementById('micBtn');
-        btn.classList.add('listening');
-
+        const btn = document.getElementById('micBtn'); btn.classList.add('listening');
         recognition.onresult = (event) => {
             const cmd = event.results[0][0].transcript.toLowerCase();
             showToast(`Heard: "${cmd}"`, "info");
-            
-            // Map commands
             if(cmd.includes('temp') || cmd.includes('حرارة')) goToTemperature();
-            else if(cmd.includes('pulse') || cmd.includes('heart') || cmd.includes('نبض') || cmd.includes('قلب')) goToPulse();
-            else if(cmd.includes('pressure') || cmd.includes('blood') || cmd.includes('ضغط')) goToPressure();
+            else if(cmd.includes('pulse') || cmd.includes('نبض')) goToPulse();
+            else if(cmd.includes('pressure') || cmd.includes('ضغط')) goToPressure();
             else if(cmd.includes('oxygen') || cmd.includes('اكسجين')) goToOxygen();
-            else if(cmd.includes('vision') || cmd.includes('eye') || cmd.includes('نظر') || cmd.includes('عين')) goToVisionPage();
-            else if(cmd.includes('history') || cmd.includes('record') || cmd.includes('سجل')) goToHistory();
-            else if(cmd.includes('emergency') || cmd.includes('help') || cmd.includes('طوارئ')) triggerSOS();
-            
+            else if(cmd.includes('vision') || cmd.includes('نظر')) goToVisionPage();
+            else if(cmd.includes('history') || cmd.includes('سجل')) goToHistory();
+            else if(cmd.includes('emergency') || cmd.includes('طوارئ')) triggerSOS();
             btn.classList.remove('listening');
         };
-
-        recognition.onerror = () => btn.classList.remove('listening');
         recognition.onend = () => btn.classList.remove('listening');
     }
 
-    // --- 4. PRESERVED LOGIC ---
-    function triggerSOS() {
-        const savedNumber = localStorage.getItem("sosContactNumber");
-        if (!savedNumber) { openContactModal(); } else { openConfirmModal(); }
-    }
+    // --- 4. DATA & SAVING ---
+    let currentData = { temp: "--", bpm: "--", bp: "--", spo2: "--" };
+    let lastTimestamp = "--";
 
-    function openContactModal() {
-        const lang = localStorage.getItem("language") || "en";
-        document.getElementById('contactTitle').innerText = lang === "ar" ? "إعداد جهة الاتصال للطوارئ" : "Setup Emergency Contact";
-        document.getElementById('contactText').innerText = lang === "ar" ? "أدخل رقم الهاتف (مثال: 010xxxxxxxx)" : "Enter phone number (e.g., 010xxxxxxxx).";
-        const saved = localStorage.getItem("sosContactNumber");
-        if(saved) document.getElementById('emergencyInput').value = saved;
-        document.getElementById('contactModal').classList.add('active');
-    }
-
-    function saveEmergencyContact() {
-        const num = document.getElementById('emergencyInput').value;
-        const lang = localStorage.getItem("language") || "en";
-        if (num.length < 5) {
-            showToast(lang==="ar"?"رقم غير صحيح!":"Invalid Number!", "error");
+    // SAVE ALL FUNCTION
+    function saveCurrentSession() {
+        if (currentData.temp === "--" && currentData.bpm === "--") {
+            showToast(localStorage.getItem("language") === "ar" ? "لا توجد بيانات للحفظ!" : "No data to save!", "error");
             return;
         }
-        localStorage.setItem("sosContactNumber", num);
-        closeModals();
-        showToast(lang==="ar"?"تم حفظ الرقم":"Contact Saved", "info");
-    }
-
-    function openConfirmModal() {
-        const lang = localStorage.getItem("language") || "en";
-        document.getElementById('confirmTitle').innerText = lang === "ar" ? "تنبيه طوارئ" : "Emergency Alert";
-        document.getElementById('confirmText').innerText = lang === "ar" ? "هل أنت متأكد من إرسال نداء استغاثة؟" : "Are you sure you want to send SOS?";
-        document.getElementById('confirmModal').classList.add('active');
-    }
-
-    function closeModals() {
-        document.getElementById('contactModal').classList.remove('active');
-        document.getElementById('confirmModal').classList.remove('active');
-    }
-
-    function executeSOS() {
-        closeModals();
-        const lang = localStorage.getItem("language") || "en";
-        if (navigator.geolocation) {
-            showToast(lang==="ar"?"جاري تحديد الموقع...":"Locating...", "info");
-            navigator.geolocation.getCurrentPosition(sendPosition, showError);
-        } else {
-            alert(lang === "ar" ? "المتصفح لا يدعم GPS." : "Geolocation not supported.");
-        }
-    }
-
-    function sendPosition(position) {
-        const lat = position.coords.latitude;
-        const long = position.coords.longitude;
-        const mapLink = `https://www.google.com/maps?q=${lat},${long}`;
-        const lang = localStorage.getItem("language") || "en";
-        let rawPhone = localStorage.getItem("sosContactNumber");
-        let cleanPhone = rawPhone.replace(/\D/g, ''); 
-        if (cleanPhone.startsWith('01')) cleanPhone = '20' + cleanPhone.substring(1);
-
-        let msg = "";
-        if(lang === "ar") msg = `🚨 *استغاثة طارئة!* 🚨\nأحتاج للمساعدة فوراً.\n📍 *الموقع:* ${mapLink}\n🌡️ *الحرارة:* ${currentData.temp}\n❤️ *النبض:* ${currentData.bpm}`;
-        else msg = `🚨 *EMERGENCY SOS!* 🚨\nI need help immediately.\n📍 *Location:* ${mapLink}\n🌡️ *Temp:* ${currentData.temp}\n❤️ *Pulse:* ${currentData.bpm}`;
         
-        const finalUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
-        window.open(finalUrl, '_blank');
+        const timestamp = new Date().toLocaleString();
+        const historyRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId + '/History');
+        
+        historyRef.push({
+            timestamp: timestamp,
+            temperature: currentData.temp,
+            bpm: currentData.bpm,
+            pressure: currentData.bp,
+            spo2: currentData.spo2,
+            createdAt: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            showToast(localStorage.getItem("language") === "ar" ? "تم حفظ الجلسة بنجاح" : "Session Saved Successfully", "success");
+        }).catch(err => {
+            showToast("Save Error", "error");
+        });
     }
 
-    function showError(error) {
-        const lang = localStorage.getItem("language") || "en";
-        showToast(lang === "ar" ? "تعذر تحديد الموقع" : "Location Error", "error");
+    // --- 5. AI LOGIC (CARDS VIEW) ---
+    function updateAIAnalysis() {
+      if(!currentUserId) return;
+      const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
+      userRef.on("value", (snapshot) => {
+        if(snapshot.exists()) {
+            const data = snapshot.val();
+            const sensorDataString = data.SensorData || "No measurement recorded yet";
+            const sensorValues = extractSensorValues(sensorDataString);
+            
+            currentData = {
+                temp: sensorValues.temp || "--",
+                bpm: sensorValues.bpm || "--",
+                bp: sensorValues.bp || "--",
+                spo2: sensorValues.spo2 || "--"
+            };
+            lastTimestamp = data.Timestamp || "--";
+
+            // Remove Skeleton
+            ['bpValue', 'spo2Value', 'tempValue', 'pulseValue'].forEach((id, i) => {
+                const vals = [currentData.bp, currentData.spo2, currentData.temp, currentData.bpm];
+                const units = ['', '%', '°C', ' bpm'];
+                if(vals[i] !== "--") {
+                    const el = document.getElementById(id);
+                    el.classList.remove('skeleton'); el.innerText = vals[i] + units[i];
+                }
+            });
+
+            document.getElementById('lastReadingTime').innerText = (localStorage.getItem("language") === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + lastTimestamp;
+            
+            const temp = parseFloat(currentData.temp) || 0;
+            const bpm = parseInt(currentData.bpm) || 0;
+            const spo2 = parseFloat(currentData.spo2) || 0;
+            let sys = 0; if(currentData.bp && currentData.bp.includes('/')) sys = parseInt(currentData.bp.split('/')[0]);
+
+            let statusColor = "#00ff88"; 
+            let adviceList = [];
+            let headerMsg = localStorage.getItem("language") === "ar" ? "✅ الحالة العامة مستقرة." : "✅ General condition is stable.";
+
+            if (sensorDataString === "No measurement recorded yet") {
+                headerMsg = localStorage.getItem("language") === "ar" ? "⏳ بانتظار بدء القياسات..." : "⏳ Waiting for measurements...";
+            } else {
+                // Expanded logic with Cards
+                const isAr = localStorage.getItem("language") === "ar";
+                
+                if(sys > 140) {
+                    statusColor = "#ff416c";
+                    headerMsg = isAr ? "⚠️ ضغط الدم مرتفع" : "⚠️ High Blood Pressure";
+                    adviceList.push({icon: "fa-carrot", title: isAr?"غذاء":"Diet", text: isAr?"تجنب الملح، تناول الموز والسبانخ":"Avoid salt, eat Bananas/Spinach"});
+                    adviceList.push({icon: "fa-mug-hot", title: isAr?"مشروب":"Drink", text: isAr?"كركديه بارد":"Cold Hibiscus Tea"});
+                    adviceList.push({icon: "fa-bed", title: isAr?"راحة":"Rest", text: isAr?"تجنب التوتر وتنفس بعمق":"Avoid stress, breathe deep"});
+                } 
+                else if (sys > 0 && sys < 90) {
+                     statusColor = "#f1c40f";
+                     headerMsg = isAr ? "⚠️ ضغط الدم منخفض" : "⚠️ Low Blood Pressure";
+                     adviceList.push({icon: "fa-cookie", title: isAr?"غذاء":"Diet", text: isAr?"تناول وجبة خفيفة مالحة":"Eat a salty snack"});
+                     adviceList.push({icon: "fa-coffee", title: isAr?"مشروب":"Drink", text: isAr?"اشرب سوائل كثيرة أو قهوة":"Drink fluids or coffee"});
+                }
+
+                if(temp > 37.5) {
+                    statusColor = "#ff416c";
+                    headerMsg = isAr ? "🌡️ حرارة مرتفعة (حمى)" : "🌡️ High Fever";
+                    adviceList.push({icon: "fa-snowflake", title: isAr?"إجراء":"Action", text: isAr?"استخدم كمادات باردة فوراً":"Use cold compresses"});
+                    adviceList.push({icon: "fa-glass-water", title: isAr?"مشروب":"Drink", text: isAr?"اشرب ماء وعصائر بكثرة":"Drink plenty of water"});
+                }
+
+                if(spo2 > 0 && spo2 < 95) {
+                    statusColor = "#ff416c";
+                    headerMsg = isAr ? "🫁 نقص في الأكسجين" : "🫁 Low Oxygen Level";
+                    adviceList.push({icon: "fa-wind", title: isAr?"بيئة":"Env", text: isAr?"افتح النوافذ لتجديد الهواء":"Open windows for fresh air"});
+                    adviceList.push({icon: "fa-lungs", title: isAr?"تمرين":"Exercise", text: isAr?"خذ شهيقاً عميقاً وزفيراً ببطء":"Take deep breaths"});
+                }
+                
+                if(adviceList.length === 0 && sensorDataString !== "No measurement recorded yet") {
+                    adviceList.push({icon: "fa-glass-water", title: isAr?"نصيحة":"Tip", text: isAr?"اشرب 8 أكواب ماء يومياً":"Drink 8 cups of water"});
+                    adviceList.push({icon: "fa-person-walking", title: isAr?"نشاط":"Active", text: isAr?"امشِ لمدة 30 دقيقة":"Walk for 30 mins"});
+                }
+            }
+
+            let finalHtml = `<strong style="color:${statusColor}; font-size:1.2rem; display:block; margin-bottom:15px;">${headerMsg}</strong>`;
+            if(adviceList.length > 0) {
+                finalHtml += `<div class="ai-advice-container">`;
+                adviceList.forEach(tip => {
+                    finalHtml += `
+                    <div class="advice-box">
+                        <div class="advice-icon" style="color:${statusColor}"><i class="fas ${tip.icon}"></i></div>
+                        <div class="advice-content">
+                            <h4>${tip.title}</h4>
+                            <p>${tip.text}</p>
+                        </div>
+                    </div>`;
+                });
+                finalHtml += `</div>`;
+            }
+
+            document.getElementById("aiText").innerHTML = finalHtml;
+            // Dynamic Glow
+            document.querySelector(".ai-card").style.borderColor = statusColor;
+            document.querySelector(".ai-card").style.boxShadow = `0 0 40px ${statusColor}30`;
+        }
+      });
+    }
+
+    // --- UTILS ---
+    async function checkInternetConnection() { try { await fetch("https://www.google.com/favicon.ico?"+new Date().getTime(),{mode:"no-cors"});return true;}catch(e){return false;}}
+    async function updateStatus(){const d=document.getElementById('connectionStatus');if(await checkInternetConnection()){d.classList.remove('offline');d.title="Online";}else{d.classList.add('offline');d.title="Offline";}}
+    setInterval(updateStatus,3000);
+
+    function showToast(msg,type="info"){const c=document.getElementById("toastContainer");const t=document.createElement("div");t.className=`toast toast-${type}`;t.innerHTML=`<i class="fas fa-info-circle"></i><span>${msg}</span>`;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
+
+    function sendWhatsAppReport(){
+        let phone = currentUserId; if (phone.startsWith('0')) phone = '20' + phone.substring(1);
+        let m=`🏥 *Bioscan Report*%0A- Temp: ${currentData.temp}%0A- Pulse: ${currentData.bpm}%0A- BP: ${currentData.bp}%0A- Ox: ${currentData.spo2}`;
+        window.open(`https://wa.me/${phone}?text=${m}`,'_blank');
+    }
+    
+    function findHospitals(){window.open("http://maps.google.com/maps?q=nearest+hospitals","_blank");}
+    function toggleFullScreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else if(document.exitFullscreen)document.exitFullscreen();}
+    function closeMeasurements(){localStorage.removeItem("selectedUserId");window.location.href="index.html";}
+    
+    let idle=0; setInterval(()=>{idle++;if(idle>=90)closeMeasurements();},1000);
+    document.onmousemove=document.onkeypress=document.ontouchstart=document.onclick=()=>{idle=0;};
+
+    let voiceEnabled=true;
+    function toggleHoverVoice(){voiceEnabled=!voiceEnabled;document.getElementById('voiceToggle').classList.toggle('active');}
+    function setupHoverVoice(){
+        const map={
+            'analyzeBtn':{ar:'تحليل الجسم',en:'Body Analysis'}, 'hospitalBtn':{ar:'أقرب مستشفى',en:'Nearest Hospital'},
+            'sosBtn':{ar:'نداء استغاثة',en:'SOS Emergency'}, 'tempBtn':{ar:'حرارة',en:'Temperature'},
+            'pulseBtn':{ar:'نبض',en:'Pulse'}, 'bpBtn':{ar:'ضغط',en:'Pressure'}, 'oxygenBtn':{ar:'أكسجين',en:'Oxygen'},
+            'visionBtn':{ar:'نظر',en:'Vision'}, 'historyBtn':{ar:'السجل',en:'History'}
+        };
+        Object.keys(map).forEach(id=>{
+            const b=document.getElementById(id);
+            if(b){
+                b.onmouseenter=()=>{
+                    if(!voiceEnabled) return; window.speechSynthesis.cancel();
+                    const u=new SpeechSynthesisUtterance(localStorage.getItem('language')==='ar'?map[id].ar:map[id].en);
+                    u.lang=localStorage.getItem('language')==='ar'?'ar-SA':'en-US'; window.speechSynthesis.speak(u);
+                };
+                b.onmouseleave=()=>{ window.speechSynthesis.cancel(); }
+            }
+        });
     }
 
     function extractSensorValues(sensorString) {
@@ -576,200 +669,28 @@
       const lang = localStorage.getItem("language") || "en";
 
       if(!weight || !height) {
-        resultBox.style.display = "block";
-        resultBox.style.borderLeftColor = "#ff416c";
-        resultBox.innerText = lang === "ar" ? "يرجى إدخال البيانات." : "Enter valid data.";
-        return;
+        resultBox.style.display = "block"; resultBox.style.borderLeftColor = "#ff416c";
+        resultBox.innerText = lang === "ar" ? "يرجى إدخال البيانات." : "Enter valid data."; return;
       }
+      const h_m = height / 100; const bmi = (weight / (h_m * h_m)).toFixed(1); const waterNeed = (weight * 0.035).toFixed(1);
+      let status="", color="", dietTip="", exerciseTip="";
+      if(bmi<18.5){ status=lang==="ar"?"نحافة":"Underweight"; color="#3498db"; dietTip=lang==="ar"?"🥑 أكثر من المكسرات":"🥑 Eat nuts"; exerciseTip=lang==="ar"?"🏋️‍♂️ تمارين مقاومة":"🏋️‍♂️ Strength training"; }
+      else if(bmi<25){ status=lang==="ar"?"وزن مثالي":"Healthy"; color="#2ecc71"; dietTip=lang==="ar"?"🥗 حافظ على السلطة":"🥗 Eat salads"; exerciseTip=lang==="ar"?"🏃‍♂️ مشي يومي":"🏃‍♂️ Daily walk"; }
+      else if(bmi<30){ status=lang==="ar"?"وزن زائد":"Overweight"; color="#f1c40f"; dietTip=lang==="ar"?"📉 قلل السكر":"📉 Cut sugar"; exerciseTip=lang==="ar"?"🚴‍♂️ ركوب الدراجة":"🚴‍♂️ Cycling"; }
+      else{ status=lang==="ar"?"سمنة":"Obese"; color="#e74c3c"; dietTip=lang==="ar"?"🚫 لا للمقليات":"🚫 No fried food"; exerciseTip=lang==="ar"?"🚶‍♂️ مشي خفيف":"🚶‍♂️ Light walking"; }
 
-      const h_m = height / 100;
-      const bmi = (weight / (h_m * h_m)).toFixed(1);
-      const waterNeed = (weight * 0.035).toFixed(1);
-
-      let status = "", color = "", dietTip = "", exerciseTip = "";
-      if(bmi < 18.5) { 
-          status = lang==="ar"?"نحافة":"Underweight"; color="#3498db"; 
-          dietTip = lang==="ar"?"🥑 أكثر من المكسرات وزبدة الفول السوداني." : "🥑 Eat nuts & peanut butter.";
-          exerciseTip = lang==="ar"?"🏋️‍♂️ ركز على تمارين المقاومة لبناء العضلات." : "🏋️‍♂️ Focus on strength training.";
-      } else if(bmi < 25) { 
-          status = lang==="ar"?"وزن مثالي":"Healthy"; color="#2ecc71"; 
-          dietTip = lang==="ar"?"🥗 حافظ على طبق السلطة يومياً." : "🥗 Eat salad daily.";
-          exerciseTip = lang==="ar"?"🏃‍♂️ استمر في المشي أو الجري 30 دقيقة." : "🏃‍♂️ Jog/Walk 30 mins daily.";
-      } else if(bmi < 30) { 
-          status = lang==="ar"?"وزن زائد":"Overweight"; color="#f1c40f"; 
-          dietTip = lang==="ar"?"📉 قلل السكريات والمشروبات الغازية." : "📉 Cut sugar & soda.";
-          exerciseTip = lang==="ar"?"🚴‍♂️ جرب ركوب الدراجة أو السباحة." : "🚴‍♂️ Try cycling or swimming.";
-      } else { 
-          status = lang==="ar"?"سمنة":"Obese"; color="#e74c3c"; 
-          dietTip = lang==="ar"?"🚫 ابتعد عن المقليات والوجبات السريعة." : "🚫 No fried/fast food.";
-          exerciseTip = lang==="ar"?"🚶‍♂️ ابدأ بالمشي الخفيف لتجنب آلام المفاصل." : "🚶‍♂️ Start with light walking.";
-      }
-
-      const waterMsg = lang==="ar" ? `💧 احتياج الماء: ${waterNeed} لتر` : `💧 Water Need: ${waterNeed} L`;
-
-      resultBox.style.display = "block";
-      resultBox.style.borderLeftColor = color;
-      resultBox.innerHTML = `
-        <strong style="color:${color}; font-size:1.1rem;">BMI: ${bmi} (${status})</strong><br>
-        <div style="margin-top:10px; font-size:0.9rem; color:#eee;">
-            ${waterMsg}<br>
-            🍎 <b>${lang==="ar"?"غذاء:":"Diet:"}</b> ${dietTip}<br>
-            💪 <b>${lang==="ar"?"رياضة:":"Gym:"}</b> ${exerciseTip}
-        </div>`;
-      
-      if(voiceEnabled) {
-         const utterance = new SpeechSynthesisUtterance(lang==="ar" ? `مؤشر كتلة الجسم ${bmi}` : `BMI is ${bmi}`);
-         utterance.lang = lang==="ar"?'ar-SA':'en-US';
-         window.speechSynthesis.speak(utterance);
-      }
+      resultBox.style.display="block"; resultBox.style.borderLeftColor=color;
+      resultBox.innerHTML=`<strong style="color:${color}; font-size:1.1rem;">BMI: ${bmi} (${status})</strong><br><div style="margin-top:10px; font-size:0.9rem; color:#eee;">💧 ${waterNeed} L<br>🍎 <b>${lang==="ar"?"غذاء":"Diet"}:</b> ${dietTip}<br>💪 <b>${lang==="ar"?"رياضة":"Gym"}:</b> ${exerciseTip}</div>`;
+      if(voiceEnabled){const u=new SpeechSynthesisUtterance(lang==="ar"?`مؤشر كتلة الجسم ${bmi}`:`BMI is ${bmi}`);u.lang=lang==="ar"?'ar-SA':'en-US';window.speechSynthesis.speak(u);}
     }
 
-    let currentData = { temp: "--", bpm: "--", bp: "--", spo2: "--" };
-    let lastTimestamp = "--";
-
-    // --- ENHANCED AI LOGIC (Restored & Glowing) ---
-    function updateAIAnalysis() {
-      if(!currentUserId) return;
-      const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
-      userRef.on("value", (snapshot) => {
-        if(snapshot.exists()) {
-            const data = snapshot.val();
-            const sensorDataString = data.SensorData || "No measurement recorded yet";
-            const sensorValues = extractSensorValues(sensorDataString);
-            
-            currentData = {
-                temp: sensorValues.temp || "--",
-                bpm: sensorValues.bpm || "--",
-                bp: sensorValues.bp || "--",
-                spo2: sensorValues.spo2 || "--"
-            };
-            lastTimestamp = data.Timestamp || "--";
-
-            // SKELETON HANDLING
-            const elements = ['bpValue', 'spo2Value', 'tempValue', 'pulseValue'];
-            const units = ['', '%', '°C', ' bpm'];
-            const vals = [currentData.bp, currentData.spo2, currentData.temp, currentData.bpm];
-            
-            elements.forEach((id, index) => {
-                const el = document.getElementById(id);
-                if (vals[index] !== "--") {
-                    el.classList.remove('skeleton');
-                    el.innerText = vals[index] + units[index];
-                }
-            });
-
-            document.getElementById('lastReadingTime').innerText = (localStorage.getItem("language") === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + lastTimestamp;
-            
-            const temp = parseFloat(currentData.temp) || 0;
-            const bpm = parseInt(currentData.bpm) || 0;
-            const spo2 = parseFloat(currentData.spo2) || 0;
-            let sys = 0;
-            if(currentData.bp && currentData.bp.includes('/')) sys = parseInt(currentData.bp.split('/')[0]);
-
-            let statusColor = "#00ff88"; 
-            let adviceList = [];
-            let headerMsg = localStorage.getItem("language") === "ar" ? "✅ الحالة العامة مستقرة." : "✅ General condition is stable.";
-
-            if (sensorDataString === "No measurement recorded yet") {
-                headerMsg = localStorage.getItem("language") === "ar" ? "⏳ بانتظار بدء القياسات..." : "⏳ Waiting for measurements...";
-            } else {
-                if(sys > 140) {
-                    statusColor = "#ff416c";
-                    headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ ضغط الدم مرتفع" : "⚠️ High Blood Pressure";
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🍌 <b>أكل:</b> تناول الموز، السبانخ." : "🍌 <b>Eat:</b> Bananas, Spinach (Potassium).");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🍵 <b>شرب:</b> شاي الكركديه البارد." : "🍵 <b>Drink:</b> Hibiscus Tea.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🧘‍♂️ <b>نشاط:</b> تمارين التنفس." : "🧘‍♂️ <b>Do:</b> Deep Breathing.");
-                } 
-                else if (sys > 0 && sys < 90) {
-                     statusColor = "#f1c40f";
-                     headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ ضغط الدم منخفض" : "⚠️ Low Blood Pressure";
-                     adviceList.push(localStorage.getItem("language")==="ar" ? "🧂 <b>أكل:</b> وجبة خفيفة مالحة." : "🧂 <b>Eat:</b> Salty snack.");
-                     adviceList.push(localStorage.getItem("language")==="ar" ? "💧 <b>شرب:</b> سوائل كثيرة." : "💧 <b>Drink:</b> Fluids.");
-                }
-
-                if(temp > 37.5) {
-                    statusColor = "#ff416c";
-                    headerMsg = localStorage.getItem("language") === "ar" ? "🌡️ حرارة مرتفعة (حمى)" : "🌡️ High Fever";
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🧊 <b>إجراء:</b> كمادات باردة." : "🧊 <b>Do:</b> Cold compresses.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🍋 <b>شرب:</b> ليمون دافئ." : "🍋 <b>Drink:</b> Warm Lemon.");
-                }
-
-                if(spo2 > 0 && spo2 < 95) {
-                    statusColor = "#ff416c";
-                    headerMsg = localStorage.getItem("language") === "ar" ? "🫁 نقص في الأكسجين" : "🫁 Low Oxygen Level";
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🪟 <b>بيئة:</b> فتح النوافذ." : "🪟 <b>Env:</b> Fresh Air.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🌬️ <b>تمرين:</b> التنفس العميق." : "🌬️ <b>Do:</b> Deep breathing.");
-                }
-                
-                if(adviceList.length === 0 && sensorDataString !== "No measurement recorded yet") {
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "💧 اشرب 8 أكواب ماء." : "💧 Drink 8 cups of water.");
-                    adviceList.push(localStorage.getItem("language")==="ar" ? "🚶‍♂️ امشي 30 دقيقة." : "🚶‍♂️ Walk for 30 mins.");
-                }
-            }
-
-            let finalHtml = `<strong style="color:${statusColor}; font-size:1.1rem;">${headerMsg}</strong>`;
-            if(adviceList.length > 0) {
-                finalHtml += `<ul class="ai-list">`;
-                adviceList.forEach(tip => finalHtml += `<li>${tip}</li>`);
-                finalHtml += `</ul>`;
-            }
-
-            document.getElementById("aiText").innerHTML = finalHtml;
-            // HEAVY GLOW UPDATE
-            document.querySelector(".ai-card").style.borderColor = statusColor;
-            document.querySelector(".ai-card").style.boxShadow = `0 0 50px ${statusColor}40`;
-        }
-      });
-    }
-
-    async function checkInternetConnection() { try { await fetch("https://www.google.com/favicon.ico?"+new Date().getTime(),{mode:"no-cors"});return true;}catch(e){return false;}}
-    async function updateStatus(){const d=document.getElementById('connectionStatus');if(await checkInternetConnection()){d.classList.remove('offline');d.title="Online";}else{d.classList.add('offline');d.title="Offline";}}
-    setInterval(updateStatus,3000);
-
-    function showToast(msg,type="info"){const c=document.getElementById("toastContainer");const t=document.createElement("div");t.className=`toast toast-${type}`;t.innerHTML=`<i class="fas fa-info-circle"></i><span>${msg}</span>`;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
-
-    function sendWhatsAppReport(){
-        let phone = currentUserId; 
-        if (phone.startsWith('0')) phone = '20' + phone.substring(1);
-        let m=`🏥 *Bioscan Report*%0A- Temp: ${currentData.temp}%0A- Pulse: ${currentData.bpm}%0A- BP: ${currentData.bp}%0A- Ox: ${currentData.spo2}`;
-        window.open(`https://wa.me/${phone}?text=${m}`,'_blank');
-    }
-    
-    function findHospitals(){window.open("http://maps.google.com/maps?q=nearest+hospitals","_blank");}
-    function toggleFullScreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else if(document.exitFullscreen)document.exitFullscreen();}
-    function closeMeasurements(){localStorage.removeItem("selectedUserId");window.location.href="index.html";}
-    
-    let idle=0; setInterval(()=>{idle++;if(idle>=90)closeMeasurements();},1000);
-    document.onmousemove=document.onkeypress=document.ontouchstart=document.onclick=()=>{idle=0;};
-
-    let voiceEnabled=true;
-    function toggleHoverVoice(){voiceEnabled=!voiceEnabled;document.getElementById('voiceToggle').classList.toggle('active');}
-    function setupHoverVoice(){
-        const map={
-            'analyzeBtn':{ar:'تحليل الجسم',en:'Body Analysis'},
-            'hospitalBtn':{ar:'أقرب مستشفى',en:'Nearest Hospital'},
-            'sosBtn':{ar:'نداء استغاثة',en:'SOS Emergency'},
-            'tempBtn':{ar:'حرارة',en:'Temperature'},
-            'pulseBtn':{ar:'نبض',en:'Pulse'},
-            'bpBtn':{ar:'ضغط',en:'Pressure'},
-            'oxygenBtn':{ar:'أكسجين',en:'Oxygen'},
-            'visionBtn':{ar:'نظر',en:'Vision'},
-            'historyBtn':{ar:'السجل',en:'History'}
-        };
-        Object.keys(map).forEach(id=>{
-            const b=document.getElementById(id);
-            if(b){
-                b.onmouseenter=()=>{
-                    if(!voiceEnabled) return;
-                    window.speechSynthesis.cancel();
-                    const u=new SpeechSynthesisUtterance(localStorage.getItem('language')==='ar'?map[id].ar:map[id].en);
-                    u.lang=localStorage.getItem('language')==='ar'?'ar-SA':'en-US';
-                    window.speechSynthesis.speak(u);
-                };
-                b.onmouseleave=()=>{ window.speechSynthesis.cancel(); }
-            }
-        });
-    }
+    // Modal & Sidebar
+    function triggerSOS(){const s=localStorage.getItem("sosContactNumber"); if(!s) openContactModal(); else openConfirmModal();}
+    function openContactModal(){document.getElementById('contactModal').classList.add('active');}
+    function saveEmergencyContact(){const n=document.getElementById('emergencyInput').value; if(n.length<5) return; localStorage.setItem("sosContactNumber",n); closeModals();}
+    function openConfirmModal(){document.getElementById('confirmModal').classList.add('active');}
+    function closeModals(){document.getElementById('contactModal').classList.remove('active'); document.getElementById('confirmModal').classList.remove('active');}
+    function executeSOS(){closeModals(); navigator.geolocation.getCurrentPosition(sendPosition, showError);}
 
     function goToTemperature(){window.location.href="temp.html";}
     function goToPulse(){window.location.href="pulse.html";}
@@ -788,6 +709,7 @@
             document.getElementById("lblWeight").innerText="الوزن (كجم)";
             document.getElementById("lblHeight").innerText="الطول (سم)";
             document.getElementById("btnAnalyze").innerText="تحليل النتائج";
+            document.getElementById("saveBtnText").innerText="حفظ الجلسة الحالية";
             document.getElementById("hospitalBtn").title="أقرب مستشفى";
             document.getElementById("analyzeBtn").title="تحليل الجسم";
             document.getElementById("sosBtn").title="طوارئ";
