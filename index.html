@@ -2,429 +2,491 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bioscan ATM | Patient Dashboard</title>
-  
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script> 
-  
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bioscan ATM | Secure Access</title>
 
-  <style>
-    /* نفس التصميم الأصلي تماماً */
-    :root {
-      --primary-color: #00d2ff;
-      --secondary-color: #3a7bd5;
-      --error-color: #ff416c;
-      --success-color: #00ff88;
-      --glass-bg: rgba(255, 255, 255, 0.1);
-      --glass-border: rgba(255, 255, 255, 0.2);
-      --text-color: #ffffff;
-    }
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
-    #bgVideo { position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -2; object-fit: cover; }
-    .video-overlay { position: fixed; inset: 0; background: rgba(15, 32, 39, 0.75); z-index: -1; }
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
-    ::-webkit-scrollbar { width: 10px; }
-    ::-webkit-scrollbar-track { background: #1a1a1a; }
-    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--primary-color), var(--secondary-color)); border-radius: 10px; border: 2px solid #1a1a1a; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--success-color); }
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background-color: #0f2027; min-height: 100vh; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; }
+    <style>
+        /* --- 1. SETUP & VARIABLES --- */
+        :root {
+            --primary-neon: #00f2ff;
+            --secondary-neon: #7000ff;
+            --bg-dark: #050b14;
+            --glass-panel: rgba(10, 25, 40, 0.75);
+            --border-color: rgba(0, 242, 255, 0.3);
+            --text-main: #e0f7fa;
+            --error: #ff2a2a;
+            --success: #00ff88;
+        }
 
-    #preloader { position: fixed; inset: 0; background: #0f2027; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease, visibility 0.8s; }
-    .loader-logo { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--primary-color); box-shadow: 0 0 30px var(--primary-color); animation: pulseLoader 1.5s infinite; }
-    .loader-text { margin-top: 20px; font-family: 'Orbitron', sans-serif; font-size: 1.5rem; letter-spacing: 2px; background: linear-gradient(to right, #fff, #00d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    @keyframes pulseLoader { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
-      
-    header { width: 100%; background: rgba(15, 32, 39, 0.8); backdrop-filter: blur(10px); padding: 10px 0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); position: fixed; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .header-left { display: flex; align-items: center; padding-left: 20px; gap: 15px; }
-    .logo-container { position: relative; }
-    header img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary-color); }
-    header h1 { font-size: 1.1rem; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 1px; background: linear-gradient(to right, #fff, #00d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        * { box-sizing: border-box; outline: none; user-select: none; }
 
-    .live-clock { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: var(--primary-color); text-shadow: 0 0 10px rgba(0, 210, 255, 0.5); border-left: 1px solid rgba(255,255,255,0.2); padding-left: 15px; margin-left: 15px; display: flex; flex-direction: column; line-height: 1.2; }
-    .clock-time { font-size: 1rem; font-weight: bold; }
-    .clock-date { font-size: 0.7rem; color: #aaa; font-family: 'Poppins', sans-serif; }
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .header-actions { padding-right: 20px; display: flex; gap: 10px; align-items: center; }
-    .status-dot { width: 12px; height: 12px; border-radius: 50%; background-color: var(--success-color); box-shadow: 0 0 10px var(--success-color); transition: all 0.3s ease; margin-top: 5px; }
-    .status-dot.offline { background-color: #ff416c !important; box-shadow: 0 0 15px #ff416c !important; animation: blinkRed 1s infinite; }
-    @keyframes blinkRed { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        /* --- 2. BACKGROUND ANIMATION (Particles) --- */
+        #particles-js {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at center, #0f1c2e 0%, #020408 100%);
+        }
 
-    #language_select { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid var(--primary-color); padding: 6px 12px; border-radius: 20px; outline: none; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.9rem; }
-    #language_select option { background: #2c5364; color: #fff; }
+        /* --- 3. UI ELEMENTS --- */
+        
+        /* Header */
+        header {
+            position: absolute; top: 0; width: 100%;
+            padding: 20px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
 
-    .about-btn { background: transparent; border: 1px solid rgba(255,255,255,0.5); color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
-    .about-btn:hover { background: var(--primary-color); border-color: var(--primary-color); color: black; }
+        .brand { display: flex; align-items: center; gap: 15px; }
+        .brand-logo { 
+            width: 50px; height: 50px; 
+            border: 2px solid var(--primary-neon); border-radius: 50%; 
+            box-shadow: 0 0 15px var(--primary-neon);
+            animation: pulseLogo 3s infinite;
+        }
+        .brand-text h1 {
+            font-family: 'Orbitron', sans-serif; font-size: 1.5rem; margin: 0;
+            letter-spacing: 2px; text-transform: uppercase;
+            background: linear-gradient(90deg, #fff, var(--primary-neon));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .brand-text p { margin: 0; font-size: 0.8rem; color: var(--primary-neon); opacity: 0.8; letter-spacing: 4px; }
 
-    .container { display: flex; justify-content: center; align-items: center; flex-grow: 1; margin-top: 80px; width: 100%; }
-    .card { background: rgba(16, 30, 40, 0.6); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); padding: 40px; width: 350px; text-align: center; transition: 0.3s; }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0, 210, 255, 0.2); border-color: var(--primary-color); }
-    .card h2 { margin-bottom: 25px; font-weight: 300; font-size: 1.8rem; }
+        @keyframes pulseLogo { 0% { box-shadow: 0 0 10px var(--primary-neon); } 50% { box-shadow: 0 0 25px var(--primary-neon), 0 0 10px #fff; } 100% { box-shadow: 0 0 10px var(--primary-neon); } }
 
-    .input-group { position: relative; margin-bottom: 5px; }
-    .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--primary-color); }
+        /* Controls (Top Right) */
+        .controls { display: flex; gap: 15px; align-items: center; }
+        .icon-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2);
+            color: var(--primary-neon); width: 40px; height: 40px; border-radius: 50%;
+            cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center;
+        }
+        .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
+        
+        select.lang-select {
+            background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon);
+            padding: 8px 15px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer;
+        }
 
-    .form-section input { width: 100%; padding: 15px 15px 15px 45px; background: rgba(0, 0, 0, 0.3); border: none; border-bottom: 2px solid rgba(255,255,255,0.3); color: white; font-size: 16px; border-radius: 8px; box-sizing: border-box; transition: 0.3s; font-family: 'Poppins', sans-serif; }
-    .form-section input:focus { outline: none; border-bottom-color: var(--primary-color); background: rgba(0, 0, 0, 0.5); }
-    .input-error { border-bottom-color: var(--error-color) !important; animation: shake 0.3s; }
-    @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } 100% { transform: translateX(0); } }
+        /* --- 4. MAIN CARD (THE HUD) --- */
+        .main-container {
+            position: relative; z-index: 5;
+            width: 100%; max-width: 450px; padding: 20px;
+        }
 
-    .helper-text { font-size: 0.8rem; color: #bbb; text-align: left; margin-bottom: 20px; min-height: 20px; padding-left: 5px; transition: 0.3s; }
+        .hud-card {
+            background: var(--glass-panel);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
 
-    .btn-container { display: flex; flex-direction: column; gap: 15px; }
-    .btn { padding: 12px; border: none; border-radius: 50px; cursor: pointer; font-size: 16px; color: white; width: 100%; font-family: 'Poppins', sans-serif; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s ease; position: relative; overflow: hidden; }
-    .btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: 0.5s; }
-    .btn:hover::after { left: 100%; }
-    .btn:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(0, 210, 255, 0.4); }
-      
-    .save { background: linear-gradient(45deg, #11998e, #38ef7d); }
-    .clear { background: linear-gradient(45deg, #cb2d3e, #ef473a); }
-    .measure { background: linear-gradient(45deg, #3a7bd5, #00d2ff); }
-    .btn:disabled { background: #555; cursor: not-allowed; opacity: 0.7; }
+        /* Decorative Corners */
+        .hud-card::before, .hud-card::after {
+            content: ''; position: absolute; width: 30px; height: 30px;
+            border: 2px solid var(--primary-neon); transition: 0.3s;
+        }
+        .hud-card::before { top: 0; left: 0; border-right: none; border-bottom: none; border-radius: 18px 0 0 0; }
+        .hud-card::after { bottom: 0; right: 0; border-left: none; border-top: none; border-radius: 0 0 18px 0; }
 
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px); z-index: 2000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
-    .modal-overlay.active { display: flex; opacity: 1; }
-    .modal-card { background: linear-gradient(145deg, #152229, #1c2e36); border: 1px solid var(--primary-color); border-radius: 25px; width: 90%; max-width: 600px; padding: 30px; position: relative; text-align: center; box-shadow: 0 0 40px rgba(0, 210, 255, 0.15); transform: scale(0.8); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
-    .modal-overlay.active .modal-card { transform: scale(1); }
+        .card-header { margin-bottom: 30px; }
+        .card-header h2 { 
+            font-family: 'Orbitron', sans-serif; font-weight: 500; font-size: 1.8rem; margin: 0; 
+            text-shadow: 0 0 10px var(--primary-neon);
+        }
+        .scan-line { 
+            height: 2px; width: 100%; background: linear-gradient(90deg, transparent, var(--primary-neon), transparent); 
+            margin-top: 10px; animation: scan 2s infinite linear;
+        }
+        @keyframes scan { 0% { transform: translateX(-100%); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateX(100%); opacity: 0; } }
 
-    .logos-container { display: flex; justify-content: center; gap: 30px; margin-bottom: 20px; align-items: center; }
-    .logos-container img { height: 70px; width: auto; object-fit: contain; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); transition: transform 0.3s; }
-    .logos-container img:hover { transform: scale(1.1); }
+        /* Input Area */
+        .input-wrapper { position: relative; margin-bottom: 25px; transition: 0.5s; }
+        
+        .input-field {
+            width: 100%; background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 15px; font-size: 1.5rem; letter-spacing: 3px;
+            color: #fff; text-align: center; border-radius: 12px;
+            font-family: 'Orbitron', sans-serif; transition: 0.3s;
+        }
+        .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
+        .input-field::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 1px; font-size: 1rem; }
+        
+        .error-msg { 
+            color: var(--error); font-size: 0.9rem; margin-top: 10px; min-height: 20px; 
+            text-shadow: 0 0 5px rgba(255, 42, 42, 0.5); font-weight: bold;
+        }
 
-    .close-modal { position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; transition: 0.3s; z-index: 10; }
-    .close-modal:hover { color: var(--error-color); transform: rotate(90deg); }
+        /* Shake Animation for Error */
+        .shake { animation: shake 0.4s ease-in-out; border-color: var(--error) !important; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
 
-    .modal-section { margin-bottom: 20px; text-align: left; }
-    .modal-section h3 { color: var(--primary-color); margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
-    .modal-section p { font-size: 0.9rem; color: #e0e0e0; line-height: 1.5; margin: 0; }
+        /* Buttons */
+        .action-btn {
+            width: 100%; padding: 15px; border: none; border-radius: 50px;
+            background: linear-gradient(90deg, transparent, var(--primary-neon), transparent);
+            background-size: 200%; background-color: rgba(0, 242, 255, 0.1);
+            border: 1px solid var(--primary-neon);
+            color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px;
+            cursor: pointer; transition: 0.4s; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        
+        .action-btn:hover { 
+            background-position: right; box-shadow: 0 0 30px rgba(0, 242, 255, 0.4); 
+            text-shadow: 0 0 8px #fff; letter-spacing: 4px;
+        }
+        
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
 
-    .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    .team-member { background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; border: 1px solid transparent; transition: 0.2s; }
-    .team-member:hover { border-color: var(--secondary-color); background: rgba(255,255,255,0.1); }
-    .team-member i { color: var(--secondary-color); font-size: 0.8rem; }
+        /* Success State (Hidden by default) */
+        #success-view { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
+        .success-icon { 
+            font-size: 4rem; color: var(--success); margin-bottom: 20px; 
+            filter: drop-shadow(0 0 15px var(--success)); 
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    .footer-info { margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; color: #aaa; }
-    .email-link { display: inline-block; margin-top: 8px; color: var(--primary-color); text-decoration: none; font-weight: bold; background: rgba(0, 210, 255, 0.1); padding: 5px 15px; border-radius: 20px; }
-    .email-link:hover { background: var(--primary-color); color: #000; }
+        .dashboard-btn {
+            background: var(--success); color: #000; border: none; font-weight: 700;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+        }
+        .dashboard-btn:hover { background: #fff; box-shadow: 0 0 30px #fff; }
 
-    .modal-card::-webkit-scrollbar { width: 5px; }
-    .modal-card::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; }
+        /* Footer */
+        .footer {
+            position: absolute; bottom: 20px; width: 100%; text-align: center;
+            font-size: 0.8rem; color: rgba(255,255,255,0.3); letter-spacing: 1px;
+        }
 
-    .toast-container { position: fixed; top: 90px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
-    .toast { background: rgba(16, 30, 40, 0.95); color: white; padding: 15px 25px; border-radius: 12px; min-width: 280px; display: flex; align-items: center; gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.4); border-left: 5px solid; animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), fadeOut 0.5s ease 3s forwards; backdrop-filter: blur(5px); }
-    @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-    .toast-success { border-color: var(--success-color); }
-    .toast-success i { color: var(--success-color); font-size: 1.2rem; }
-    .toast-error { border-color: var(--error-color); }
-    .toast-error i { color: var(--error-color); font-size: 1.2rem; }
-  </style>
+        /* --- 5. MODAL (Cyber Style) --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        .modal-box {
+            background: #0b101a; border: 1px solid var(--primary-neon);
+            width: 90%; max-width: 600px; padding: 30px; border-radius: 15px;
+            box-shadow: 0 0 50px rgba(0, 242, 255, 0.15); position: relative;
+            transform: scale(0.8); transition: 0.3s; max-height: 80vh; overflow-y: auto;
+        }
+        .modal-active .modal-box { transform: scale(1); }
+        .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+        
+        /* Toast */
+        .toast-container { position: fixed; top: 100px; right: 20px; z-index: 200; }
+        .toast {
+            background: rgba(5, 11, 20, 0.95); border-left: 4px solid var(--primary-neon);
+            color: #fff; padding: 15px 25px; margin-bottom: 10px; border-radius: 5px;
+            display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+            animation: slideInRight 0.4s ease, fadeOut 0.5s ease 3s forwards;
+        }
+        @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateX(50px); } }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .brand-text h1 { font-size: 1.2rem; }
+            .brand-text p { font-size: 0.6rem; }
+            .hud-card { padding: 30px 20px; }
+            .input-field { font-size: 1.2rem; }
+        }
+    </style>
 </head>
 
 <body>
 
-  <video autoplay muted loop playsinline id="bgVideo">
-    <source src="background.mp4" type="video/mp4">
-  </video>
-  <div class="video-overlay"></div>
+    <div id="particles-js"></div>
 
-  <div id="preloader">
-    <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" class="loader-logo" alt="Loading...">
-    <div class="loader-text">BIOSCAN ATM</div>
-  </div>
-
-  <div class="toast-container" id="toastContainer"></div>
-
-  <div class="modal-overlay" id="aboutModal">
-    <div class="modal-card">
-      <button class="close-modal" onclick="toggleModal(false)"><i class="fas fa-times"></i></button>
-      <div class="logos-container">
-        <img src="zagazig_logo.png" alt="Zagazig Univ">
-        <img src="eng_logo.png" alt="Engineering Faculty">
-      </div>
-      <h2 style="margin-top:0; margin-bottom:5px; font-size: 1.5rem; color: #fff;">Bioscan ATM</h2>
-      <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 20px;" id="project-context">
-        Graduation Project 2024 | Electronics & Comm. Dept.
-      </p>
-      <div class="modal-section">
-        <h3><i class="fas fa-bullseye"></i> <span id="mission-title">Our Mission</span></h3>
-        <p id="mission-text">Empowering communities with instant, hospital-grade health diagnostics through accessible IoT technology, bridging the gap between patients and medical care.</p>
-      </div>
-      <div class="modal-section">
-        <h3><i class="fas fa-eye"></i> <span id="vision-title">Our Vision</span></h3>
-        <p id="vision-text">A world where proactive health monitoring is seamless, accessible to everyone everywhere, fostering a culture of prevention over cure.</p>
-      </div>
-      <div class="modal-section">
-        <h3><i class="fas fa-users"></i> <span id="team-title">The Team</span></h3>
-        <div class="team-grid">
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Mohsen M. Elsayed</div>
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Mohamed A. Rashad</div>
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Mohamed A. Karam</div>
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Hossam H. Abdel Aziz</div>
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Lamia I. Mohammed</div>
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Karim H. Mansour</div>
-          <div class="team-member"><i class="fas fa-user-graduate"></i> Fatema M. Saad</div>
+    <header>
+        <div class="brand">
+            <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" class="brand-logo" alt="Logo">
+            <div class="brand-text">
+                <h1>Bioscan ATM</h1>
+                <p>SYSTEM ONLINE</p>
+            </div>
         </div>
-      </div>
-      <div class="footer-info">
-        <div id="uni-text">Zagazig University - Faculty of Engineering</div>
-        <a href="mailto:bioscanatm@gmail.com" class="email-link"><i class="fas fa-envelope"></i> bioscanatm@gmail.com</a>
-      </div>
-    </div>
-  </div>
-
-  <header>
-    <div class="header-left">
-      <div class="logo-container">
-        <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" alt="Logo">
-      </div>
-      <div>
-        <h1 id="header-title">Patient Monitoring</h1>
-        <div class="live-clock">
-          <span class="clock-time" id="clockTime">00:00:00</span>
-          <span class="clock-date" id="clockDate">--/--/----</span>
+        <div class="controls">
+            <button class="icon-btn" onclick="toggleModal(true)"><i class="fas fa-info"></i></button>
+            <select class="lang-select" id="language_select" onchange="changeLanguage()">
+                <option value="en">EN</option>
+                <option value="ar">AR</option>
+            </select>
         </div>
-      </div>
+    </header>
+
+    <div class="main-container">
+        <div class="hud-card">
+            
+            <div class="card-header">
+                <h2 id="ui-title">USER IDENTIFICATION</h2>
+                <div class="scan-line"></div>
+            </div>
+
+            <div id="login-view">
+                <div class="input-wrapper">
+                    <input type="tel" id="userId" class="input-field" placeholder="01xxxxxxxxx" maxlength="11" autocomplete="off">
+                    <div class="error-msg" id="helper-text"></div>
+                </div>
+
+                <button class="action-btn" id="loginBtn" onclick="processLogin()">
+                    <i class="fas fa-fingerprint"></i> <span id="btn-text">INITIALIZE SCAN</span>
+                </button>
+            </div>
+
+            <div id="success-view">
+                <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+                <h3 style="margin-bottom: 5px; color: var(--success);" id="success-msg">Access Granted</h3>
+                <p style="color: #aaa; margin-bottom: 25px;" id="welcome-user-msg">Welcome back</p>
+                
+                <button class="action-btn dashboard-btn" onclick="goToDashboard()">
+                    <i class="fas fa-chart-pie"></i> <span id="dash-btn-text">OPEN DASHBOARD</span>
+                </button>
+                
+                <button class="icon-btn" onclick="resetView()" style="margin-top: 20px; width: 40px; height: 40px; margin-left: auto; margin-right: auto; border-color: #555; color: #555;">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+
+        </div>
     </div>
-    <div class="header-actions">
-      <div id="connectionStatus" class="status-dot" title="Online"></div>
-      <button class="about-btn" onclick="toggleModal(true)" title="About Us"><i class="fas fa-info"></i></button>
-      <div class="lang-wrapper">
-        <select id="language_select" onchange="setLanguage()">
-          <option value="placeholder" selected hidden>🌐 Lang</option>
-          <option value="en">English</option>
-          <option value="ar">العربية</option>
-        </select>
-      </div>
+
+    <div class="footer">
+        Graduation Project 2024 | Zagazig University - Faculty of Engineering
     </div>
-  </header>
 
-  <div class="container">
-    <div class="card form-section">
-      <h2 id="card-title">User Login</h2>
-      <div class="input-group">
-        <i class="fas fa-mobile-alt"></i>
-        <input type="tel" id="userId" placeholder="Mobile Number (01xxxxxxxxx)" maxlength="11" oninput="validateInput(this)" onfocus="showGuidance()" onblur="hideGuidance()" autocomplete="off">
-      </div>
-      <div class="helper-text" id="helper-text"></div>
-      <div class="btn-container">
-        <button id="save-btn" class="btn save" onclick="saveUserId()"><i class="fas fa-check-circle"></i> <span class="btn-text-save">Login & Save</span></button>
-        <button class="btn clear" onclick="clearUserId()"><i class="fas fa-trash-alt"></i> <span class="btn-text-clear">Clear</span></button>
-        <button class="btn measure" onclick="goToMeasurements()"><i class="fas fa-chart-line"></i> <span class="btn-text-measure">Dashboard</span></button>
-      </div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal-box">
+            <button class="close-modal" onclick="toggleModal(false)"><i class="fas fa-times"></i></button>
+            <h2 style="color:var(--primary-neon); margin-top:0; border-bottom:1px solid #333; padding-bottom:10px;">PROJECT INFO</h2>
+            <div style="color: #ccc; line-height: 1.6;">
+                <p><strong style="color:#fff;">Mission:</strong> Empowering communities with instant, hospital-grade health diagnostics via IoT.</p>
+                <p><strong style="color:#fff;">Team:</strong> Electronics & Comm. Dept - Class 2024.</p>
+                <p style="font-size:0.9rem; color:#777; margin-top:20px;">Designed for high-precision telemetry and remote patient monitoring.</p>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
-      authDomain: "smart-a76a0.firebaseapp.com",
-      databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
-      projectId: "smart-a76a0",
-      messagingSenderId: "343693501983",
-      appId: "1:343693501983:web:10ea3fce9d990a2455172a"
-    };
+    <script>
+        // --- 1. FIREBASE CONFIG ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
+            authDomain: "smart-a76a0.firebaseapp.com",
+            databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
+            projectId: "smart-a76a0",
+            messagingSenderId: "343693501983",
+            appId: "1:343693501983:web:10ea3fce9d990a2455172a"
+        };
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const auth = firebase.auth(); 
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
 
-    auth.signInAnonymously().catch((error) => {
-        console.error("Auth Error:", error);
-    });
+        auth.signInAnonymously().catch(console.error);
 
-    const PATIENT_DATA_PATH = 'PatientData'; 
-    let currentUserId = null;
-    const lang = localStorage.getItem("language") || "en";
-    let welcomePlayed = false;
+        // --- 2. PARTICLES JS CONFIG (The Neural Network Look) ---
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#00f2ff" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5, "random": true },
+                "size": { "value": 3, "random": true },
+                "line_linked": { "enable": true, "distance": 150, "color": "#00f2ff", "opacity": 0.2, "width": 1 },
+                "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" } },
+                "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 0.6 } } }
+            },
+            "retina_detect": true
+        });
 
-    // --- (Updated) دالة إنشاء الملف الشخصي الفارغ ---
-    function createInitialProfile(userPhone) {
-        const ref = database.ref(PATIENT_DATA_PATH + '/' + userPhone);
-        ref.once('value').then(snapshot => {
-            if (!snapshot.exists()) {
-                ref.set({
-                    Phone: userPhone,
-                    SensorData: "No measurement recorded yet",
-                    Timestamp: new Date().toLocaleString(),
-                    AddedBy: "Self-Registered"
+        // --- 3. LOGIC & UX ---
+        let currentUserId = null;
+        let lang = localStorage.getItem("language") || "en";
+        let welcomePlayed = false;
+
+        // On Load
+        window.addEventListener('load', () => {
+            document.getElementById("language_select").value = lang;
+            updateTexts();
+            playWelcomeMessage(); // Auto play if allowed
+            
+            // Interaction trigger for audio policy
+            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
+        });
+
+        // Validation & Login Logic
+        function processLogin() {
+            const input = document.getElementById("userId");
+            const helper = document.getElementById("helper-text");
+            const btn = document.getElementById("loginBtn");
+            const userId = input.value.trim();
+            const regex = /^01[0125][0-9]{8}$/;
+
+            // Reset Error State
+            input.classList.remove("shake");
+            helper.innerText = "";
+
+            if (regex.test(userId)) {
+                // SUCCESS SCENARIO
+                
+                // 1. UI Loading
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
+                
+                // 2. Firebase Action (Create/Update User)
+                const ref = database.ref('PatientData/' + userId);
+                ref.once('value').then(snapshot => {
+                    if (!snapshot.exists()) {
+                        ref.set({
+                            Phone: userId,
+                            SensorData: "New User",
+                            Timestamp: new Date().toLocaleString(),
+                            AddedBy: "Self-Registered"
+                        });
+                    }
+                    
+                    // 3. Session Handling
+                    localStorage.setItem("selectedUserId", userId);
+                    currentUserId = userId;
+
+                    // 4. UI Transition (The "Wow" Factor)
+                    setTimeout(() => {
+                        showToast(lang === 'ar' ? 'تم التحقق بنجاح' : 'Identity Verified', 'success');
+                        switchViewToDashboard();
+                    }, 800); // Fake processing delay for effect
                 });
+
+            } else {
+                // ERROR SCENARIO
+                input.classList.add("shake");
+                const errMsg = lang === 'ar' ? 'رقم غير صحيح! يجب أن يبدأ بـ 01 ويتكون من 11 رقم' : 'Access Denied: Invalid Egyptian Mobile Number';
+                helper.innerText = errMsg;
+                showToast(lang === 'ar' ? 'خطأ في المدخلات' : 'Input Error', 'error');
+                
+                // Vibrate phone if on mobile
+                if (navigator.vibrate) navigator.vibrate(200);
             }
-        }).catch(console.error);
-    }
+        }
 
-    // --- (Updated) دالة تسجيل الدخول مع Session ID ---
-    function saveUserId() {
-      const input = document.getElementById("userId");
-      const userId = input.value;
-      const helper = document.getElementById("helper-text");
-      const regex = /^01[0125][0-9]{8}$/;
+        // View Switcher (Input -> Dashboard Button)
+        function switchViewToDashboard() {
+            document.getElementById("login-view").style.display = "none";
+            document.getElementById("success-view").style.display = "flex";
+            document.getElementById("welcome-user-msg").innerText = currentUserId;
+        }
 
-      if (regex.test(userId)) {
-        currentUserId = userId;
-        input.disabled = true;
-        document.getElementById("save-btn").disabled = true;
-        helper.style.color = "#00ff88";
-        helper.innerText = "";
+        function resetView() {
+            document.getElementById("success-view").style.display = "none";
+            document.getElementById("login-view").style.display = "block";
+            document.getElementById("userId").value = "";
+            document.getElementById("loginBtn").innerHTML = '<i class="fas fa-fingerprint"></i> <span id="btn-text">INITIALIZE SCAN</span>';
+            updateTexts(); // Re-apply text in case language changed
+        }
+
+        function goToDashboard() {
+            window.location.href = "measurements.html";
+        }
+
+        // --- 4. UTILITIES ---
         
-        showToast(lang === "ar" ? "تم تسجيل الدخول بنجاح" : "Login Successful", "success");
-        
-        // 1. إنشاء/تحديث ملف المريض
-        createInitialProfile(userId);
+        function showToast(msg, type) {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = "toast";
+            toast.style.borderLeftColor = type === 'error' ? 'var(--error)' : 'var(--success)';
+            toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'}" style="color:${type === 'error' ? 'var(--error)' : 'var(--success)'}"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
 
-        // 2. إنشاء رقم جلسة جديد (Session ID) وحفظه
-        // نستخدم الوقت الحالي كرقم مميز للجلسة
-        const sessionId = Date.now().toString(); 
-        localStorage.setItem("currentSessionId", sessionId);
+        function toggleModal(show) {
+            const modal = document.getElementById('aboutModal');
+            modal.style.display = show ? 'flex' : 'none';
+            if(show) setTimeout(() => modal.classList.add('modal-active'), 10);
+            else modal.classList.remove('modal-active');
+        }
 
-        document.getElementById("save-btn").innerHTML = '<i class="fas fa-check"></i> ' + (lang === "ar" ? "تم الحفظ" : "Saved");
-        localStorage.setItem("selectedUserId", userId);
-      } else {
-        input.classList.add("input-error");
-        helper.style.color = "#ff416c";
-        let errorMsg = lang === "ar" ? "خطأ في الرقم" : "Invalid Number";
-        if (userId.length === 0) errorMsg = lang === "ar" ? "الحقل فارغ" : "Field Empty";
-        else if (userId.length !== 11) errorMsg = lang === "ar" ? "يجب أن يكون 11 رقم" : "Must be 11 digits";
-        helper.innerText = errorMsg;
-        showToast(errorMsg, "error");
-      }
-    }
+        function changeLanguage() {
+            lang = document.getElementById("language_select").value;
+            localStorage.setItem("language", lang);
+            updateTexts();
+        }
 
-    function playWelcomeMessage() {
-      if (welcomePlayed) return;
-      const enText = "Welcome to Bioscan ATM Station. Please enter your mobile number to proceed.";
-      const arText = "مرحباً بكم في محطة بايوسكان. يرجى إدخال رقم الهاتف للمتابعة.";
-      if ('speechSynthesis' in window) {
-        const uEn = new SpeechSynthesisUtterance(enText);
-        uEn.lang = 'en-US'; uEn.rate = 0.9;
-        const uAr = new SpeechSynthesisUtterance(arText);
-        uAr.lang = 'ar-SA'; uAr.rate = 0.9;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(uEn);
-        window.speechSynthesis.speak(uAr);
-        welcomePlayed = true;
-      }
-    }
+        function playWelcomeMessage() {
+            if (welcomePlayed) return;
+            // Only play if supported
+            if ('speechSynthesis' in window) {
+                const text = lang === 'ar' ? "مرحباً بكم في نظام بايوسكان" : "Welcome to Bioscan System. Please identify yourself.";
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
+                window.speechSynthesis.speak(utterance);
+                welcomePlayed = true;
+            }
+        }
 
-    window.addEventListener('load', () => {
-        playWelcomeMessage();
-        const triggerAudio = () => { playWelcomeMessage(); document.removeEventListener('click', triggerAudio); document.removeEventListener('keydown', triggerAudio); document.removeEventListener('touchstart', triggerAudio); };
-        document.addEventListener('click', triggerAudio); document.addEventListener('keydown', triggerAudio); document.addEventListener('touchstart', triggerAudio);
-        setTimeout(() => { const preloader = document.getElementById('preloader'); preloader.style.opacity = '0'; setTimeout(() => { preloader.style.display = 'none'; }, 800); }, 1500);
-    });
+        function updateTexts() {
+            const isAr = lang === 'ar';
+            document.body.style.direction = isAr ? 'rtl' : 'ltr';
+            document.body.style.fontFamily = isAr ? "'Cairo', sans-serif" : "'Rajdhani', sans-serif";
 
-    async function checkInternetConnection() { try { await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" }); return true; } catch (error) { return false; } }
-    async function updateStatus() { const dot = document.getElementById('connectionStatus'); const isOnline = await checkInternetConnection(); if (isOnline) { dot.classList.remove('offline'); dot.title = "Online"; dot.style.backgroundColor = ""; } else { if (!dot.classList.contains('offline')) showToast(lang === 'ar' ? "فقد الاتصال بالإنترنت!" : "Internet Connection Lost!", "error"); dot.classList.add('offline'); dot.title = "Offline"; dot.style.backgroundColor = "#ff416c"; } }
-    setInterval(updateStatus, 3000);
+            // IDs mapping
+            const texts = {
+                "ui-title": isAr ? "تسجيل الدخول" : "USER IDENTIFICATION",
+                "userId": isAr ? "رقم الموبايل (01xxxxxxxxx)" : "01xxxxxxxxx", // placeholder
+                "btn-text": isAr ? "بدء الفحص" : "INITIALIZE SCAN",
+                "success-msg": isAr ? "تم تسجيل الدخول" : "Access Granted",
+                "dash-btn-text": isAr ? "الانتقال للوحة التحكم" : "OPEN DASHBOARD"
+            };
 
-    function startClock() { const timeElem = document.getElementById('clockTime'); const dateElem = document.getElementById('clockDate'); setInterval(() => { const now = new Date(); const locale = lang === 'ar' ? 'ar-EG' : 'en-US'; timeElem.innerText = now.toLocaleTimeString(locale, {hour12: false}); dateElem.innerText = now.toLocaleDateString(locale, {weekday: 'short', day: 'numeric', month: 'short'}); }, 1000); }
-    startClock();
-
-    function showToast(message, type = "success") { const container = document.getElementById("toastContainer"); const toast = document.createElement("div"); toast.className = `toast toast-${type}`; const icon = type === "success" ? "fa-check-circle" : "fa-exclamation-circle"; toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`; container.appendChild(toast); setTimeout(() => { toast.remove(); }, 3500); }
-    function toggleModal(show) { const modal = document.getElementById('aboutModal'); if(show) modal.classList.add('active'); else modal.classList.remove('active'); }
-    function validateInput(input) { input.value = input.value.replace(/[^0-9]/g, ''); const helper = document.getElementById("helper-text"); input.classList.remove("input-error"); helper.style.color = "#bbb"; helper.innerText = lang === "ar" ? `عدد الأرقام: ${input.value.length} / 11` : `Digits: ${input.value.length} / 11`; }
-    function showGuidance() { const helper = document.getElementById("helper-text"); helper.innerText = lang === "ar" ? "يرجى إدخال رقم موبايل صحيح (11 رقم)" : "Please enter a valid 11-digit mobile number"; }
-    function hideGuidance() { if(document.getElementById("userId").value.length === 0) document.getElementById("helper-text").innerText = ""; }
-
-    function clearUserId() {
-      const input = document.getElementById("userId");
-      input.value = ""; input.disabled = false; input.classList.remove("input-error");
-      document.getElementById("save-btn").disabled = false;
-      document.getElementById("helper-text").innerText = "";
-      currentUserId = null;
-      updateTexts();
-      localStorage.removeItem("selectedUserId");
-    }
-
-    function goToMeasurements() {
-      const savedId = localStorage.getItem("selectedUserId");
-      if(!savedId) {
-        showToast(lang === "ar" ? "يجب تسجيل الدخول أولاً!" : "Please Login First!", "error");
-        const card = document.querySelector(".card");
-        card.style.animation = "shake 0.3s";
-        setTimeout(() => card.style.animation = "", 300);
-        return;
-      }
-      window.location.href = "measurements.html";
-    }
-
-    function setLanguage() {
-      const langVal = document.getElementById("language_select").value;
-      if (langVal !== "placeholder") {
-        localStorage.setItem("language", langVal);
-        location.reload();
-      }
-    }
-
-    function updateTexts() {
-      if (lang === "ar") {
-        document.body.style.direction = "rtl"; 
-        document.getElementById("header-title").innerText = "نظام متابعة المرضى";
-        document.getElementById("card-title").innerText = "تسجيل الدخول";
-        document.getElementById("userId").placeholder = "رقم الموبايل (01xxxxxxxxx)";
-        document.querySelector(".btn-text-save").innerText = "تسجيل وحفظ";
-        document.querySelector(".btn-text-clear").innerText = "مسح";
-        document.querySelector(".btn-text-measure").innerText = "لوحة القياسات";
-        document.querySelector(".header-left").style.paddingRight = "20px";
-        document.querySelector(".header-left").style.paddingLeft = "0";
-        document.querySelector(".header-actions").style.paddingLeft = "20px";
-        document.querySelector(".header-actions").style.paddingRight = "0";
-        document.querySelector(".input-group i").style.right = "15px";
-        document.querySelector(".input-group i").style.left = "auto";
-        document.querySelector(".form-section input").style.padding = "15px 45px 15px 15px";
-        document.getElementById("helper-text").style.textAlign = "right";
-        document.querySelector(".close-modal").style.left = "15px";
-        document.querySelector(".close-modal").style.right = "auto";
-        document.querySelector(".live-clock").style.borderRight = "1px solid rgba(255,255,255,0.2)";
-        document.querySelector(".live-clock").style.borderLeft = "none";
-        document.querySelector(".live-clock").style.paddingRight = "15px";
-        document.querySelector(".live-clock").style.paddingLeft = "0";
-        document.querySelector(".live-clock").style.marginRight = "15px";
-        document.querySelector(".live-clock").style.marginLeft = "0";
-        document.querySelector(".modal-card h2").innerText = "عن مشروع Bioscan ATM";
-        document.getElementById("project-context").innerText = "مشروع تخرج دفعة 2024 | قسم هندسة الإلكترونيات والاتصالات";
-        document.getElementById("mission-title").innerText = "مهمتنا";
-        document.getElementById("mission-text").innerText = "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة باستخدام أحدث تقنيات إنترنت الأشياء (IoT)، لسد الفجوة بين المرضى والرعاية الطبية.";
-        document.getElementById("vision-title").innerText = "رؤيتنا";
-        document.getElementById("vision-text").innerText = "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع في كل مكان، لنشر ثقافة الوقاية خير من العلاج.";
-        document.getElementById("team-title").innerText = "فريق العمل";
-        document.getElementById("uni-text").innerText = "جامعة الزقازيق - كلية الهندسة";
-      } else {
-        document.body.style.direction = "ltr";
-        document.getElementById("header-title").innerText = "Patient Monitoring";
-        document.getElementById("card-title").innerText = "User Login";
-        document.getElementById("userId").placeholder = "Mobile Number (01xxxxxxxxx)";
-        document.querySelector(".btn-text-save").innerText = "Login & Save";
-        document.querySelector(".btn-text-clear").innerText = "Clear";
-        document.querySelector(".btn-text-measure").innerText = "Dashboard";
-        document.querySelector(".input-group i").style.left = "15px";
-        document.querySelector(".input-group i").style.right = "auto";
-        document.querySelector(".form-section input").style.padding = "15px 15px 15px 45px";
-        document.getElementById("helper-text").style.textAlign = "left";
-        document.querySelector(".close-modal").style.right = "15px";
-        document.querySelector(".close-modal").style.left = "auto";
-        document.querySelector(".modal-card h2").innerText = "Bioscan ATM";
-        document.getElementById("project-context").innerText = "Graduation Project 2024 | Electronics & Comm. Dept.";
-        document.getElementById("mission-title").innerText = "Our Mission";
-        document.getElementById("mission-text").innerText = "Empowering communities with instant, hospital-grade health diagnostics through accessible IoT technology, bridging the gap between patients and medical care.";
-        document.getElementById("vision-title").innerText = "Our Vision";
-        document.getElementById("vision-text").innerText = "A world where proactive health monitoring is seamless, accessible to everyone everywhere, fostering a culture of prevention over cure.";
-        document.getElementById("team-title").innerText = "The Team";
-        document.getElementById("uni-text").innerText = "Zagazig University - Faculty of Engineering";
-      }
-    }
-
-    window.onload = () => {
-      const savedLang = localStorage.getItem("language");
-      if (savedLang) document.getElementById("language_select").value = savedLang;
-      updateTexts();
-    };
-  </script>
-
+            document.getElementById("ui-title").innerText = texts["ui-title"];
+            document.getElementById("userId").placeholder = texts["userId"];
+            
+            // Only update button text if it's not in loading state
+            if(document.getElementById("btn-text")) document.getElementById("btn-text").innerText = texts["btn-text"];
+            if(document.getElementById("dash-btn-text")) document.getElementById("dash-btn-text").innerText = texts["dash-btn-text"];
+            document.getElementById("success-msg").innerText = texts["success-msg"];
+        }
+    </script>
 </body>
 </html>
