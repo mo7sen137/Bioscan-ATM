@@ -21,7 +21,7 @@
       --success: #00ff88;
       --warning: #f39c12;
       
-      /* Colors */
+      /* Base Colors for Modules */
       --temp-color: #ff9f43;
       --pulse-color: #ff4757;
       --bp-color: #a29bfe;
@@ -42,11 +42,6 @@
       padding-top: 85px; 
       padding-bottom: 90px;
     }
-
-    /* RTL Support */
-    body.rtl { font-family: 'Cairo', sans-serif; direction: rtl; }
-    body.rtl .dock-text { text-align: right; }
-    body.rtl .user-left { flex-direction: row; } /* Fix alignment in RTL */
 
     /* --- 2. SKELETON LOADING --- */
     .skeleton {
@@ -76,7 +71,7 @@
     ::-webkit-scrollbar-track { background: #050b14; }
     ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 10px; }
 
-    /* --- 4. HEADER --- */
+    /* --- 4. HEADER (UPDATED FOR SPACING) --- */
     .user-card { 
       position: fixed; top: 0; left: 0; width: 100%; height: 75px;
       background: rgba(5, 10, 18, 0.98); backdrop-filter: blur(20px);
@@ -85,29 +80,35 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 20px; margin: 0; border-radius: 0;
     }
-    .user-left { display: flex; align-items: center; gap: 10px; max-width: 50%; }
-    .user-avatar { font-size: 1.8rem; color: var(--primary-neon); filter: drop-shadow(0 0 8px var(--primary-neon)); flex-shrink: 0; }
-    .user-info { display: flex; flex-direction: column; overflow: hidden; }
-    .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: #888; letter-spacing: 1px; white-space: nowrap; }
-    .user-info span { font-size: 1rem; color: #fff; font-weight: 700; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    .top-actions { display: flex; align-items: center; gap: 8px; }
+    .user-left { 
+        display: flex; align-items: center; gap: 10px; 
+        flex: 1; min-width: 0; /* Allows shrinking */
+    }
+    .user-avatar { font-size: 1.6rem; color: var(--primary-neon); filter: drop-shadow(0 0 8px var(--primary-neon)); flex-shrink: 0; }
+    
+    .user-info { display: flex; flex-direction: column; overflow: hidden; }
+    .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.65rem; color: #888; letter-spacing: 1px; white-space: nowrap; }
+    .user-info span { font-size: 0.95rem; color: #fff; font-weight: 700; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    .top-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    
     .icon-btn { 
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
-      color: var(--primary-neon); width: 35px; height: 35px; border-radius: 8px;
-      cursor: pointer; transition: 0.3s; font-size: 1rem;
+      color: var(--primary-neon); width: 34px; height: 34px; border-radius: 8px;
+      cursor: pointer; transition: 0.3s; font-size: 0.9rem;
       display: flex; justify-content: center; align-items: center;
     }
     .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
     .icon-btn.active { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); border-color: var(--success); }
     .icon-btn.listening { background: var(--error); color: #fff; animation: pulseRed 1s infinite; border-color: var(--error); }
-    
-    /* Language Button Style */
-    #langBtn { font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; letter-spacing: 1px; width: 40px; }
-
     @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(255, 65, 108, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0); } }
+    
     .whatsapp-btn { color: #25D366; border-color: #25D366; }
     .whatsapp-btn:hover { background: #25D366; color: #fff; box-shadow: 0 0 15px #25D366; }
+    
+    #langBtn { font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.75rem; width: 34px; }
+    
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 10px var(--success); margin-left: 5px; }
     .status-dot.offline { background-color: var(--error); box-shadow: 0 0 10px var(--error); animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0.5; } }
@@ -157,7 +158,7 @@
 
     @keyframes pulseAI { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
 
-    /* --- 6. MODULES --- */
+    /* --- 6. MODULES (UPDATED COLORS) --- */
     .measure-container { 
       display: grid; grid-template-columns: repeat(2, 1fr); 
       gap: 15px; width: 95%; max-width: 900px; margin-bottom: 20px; 
@@ -172,21 +173,35 @@
     }
     .measure-btn:hover { transform: translateY(-5px); background: rgba(20, 30, 45, 0.95); }
     
-    .temp { border-bottom: 3px solid var(--temp-color); } .temp i { color: var(--temp-color); filter: drop-shadow(0 0 8px var(--temp-color)); }
-    .pulse { border-bottom: 3px solid var(--pulse-color); } .pulse i { color: var(--pulse-color); animation: heartBeat 1.5s infinite; }
-    .pressure { border-bottom: 3px solid var(--bp-color); } .pressure i { color: var(--bp-color); }
-    .oxygen { border-bottom: 3px solid var(--ox-color); } .oxygen i { color: var(--ox-color); animation: breathe 3s infinite ease-in-out; }
+    /* Specific Styling & Darker Text Colors */
+    
+    /* Temperature: Dark Orange Text */
+    .temp { border-bottom: 3px solid var(--temp-color); } 
+    .temp i { color: var(--temp-color); filter: drop-shadow(0 0 8px var(--temp-color)); }
+    .temp span { color: #d35400; font-weight: 800; } /* Dark Orange */
+
+    /* Pulse: Dark Red Text */
+    .pulse { border-bottom: 3px solid var(--pulse-color); } 
+    .pulse i { color: var(--pulse-color); animation: heartBeat 1.5s infinite; }
+    .pulse span { color: #c0392b; font-weight: 800; } /* Dark Red */
+
+    /* Pressure: Dark Purple Text */
+    .pressure { border-bottom: 3px solid var(--bp-color); } 
+    .pressure i { color: var(--bp-color); }
+    .pressure span { color: #8e44ad; font-weight: 800; } /* Dark Purple */
+
+    /* Oxygen: Dark Teal Text */
+    .oxygen { border-bottom: 3px solid var(--ox-color); } 
+    .oxygen i { color: var(--ox-color); animation: breathe 3s infinite ease-in-out; }
+    .oxygen span { color: #008b8b; font-weight: 800; } /* Dark Cyan */
     
     @keyframes heartBeat { 0% { transform: scale(1); } 15% { transform: scale(1.2); } 30% { transform: scale(1); } 45% { transform: scale(1.1); } 60% { transform: scale(1); } }
     @keyframes breathe { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
 
     .measure-btn i { font-size: 2rem; margin-bottom: 5px; }
-    
-    /* UPDATED VISIBILITY FOR LABELS */
     .measure-btn span { 
-        font-size: 0.85rem; font-weight: 700; color: #ffffff; /* WHITE */
-        text-transform: uppercase; letter-spacing: 1px; 
-        text-shadow: 0 0 5px rgba(0,0,0,0.8); /* SHADOW FOR CONTRAST */
+        font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; 
+        text-shadow: none; /* Removed shadow for cleaner look on colors */
     }
     
     .value-display { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 700; color: #fff; margin-top: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
@@ -493,21 +508,20 @@
         recognition.onend = () => btn.classList.remove('listening');
     }
 
-    // --- 4. LANGUAGE LOGIC (NEW) ---
-    let currentLang = 'en'; // Default to English as requested
+    // --- 4. LANGUAGE LOGIC ---
+    let currentLang = 'en'; 
 
     function toggleLanguage() {
         currentLang = currentLang === 'en' ? 'ar' : 'en';
-        localStorage.setItem("language", currentLang); // Save preference if needed later
+        localStorage.setItem("language", currentLang); 
         applyLanguage();
     }
 
     function applyLanguage() {
         const isAr = currentLang === 'ar';
         document.body.classList.toggle('rtl', isAr);
-        document.getElementById('langBtn').innerText = isAr ? 'EN' : 'AR'; // Button shows target lang
+        document.getElementById('langBtn').innerText = isAr ? 'EN' : 'AR'; 
 
-        // Mappings
         const texts = {
             en: {
                 uid: "USER ID", aiT: "AI DIAGNOSTICS", aiSub: "Real-time Health Analysis",
@@ -533,7 +547,6 @@
 
         const t = isAr ? texts.ar : texts.en;
 
-        // Apply text
         document.querySelector(".user-info h2").innerText = t.uid;
         document.getElementById("aiTitle").innerText = t.aiT;
         document.querySelector(".ai-title p").innerText = t.aiSub;
@@ -551,7 +564,6 @@
         document.getElementById("saveBtnText").innerText = t.save;
         document.getElementById("lblExit").innerText = t.exit;
         
-        // Sidebar & Modals
         document.getElementById("sidebarTitle").innerHTML = `<i class="fas fa-brain"></i> ${t.sbTitle}`;
         document.getElementById("lblWeight").innerText = t.w;
         document.getElementById("lblHeight").innerText = t.h;
@@ -567,7 +579,6 @@
         document.querySelector("#confirmModal .btn-danger").innerText = t.yes;
         document.querySelector("#confirmModal .btn-cancel").innerText = t.cancel;
 
-        // Trigger AI update to translate dynamic content
         updateAIAnalysis();
     }
 
@@ -596,7 +607,7 @@
         });
     }
 
-    // --- 6. AI LOGIC (UPDATED WITH LANG CHECK) ---
+    // --- 6. AI LOGIC ---
     function updateAIAnalysis() {
       if(!currentUserId) return;
       const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
