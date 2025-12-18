@@ -21,7 +21,7 @@
       --success: #00ff88;
       --warning: #f39c12;
       
-      /* Distinct Colors for Modules */
+      /* Colors */
       --temp-color: #ff9f43;
       --pulse-color: #ff4757;
       --bp-color: #a29bfe;
@@ -39,11 +39,24 @@
       min-height: 100vh;
       overflow-x: hidden;
       display: flex; flex-direction: column; align-items: center;
-      padding-top: 90px; /* Space for fixed header */
+      padding-top: 90px;
       padding-bottom: 40px;
     }
 
-    /* --- 2. ANIMATED BIO BACKGROUND --- */
+    /* --- 2. SKELETON LOADING ANIMATION --- */
+    .skeleton {
+        color: transparent !important;
+        background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+        border-radius: 5px;
+        display: inline-block;
+        min-width: 60px;
+        min-height: 20px;
+    }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+    /* --- 3. BIO BACKGROUND --- */
     #bio-background {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
         overflow: hidden; background: radial-gradient(circle at center, #0f1c2e 0%, #000000 100%);
@@ -58,29 +71,26 @@
         100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
     }
 
+    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #050b14; }
     ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 10px; }
 
-    /* --- 3. TOP HEADER (GLOWING STATUS BAR) --- */
+    /* --- 4. HEADER --- */
     .user-card { 
       position: fixed; top: 0; left: 0; width: 100%; height: 75px;
       background: rgba(5, 10, 18, 0.98); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--primary-neon); 
-      box-shadow: 0 0 25px rgba(0, 242, 255, 0.15); /* GLOW EFFECT HERE */
+      box-shadow: 0 0 25px rgba(0, 242, 255, 0.15); 
       z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 30px;
-      margin: 0; border-radius: 0;
+      padding: 0 30px; margin: 0; border-radius: 0;
     }
 
     .user-left { display: flex; align-items: center; gap: 15px; }
-    .user-avatar { 
-        font-size: 2.2rem; color: var(--primary-neon); 
-        filter: drop-shadow(0 0 8px var(--primary-neon));
-    }
+    .user-avatar { font-size: 2rem; color: var(--primary-neon); filter: drop-shadow(0 0 8px var(--primary-neon)); }
     .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #888; letter-spacing: 1px; }
-    .user-info span { font-size: 1.3rem; color: #fff; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
+    .user-info span { font-size: 1.3rem; color: #fff; font-weight: 700; letter-spacing: 1px; }
 
     .top-actions { display: flex; align-items: center; gap: 12px; }
     .icon-btn { 
@@ -91,6 +101,11 @@
     }
     .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
     .icon-btn.active { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); border-color: var(--success); }
+    
+    /* Voice Active State */
+    .icon-btn.listening { background: var(--error); color: #fff; animation: pulseRed 1s infinite; border-color: var(--error); }
+    @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(255, 65, 108, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0); } }
+
     .whatsapp-btn { color: #25D366; border-color: #25D366; }
     .whatsapp-btn:hover { background: #25D366; color: #fff; box-shadow: 0 0 15px #25D366; }
 
@@ -98,46 +113,40 @@
     .status-dot.offline { background-color: var(--error); box-shadow: 0 0 10px var(--error); animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0.5; } }
 
-    /* --- 4. AI CONSOLE (DYNAMIC GLOW) --- */
+    /* --- 5. AI CONSOLE (Restored Design + New Glow) --- */
     .ai-card { 
       width: 95%; max-width: 900px; margin-top: 10px;
-      background: linear-gradient(135deg, rgba(10, 20, 35, 0.9), rgba(5, 10, 20, 0.9));
-      border: 2px solid var(--border-color); border-radius: 15px; 
+      background: linear-gradient(135deg, rgba(0, 210, 255, 0.05), rgba(58, 123, 213, 0.05)); /* Previous Subtle Gradient */
+      border: 1px solid var(--primary-neon); border-radius: 20px; 
       padding: 25px; margin-bottom: 30px; 
       display: flex; align-items: flex-start; gap: 20px; 
-      /* Base Shadow */
-      box-shadow: 0 0 30px rgba(0, 242, 255, 0.1); 
+      /* Dynamic Glow will be applied via JS */
+      box-shadow: 0 0 20px rgba(0, 210, 255, 0.1); 
       position: relative; overflow: hidden; transition: all 0.5s ease;
     }
     
     .ai-icon { 
-      font-size: 2.2rem; color: var(--primary-neon); 
-      background: rgba(0, 242, 255, 0.1); width: 60px; height: 60px; 
-      border-radius: 12px; display: flex; justify-content: center; align-items: center; 
+      font-size: 2.5rem; color: var(--primary-neon); 
+      background: rgba(0, 0, 0, 0.3); width: 65px; height: 65px; 
+      border-radius: 50%; display: flex; justify-content: center; align-items: center; 
       border: 1px solid var(--primary-neon);
       animation: pulseAI 2s infinite; flex-shrink: 0;
     }
     @keyframes pulseAI { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
 
     .ai-content { z-index: 2; width: 100%; }
-    .ai-content h3 { 
-        margin: 0 0 10px 0; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; 
-        color: var(--primary-neon); letter-spacing: 1px; display: flex; align-items: center; gap: 10px;
-    }
-    .ai-content div { font-size: 1rem; line-height: 1.6; color: #ddd; }
+    .ai-content h3 { margin: 0 0 5px 0; font-size: 1.2rem; color: var(--primary-neon); font-family: 'Orbitron', sans-serif; }
+    .ai-content div { font-size: 1rem; line-height: 1.6; color: #eee; }
     
-    /* Detailed AI List Styling */
-    .ai-list { list-style: none; padding: 0; margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+    /* Detailed AI List */
+    .ai-list { list-style: none; padding: 0; margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
     .ai-list li {
-        background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px;
-        border-left: 3px solid var(--primary-neon); font-size: 0.9rem; color: #eee;
+        background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 8px;
+        border-left: 3px solid var(--primary-neon); font-size: 0.9rem; color: #fff;
     }
 
-    /* --- 5. MEASUREMENT MODULES --- */
-    .measure-container { 
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
-      gap: 20px; width: 95%; max-width: 900px; margin-bottom: 30px; 
-    }
+    /* --- 6. MODULES --- */
+    .measure-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; width: 95%; max-width: 900px; margin-bottom: 30px; }
     
     .measure-btn { 
       background: var(--glass-panel); backdrop-filter: blur(10px);
@@ -148,38 +157,19 @@
     }
     .measure-btn:hover { transform: translateY(-8px); background: rgba(20, 30, 45, 0.95); }
     
-    .temp { border-bottom: 4px solid var(--temp-color); }
-    .temp i { color: var(--temp-color); filter: drop-shadow(0 0 8px var(--temp-color)); }
-    .temp:hover { box-shadow: 0 10px 30px rgba(255, 159, 67, 0.2); border-color: var(--temp-color); }
-    
-    .pulse { border-bottom: 4px solid var(--pulse-color); }
-    .pulse i { color: var(--pulse-color); animation: heartBeat 1.5s infinite; }
-    .pulse:hover { box-shadow: 0 10px 30px rgba(255, 71, 87, 0.2); border-color: var(--pulse-color); }
+    .temp { border-bottom: 4px solid var(--temp-color); } .temp i { color: var(--temp-color); filter: drop-shadow(0 0 8px var(--temp-color)); }
+    .pulse { border-bottom: 4px solid var(--pulse-color); } .pulse i { color: var(--pulse-color); animation: heartBeat 1.5s infinite; }
     @keyframes heartBeat { 0% { transform: scale(1); } 15% { transform: scale(1.2); } 30% { transform: scale(1); } 45% { transform: scale(1.1); } 60% { transform: scale(1); } }
-    
-    .pressure { border-bottom: 4px solid var(--bp-color); }
-    .pressure i { color: var(--bp-color); }
-    .pressure:hover { box-shadow: 0 10px 30px rgba(162, 155, 254, 0.2); border-color: var(--bp-color); }
-    
-    .oxygen { border-bottom: 4px solid var(--ox-color); }
-    .oxygen i { color: var(--ox-color); animation: breathe 3s infinite ease-in-out; }
-    .oxygen:hover { box-shadow: 0 10px 30px rgba(72, 219, 251, 0.2); border-color: var(--ox-color); }
+    .pressure { border-bottom: 4px solid var(--bp-color); } .pressure i { color: var(--bp-color); }
+    .oxygen { border-bottom: 4px solid var(--ox-color); } .oxygen i { color: var(--ox-color); animation: breathe 3s infinite ease-in-out; }
     @keyframes breathe { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
 
     .measure-btn i { font-size: 2.5rem; margin-bottom: 5px; }
     .measure-btn span { font-size: 0.85rem; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-    
-    .value-display {
-        font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 700; color: #fff;
-        margin-top: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.2);
-    }
+    .value-display { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 700; color: #fff; margin-top: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
 
-    /* --- 6. ACTION DOCK --- */
-    .dock-container {
-        display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-        width: 95%; max-width: 900px; margin-bottom: 30px;
-    }
-
+    /* --- 7. DOCK & FOOTER --- */
+    .dock-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 95%; max-width: 900px; margin-bottom: 30px; }
     .dock-btn {
         background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06));
         border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
@@ -187,20 +177,12 @@
         cursor: pointer; transition: 0.3s;
     }
     .dock-btn:hover { transform: scale(1.02); }
-
-    .vision-dock { border-bottom: 3px solid var(--vision-color); }
-    .vision-dock i { font-size: 1.8rem; color: var(--vision-color); }
-    .vision-dock:hover { box-shadow: 0 0 20px rgba(29, 209, 161, 0.2); border-color: var(--vision-color); }
-
-    .history-dock { border-bottom: 3px solid var(--secondary-neon); }
-    .history-dock i { font-size: 1.8rem; color: var(--secondary-neon); }
-    .history-dock:hover { box-shadow: 0 0 20px rgba(112, 0, 255, 0.2); border-color: var(--secondary-neon); }
-
+    .vision-dock { border-bottom: 3px solid var(--vision-color); } .vision-dock i { font-size: 1.8rem; color: var(--vision-color); }
+    .history-dock { border-bottom: 3px solid var(--secondary-neon); } .history-dock i { font-size: 1.8rem; color: var(--secondary-neon); }
     .dock-text { text-align: left; }
     .dock-title { display: block; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1rem; }
     .dock-sub { display: block; color: #666; font-size: 0.8rem; margin-top: 2px; }
 
-    /* Exit Button */
     .close-btn { 
       background: rgba(255, 42, 42, 0.1); color: var(--error); border: 1px solid var(--error);
       padding: 12px 30px; border-radius: 50px; font-size: 0.9rem; font-family: 'Orbitron', sans-serif; 
@@ -208,88 +190,37 @@
     }
     .close-btn:hover { background: var(--error); color: #fff; box-shadow: 0 0 20px var(--error); }
 
-    /* --- 7. FAB & MODALS (FIXED & CENTERED) --- */
+    /* --- 8. FABs --- */
     .fab-container { position: fixed; bottom: 30px; z-index: 1000; display: flex; flex-direction: column; gap: 20px; }
     .fab-right { right: 30px; align-items: flex-end; }
     .fab-left { left: 30px; align-items: flex-start; }
 
-    /* SOS Wrapper to hold button + gear */
     .sos-wrapper { position: relative; width: 70px; height: 70px; margin-top: 10px; }
-
     .sos-fab {
-        width: 100%; height: 100%; border-radius: 50%;
-        background: radial-gradient(circle at 30% 30%, #ff416c, #ff0000);
-        color: white; border: 2px solid rgba(255,255,255,0.2);
-        box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
-        cursor: pointer; display: flex; align-items: center; justify-content: center;
-        font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 18px;
+        width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ff416c, #ff0000);
+        color: white; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 18px;
         animation: sosPulse 2s infinite; transition: 0.3s;
     }
     .sos-fab:hover { transform: scale(1.1); }
     @keyframes sosPulse { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(255, 0, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); } }
-
-    /* Settings Gear - Positioned absolutely to the SOS wrapper */
-    .sos-settings-btn {
-        position: absolute; top: -5px; right: -5px;
-        width: 28px; height: 28px; background: #111; border-radius: 50%;
-        color: var(--error); border: 1px solid var(--error); font-size: 12px;
-        display: flex; align-items: center; justify-content: center; cursor: pointer; 
-        z-index: 1002; box-shadow: 0 0 5px #000; transition: 0.3s;
-    }
+    .sos-settings-btn { position: absolute; top: -5px; right: -5px; width: 28px; height: 28px; background: #111; border-radius: 50%; color: var(--error); border: 1px solid var(--error); font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1002; transition: 0.3s; }
     .sos-settings-btn:hover { background: var(--error); color: #fff; }
 
-    .hospital-fab, .analyze-fab {
-        width: 60px; height: 60px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
-        color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        font-size: 24px; transition: 0.3s; backdrop-filter: blur(5px);
-    }
+    .hospital-fab, .analyze-fab { width: 60px; height: 60px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; transition: 0.3s; backdrop-filter: blur(5px); }
     .hospital-fab { background: linear-gradient(135deg, #00d2ff, #3a7bd5); box-shadow: 0 0 15px rgba(0, 210, 255, 0.4); }
-    .hospital-fab:hover { box-shadow: 0 0 25px rgba(0, 210, 255, 0.6); transform: scale(1.1); }
-    
+    .hospital-fab:hover { transform: scale(1.1); }
     .analyze-fab { background: linear-gradient(135deg, #6c5ce7, #a29bfe); box-shadow: 0 0 15px rgba(108, 92, 231, 0.5); }
-    .analyze-fab:hover { box-shadow: 0 0 25px rgba(108, 92, 231, 0.7); transform: scale(1.1); }
+    .analyze-fab:hover { transform: scale(1.1); }
 
-    /* Centered Modals (Creative Cyber Theme) */
-    .sidebar-overlay, .custom-modal-overlay { 
-        position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); 
-        z-index: 4000; display: none; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; 
-    }
+    /* --- 9. SIDEBAR & MODALS (FIXED BLUR) --- */
+    .sidebar-overlay, .custom-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 3000; display: none; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
     .sidebar-overlay.active, .custom-modal-overlay.active { display: flex; opacity: 1; }
     
-    .custom-modal-box {
-        background: #0b101a; border: 1px solid var(--primary-neon); padding: 40px; 
-        border-radius: 20px; width: 90%; max-width: 450px; text-align: center; 
-        box-shadow: 0 0 60px rgba(0, 242, 255, 0.2); transform: scale(0.9); transition: 0.3s;
-        position: relative;
-    }
-    .custom-modal-overlay.active .custom-modal-box { transform: scale(1); }
-    
-    .modal-icon { font-size: 3rem; margin-bottom: 20px; color: var(--primary-neon); filter: drop-shadow(0 0 10px currentColor); }
-    .modal-title { font-family: 'Orbitron', sans-serif; color: #fff; margin-bottom: 10px; font-size: 1.4rem; letter-spacing: 1px; }
-    .modal-text { color: #ccc; margin-bottom: 25px; line-height: 1.5; }
-    
-    .modal-input { 
-        width: 100%; padding: 15px; margin-bottom: 25px; 
-        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.3); 
-        border-radius: 10px; color: #fff; text-align: center; font-size: 1.3rem; 
-        font-family: 'Orbitron', sans-serif;
-    }
-    .modal-input:focus { border-color: var(--primary-neon); box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
-
-    .modal-actions { display: flex; justify-content: center; gap: 15px; }
-    .modal-btn { padding: 12px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; font-family: 'Cairo', sans-serif; }
-    .btn-confirm { background: var(--primary-neon); color: #000; }
-    .btn-confirm:hover { box-shadow: 0 0 20px var(--primary-neon); transform: scale(1.05); }
-    .btn-danger { background: var(--error); color: #fff; }
-    .btn-danger:hover { box-shadow: 0 0 20px var(--error); transform: scale(1.05); }
-    .btn-cancel { background: transparent; border: 1px solid #555; color: #aaa; }
-    .btn-cancel:hover { border-color: #fff; color: #fff; }
-
-    /* Sidebar (Left Panel) */
     .sidebar { 
         position: fixed; top: 0; left: -360px; width: 340px; height: 100%; 
         background: #0b101a; border-right: 1px solid var(--primary-neon); 
-        box-shadow: 10px 0 50px rgba(0,0,0,0.8); z-index: 2000; 
+        box-shadow: 10px 0 50px rgba(0,0,0,0.8); z-index: 3001; /* Higher than overlay */
         transition: left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 30px 20px; 
     }
     .sidebar.active { left: 0; }
@@ -301,8 +232,19 @@
     .calc-btn { width: 100%; padding: 12px; background: var(--primary-neon); color: #000; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; }
     .result-box { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid var(--primary-neon); display: none; }
 
+    /* Centered Modals */
+    .custom-modal-box { background: #0b101a; border: 1px solid var(--primary-neon); padding: 40px; border-radius: 20px; width: 90%; max-width: 450px; text-align: center; box-shadow: 0 0 60px rgba(0, 242, 255, 0.2); transform: scale(0.9); transition: 0.3s; z-index: 3002; }
+    .custom-modal-overlay.active .custom-modal-box { transform: scale(1); }
+    .modal-icon { font-size: 3rem; margin-bottom: 20px; color: var(--primary-neon); }
+    .modal-input { width: 100%; padding: 15px; margin-bottom: 25px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.3); border-radius: 10px; color: #fff; text-align: center; font-size: 1.3rem; font-family: 'Orbitron', sans-serif; }
+    .modal-actions { display: flex; justify-content: center; gap: 15px; }
+    .modal-btn { padding: 12px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+    .btn-confirm { background: var(--primary-neon); color: #000; }
+    .btn-danger { background: var(--error); color: #fff; }
+    .btn-cancel { background: transparent; border: 1px solid #555; color: #aaa; }
+
     /* Toast */
-    .toast-container { position: fixed; top: 90px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
+    .toast-container { position: fixed; top: 100px; right: 20px; z-index: 4000; display: flex; flex-direction: column; gap: 10px; }
     .toast { background: rgba(5, 11, 20, 0.95); color: white; padding: 15px 25px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.6); border-left: 4px solid; animation: slideIn 0.4s ease, fadeOut 0.5s ease 4s forwards; }
     @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
     @keyframes fadeOut { to { opacity: 0; } }
@@ -327,13 +269,16 @@
 
   <div class="user-card">
     <div class="user-left">
-        <div class="user-avatar"><i class="fas fa-id-card-alt"></i></div>
+        <div class="user-avatar"><i class="fas fa-user"></i></div>
         <div class="user-info">
             <h2>USER ID</h2>
             <span id="currentUserName">Loading...</span>
         </div>
     </div>
     <div class="top-actions">
+      <button class="icon-btn" id="micBtn" onclick="startListening()" title="Voice Commands">
+        <i class="fas fa-microphone"></i>
+      </button>
       <button class="icon-btn whatsapp-btn" id="whatsappBtn" onclick="sendWhatsAppReport()" title="Send Report">
         <i class="fab fa-whatsapp"></i>
       </button>
@@ -359,19 +304,19 @@
   <div class="measure-container">
     <div class="measure-btn temp" id="tempBtn" onclick="goToTemperature()">
       <i class="fas fa-thermometer-half"></i> <span>Temperature</span>
-      <div class="value-display" id="tempValue">--</div>
+      <div class="value-display skeleton" id="tempValue">--</div>
     </div>
     <div class="measure-btn pulse" id="pulseBtn" onclick="goToPulse()">
       <i class="fas fa-heartbeat"></i> <span>Pulse Rate</span>
-      <div class="value-display" id="pulseValue">--</div>
+      <div class="value-display skeleton" id="pulseValue">--</div>
     </div>
     <div class="measure-btn pressure" id="bpBtn" onclick="goToPressure()">
       <i class="fas fa-stethoscope"></i> <span>Blood Pressure</span>
-      <div class="value-display" id="bpValue">--</div>
+      <div class="value-display skeleton" id="bpValue">--</div>
     </div>
     <div class="measure-btn oxygen" id="oxygenBtn" onclick="goToOxygen()">
       <i class="fas fa-lungs"></i> <span>Oxygen (SpO2)</span>
-      <div class="value-display" id="spo2Value">--</div>
+      <div class="value-display skeleton" id="spo2Value">--</div>
     </div>
   </div>
 
@@ -398,7 +343,6 @@
 
   <div class="fab-container fab-right">
     <button class="hospital-fab" id="hospitalBtn" onclick="findHospitals()" title="Nearest Hospitals"><i class="fas fa-hospital"></i></button>
-    
     <div class="sos-wrapper">
         <button class="sos-settings-btn" onclick="openContactModal()" title="Settings"><i class="fas fa-cog"></i></button>
         <button class="sos-fab" id="sosBtn" onclick="triggerSOS()">SOS</button>
@@ -413,7 +357,7 @@
       <div class="custom-modal-box">
           <div class="modal-icon"><i class="fas fa-address-book"></i></div>
           <h3 class="modal-title" id="contactTitle">Emergency Contact</h3>
-          <p id="contactText" class="modal-text">Enter phone number</p>
+          <p id="contactText" class="modal-text" style="color:#aaa;">Enter phone number</p>
           <input type="number" id="emergencyInput" class="modal-input" placeholder="010xxxxxxxx">
           <div class="modal-actions"><button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button><button class="modal-btn btn-confirm" onclick="saveEmergencyContact()">Save</button></div>
       </div>
@@ -421,9 +365,9 @@
 
   <div class="custom-modal-overlay" id="confirmModal">
       <div class="custom-modal-box">
-          <div class="modal-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="modal-icon warning" style="color:var(--error);"><i class="fas fa-exclamation-triangle"></i></div>
           <h3 class="modal-title" id="confirmTitle">Emergency Alert</h3>
-          <p id="confirmText" class="modal-text">Confirm SOS?</p>
+          <p id="confirmText" class="modal-text" style="color:#aaa;">Confirm SOS?</p>
           <div class="modal-actions"><button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button><button class="modal-btn btn-danger" onclick="executeSOS()">YES, SEND HELP</button></div>
       </div>
   </div>
@@ -484,13 +428,58 @@
     if(!currentUserId) window.location.href="index.html"; 
     else userSpan.innerText = currentUserId;
 
+    // --- 3. NEW FEATURES: VOICE & SIDEBAR FIX ---
+    
+    // Toggle Sidebar
     function toggleSidebar(show) {
       const sidebar = document.getElementById("smartSidebar");
       const overlay = document.getElementById("sidebarOverlay");
-      if(show) { sidebar.classList.add("active"); overlay.classList.add("active"); }
-      else { sidebar.classList.remove("active"); overlay.classList.remove("active"); }
+      if(show) { 
+          sidebar.classList.add("active"); 
+          overlay.style.display = "block"; // Explicit display
+          setTimeout(() => overlay.classList.add("active"), 10);
+      } else { 
+          sidebar.classList.remove("active"); 
+          overlay.classList.remove("active");
+          setTimeout(() => overlay.style.display = "none", 300);
+      }
     }
 
+    // Voice Command Logic
+    function startListening() {
+        if (!('webkitSpeechRecognition' in window)) {
+            showToast("Voice control not supported in this browser.", "error");
+            return;
+        }
+        
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = localStorage.getItem("language") === "ar" ? "ar-SA" : "en-US";
+        recognition.start();
+        
+        const btn = document.getElementById('micBtn');
+        btn.classList.add('listening');
+
+        recognition.onresult = (event) => {
+            const cmd = event.results[0][0].transcript.toLowerCase();
+            showToast(`Heard: "${cmd}"`, "info");
+            
+            // Map commands
+            if(cmd.includes('temp') || cmd.includes('حرارة')) goToTemperature();
+            else if(cmd.includes('pulse') || cmd.includes('heart') || cmd.includes('نبض') || cmd.includes('قلب')) goToPulse();
+            else if(cmd.includes('pressure') || cmd.includes('blood') || cmd.includes('ضغط')) goToPressure();
+            else if(cmd.includes('oxygen') || cmd.includes('اكسجين')) goToOxygen();
+            else if(cmd.includes('vision') || cmd.includes('eye') || cmd.includes('نظر') || cmd.includes('عين')) goToVisionPage();
+            else if(cmd.includes('history') || cmd.includes('record') || cmd.includes('سجل')) goToHistory();
+            else if(cmd.includes('emergency') || cmd.includes('help') || cmd.includes('طوارئ')) triggerSOS();
+            
+            btn.classList.remove('listening');
+        };
+
+        recognition.onerror = () => btn.classList.remove('listening');
+        recognition.onend = () => btn.classList.remove('listening');
+    }
+
+    // --- 4. PRESERVED LOGIC ---
     function triggerSOS() {
         const savedNumber = localStorage.getItem("sosContactNumber");
         if (!savedNumber) { openContactModal(); } else { openConfirmModal(); }
@@ -638,7 +627,7 @@
     let currentData = { temp: "--", bpm: "--", bp: "--", spo2: "--" };
     let lastTimestamp = "--";
 
-    // --- ENHANCED AI LOGIC ---
+    // --- ENHANCED AI LOGIC (Restored & Glowing) ---
     function updateAIAnalysis() {
       if(!currentUserId) return;
       const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
@@ -656,10 +645,19 @@
             };
             lastTimestamp = data.Timestamp || "--";
 
-            document.getElementById('bpValue').innerText = currentData.bp;
-            document.getElementById('spo2Value').innerText = currentData.spo2 + (currentData.spo2 !== '--' ? '%' : '');
-            document.getElementById('tempValue').innerText = currentData.temp + (currentData.temp !== '--' ? '°C' : '');
-            document.getElementById('pulseValue').innerText = currentData.bpm + (currentData.bpm !== '--' ? ' bpm' : '');
+            // SKELETON HANDLING
+            const elements = ['bpValue', 'spo2Value', 'tempValue', 'pulseValue'];
+            const units = ['', '%', '°C', ' bpm'];
+            const vals = [currentData.bp, currentData.spo2, currentData.temp, currentData.bpm];
+            
+            elements.forEach((id, index) => {
+                const el = document.getElementById(id);
+                if (vals[index] !== "--") {
+                    el.classList.remove('skeleton');
+                    el.innerText = vals[index] + units[index];
+                }
+            });
+
             document.getElementById('lastReadingTime').innerText = (localStorage.getItem("language") === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + lastTimestamp;
             
             const temp = parseFloat(currentData.temp) || 0;
@@ -675,7 +673,6 @@
             if (sensorDataString === "No measurement recorded yet") {
                 headerMsg = localStorage.getItem("language") === "ar" ? "⏳ بانتظار بدء القياسات..." : "⏳ Waiting for measurements...";
             } else {
-                // Expanded logic with Emojis
                 if(sys > 140) {
                     statusColor = "#ff416c";
                     headerMsg = localStorage.getItem("language") === "ar" ? "⚠️ ضغط الدم مرتفع" : "⚠️ High Blood Pressure";
@@ -720,7 +717,7 @@
             document.getElementById("aiText").innerHTML = finalHtml;
             // HEAVY GLOW UPDATE
             document.querySelector(".ai-card").style.borderColor = statusColor;
-            document.querySelector(".ai-card").style.boxShadow = `0 0 50px ${statusColor}40`; // 40 is opacity in hex
+            document.querySelector(".ai-card").style.boxShadow = `0 0 50px ${statusColor}40`;
         }
       });
     }
