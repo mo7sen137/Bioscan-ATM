@@ -10,6 +10,8 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
     <style>
         /* --- 1. THEME VARIABLES --- */
@@ -42,18 +44,21 @@
             padding-top: 90px;
         }
 
-        /* --- 2. BACKGROUND --- */
+        /* --- 2. ANIMATED BACKGROUND (Updated to Data Theme) --- */
         #bio-background {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             overflow: hidden; background: radial-gradient(circle at center, #0f1c2e 0%, #000000 100%);
         }
         .bio-symbol {
             position: absolute; color: var(--primary-neon); opacity: 0.1;
-            animation: floatData 20s linear infinite; pointer-events: none;
+            animation: floatData 25s linear infinite; pointer-events: none;
         }
+        /* Updated animation with rotation for consistency */
         @keyframes floatData {
-            0% { transform: translateY(110vh) scale(0.5); opacity: 0; }
-            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+            0% { transform: translateY(110vh) rotate(0deg) scale(0.5); opacity: 0; }
+            20% { opacity: 0.15; }
+            80% { opacity: 0.15; }
+            100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
         }
 
         ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -119,7 +124,6 @@
         
         tr:hover { background: rgba(0, 242, 255, 0.05); }
         
-        /* Column Colors (Screen Only) */
         .col-date { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: #fff; font-weight: bold; opacity: 0.9; }
         .col-temp { color: var(--c-temp); font-weight: bold; }
         .col-pulse { color: var(--c-pulse); font-weight: bold; }
@@ -134,7 +138,7 @@
 
         .empty-msg { padding: 40px; text-align: center; color: #666; font-style: italic; }
 
-        /* --- 5. MODALS --- */
+        /* --- 5. MODALS & CHART CONTROLS --- */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
             z-index: 5000; display: none; justify-content: center; align-items: center; opacity: 0; transition: 0.3s;
@@ -147,7 +151,42 @@
             box-shadow: 0 0 50px rgba(0, 242, 255, 0.15); transform: scale(0.9); transition: 0.3s;
             position: relative; text-align: center;
         }
-        .chart-modal-card { width: 95%; max-width: 900px; padding: 20px; }
+        /* Chart Modal expanded */
+        .chart-modal-card { 
+            width: 98%; max-width: 1000px; padding: 20px; 
+            display: flex; flex-direction: column;
+        }
+        .chart-body {
+            display: flex; flex-direction: column; gap: 20px;
+        }
+        @media(min-width: 768px) {
+            .chart-body { flex-direction: row; }
+            .chart-wrapper { flex: 3; }
+            .chart-controls { flex: 1; }
+        }
+
+        .chart-wrapper { height: 400px; width: 100%; position: relative; }
+        
+        /* Side Controls Style */
+        .chart-controls {
+            display: flex; flex-direction: column; gap: 10px; justify-content: center;
+            background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px;
+        }
+        .control-btn {
+            background: transparent; border: 1px solid #555; color: #888;
+            padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; gap: 10px; font-family: 'Orbitron', sans-serif; font-size: 0.8rem;
+        }
+        .control-btn:hover { background: rgba(255,255,255,0.05); }
+        .control-btn.active { color: #fff; border-color: currentColor; box-shadow: 0 0 10px currentColor; }
+        .control-btn i { font-size: 1rem; }
+
+        .ai-summary {
+            margin-top: 10px; background: rgba(255,255,255,0.05); 
+            padding: 15px; border-radius: 10px; border-left: 3px solid var(--primary-neon);
+            text-align: left; font-size: 0.9rem; color: #ddd; line-height: 1.6;
+        }
+
         .modal-overlay.active .modal-card { transform: scale(1); }
 
         /* Delete Modal */
@@ -160,21 +199,16 @@
         
         .modal-actions { display: flex; justify-content: center; gap: 15px; }
         .modal-btn { padding: 10px 25px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; font-family: 'Orbitron', sans-serif; }
-        .btn-confirm { background: var(--primary-neon); color: #000; }
         .btn-danger { background: var(--error); color: #fff; }
+        .btn-danger:hover { box-shadow: 0 0 20px var(--error); }
         .btn-cancel { background: transparent; border: 1px solid #555; color: #aaa; }
+        .btn-cancel:hover { border-color: #fff; color: #fff; }
+        .btn-confirm { background: var(--primary-neon); color: #000; }
+        .btn-confirm:hover { box-shadow: 0 0 20px var(--primary-neon); }
 
         .close-modal {
             position: absolute; top: 15px; right: 20px; background: none; border: none;
-            color: #fff; font-size: 1.5rem; cursor: pointer;
-        }
-        
-        /* Chart & AI */
-        .chart-wrapper { height: 350px; width: 100%; margin-top: 15px; }
-        .ai-summary {
-            margin-top: 20px; background: rgba(255,255,255,0.05); 
-            padding: 15px; border-radius: 10px; border-left: 3px solid var(--primary-neon);
-            text-align: left; font-size: 0.9rem; color: #ddd; line-height: 1.6;
+            color: #fff; font-size: 1.5rem; cursor: pointer; z-index: 10;
         }
         
         #qrcode { display: flex; justify-content: center; margin: 20px auto; background: #fff; padding: 10px; border-radius: 10px; width: fit-content; }
@@ -218,7 +252,7 @@
 
             /* Print Chart Image */
             #print-chart-container { display: block; margin-top: 30px; text-align: center; }
-            #print-chart-img { max-width: 100%; height: auto; border: 1px solid #ddd; }
+            #print-chart-img { max-width: 100%; height: auto; border: 1px solid #ddd; filter: contrast(1.2); }
         }
         
         @media (max-width: 600px) {
@@ -307,10 +341,34 @@
     <div id="chartModal" class="modal-overlay">
         <div class="modal-card chart-modal-card">
             <button class="close-modal" onclick="closeModal('chartModal')">&times;</button>
-            <h3 style="color:var(--c-temp); font-family:'Orbitron',sans-serif;">HEALTH ANALYTICS</h3>
-            <div class="chart-wrapper">
-                <canvas id="healthChart"></canvas>
+            <h3 style="color:var(--primary-neon); font-family:'Orbitron',sans-serif; text-align:left; margin-bottom:15px;">HEALTH ANALYTICS</h3>
+            
+            <div class="chart-body">
+                <div class="chart-wrapper">
+                    <canvas id="healthChart"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <button class="control-btn active" onclick="toggleDataset(0, this)" style="color:var(--c-temp)">
+                        <i class="fas fa-thermometer-half"></i> Temperature
+                    </button>
+                    <button class="control-btn active" onclick="toggleDataset(1, this)" style="color:var(--c-pulse)">
+                        <i class="fas fa-heartbeat"></i> Pulse Rate
+                    </button>
+                    <button class="control-btn active" onclick="toggleDataset(2, this)" style="color:var(--c-ox)">
+                        <i class="fas fa-lungs"></i> Oxygen
+                    </button>
+                    <button class="control-btn active" onclick="toggleDataset(3, this)" style="color:var(--c-bp)">
+                        <i class="fas fa-stethoscope"></i> Systolic BP
+                    </button>
+                    <button class="control-btn active" onclick="toggleDataset(4, this)" style="color:var(--c-bp)">
+                        <i class="fas fa-stethoscope"></i> Diastolic BP
+                    </button>
+                    <button class="control-btn" onclick="resetZoom()" style="margin-top:10px; color:#fff; border-color:#fff;">
+                        <i class="fas fa-search-minus"></i> Reset Zoom
+                    </button>
+                </div>
             </div>
+
             <div class="ai-summary" id="aiAnalysisText">
                 <i class="fas fa-robot"></i> <strong>AI Analysis:</strong> Calculating trends...
             </div>
@@ -348,16 +406,22 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
     <script>
-        // --- 1. BACKGROUND ---
+        // --- 1. ANIMATED BACKGROUND (Data Theme with Rotation) ---
         function createBioBackground() {
             const container = document.getElementById('bio-background');
-            const icons = ['fa-file-medical', 'fa-chart-bar', 'fa-database', 'fa-clipboard-list', 'fa-network-wired'];
-            for (let i = 0; i < 20; i++) {
+            // New icon set focusing on data and analytics
+            const icons = [
+                'fa-chart-line', 'fa-chart-pie', 'fa-database', 'fa-server',
+                'fa-terminal', 'fa-file-code', 'fa-sort-numeric-down',
+                'fa-calculator', 'fa-network-wired', 'fa-microchip'
+            ];
+            for (let i = 0; i < 25; i++) {
                 const el = document.createElement('i');
                 el.classList.add('fas', icons[Math.floor(Math.random() * icons.length)], 'bio-symbol');
                 el.style.left = Math.random() * 100 + 'vw';
                 el.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
-                el.style.animationDuration = (Math.random() * 20 + 15) + 's';
+                // Longer duration for smoother effect
+                el.style.animationDuration = (Math.random() * 25 + 20) + 's';
                 el.style.animationDelay = (Math.random() * 5) + 's';
                 container.appendChild(el);
             }
@@ -466,7 +530,7 @@
             closeModal('deleteModal');
         }
 
-        // --- 5. CHART & AI (Updated) ---
+        // --- 5. CHART & AI (Advanced) ---
         let myChart = null;
 
         function showChart() {
@@ -508,7 +572,7 @@
             const ctx = document.getElementById('healthChart').getContext('2d');
             if(myChart) myChart.destroy();
 
-            // BRIGHT WHITE for visibility against dark modal
+            // CHART CONFIG (Dark Mode by Default)
             Chart.defaults.color = '#ffffff';
             Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
 
@@ -517,30 +581,56 @@
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Temp', data: temps, borderColor: '#ff9f43', borderWidth: 2, tension: 0.3 },
-                        { label: 'Pulse', data: pulses, borderColor: '#ff4757', borderWidth: 2, tension: 0.3 },
-                        { label: 'O2', data: oxs, borderColor: '#48dbfb', borderWidth: 2, borderDash:[5,5] },
-                        { label: 'Sys BP', data: sys, borderColor: '#a29bfe', borderWidth: 1 }
+                        { label: 'Temp', data: temps, borderColor: '#ff9f43', backgroundColor:'rgba(255,159,67,0.1)', borderWidth: 2, tension: 0.3 },
+                        { label: 'Pulse', data: pulses, borderColor: '#ff4757', backgroundColor:'rgba(255,71,87,0.1)', borderWidth: 2, tension: 0.3 },
+                        { label: 'O2', data: oxs, borderColor: '#48dbfb', backgroundColor:'rgba(72,219,251,0.1)', borderWidth: 2, borderDash:[5,5] },
+                        { label: 'Sys BP', data: sys, borderColor: '#a29bfe', borderWidth: 2 },
+                        { label: 'Dia BP', data: dia, borderColor: '#a29bfe', borderWidth: 1, borderDash:[3,3] }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } },
+                    plugins: { 
+                        legend: { display: false }, // Using custom buttons
+                        zoom: {
+                            zoom: {
+                                wheel: { enabled: true },
+                                pinch: { enabled: true },
+                                mode: 'x',
+                            },
+                            pan: {
+                                enabled: true,
+                                mode: 'x',
+                            }
+                        }
+                    },
                     scales: { y: { beginAtZero: false } }
                 }
             });
+        }
+
+        // Custom Toggles
+        function toggleDataset(index, btn) {
+            const meta = myChart.getDatasetMeta(index);
+            meta.hidden = meta.hidden === null ? !myChart.data.datasets[index].hidden : null;
+            btn.classList.toggle('active');
+            myChart.update();
+        }
+
+        function resetZoom() {
+            myChart.resetZoom();
         }
 
         function generateAISummary(temps, pulses, oxs, sys) {
             const avg = arr => arr.filter(v=>v>0).reduce((a,b)=>a+b, 0) / (arr.filter(v=>v>0).length || 1);
             const aSys = avg(sys);
             
-            let msg = "Vital signs are within stable ranges.";
+            let msg = "Vital signs are stable. No immediate concerns detected.";
             let color = "#00ff88";
 
-            if(aSys > 135) { msg = "Trend shows elevated Blood Pressure. Monitor sodium intake."; color = "#ff9f43"; }
-            else if(avg(temps) > 37.5) { msg = "Temperature spikes detected. Stay hydrated."; color = "#ff4757"; }
+            if(aSys > 135) { msg = "Trend shows elevated Blood Pressure. Please reduce sodium intake and monitor daily."; color = "#ff9f43"; }
+            else if(avg(temps) > 37.5) { msg = "Temperature spikes detected. Ensure hydration and rest."; color = "#ff4757"; }
             
             document.getElementById("aiAnalysisText").innerHTML = `
                 <i class="fas fa-robot"></i> 
@@ -548,37 +638,51 @@
             `;
         }
 
+        // *** SMART PRINT LOGIC ***
         function attachChartToReport() {
-            const canvas = document.getElementById('healthChart');
-            const imgData = canvas.toDataURL('image/png');
-            
-            const container = document.getElementById('print-chart-container');
-            container.innerHTML = `
-                <h3 style="margin-top:20px; text-align:center;">Health Trends Analysis</h3>
-                <img id="print-chart-img" src="${imgData}" style="width:100%; border:1px solid #ccc;">
-            `;
-            
-            alert("Chart attached to report! You can now print.");
-            closeModal('chartModal');
+            // 1. Switch Chart to Print Mode (Light Theme)
+            Chart.defaults.color = '#000000';
+            Chart.defaults.borderColor = 'rgba(0,0,0,0.2)';
+            myChart.options.scales.x.grid.color = 'rgba(0,0,0,0.1)';
+            myChart.options.scales.y.grid.color = 'rgba(0,0,0,0.1)';
+            myChart.update();
+
+            // 2. Capture Image
+            setTimeout(() => {
+                const canvas = document.getElementById('healthChart');
+                const imgData = canvas.toDataURL('image/png');
+                
+                const container = document.getElementById('print-chart-container');
+                container.innerHTML = `
+                    <h3 style="margin-top:30px; text-align:center; font-family:'Times New Roman';">Health Trends Analysis</h3>
+                    <img id="print-chart-img" src="${imgData}" style="width:100%; border:1px solid #ccc;">
+                    <div style="margin-top:10px; padding:10px; border:1px solid #000;">
+                        ${document.getElementById("aiAnalysisText").innerText}
+                    </div>
+                `;
+                
+                // 3. Revert to Dark Mode
+                Chart.defaults.color = '#ffffff';
+                Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
+                myChart.options.scales.x.grid.color = 'rgba(255,255,255,0.1)';
+                myChart.options.scales.y.grid.color = 'rgba(255,255,255,0.1)';
+                myChart.update();
+
+                alert("Chart attached! You can now print the report.");
+                closeModal('chartModal');
+            }, 500); // Small delay to ensure render
         }
 
         // --- 6. QR CODE ---
         function generateQR() {
             if(allRecords.length === 0) return alert("No data available.");
-            
             const modal = document.getElementById('qrModal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('active'), 10);
-
             const latest = allRecords[0];
-            const dataStr = `ID: ${currentUserId}\nDate: ${latest.timestamp}\nTemp: ${latest.temperature}\nPulse: ${latest.bpm}\nBP: ${latest.pressure}`;
-
+            const dataStr = `ID: ${currentUserId}\nDate: ${latest.timestamp}\nTemp: ${latest.temperature}\nPulse: ${latest.bpm}`;
             document.getElementById('qrcode').innerHTML = "";
-            new QRCode(document.getElementById('qrcode'), {
-                text: dataStr,
-                width: 150,
-                height: 150
-            });
+            new QRCode(document.getElementById('qrcode'), { text: dataStr, width: 150, height: 150 });
         }
 
         function closeModal(id) {
