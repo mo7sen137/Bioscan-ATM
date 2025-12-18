@@ -4,13 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bioscan ATM | Secure Access</title>
+    <title>Bioscan ATM | Patient Portal</title>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -20,8 +18,8 @@
         :root {
             --primary-neon: #00f2ff;
             --secondary-neon: #7000ff;
-            --bg-dark: #050b14;
-            --glass-panel: rgba(10, 25, 40, 0.85);
+            --bg-dark: #020408;
+            --glass-panel: rgba(8, 15, 25, 0.85);
             --border-color: rgba(0, 242, 255, 0.3);
             --text-main: #e0f7fa;
             --error: #ff2a2a;
@@ -40,155 +38,189 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* Particles Background */
-        #particles-js { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at center, #0f1c2e 0%, #020408 100%); }
+        /* --- 2. CUSTOM SCROLLBAR (Bio-Themed) --- */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #050b14; border-left: 1px solid #1a2533; }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, var(--secondary-neon), var(--primary-neon)); 
+            border-radius: 10px; border: 2px solid #050b14;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-neon); }
 
-        /* --- 2. PRELOADER (NEW & PRO) --- */
+        /* --- 3. BIO-BACKGROUND ANIMATION --- */
+        #bio-background {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            overflow: hidden; background: radial-gradient(circle at center, #0f1c2e 0%, #000000 100%);
+        }
+        .bio-symbol {
+            position: absolute; color: var(--primary-neon); opacity: 0.15;
+            animation: floatBio 20s linear infinite; pointer-events: none;
+        }
+        @keyframes floatBio {
+            0% { transform: translateY(110vh) rotate(0deg) scale(0.8); opacity: 0; }
+            20% { opacity: 0.2; }
+            80% { opacity: 0.2; }
+            100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
+        }
+
+        /* --- 4. PRELOADER --- */
         #preloader {
             position: fixed; inset: 0; background: #020408; z-index: 9999;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: opacity 0.8s ease-out, visibility 0.8s;
         }
-        
         .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
-        
-        /* Spinning Ring */
         .loader-ring {
             position: absolute; inset: 0; border: 3px solid transparent;
             border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon);
             border-radius: 50%; animation: spin 1.5s linear infinite;
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
         }
-        
-        /* Inner Logo */
         .loader-logo {
-            position: absolute; inset: 10px; border-radius: 50%;
+            position: absolute; inset: 15px; border-radius: 50%;
             background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover;
-            animation: pulseLoader 2s infinite ease-in-out;
-            filter: drop-shadow(0 0 10px var(--primary-neon));
+            animation: pulseLoader 2s infinite ease-in-out; filter: drop-shadow(0 0 10px var(--primary-neon));
         }
-
         .loader-title {
             font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px;
             background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 10px; text-transform: uppercase;
+            margin-bottom: 5px;
         }
-
-        .loader-status { font-size: 0.9rem; color: #777; font-family: 'Consolas', monospace; min-height: 20px; }
-
-        /* Progress Bar */
-        .progress-container {
-            width: 200px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 15px; position: relative; overflow: hidden;
-        }
-        .progress-bar {
-            width: 0%; height: 100%; background: var(--primary-neon);
-            box-shadow: 0 0 10px var(--primary-neon);
-            transition: width 0.3s;
-        }
-
+        .progress-bar { width: 0%; height: 4px; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); transition: width 0.3s; border-radius: 2px; width: 200px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
 
-        /* --- 3. HEADER --- */
+        /* --- 5. HEADER (With Time & Date) --- */
         header {
-            position: absolute; top: 0; width: 100%; padding: 15px 30px;
+            position: absolute; top: 0; width: 100%; padding: 15px 40px;
             display: flex; justify-content: space-between; align-items: center; z-index: 10;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
-            border-bottom: 1px solid rgba(0, 242, 255, 0.1);
+            background: linear-gradient(to bottom, rgba(2, 4, 8, 0.95), transparent);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.15);
         }
 
+        .header-left { display: flex; align-items: center; gap: 20px; }
         .brand { display: flex; align-items: center; gap: 15px; }
         .brand-logo { 
             width: 45px; height: 45px; border: 2px solid var(--primary-neon); border-radius: 50%; 
             box-shadow: 0 0 15px var(--primary-neon); animation: pulseLogo 3s infinite;
         }
         .brand-text h1 {
-            font-family: 'Orbitron', sans-serif; font-size: 1.3rem; margin: 0; letter-spacing: 2px; text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin: 0; letter-spacing: 2px;
             background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .brand-text p { margin: 0; font-size: 0.7rem; color: var(--primary-neon); opacity: 0.8; letter-spacing: 3px; }
+        .brand-text p { margin: 0; font-size: 0.7rem; color: var(--primary-neon); opacity: 0.8; letter-spacing: 2px; }
 
-        @keyframes pulseLogo { 0% { box-shadow: 0 0 10px var(--primary-neon); } 50% { box-shadow: 0 0 20px var(--primary-neon), 0 0 5px #fff; } 100% { box-shadow: 0 0 10px var(--primary-neon); } }
+        /* Live Clock Design */
+        .live-clock {
+            display: flex; flex-direction: column; align-items: flex-start;
+            border-left: 2px solid rgba(0, 242, 255, 0.3); padding-left: 15px;
+            font-family: 'Orbitron', sans-serif; color: #fff; text-shadow: 0 0 5px var(--primary-neon);
+        }
+        .clock-time { font-size: 1.1rem; font-weight: bold; letter-spacing: 1px; color: var(--primary-neon); }
+        .clock-date { font-size: 0.7rem; color: #aaa; letter-spacing: 1px; }
 
         .controls { display: flex; gap: 15px; align-items: center; }
         .status-led {
-            width: 12px; height: 12px; border-radius: 50%; background-color: var(--success);
-            box-shadow: 0 0 10px var(--success), 0 0 20px var(--success); transition: 0.3s;
+            width: 10px; height: 10px; border-radius: 50%; background-color: var(--success);
+            box-shadow: 0 0 10px var(--success); transition: 0.3s;
         }
-        .status-led.offline {
-            background-color: var(--error); box-shadow: 0 0 10px var(--error), 0 0 20px var(--error);
-            animation: blinkRed 1s infinite;
-        }
-        @keyframes blinkRed { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
+        .status-led.offline { background-color: var(--error); box-shadow: 0 0 10px var(--error); animation: blinkRed 1s infinite; }
+        
         .icon-btn {
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: var(--primary-neon);
             width: 38px; height: 38px; border-radius: 50%; cursor: pointer; transition: 0.3s;
             display: flex; justify-content: center; align-items: center;
         }
         .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
-        
         select.lang-select {
             background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon);
-            padding: 5px 12px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer; font-size: 0.9rem;
+            padding: 5px 12px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer;
         }
         select.lang-select option { background: #050b14; }
 
-        /* --- 4. MAIN HUD CARD --- */
-        .main-container { position: relative; z-index: 5; width: 100%; max-width: 450px; padding: 20px; }
+        /* --- 6. HUD CARD & INPUT --- */
+        .main-container { position: relative; z-index: 5; width: 100%; max-width: 480px; padding: 20px; }
 
         .hud-card {
             background: var(--glass-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-color); border-radius: 20px; padding: 40px 30px;
-            text-align: center; box-shadow: 0 0 60px rgba(0, 0, 0, 0.6); position: relative; overflow: hidden;
+            border: 1px solid var(--border-color); border-radius: 20px; padding: 40px 35px;
+            text-align: center; box-shadow: 0 0 80px rgba(0, 0, 0, 0.8); position: relative; overflow: visible; /* Allowed for tooltip */
         }
-        .hud-card::before, .hud-card::after { content: ''; position: absolute; width: 25px; height: 25px; border: 2px solid var(--primary-neon); }
-        .hud-card::before { top: 0; left: 0; border-right: none; border-bottom: none; border-radius: 18px 0 0 0; }
-        .hud-card::after { bottom: 0; right: 0; border-left: none; border-top: none; border-radius: 0 0 18px 0; }
+        
+        /* Cyber Corners */
+        .corner { position: absolute; width: 20px; height: 20px; border: 2px solid var(--primary-neon); transition: 0.3s; }
+        .tl { top: -1px; left: -1px; border-right: none; border-bottom: none; border-radius: 10px 0 0 0; }
+        .tr { top: -1px; right: -1px; border-left: none; border-bottom: none; border-radius: 0 10px 0 0; }
+        .bl { bottom: -1px; left: -1px; border-right: none; border-top: none; border-radius: 0 0 0 10px; }
+        .br { bottom: -1px; right: -1px; border-left: none; border-top: none; border-radius: 0 0 10px 0; }
 
-        .card-header h2 { font-family: 'Orbitron', sans-serif; font-weight: 500; font-size: 1.6rem; margin: 0; text-shadow: 0 0 10px var(--primary-neon); }
+        .card-header h2 { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; margin: 0; text-shadow: 0 0 10px var(--primary-neon); }
         .scan-line { height: 2px; width: 100%; background: linear-gradient(90deg, transparent, var(--primary-neon), transparent); margin-top: 15px; animation: scan 2s infinite linear; }
         @keyframes scan { 0% { transform: translateX(-100%); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateX(100%); opacity: 0; } }
 
-        .input-wrapper { position: relative; margin: 30px 0; }
+        /* Input Container with Tooltip Logic */
+        .input-wrapper { position: relative; margin: 35px 0; }
+        
         .input-field {
             width: 100%; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.1);
-            padding: 15px; font-size: 1.4rem; letter-spacing: 3px; color: #fff; text-align: center; border-radius: 10px;
+            padding: 15px; font-size: 1.5rem; letter-spacing: 3px; color: #fff; text-align: center; border-radius: 12px;
             font-family: 'Orbitron', sans-serif; transition: 0.3s;
         }
-        .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
+        .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
         .input-field::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 1px; font-size: 1rem; }
+
+        /* THE ID TOOLTIP (On Hover/Focus) */
+        .id-tooltip {
+            position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%) translateY(10px);
+            background: rgba(0, 10, 20, 0.95); border: 1px solid var(--primary-neon);
+            color: #fff; padding: 10px 15px; border-radius: 8px; font-size: 0.8rem; width: 220px;
+            text-align: center; opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            pointer-events: none; z-index: 20; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .id-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; margin-left: -6px;
+            border-width: 6px; border-style: solid; border-color: var(--primary-neon) transparent transparent transparent;
+        }
+        .id-tooltip span { color: var(--primary-neon); font-weight: bold; display: block; margin-bottom: 2px; }
         
-        .error-msg { color: var(--error); font-size: 0.85rem; margin-top: 10px; min-height: 20px; font-weight: bold; text-shadow: 0 0 5px rgba(255,0,0,0.4); }
+        /* Show tooltip on input interaction */
+        .input-wrapper:hover .id-tooltip,
+        .input-field:focus + .id-tooltip {
+            opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
+        }
+
+        .error-msg { color: var(--error); font-size: 0.85rem; margin-top: 8px; min-height: 20px; font-weight: bold; text-shadow: 0 0 5px rgba(255,0,0,0.4); }
         .shake { animation: shake 0.4s ease-in-out; border-color: var(--error) !important; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
 
+        /* Action Buttons */
         .action-btn {
-            width: 100%; padding: 14px; border: none; border-radius: 50px;
+            width: 100%; padding: 15px; border: none; border-radius: 50px;
             background: linear-gradient(90deg, rgba(0,242,255,0.1), rgba(0,242,255,0.2));
             border: 1px solid var(--primary-neon); color: #fff;
-            font-family: 'Orbitron', sans-serif; font-size: 1rem; letter-spacing: 2px;
+            font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px;
             cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        .action-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 25px var(--primary-neon); }
-        .dashboard-btn { background: var(--success); color: #000; border: none; box-shadow: 0 0 15px rgba(0,255,136,0.3); }
-        .dashboard-btn:hover { background: #fff; box-shadow: 0 0 30px #fff; }
-
+        .action-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 30px var(--primary-neon); }
+        
         #success-view { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
+        .dashboard-btn { background: var(--success); color: #000; border: none; font-weight: 700; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+        .dashboard-btn:hover { background: #fff; box-shadow: 0 0 40px #fff; }
         .success-icon { font-size: 3.5rem; color: var(--success); margin-bottom: 15px; filter: drop-shadow(0 0 10px var(--success)); animation: popIn 0.5s; }
+        
         @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
+        .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
 
-        /* --- 5. MODAL (With Restored Data) --- */
+        /* --- 7. MODAL (Updated 2026 & Gender Icons) --- */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100;
             display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px);
         }
         .modal-box {
             background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 650px;
-            padding: 30px; border-radius: 15px; box-shadow: 0 0 50px rgba(0, 242, 255, 0.1);
+            padding: 30px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15);
             position: relative; transform: scale(0.9); transition: 0.3s; max-height: 90vh; overflow-y: auto;
         }
         .modal-active .modal-box { transform: scale(1); }
@@ -200,28 +232,31 @@
         .logos-row img:hover { transform: scale(1.1); }
 
         .modal-section { margin-bottom: 20px; text-align: left; }
-        .modal-section h3 { color: var(--primary-neon); margin: 0 0 8px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
-        .modal-section p { font-size: 0.9rem; color: #ccc; line-height: 1.5; margin: 0; }
+        .modal-section h3 { color: var(--primary-neon); margin: 0 0 8px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
+        .modal-section p { font-size: 0.9rem; color: #ccc; line-height: 1.6; margin: 0; }
 
-        .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .team-member { background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 5px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; border: 1px solid transparent; }
-        .team-member:hover { border-color: var(--secondary-neon); background: rgba(112, 0, 255, 0.1); }
-        .team-member i { color: var(--secondary-neon); }
+        .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+        .team-member { background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 8px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; transition: 0.2s; }
+        .team-member:hover { border-color: var(--secondary-neon); background: rgba(112, 0, 255, 0.15); transform: translateX(5px); }
+        .team-member i { color: var(--secondary-neon); font-size: 1rem; }
+        /* Gender Specific Colors */
+        .fa-user-tie { color: #3a7bd5 !important; }
+        .fa-user-nurse { color: #ff416c !important; }
 
         .modal-footer { margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; color: #777; text-align: center; }
         .email-link { display: inline-block; margin-top: 10px; color: var(--primary-neon); text-decoration: none; font-weight: bold; background: rgba(0, 242, 255, 0.1); padding: 5px 15px; border-radius: 20px; }
         
         /* Toast */
-        .toast-container { position: fixed; top: 80px; right: 20px; z-index: 200; }
+        .toast-container { position: fixed; top: 100px; right: 20px; z-index: 200; }
         .toast {
             background: rgba(5, 11, 20, 0.95); border-left: 4px solid; padding: 15px 25px; margin-bottom: 10px; border-radius: 5px;
-            display: flex; align-items: center; gap: 15px; color: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            display: flex; align-items: center; gap: 15px; color: #fff; box-shadow: 0 5px 20px rgba(0,0,0,0.6);
             animation: slideIn 0.4s ease, fadeOut 0.5s ease 3s forwards;
         }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
         @keyframes fadeOut { to { opacity: 0; } }
 
-        @media (max-width: 600px) { .brand-text h1 { font-size: 1rem; } .hud-card { padding: 30px 15px; } .team-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) { .brand-text h1 { font-size: 1rem; } .hud-card { padding: 30px 15px; } .team-grid { grid-template-columns: 1fr; } .header-left { gap: 10px; } .live-clock { display: none; } }
     </style>
 </head>
 
@@ -233,22 +268,27 @@
             <div class="loader-logo"></div>
         </div>
         <div class="loader-title">BIOSCAN ATM</div>
-        <div class="loader-status" id="loaderStatus">Initializing...</div>
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
+        <div class="loader-status" id="loaderStatus">Initializing Biosensors...</div>
+        <div class="progress-bar"></div>
     </div>
 
-    <div id="particles-js"></div>
+    <div id="bio-background"></div>
 
     <header>
-        <div class="brand">
-            <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" class="brand-logo" alt="Logo">
-            <div class="brand-text">
-                <h1>Bioscan ATM</h1>
-                <p>STATION ONLINE</p>
+        <div class="header-left">
+            <div class="brand">
+                <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" class="brand-logo" alt="Logo">
+                <div class="brand-text">
+                    <h1>Bioscan ATM</h1>
+                    <p>STATION ONLINE</p>
+                </div>
+            </div>
+            <div class="live-clock">
+                <div class="clock-time" id="clockTime">00:00:00</div>
+                <div class="clock-date" id="clockDate">--/--/----</div>
             </div>
         </div>
+
         <div class="controls">
             <div id="connectionStatus" class="status-led" title="Online"></div>
             <button class="icon-btn" onclick="toggleModal(true)" title="Info"><i class="fas fa-info"></i></button>
@@ -261,6 +301,8 @@
 
     <div class="main-container">
         <div class="hud-card">
+            <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+
             <div class="card-header">
                 <h2 id="ui-title">USER LOGIN</h2>
                 <div class="scan-line"></div>
@@ -269,6 +311,10 @@
             <div id="login-view">
                 <div class="input-wrapper">
                     <input type="tel" id="userId" class="input-field" placeholder="01xxxxxxxxx" maxlength="11" autocomplete="off">
+                    <div class="id-tooltip" id="id-tooltip">
+                        <span><i class="fas fa-exclamation-circle"></i> Requirements:</span>
+                        Must be 11 Digits<br>Starts with 01
+                    </div>
                     <div class="error-msg" id="helper-text"></div>
                 </div>
                 <button class="action-btn" id="loginBtn" onclick="processLogin()">
@@ -290,38 +336,44 @@
         </div>
     </div>
 
-    <div class="footer">Graduation Project 2024 | Zagazig University - Faculty of Engineering</div>
+    <div class="footer">Graduation Project 2026 | Zagazig University - Faculty of Engineering</div>
     <div class="toast-container" id="toastContainer"></div>
 
     <div class="modal-overlay" id="aboutModal">
         <div class="modal-box">
             <button class="close-modal" onclick="toggleModal(false)"><i class="fas fa-times"></i></button>
+            
             <div class="logos-row">
                 <img src="zagazig_logo.png" alt="Zagazig Univ">
                 <img src="eng_logo.png" alt="Engineering Faculty">
             </div>
+
             <h2 id="modal-project-name" style="color:#fff; margin-top:0; text-align: center;">Bioscan ATM</h2>
-            <p id="modal-subtitle" style="text-align:center; font-size:0.8rem; color:#aaa; margin-bottom:25px;">Graduation Project 2024 | Electronics & Comm. Dept.</p>
+            <p id="modal-subtitle" style="text-align:center; font-size:0.8rem; color:#aaa; margin-bottom:25px;">Graduation Project 2026 | Electronics & Comm. Dept.</p>
+
             <div class="modal-section">
                 <h3><i class="fas fa-bullseye"></i> <span id="mission-title">Mission</span></h3>
                 <p id="mission-text">Empowering communities with instant, hospital-grade health diagnostics via IoT to bridge the gap between patients and care.</p>
             </div>
+
             <div class="modal-section">
                 <h3><i class="fas fa-eye"></i> <span id="vision-title">Vision</span></h3>
                 <p id="vision-text">A world where proactive health monitoring is seamless and accessible to everyone everywhere.</p>
             </div>
+
             <div class="modal-section">
                 <h3><i class="fas fa-users"></i> <span id="team-title">The Team</span></h3>
                 <div class="team-grid">
-                    <div class="team-member"><i class="fas fa-code"></i> <span class="t-mem">Mohsen M. Elsayed</span></div>
-                    <div class="team-member"><i class="fas fa-microchip"></i> <span class="t-mem">Mohamed A. Rashad</span></div>
-                    <div class="team-member"><i class="fas fa-network-wired"></i> <span class="t-mem">Mohamed A. Karam</span></div>
-                    <div class="team-member"><i class="fas fa-laptop-code"></i> <span class="t-mem">Hossam H. Abdel Aziz</span></div>
-                    <div class="team-member"><i class="fas fa-drafting-compass"></i> <span class="t-mem">Lamia I. Mohammed</span></div>
-                    <div class="team-member"><i class="fas fa-mobile-alt"></i> <span class="t-mem">Karim H. Mansour</span></div>
-                    <div class="team-member"><i class="fas fa-database"></i> <span class="t-mem">Fatema M. Saad</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Mohsen M. Elsayed</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Mohamed A. Rashad</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Mohamed A. Karam</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Hossam H. Abdel Aziz</span></div>
+                    <div class="team-member"><i class="fas fa-user-nurse"></i> <span class="t-mem">Lamia I. Mohammed</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Karim H. Mansour</span></div>
+                    <div class="team-member"><i class="fas fa-user-nurse"></i> <span class="t-mem">Fatema M. Saad</span></div>
                 </div>
             </div>
+
             <div class="modal-footer">
                 <div id="uni-text">Zagazig University - Faculty of Engineering</div>
                 <a href="mailto:bioscanatm@gmail.com" class="email-link"><i class="fas fa-envelope"></i> bioscanatm@gmail.com</a>
@@ -330,42 +382,27 @@
     </div>
 
     <script>
-        // --- 1. PRELOADER LOGIC ---
-        window.addEventListener('load', () => {
-            const bar = document.getElementById('progressBar');
-            const txt = document.getElementById('loaderStatus');
-            const preloader = document.getElementById('preloader');
-            
-            // Simulated loading sequence
-            let w = 0;
-            const interval = setInterval(() => {
-                w += Math.random() * 10;
-                if(w > 100) w = 100;
-                bar.style.width = w + '%';
+        // --- 1. BIOLOGY BACKGROUND GENERATOR ---
+        function createBioBackground() {
+            const container = document.getElementById('bio-background');
+            const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-pills', 'fa-virus', 'fa-microscope', 'fa-user-md'];
+            const count = 25; // Number of floating symbols
+
+            for (let i = 0; i < count; i++) {
+                const el = document.createElement('i');
+                el.classList.add('fas', icons[Math.floor(Math.random() * icons.length)], 'bio-symbol');
                 
-                if(w < 30) txt.innerText = "Loading Modules...";
-                else if(w < 60) txt.innerText = "Connecting to Server...";
-                else if(w < 90) txt.innerText = "Calibrating Sensors...";
-                else txt.innerText = "System Ready";
+                // Randomize position and animation
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.fontSize = (Math.random() * 2 + 1) + 'rem';
+                el.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                el.style.animationDelay = (Math.random() * 5) + 's';
+                
+                container.appendChild(el);
+            }
+        }
 
-                if(w === 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        preloader.style.opacity = '0';
-                        setTimeout(() => preloader.style.display = 'none', 800);
-                        playWelcomeMessage(); // Auto play after load
-                    }, 500);
-                }
-            }, 100);
-
-            // Init other logic
-            document.getElementById("language_select").value = currentLang;
-            updateTexts();
-            checkConnection();
-            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
-        });
-
-        // --- 2. CONFIGURATION ---
+        // --- 2. CONFIG & INIT ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
             authDomain: "smart-a76a0.firebaseapp.com",
@@ -379,18 +416,18 @@
         const auth = firebase.auth();
         auth.signInAnonymously().catch(console.error);
 
-        particlesJS("particles-js", { "particles": { "number": { "value": 60 }, "color": { "value": "#00f2ff" }, "shape": { "type": "circle" }, "opacity": { "value": 0.5 }, "size": { "value": 3 }, "line_linked": { "enable": true, "distance": 150, "color": "#00f2ff", "opacity": 0.2, "width": 1 }, "move": { "enable": true, "speed": 2 } }, "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": true, "mode": "grab" } } } });
-
-        // --- 3. LOCALIZATION & DATA ---
+        // --- 3. LOCALIZATION DATA ---
         const txt = {
             en: {
-                uiTitle: "USER IDENTIFICATION", ph: "01xxxxxxxxx", btnScan: "INITIALIZE SCAN", success: "Access Granted", welcome: "User Verified", btnDash: "OPEN DASHBOARD", errFormat: "Invalid Format: Must be 11 digits starting with 01", errInput: "Input Error", toastLogin: "Identity Verified",
-                projName: "Bioscan ATM", sub: "Graduation Project 2024 | Electronics & Comm. Dept.", missionT: "Mission", mission: "Empowering communities with instant, hospital-grade health diagnostics via IoT to bridge the gap between patients and care.", visionT: "Vision", vision: "A world where proactive health monitoring is seamless and accessible to everyone everywhere.", teamT: "The Team", uni: "Zagazig University - Faculty of Engineering",
+                uiTitle: "USER LOGIN", ph: "01xxxxxxxxx", btnScan: "INITIALIZE SCAN", success: "Access Granted", welcome: "User Verified", btnDash: "OPEN DASHBOARD", errFormat: "Invalid Format", errInput: "Input Error", toastLogin: "Identity Verified",
+                projName: "Bioscan ATM", sub: "Graduation Project 2026 | Electronics & Comm. Dept.", missionT: "Mission", mission: "Empowering communities with instant, hospital-grade health diagnostics via IoT to bridge the gap between patients and care.", visionT: "Vision", vision: "A world where proactive health monitoring is seamless and accessible to everyone everywhere.", teamT: "The Team", uni: "Zagazig University - Faculty of Engineering",
+                toolTip: "<span><i class='fas fa-exclamation-circle'></i> Requirements:</span>Must be 11 Digits<br>Starts with 01",
                 t1: "Mohsen M. Elsayed", t2: "Mohamed A. Rashad", t3: "Mohamed A. Karam", t4: "Hossam H. Abdel Aziz", t5: "Lamia I. Mohammed", t6: "Karim H. Mansour", t7: "Fatema M. Saad"
             },
             ar: {
-                uiTitle: "تسجيل الدخول", ph: "رقم الموبايل (01xxxxxxxxx)", btnScan: "بدء الفحص", success: "تم تسجيل الدخول", welcome: "تم التحقق من المستخدم", btnDash: "الانتقال للوحة التحكم", errFormat: "رقم غير صحيح: يجب أن يبدأ بـ 01 ويتكون من 11 رقم", errInput: "خطأ في الإدخال", toastLogin: "تم التحقق من الهوية",
-                projName: "مشروع Bioscan ATM", sub: "مشروع تخرج 2024 | قسم هندسة الإلكترونيات والاتصالات", missionT: "مهمتنا", mission: "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة عبر إنترنت الأشياء لسد الفجوة بين المرضى والرعاية الطبية.", visionT: "رؤيتنا", vision: "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع في كل مكان.", teamT: "فريق العمل", uni: "جامعة الزقازيق - كلية الهندسة",
+                uiTitle: "تسجيل الدخول", ph: "رقم الموبايل (01xxxxxxxxx)", btnScan: "بدء الفحص", success: "تم تسجيل الدخول", welcome: "تم التحقق من المستخدم", btnDash: "الانتقال للوحة التحكم", errFormat: "رقم غير صحيح", errInput: "خطأ في الإدخال", toastLogin: "تم التحقق من الهوية",
+                projName: "مشروع Bioscan ATM", sub: "مشروع تخرج 2026 | قسم هندسة الإلكترونيات والاتصالات", missionT: "مهمتنا", mission: "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة عبر إنترنت الأشياء لسد الفجوة بين المرضى والرعاية الطبية.", visionT: "رؤيتنا", vision: "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع في كل مكان.", teamT: "فريق العمل", uni: "جامعة الزقازيق - كلية الهندسة",
+                toolTip: "<span><i class='fas fa-exclamation-circle'></i> الشروط:</span>يجب أن يكون 11 رقم<br>يبدأ بـ 01",
                 t1: "محسن م. السيد", t2: "محمد أ. رشاد", t3: "محمد أ. كرم", t4: "حسام ح. عبدالعزيز", t5: "لمياء إ. محمد", t6: "كريم ح. منصور", t7: "فاطمة م. سعد"
             }
         };
@@ -399,6 +436,43 @@
         let welcomePlayed = false;
 
         // --- 4. CORE LOGIC ---
+        window.addEventListener('load', () => {
+            createBioBackground(); // Start Bio Animation
+            startPreloader();
+            startClock();
+            
+            document.getElementById("language_select").value = currentLang;
+            updateTexts();
+            checkConnection();
+            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
+        });
+
+        function startPreloader() {
+            const bar = document.querySelector('.progress-bar');
+            const txt = document.getElementById('loaderStatus');
+            const pre = document.getElementById('preloader');
+            let w = 0;
+            const iv = setInterval(() => {
+                w += Math.random() * 15; if(w > 100) w = 100;
+                bar.style.width = w + '%';
+                if(w===100) {
+                    clearInterval(iv);
+                    setTimeout(() => { pre.style.opacity = '0'; setTimeout(() => pre.style.display='none', 800); playWelcomeMessage(); }, 500);
+                }
+            }, 100);
+        }
+
+        function startClock() {
+            const tEl = document.getElementById('clockTime');
+            const dEl = document.getElementById('clockDate');
+            setInterval(() => {
+                const now = new Date();
+                const loc = currentLang === 'ar' ? 'ar-EG' : 'en-US';
+                tEl.innerText = now.toLocaleTimeString(loc, {hour12: false});
+                dEl.innerText = now.toLocaleDateString(loc, {weekday:'short', day:'numeric', month:'short'});
+            }, 1000);
+        }
+
         function playWelcomeMessage() {
             if (welcomePlayed) return;
             if ('speechSynthesis' in window) {
@@ -410,14 +484,6 @@
                 window.speechSynthesis.speak(arMsg);
                 welcomePlayed = true;
             }
-        }
-
-        function checkConnection() {
-            const led = document.getElementById('connectionStatus');
-            setInterval(async () => {
-                try { await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" }); led.classList.remove('offline'); led.title = "Online"; } 
-                catch (e) { led.classList.add('offline'); led.title = "Offline"; }
-            }, 3000);
         }
 
         function processLogin() {
@@ -455,6 +521,7 @@
             document.getElementById("success-msg").innerText = t.success;
             document.getElementById("welcome-user-msg").innerText = t.welcome;
             if(document.getElementById("dash-btn-text")) document.getElementById("dash-btn-text").innerText = t.btnDash;
+            document.getElementById("id-tooltip").innerHTML = t.toolTip;
 
             document.getElementById("modal-project-name").innerText = t.projName;
             document.getElementById("modal-subtitle").innerText = t.sub;
@@ -476,6 +543,7 @@
         function goToDashboard() { window.location.href = "measurements.html"; }
         function showToast(msg, type) { const container = document.getElementById("toastContainer"); const toast = document.createElement("div"); toast.className = "toast"; toast.style.borderLeftColor = type === 'error' ? 'var(--error)' : 'var(--success)'; toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'}" style="color:${type === 'error' ? 'var(--error)' : 'var(--success)'}"></i> ${msg}`; container.appendChild(toast); setTimeout(() => toast.remove(), 3500); }
         function toggleModal(show) { const modal = document.getElementById('aboutModal'); modal.style.display = show ? 'flex' : 'none'; if(show) setTimeout(() => modal.classList.add('modal-active'), 10); else modal.classList.remove('modal-active'); }
+        function checkConnection() { const led = document.getElementById('connectionStatus'); setInterval(async () => { try { await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" }); led.classList.remove('offline'); led.title = "Online"; } catch (e) { led.classList.add('offline'); led.title = "Offline"; } }, 3000); }
     </script>
 </body>
 </html>
