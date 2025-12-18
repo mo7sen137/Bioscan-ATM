@@ -19,8 +19,8 @@
             --primary-neon: #00f2ff;
             --secondary-neon: #7000ff;
             --bg-dark: #020408;
-            --glass-panel: rgba(8, 15, 25, 0.85);
-            --border-color: rgba(0, 242, 255, 0.3);
+            --glass-panel: rgba(5, 12, 22, 0.9);
+            --border-color: rgba(0, 242, 255, 0.4);
             --text-main: #e0f7fa;
             --error: #ff2a2a;
             --success: #00ff88;
@@ -38,64 +38,34 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* --- 2. CUSTOM SCROLLBAR (Bio-Themed) --- */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #050b14; border-left: 1px solid #1a2533; }
-        ::-webkit-scrollbar-thumb { 
-            background: linear-gradient(180deg, var(--secondary-neon), var(--primary-neon)); 
-            border-radius: 10px; border: 2px solid #050b14;
-        }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary-neon); }
-
-        /* --- 3. BIO-BACKGROUND ANIMATION --- */
+        /* --- 2. ENHANCED BIO-BACKGROUND --- */
         #bio-background {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            overflow: hidden; background: radial-gradient(circle at center, #0f1c2e 0%, #000000 100%);
+            overflow: hidden; 
+            background: radial-gradient(circle at center, #0f1c2e 0%, #000000 90%);
         }
+        
         .bio-symbol {
-            position: absolute; color: var(--primary-neon); opacity: 0.15;
-            animation: floatBio 20s linear infinite; pointer-events: none;
-        }
-        @keyframes floatBio {
-            0% { transform: translateY(110vh) rotate(0deg) scale(0.8); opacity: 0; }
-            20% { opacity: 0.2; }
-            80% { opacity: 0.2; }
-            100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
+            position: absolute; color: var(--primary-neon); opacity: 0;
+            animation: floatOrganic linear infinite; pointer-events: none;
+            filter: blur(1px);
         }
 
-        /* --- 4. PRELOADER --- */
-        #preloader {
-            position: fixed; inset: 0; background: #020408; z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.8s ease-out, visibility 0.8s;
+        /* Random organic movement */
+        @keyframes floatOrganic {
+            0% { transform: translate(0, 110vh) rotate(0deg) scale(0.5); opacity: 0; }
+            10% { opacity: 0.15; }
+            50% { transform: translate(20px, 50vh) rotate(180deg) scale(1); opacity: 0.25; }
+            90% { opacity: 0.15; }
+            100% { transform: translate(-20px, -10vh) rotate(360deg) scale(0.5); opacity: 0; }
         }
-        .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
-        .loader-ring {
-            position: absolute; inset: 0; border: 3px solid transparent;
-            border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon);
-            border-radius: 50%; animation: spin 1.5s linear infinite;
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
-        }
-        .loader-logo {
-            position: absolute; inset: 15px; border-radius: 50%;
-            background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover;
-            animation: pulseLoader 2s infinite ease-in-out; filter: drop-shadow(0 0 10px var(--primary-neon));
-        }
-        .loader-title {
-            font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px;
-            background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 5px;
-        }
-        .progress-bar { width: 0%; height: 4px; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); transition: width 0.3s; border-radius: 2px; width: 200px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
 
-        /* --- 5. HEADER (With Time & Date) --- */
+        /* --- 3. HEADER & STATUS --- */
         header {
             position: absolute; top: 0; width: 100%; padding: 15px 40px;
             display: flex; justify-content: space-between; align-items: center; z-index: 10;
             background: linear-gradient(to bottom, rgba(2, 4, 8, 0.95), transparent);
-            border-bottom: 1px solid rgba(0, 242, 255, 0.15);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.1);
         }
 
         .header-left { display: flex; align-items: center; gap: 20px; }
@@ -110,118 +80,153 @@
         }
         .brand-text p { margin: 0; font-size: 0.7rem; color: var(--primary-neon); opacity: 0.8; letter-spacing: 2px; }
 
-        /* Live Clock Design */
         .live-clock {
             display: flex; flex-direction: column; align-items: flex-start;
             border-left: 2px solid rgba(0, 242, 255, 0.3); padding-left: 15px;
-            font-family: 'Orbitron', sans-serif; color: #fff; text-shadow: 0 0 5px var(--primary-neon);
+            font-family: 'Orbitron', sans-serif;
         }
-        .clock-time { font-size: 1.1rem; font-weight: bold; letter-spacing: 1px; color: var(--primary-neon); }
+        .clock-time { font-size: 1.1rem; font-weight: bold; color: var(--primary-neon); }
         .clock-date { font-size: 0.7rem; color: #aaa; letter-spacing: 1px; }
 
+        /* Controls */
         .controls { display: flex; gap: 15px; align-items: center; }
-        .status-led {
-            width: 10px; height: 10px; border-radius: 50%; background-color: var(--success);
-            box-shadow: 0 0 10px var(--success); transition: 0.3s;
+
+        /* NEW STATUS BADGE DESIGN */
+        .status-badge {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(0, 242, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            padding: 5px 12px; border-radius: 20px;
+            transition: 0.3s;
         }
-        .status-led.offline { background-color: var(--error); box-shadow: 0 0 10px var(--error); animation: blinkRed 1s infinite; }
+        .status-led {
+            width: 8px; height: 8px; border-radius: 50%;
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+        .status-text {
+            font-family: 'Orbitron', sans-serif; font-size: 0.75rem; letter-spacing: 1px;
+            color: var(--success); text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+            font-weight: bold;
+        }
         
+        /* Offline State */
+        .status-badge.offline { border-color: rgba(255, 42, 42, 0.3); background: rgba(255, 42, 42, 0.05); }
+        .status-badge.offline .status-led { background-color: var(--error); box-shadow: 0 0 10px var(--error); }
+        .status-badge.offline .status-text { color: var(--error); text-shadow: 0 0 5px rgba(255, 42, 42, 0.5); }
+        
+        /* Pulse Animation for badge */
+        .pulse-active { animation: badgePulse 2s infinite; }
+        @keyframes badgePulse {
+            0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; }
+        }
+
         .icon-btn {
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: var(--primary-neon);
             width: 38px; height: 38px; border-radius: 50%; cursor: pointer; transition: 0.3s;
             display: flex; justify-content: center; align-items: center;
         }
         .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
+        
         select.lang-select {
             background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon);
             padding: 5px 12px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer;
         }
         select.lang-select option { background: #050b14; }
 
-        /* --- 6. HUD CARD & INPUT --- */
+        /* --- 4. GLOWING HUD CARD --- */
         .main-container { position: relative; z-index: 5; width: 100%; max-width: 480px; padding: 20px; }
 
         .hud-card {
-            background: var(--glass-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-color); border-radius: 20px; padding: 40px 35px;
-            text-align: center; box-shadow: 0 0 80px rgba(0, 0, 0, 0.8); position: relative; overflow: visible; /* Allowed for tooltip */
+            background: var(--glass-panel); 
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color); border-radius: 20px; padding: 45px 35px;
+            text-align: center; position: relative;
+            
+            /* Enhanced Glowing Borders */
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.15), inset 0 0 20px rgba(0, 242, 255, 0.05);
+            animation: cardBreath 4s infinite ease-in-out;
         }
-        
-        /* Cyber Corners */
-        .corner { position: absolute; width: 20px; height: 20px; border: 2px solid var(--primary-neon); transition: 0.3s; }
-        .tl { top: -1px; left: -1px; border-right: none; border-bottom: none; border-radius: 10px 0 0 0; }
-        .tr { top: -1px; right: -1px; border-left: none; border-bottom: none; border-radius: 0 10px 0 0; }
-        .bl { bottom: -1px; left: -1px; border-right: none; border-top: none; border-radius: 0 0 0 10px; }
-        .br { bottom: -1px; right: -1px; border-left: none; border-top: none; border-radius: 0 0 10px 0; }
 
-        .card-header h2 { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; margin: 0; text-shadow: 0 0 10px var(--primary-neon); }
-        .scan-line { height: 2px; width: 100%; background: linear-gradient(90deg, transparent, var(--primary-neon), transparent); margin-top: 15px; animation: scan 2s infinite linear; }
-        @keyframes scan { 0% { transform: translateX(-100%); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateX(100%); opacity: 0; } }
+        @keyframes cardBreath {
+            0% { box-shadow: 0 0 30px rgba(0, 242, 255, 0.15), inset 0 0 20px rgba(0, 242, 255, 0.05); border-color: rgba(0, 242, 255, 0.3); }
+            50% { box-shadow: 0 0 50px rgba(0, 242, 255, 0.25), inset 0 0 30px rgba(0, 242, 255, 0.1); border-color: rgba(0, 242, 255, 0.6); }
+            100% { box-shadow: 0 0 30px rgba(0, 242, 255, 0.15), inset 0 0 20px rgba(0, 242, 255, 0.05); border-color: rgba(0, 242, 255, 0.3); }
+        }
 
-        /* Input Container with Tooltip Logic */
-        .input-wrapper { position: relative; margin: 35px 0; }
-        
+        .card-header h2 { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; margin: 0; text-shadow: 0 0 15px var(--primary-neon); letter-spacing: 2px; }
+
+        /* REPLACED SCAN LINE WITH ENERGY DIVIDER */
+        .energy-divider {
+            height: 2px; width: 80%; margin: 20px auto 40px;
+            background: radial-gradient(circle, var(--primary-neon) 0%, rgba(0,242,255,0) 90%);
+            box-shadow: 0 0 10px var(--primary-neon);
+            opacity: 0.8;
+        }
+
+        /* Input */
+        .input-wrapper { position: relative; margin-bottom: 30px; }
         .input-field {
-            width: 100%; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.1);
+            width: 100%; background: rgba(0, 0, 0, 0.5); 
+            border: 2px solid rgba(255, 255, 255, 0.1);
             padding: 15px; font-size: 1.5rem; letter-spacing: 3px; color: #fff; text-align: center; border-radius: 12px;
             font-family: 'Orbitron', sans-serif; transition: 0.3s;
         }
-        .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
+        .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 25px rgba(0, 242, 255, 0.3); background: rgba(0, 10, 20, 0.8); }
         .input-field::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 1px; font-size: 1rem; }
 
-        /* THE ID TOOLTIP (On Hover/Focus) */
+        /* Improved Tooltip */
         .id-tooltip {
             position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%) translateY(10px);
-            background: rgba(0, 10, 20, 0.95); border: 1px solid var(--primary-neon);
+            background: rgba(5, 10, 15, 0.95); border: 1px solid var(--primary-neon);
             color: #fff; padding: 10px 15px; border-radius: 8px; font-size: 0.8rem; width: 220px;
-            text-align: center; opacity: 0; visibility: hidden; transition: 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            pointer-events: none; z-index: 20; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            text-align: center; opacity: 0; visibility: hidden; transition: 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            pointer-events: none; z-index: 20; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
         }
         .id-tooltip::after {
             content: ''; position: absolute; top: 100%; left: 50%; margin-left: -6px;
             border-width: 6px; border-style: solid; border-color: var(--primary-neon) transparent transparent transparent;
         }
-        .id-tooltip span { color: var(--primary-neon); font-weight: bold; display: block; margin-bottom: 2px; }
+        .id-tooltip span { color: var(--primary-neon); font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; }
         
-        /* Show tooltip on input interaction */
-        .input-wrapper:hover .id-tooltip,
-        .input-field:focus + .id-tooltip {
-            opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
-        }
+        .input-wrapper:hover .id-tooltip, .input-field:focus + .id-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
-        .error-msg { color: var(--error); font-size: 0.85rem; margin-top: 8px; min-height: 20px; font-weight: bold; text-shadow: 0 0 5px rgba(255,0,0,0.4); }
-        .shake { animation: shake 0.4s ease-in-out; border-color: var(--error) !important; }
+        .error-msg { color: var(--error); font-size: 0.85rem; margin-top: 10px; min-height: 20px; font-weight: bold; text-shadow: 0 0 8px rgba(255, 42, 42, 0.6); }
+        .shake { animation: shake 0.4s ease-in-out; border-color: var(--error) !important; box-shadow: 0 0 15px var(--error) !important; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
 
-        /* Action Buttons */
+        /* Buttons */
         .action-btn {
             width: 100%; padding: 15px; border: none; border-radius: 50px;
-            background: linear-gradient(90deg, rgba(0,242,255,0.1), rgba(0,242,255,0.2));
+            background: linear-gradient(90deg, rgba(0,242,255,0.05), rgba(0,242,255,0.15));
             border: 1px solid var(--primary-neon); color: #fff;
             font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px;
             cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
+            position: relative; overflow: hidden;
         }
-        .action-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 30px var(--primary-neon); }
-        
+        .action-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        .action-btn:hover::before { left: 100%; }
+        .action-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 40px var(--primary-neon); }
+
+        /* Success & Dashboard */
         #success-view { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
         .dashboard-btn { background: var(--success); color: #000; border: none; font-weight: 700; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
         .dashboard-btn:hover { background: #fff; box-shadow: 0 0 40px #fff; }
-        .success-icon { font-size: 3.5rem; color: var(--success); margin-bottom: 15px; filter: drop-shadow(0 0 10px var(--success)); animation: popIn 0.5s; }
-        
+        .success-icon { font-size: 3.5rem; color: var(--success); margin-bottom: 15px; filter: drop-shadow(0 0 15px var(--success)); animation: popIn 0.5s; }
         @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
 
-        /* --- 7. MODAL (Updated 2026 & Gender Icons) --- */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100;
-            display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px);
-        }
+        /* --- 5. INFO MODAL --- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
         .modal-box {
-            background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 650px;
-            padding: 30px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15);
-            position: relative; transform: scale(0.9); transition: 0.3s; max-height: 90vh; overflow-y: auto;
+            background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 650px; padding: 30px; border-radius: 15px;
+            box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; transform: scale(0.9); transition: 0.3s; max-height: 90vh; overflow-y: auto;
         }
         .modal-active .modal-box { transform: scale(1); }
         .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
@@ -239,24 +244,28 @@
         .team-member { background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 8px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; transition: 0.2s; }
         .team-member:hover { border-color: var(--secondary-neon); background: rgba(112, 0, 255, 0.15); transform: translateX(5px); }
         .team-member i { color: var(--secondary-neon); font-size: 1rem; }
-        /* Gender Specific Colors */
         .fa-user-tie { color: #3a7bd5 !important; }
         .fa-user-nurse { color: #ff416c !important; }
 
         .modal-footer { margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; color: #777; text-align: center; }
         .email-link { display: inline-block; margin-top: 10px; color: var(--primary-neon); text-decoration: none; font-weight: bold; background: rgba(0, 242, 255, 0.1); padding: 5px 15px; border-radius: 20px; }
         
-        /* Toast */
         .toast-container { position: fixed; top: 100px; right: 20px; z-index: 200; }
-        .toast {
-            background: rgba(5, 11, 20, 0.95); border-left: 4px solid; padding: 15px 25px; margin-bottom: 10px; border-radius: 5px;
-            display: flex; align-items: center; gap: 15px; color: #fff; box-shadow: 0 5px 20px rgba(0,0,0,0.6);
-            animation: slideIn 0.4s ease, fadeOut 0.5s ease 3s forwards;
-        }
+        .toast { background: rgba(5, 11, 20, 0.95); border-left: 4px solid; padding: 15px 25px; margin-bottom: 10px; border-radius: 5px; display: flex; align-items: center; gap: 15px; color: #fff; box-shadow: 0 5px 20px rgba(0,0,0,0.6); animation: slideIn 0.4s ease, fadeOut 0.5s ease 3s forwards; }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
         @keyframes fadeOut { to { opacity: 0; } }
 
-        @media (max-width: 600px) { .brand-text h1 { font-size: 1rem; } .hud-card { padding: 30px 15px; } .team-grid { grid-template-columns: 1fr; } .header-left { gap: 10px; } .live-clock { display: none; } }
+        /* PRELOADER STYLES */
+        #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
+        .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
+        .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spin 1.5s linear infinite; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
+        .loader-logo { position: absolute; inset: 15px; border-radius: 50%; background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover; animation: pulseLoader 2s infinite ease-in-out; filter: drop-shadow(0 0 10px var(--primary-neon)); }
+        .loader-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
+        .progress-bar { width: 0%; height: 4px; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); transition: width 0.3s; border-radius: 2px; width: 200px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
+
+        @media (max-width: 600px) { .brand-text h1 { font-size: 1rem; } .hud-card { padding: 30px 20px; } .team-grid { grid-template-columns: 1fr; } .header-left { gap: 10px; } .live-clock { display: none; } }
     </style>
 </head>
 
@@ -290,7 +299,11 @@
         </div>
 
         <div class="controls">
-            <div id="connectionStatus" class="status-led" title="Online"></div>
+            <div class="status-badge pulse-active" id="statusBadge">
+                <div class="status-led" id="connectionLed"></div>
+                <div class="status-text" id="connectionText">ONLINE</div>
+            </div>
+            
             <button class="icon-btn" onclick="toggleModal(true)" title="Info"><i class="fas fa-info"></i></button>
             <select class="lang-select" id="language_select" onchange="changeLanguage()">
                 <option value="en">EN</option>
@@ -301,11 +314,10 @@
 
     <div class="main-container">
         <div class="hud-card">
-            <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
-
+            
             <div class="card-header">
                 <h2 id="ui-title">USER LOGIN</h2>
-                <div class="scan-line"></div>
+                <div class="energy-divider"></div>
             </div>
 
             <div id="login-view">
@@ -382,21 +394,23 @@
     </div>
 
     <script>
-        // --- 1. BIOLOGY BACKGROUND GENERATOR ---
+        // --- 1. ENHANCED BIO BACKGROUND ---
         function createBioBackground() {
             const container = document.getElementById('bio-background');
-            const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-pills', 'fa-virus', 'fa-microscope', 'fa-user-md'];
-            const count = 25; // Number of floating symbols
+            const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-pills', 'fa-virus', 'fa-microscope', 'fa-user-md', 'fa-syringe', 'fa-lungs', 'fa-brain'];
+            const count = 35; // Increased density
 
             for (let i = 0; i < count; i++) {
                 const el = document.createElement('i');
                 el.classList.add('fas', icons[Math.floor(Math.random() * icons.length)], 'bio-symbol');
                 
-                // Randomize position and animation
+                // Randomize position and animation properties
                 el.style.left = Math.random() * 100 + 'vw';
-                el.style.fontSize = (Math.random() * 2 + 1) + 'rem';
-                el.style.animationDuration = (Math.random() * 15 + 10) + 's';
-                el.style.animationDelay = (Math.random() * 5) + 's';
+                const size = Math.random() * 2 + 0.5; // Random size
+                el.style.fontSize = size + 'rem';
+                el.style.opacity = Math.random() * 0.2; // Random opacity
+                el.style.animationDuration = (Math.random() * 20 + 15) + 's'; // Slower movement
+                el.style.animationDelay = (Math.random() * 10) + 's';
                 
                 container.appendChild(el);
             }
@@ -422,12 +436,14 @@
                 uiTitle: "USER LOGIN", ph: "01xxxxxxxxx", btnScan: "INITIALIZE SCAN", success: "Access Granted", welcome: "User Verified", btnDash: "OPEN DASHBOARD", errFormat: "Invalid Format", errInput: "Input Error", toastLogin: "Identity Verified",
                 projName: "Bioscan ATM", sub: "Graduation Project 2026 | Electronics & Comm. Dept.", missionT: "Mission", mission: "Empowering communities with instant, hospital-grade health diagnostics via IoT to bridge the gap between patients and care.", visionT: "Vision", vision: "A world where proactive health monitoring is seamless and accessible to everyone everywhere.", teamT: "The Team", uni: "Zagazig University - Faculty of Engineering",
                 toolTip: "<span><i class='fas fa-exclamation-circle'></i> Requirements:</span>Must be 11 Digits<br>Starts with 01",
+                online: "ONLINE", offline: "OFFLINE",
                 t1: "Mohsen M. Elsayed", t2: "Mohamed A. Rashad", t3: "Mohamed A. Karam", t4: "Hossam H. Abdel Aziz", t5: "Lamia I. Mohammed", t6: "Karim H. Mansour", t7: "Fatema M. Saad"
             },
             ar: {
                 uiTitle: "تسجيل الدخول", ph: "رقم الموبايل (01xxxxxxxxx)", btnScan: "بدء الفحص", success: "تم تسجيل الدخول", welcome: "تم التحقق من المستخدم", btnDash: "الانتقال للوحة التحكم", errFormat: "رقم غير صحيح", errInput: "خطأ في الإدخال", toastLogin: "تم التحقق من الهوية",
                 projName: "مشروع Bioscan ATM", sub: "مشروع تخرج 2026 | قسم هندسة الإلكترونيات والاتصالات", missionT: "مهمتنا", mission: "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة عبر إنترنت الأشياء لسد الفجوة بين المرضى والرعاية الطبية.", visionT: "رؤيتنا", vision: "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع في كل مكان.", teamT: "فريق العمل", uni: "جامعة الزقازيق - كلية الهندسة",
                 toolTip: "<span><i class='fas fa-exclamation-circle'></i> الشروط:</span>يجب أن يكون 11 رقم<br>يبدأ بـ 01",
+                online: "متصل", offline: "غير متصل",
                 t1: "محسن م. السيد", t2: "محمد أ. رشاد", t3: "محمد أ. كرم", t4: "حسام ح. عبدالعزيز", t5: "لمياء إ. محمد", t6: "كريم ح. منصور", t7: "فاطمة م. سعد"
             }
         };
@@ -437,7 +453,7 @@
 
         // --- 4. CORE LOGIC ---
         window.addEventListener('load', () => {
-            createBioBackground(); // Start Bio Animation
+            createBioBackground();
             startPreloader();
             startClock();
             
@@ -486,6 +502,25 @@
             }
         }
 
+        function checkConnection() {
+            const badge = document.getElementById('statusBadge');
+            const led = document.getElementById('connectionLed');
+            const txtEl = document.getElementById('connectionText');
+            
+            setInterval(async () => {
+                try {
+                    await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" });
+                    badge.classList.remove('offline');
+                    led.style.backgroundColor = "var(--success)"; led.style.boxShadow = "0 0 10px var(--success)";
+                    txtEl.innerText = txt[currentLang].online; txtEl.style.color = "var(--success)";
+                } catch (e) {
+                    badge.classList.add('offline');
+                    led.style.backgroundColor = "var(--error)"; led.style.boxShadow = "0 0 10px var(--error)";
+                    txtEl.innerText = txt[currentLang].offline; txtEl.style.color = "var(--error)";
+                }
+            }, 3000);
+        }
+
         function processLogin() {
             const input = document.getElementById("userId");
             const helper = document.getElementById("helper-text");
@@ -522,6 +557,11 @@
             document.getElementById("welcome-user-msg").innerText = t.welcome;
             if(document.getElementById("dash-btn-text")) document.getElementById("dash-btn-text").innerText = t.btnDash;
             document.getElementById("id-tooltip").innerHTML = t.toolTip;
+            
+            // Connection Text update
+            const connText = document.getElementById('connectionText');
+            if(!document.getElementById('statusBadge').classList.contains('offline')) connText.innerText = t.online;
+            else connText.innerText = t.offline;
 
             document.getElementById("modal-project-name").innerText = t.projName;
             document.getElementById("modal-subtitle").innerText = t.sub;
@@ -543,7 +583,6 @@
         function goToDashboard() { window.location.href = "measurements.html"; }
         function showToast(msg, type) { const container = document.getElementById("toastContainer"); const toast = document.createElement("div"); toast.className = "toast"; toast.style.borderLeftColor = type === 'error' ? 'var(--error)' : 'var(--success)'; toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'}" style="color:${type === 'error' ? 'var(--error)' : 'var(--success)'}"></i> ${msg}`; container.appendChild(toast); setTimeout(() => toast.remove(), 3500); }
         function toggleModal(show) { const modal = document.getElementById('aboutModal'); modal.style.display = show ? 'flex' : 'none'; if(show) setTimeout(() => modal.classList.add('modal-active'), 10); else modal.classList.remove('modal-active'); }
-        function checkConnection() { const led = document.getElementById('connectionStatus'); setInterval(async () => { try { await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" }); led.classList.remove('offline'); led.title = "Online"; } catch (e) { led.classList.add('offline'); led.title = "Offline"; } }, 3000); }
     </script>
 </body>
 </html>
