@@ -43,11 +43,6 @@
       padding-bottom: 90px;
     }
 
-    /* RTL Support */
-    body.rtl { font-family: 'Cairo', sans-serif; direction: rtl; }
-    body.rtl .dock-text { text-align: right; }
-    body.rtl .user-left { flex-direction: row; }
-
     /* --- 2. SKELETON LOADING --- */
     .skeleton {
         color: transparent !important;
@@ -76,22 +71,32 @@
     ::-webkit-scrollbar-track { background: #050b14; }
     ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 10px; }
 
-    /* --- 4. HEADER --- */
+    /* --- 4. HEADER (FIXED SPACING) --- */
     .user-card { 
       position: fixed; top: 0; left: 0; width: 100%; height: 75px;
       background: rgba(5, 10, 18, 0.98); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--primary-neon); 
       box-shadow: 0 0 25px rgba(0, 242, 255, 0.15); z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px; margin: 0; border-radius: 0;
+      padding: 0 15px; margin: 0; border-radius: 0;
+      gap: 15px; /* FORCE GAP BETWEEN SIDES */
     }
-    .user-left { display: flex; align-items: center; gap: 10px; max-width: 50%; }
+    
+    .user-left { 
+        display: flex; align-items: center; gap: 10px; 
+        flex: 1; /* Allow taking available space */
+        min-width: 0; /* Enable truncation for very long names */
+    }
     .user-avatar { font-size: 1.8rem; color: var(--primary-neon); filter: drop-shadow(0 0 8px var(--primary-neon)); flex-shrink: 0; }
     .user-info { display: flex; flex-direction: column; overflow: hidden; }
     .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: #888; letter-spacing: 1px; white-space: nowrap; }
     .user-info span { font-size: 1rem; color: #fff; font-weight: 700; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    .top-actions { display: flex; align-items: center; gap: 8px; }
+    .top-actions { 
+        display: flex; align-items: center; gap: 8px; 
+        flex-shrink: 0; /* PREVENT BUTTONS FROM SHRINKING */
+    }
+    
     .icon-btn { 
       background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
       color: var(--primary-neon); width: 35px; height: 35px; border-radius: 8px;
@@ -154,7 +159,7 @@
 
     @keyframes pulseAI { 0% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 242, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 242, 255, 0); } }
 
-    /* --- 6. MODULES --- */
+    /* --- 6. MODULES (FIXED COLORS) --- */
     .measure-container { 
       display: grid; grid-template-columns: repeat(2, 1fr); 
       gap: 15px; width: 95%; max-width: 900px; margin-bottom: 20px; 
@@ -178,11 +183,19 @@
     @keyframes breathe { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
 
     .measure-btn i { font-size: 2rem; margin-bottom: 5px; }
+    
+    /* --- NEW: COLORED LABELS (DARKER SHADES) --- */
     .measure-btn span { 
-        font-size: 1.1rem; /* LARGE FONT SIZE */
-        font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
-        color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+        text-shadow: none; 
     }
+    
+    /* Darker readable colors matching the icons */
+    .temp span { color: #d35400; } /* Dark Orange */
+    .pulse span { color: #c0392b; } /* Dark Red */
+    .pressure span { color: #8e44ad; } /* Dark Purple */
+    .oxygen span { color: #008b8b; } /* Dark Cyan */
+    
     .value-display { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 700; color: #fff; margin-top: 5px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
 
     /* SAVE BUTTON */
@@ -213,16 +226,13 @@
     .dock-title { display: block; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; }
     .dock-sub { display: none; }
 
-    /* EXIT BUTTON - RESTORED GLOW */
+    /* EXIT BUTTON - WITH GLOW */
     .close-btn { 
       background: rgba(255, 42, 42, 0.1); color: var(--error); border: 1px solid var(--error);
-      padding: 12px 30px; border-radius: 50px; font-size: 0.9rem; font-family: 'Orbitron', sans-serif; 
+      padding: 10px 20px; border-radius: 50px; font-size: 0.85rem; font-family: 'Orbitron', sans-serif; 
       cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; margin-top: 10px;
     }
-    .close-btn:hover { 
-        background: var(--error); color: #fff; 
-        box-shadow: 0 0 25px var(--error); transform: scale(1.05);
-    }
+    .close-btn:hover { background: var(--error); color: #fff; box-shadow: 0 0 25px var(--error); transform: scale(1.05); }
 
     /* --- 8. FABs --- */
     .fab-container { position: fixed; bottom: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 15px; }
