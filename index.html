@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bioscan ATM | Patient Portal</title>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -12,9 +12,6 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
-    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 
     <style>
         /* --- 1. SETUP & VARIABLES --- */
@@ -29,7 +26,7 @@
             --success: #00ff88;
         }
 
-        * { box-sizing: border-box; outline: none; }
+        * { box-sizing: border-box; outline: none; user-select: none; }
 
         body {
             margin: 0; padding: 0;
@@ -41,180 +38,385 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* --- 2. BACKGROUND (Your original style preserved) --- */
+        /* --- 2. ENHANCED BIO-BACKGROUND --- */
         #bio-background {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            overflow: hidden; 
             background: radial-gradient(circle at center, #0f1c2e 0%, #000000 90%);
         }
+        
         .bio-symbol {
             position: absolute; color: var(--primary-neon); opacity: 0;
             animation: floatOrganic linear infinite; pointer-events: none;
             filter: blur(1px);
         }
+
+        /* Random organic movement */
         @keyframes floatOrganic {
             0% { transform: translate(0, 110vh) rotate(0deg) scale(0.5); opacity: 0; }
             10% { opacity: 0.15; }
+            50% { transform: translate(20px, 50vh) rotate(180deg) scale(1); opacity: 0.25; }
+            90% { opacity: 0.15; }
             100% { transform: translate(-20px, -10vh) rotate(360deg) scale(0.5); opacity: 0; }
         }
 
+        /* --- 3. HEADER & STATUS --- */
         header {
             position: absolute; top: 0; width: 100%; padding: 15px 40px;
             display: flex; justify-content: space-between; align-items: center; z-index: 10;
+            background: linear-gradient(to bottom, rgba(2, 4, 8, 0.95), transparent);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.1);
         }
 
-        /* --- 3. HUD CARD & INPUTS --- */
-        .main-container { position: relative; z-index: 5; width: 100%; max-width: 450px; padding: 20px; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .brand { display: flex; align-items: center; gap: 15px; }
+        .brand-logo { 
+            width: 45px; height: 45px; border: 2px solid var(--primary-neon); border-radius: 50%; 
+            box-shadow: 0 0 15px var(--primary-neon); animation: pulseLogo 3s infinite;
+        }
+        .brand-text h1 {
+            font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin: 0; letter-spacing: 2px;
+            background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .brand-text p { margin: 0; font-size: 0.7rem; color: var(--primary-neon); opacity: 0.8; letter-spacing: 2px; }
+
+        .live-clock {
+            display: flex; flex-direction: column; align-items: flex-start;
+            border-left: 2px solid rgba(0, 242, 255, 0.3); padding-left: 15px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .clock-time { font-size: 1.1rem; font-weight: bold; color: var(--primary-neon); }
+        .clock-date { font-size: 0.7rem; color: #aaa; letter-spacing: 1px; }
+
+        /* Controls */
+        .controls { display: flex; gap: 15px; align-items: center; }
+
+        /* NEW STATUS BADGE DESIGN */
+        .status-badge {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(0, 242, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            padding: 5px 12px; border-radius: 20px;
+            transition: 0.3s;
+        }
+        .status-led {
+            width: 8px; height: 8px; border-radius: 50%;
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+        .status-text {
+            font-family: 'Orbitron', sans-serif; font-size: 0.75rem; letter-spacing: 1px;
+            color: var(--success); text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+            font-weight: bold;
+        }
+        
+        /* Offline State */
+        .status-badge.offline { border-color: rgba(255, 42, 42, 0.3); background: rgba(255, 42, 42, 0.05); }
+        .status-badge.offline .status-led { background-color: var(--error); box-shadow: 0 0 10px var(--error); }
+        .status-badge.offline .status-text { color: var(--error); text-shadow: 0 0 5px rgba(255, 42, 42, 0.5); }
+        
+        /* Pulse Animation for badge */
+        .pulse-active { animation: badgePulse 2s infinite; }
+        @keyframes badgePulse {
+            0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; }
+        }
+
+        .icon-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: var(--primary-neon);
+            width: 38px; height: 38px; border-radius: 50%; cursor: pointer; transition: 0.3s;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
+        
+        select.lang-select {
+            background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon);
+            padding: 5px 12px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer;
+        }
+        select.lang-select option { background: #050b14; }
+
+        /* --- 4. GLOWING HUD CARD --- */
+        .main-container { position: relative; z-index: 5; width: 100%; max-width: 480px; padding: 20px; }
+
         .hud-card {
-            background: var(--glass-panel); backdrop-filter: blur(25px);
-            border: 1px solid var(--border-color); border-radius: 25px; padding: 40px 30px;
-            text-align: center; box-shadow: 0 0 30px rgba(0, 242, 255, 0.15);
+            background: var(--glass-panel); 
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color); border-radius: 20px; padding: 45px 35px;
+            text-align: center; position: relative;
+            
+            /* Enhanced Glowing Borders */
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.15), inset 0 0 20px rgba(0, 242, 255, 0.05);
             animation: cardBreath 4s infinite ease-in-out;
         }
+
         @keyframes cardBreath {
-            0%, 100% { border-color: rgba(0, 242, 255, 0.3); }
-            50% { border-color: rgba(0, 242, 255, 0.6); box-shadow: 0 0 40px rgba(0, 242, 255, 0.2); }
+            0% { box-shadow: 0 0 30px rgba(0, 242, 255, 0.15), inset 0 0 20px rgba(0, 242, 255, 0.05); border-color: rgba(0, 242, 255, 0.3); }
+            50% { box-shadow: 0 0 50px rgba(0, 242, 255, 0.25), inset 0 0 30px rgba(0, 242, 255, 0.1); border-color: rgba(0, 242, 255, 0.6); }
+            100% { box-shadow: 0 0 30px rgba(0, 242, 255, 0.15), inset 0 0 20px rgba(0, 242, 255, 0.05); border-color: rgba(0, 242, 255, 0.3); }
         }
 
-        /* Country Code & Phone Input Styling */
-        .iti { width: 100%; margin-bottom: 15px; }
-        .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); }
-        
+        .card-header h2 { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; margin: 0; text-shadow: 0 0 15px var(--primary-neon); letter-spacing: 2px; }
+
+        /* REPLACED SCAN LINE WITH ENERGY DIVIDER */
+        .energy-divider {
+            height: 2px; width: 80%; margin: 20px auto 40px;
+            background: radial-gradient(circle, var(--primary-neon) 0%, rgba(0,242,255,0) 90%);
+            box-shadow: 0 0 10px var(--primary-neon);
+            opacity: 0.8;
+        }
+
+        /* Input */
+        .input-wrapper { position: relative; margin-bottom: 30px; }
         .input-field {
-            width: 100%; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.1);
-            padding: 15px; font-size: 1.2rem; color: #fff; border-radius: 12px;
+            width: 100%; background: rgba(0, 0, 0, 0.5); 
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 15px; font-size: 1.5rem; letter-spacing: 3px; color: #fff; text-align: center; border-radius: 12px;
             font-family: 'Orbitron', sans-serif; transition: 0.3s;
         }
-        .input-field.valid { border-color: var(--success); box-shadow: 0 0 15px rgba(0, 255, 136, 0.2); }
-        .input-field.invalid { border-color: var(--error); }
+        .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 25px rgba(0, 242, 255, 0.3); background: rgba(0, 10, 20, 0.8); }
+        .input-field::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 1px; font-size: 1rem; }
 
-        .remember-group {
-            display: flex; align-items: center; gap: 10px; margin-bottom: 25px;
-            font-size: 0.85rem; color: #aaa; cursor: pointer;
+        /* Improved Tooltip */
+        .id-tooltip {
+            position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%) translateY(10px);
+            background: rgba(5, 10, 15, 0.95); border: 1px solid var(--primary-neon);
+            color: #fff; padding: 10px 15px; border-radius: 8px; font-size: 0.8rem; width: 220px;
+            text-align: center; opacity: 0; visibility: hidden; transition: 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            pointer-events: none; z-index: 20; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
         }
-
-        /* --- 4. BUTTONS --- */
-        .action-btn {
-            width: 100%; padding: 16px; border: none; border-radius: 50px;
-            background: linear-gradient(90deg, var(--primary-neon), #0066ff);
-            color: #000; font-family: 'Orbitron', sans-serif; font-weight: bold;
-            font-size: 1rem; cursor: pointer; transition: 0.3s;
+        .id-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; margin-left: -6px;
+            border-width: 6px; border-style: solid; border-color: var(--primary-neon) transparent transparent transparent;
         }
-        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
-        .action-btn:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 0 30px var(--primary-neon); }
-
-        /* --- 5. PROFESSIONAL MODALS --- */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            display: none; justify-content: center; align-items: center; z-index: 1000;
-            backdrop-filter: blur(15px); padding: 20px; opacity: 0; transition: 0.3s;
-        }
-        .modal-overlay.active { display: flex; opacity: 1; }
+        .id-tooltip span { color: var(--primary-neon); font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; }
         
+        .input-wrapper:hover .id-tooltip, .input-field:focus + .id-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+
+        .error-msg { color: var(--error); font-size: 0.85rem; margin-top: 10px; min-height: 20px; font-weight: bold; text-shadow: 0 0 8px rgba(255, 42, 42, 0.6); }
+        .shake { animation: shake 0.4s ease-in-out; border-color: var(--error) !important; box-shadow: 0 0 15px var(--error) !important; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+        /* Buttons */
+        .action-btn {
+            width: 100%; padding: 15px; border: none; border-radius: 50px;
+            background: linear-gradient(90deg, rgba(0,242,255,0.05), rgba(0,242,255,0.15));
+            border: 1px solid var(--primary-neon); color: #fff;
+            font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px;
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
+            position: relative; overflow: hidden;
+        }
+        .action-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        .action-btn:hover::before { left: 100%; }
+        .action-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 40px var(--primary-neon); }
+
+        /* Success & Dashboard */
+        #success-view { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
+        .dashboard-btn { background: var(--success); color: #000; border: none; font-weight: 700; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+        .dashboard-btn:hover { background: #fff; box-shadow: 0 0 40px #fff; }
+        .success-icon { font-size: 3.5rem; color: var(--success); margin-bottom: 15px; filter: drop-shadow(0 0 15px var(--success)); animation: popIn 0.5s; }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+
+        /* --- 5. INFO MODAL --- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
         .modal-box {
-            background: #080d16; border: 1px solid var(--primary-neon);
-            padding: 30px; border-radius: 20px; width: 100%; max-width: 500px;
-            box-shadow: 0 0 50px rgba(0, 242, 255, 0.15); transform: translateY(20px); transition: 0.3s;
+            background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 650px; padding: 30px; border-radius: 15px;
+            box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; transform: scale(0.9); transition: 0.3s; max-height: 90vh; overflow-y: auto;
         }
-        .modal-overlay.active .modal-box { transform: translateY(0); }
+        .modal-active .modal-box { transform: scale(1); }
+        .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+        .close-modal:hover { color: var(--error); transform: rotate(90deg); }
 
-        .consent-content { 
-            text-align: left; max-height: 300px; overflow-y: auto; margin-bottom: 20px;
-            padding-right: 10px; font-size: 0.9rem; line-height: 1.6; color: #ccc;
-        }
-        body.rtl .consent-content { text-align: right; }
-        .consent-content ul { padding-left: 20px; margin: 10px 0; }
-        .consent-content li { margin-bottom: 8px; }
+        .logos-row { display: flex; justify-content: center; gap: 25px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .logos-row img { height: 60px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); transition: 0.3s; }
+        .logos-row img:hover { transform: scale(1.1); }
 
-        .checkbox-container {
-            display: flex; align-items: flex-start; gap: 12px;
-            font-size: 0.85rem; color: #fff; margin-bottom: 25px; text-align: left; cursor: pointer;
-        }
-        body.rtl .checkbox-container { text-align: right; }
+        .modal-section { margin-bottom: 20px; text-align: left; }
+        .modal-section h3 { color: var(--primary-neon); margin: 0 0 8px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
+        .modal-section p { font-size: 0.9rem; color: #ccc; line-height: 1.6; margin: 0; }
 
-        /* Toast Messages */
-        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 5000; }
-        .toast {
-            background: rgba(5, 11, 20, 0.95); border-left: 4px solid var(--primary-neon);
-            padding: 15px 25px; margin-bottom: 10px; border-radius: 8px;
-            display: flex; align-items: center; gap: 12px; color: #fff;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.4); animation: slideIn 0.4s ease;
-        }
+        .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+        .team-member { background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 8px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; transition: 0.2s; }
+        .team-member:hover { border-color: var(--secondary-neon); background: rgba(112, 0, 255, 0.15); transform: translateX(5px); }
+        .team-member i { color: var(--secondary-neon); font-size: 1rem; }
+        .fa-user-tie { color: #3a7bd5 !important; }
+        .fa-user-nurse { color: #ff416c !important; }
+
+        .modal-footer { margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; color: #777; text-align: center; }
+        .email-link { display: inline-block; margin-top: 10px; color: var(--primary-neon); text-decoration: none; font-weight: bold; background: rgba(0, 242, 255, 0.1); padding: 5px 15px; border-radius: 20px; }
+        
+        .toast-container { position: fixed; top: 100px; right: 20px; z-index: 200; }
+        .toast { background: rgba(5, 11, 20, 0.95); border-left: 4px solid; padding: 15px 25px; margin-bottom: 10px; border-radius: 5px; display: flex; align-items: center; gap: 15px; color: #fff; box-shadow: 0 5px 20px rgba(0,0,0,0.6); animation: slideIn 0.4s ease, fadeOut 0.5s ease 3s forwards; }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes fadeOut { to { opacity: 0; } }
 
-        .lang-select {
-            background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon);
-            padding: 5px 12px; border-radius: 20px; cursor: pointer;
-        }
+        /* PRELOADER STYLES */
+        #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
+        .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
+        .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spin 1.5s linear infinite; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
+        .loader-logo { position: absolute; inset: 15px; border-radius: 50%; background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover; animation: pulseLoader 2s infinite ease-in-out; filter: drop-shadow(0 0 10px var(--primary-neon)); }
+        .loader-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
+        .progress-bar { width: 0%; height: 4px; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); transition: width 0.3s; border-radius: 2px; width: 200px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
+
+        @media (max-width: 600px) { .brand-text h1 { font-size: 1rem; } .hud-card { padding: 30px 20px; } .team-grid { grid-template-columns: 1fr; } .header-left { gap: 10px; } .live-clock { display: none; } }
     </style>
 </head>
 
 <body>
 
+    <div id="preloader">
+        <div class="loader-wrapper">
+            <div class="loader-ring"></div>
+            <div class="loader-logo"></div>
+        </div>
+        <div class="loader-title">BIOSCAN ATM</div>
+        <div class="loader-status" id="loaderStatus">Initializing Biosensors...</div>
+        <div class="progress-bar"></div>
+    </div>
+
     <div id="bio-background"></div>
-    <div class="toast-container" id="toast-container"></div>
 
     <header>
-        <div class="brand">
-            <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" style="width: 40px;" alt="Logo">
+        <div class="header-left">
+            <div class="brand">
+                <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" class="brand-logo" alt="Logo">
+                <div class="brand-text">
+                    <h1>Bioscan ATM</h1>
+                    <p>STATION ONLINE</p>
+                </div>
+            </div>
+            <div class="live-clock">
+                <div class="clock-time" id="clockTime">00:00:00</div>
+                <div class="clock-date" id="clockDate">--/--/----</div>
+            </div>
         </div>
-        <select class="lang-select" id="lang-select" onchange="changeLanguage()">
-            <option value="en">English</option>
-            <option value="ar">العربية</option>
-        </select>
+
+        <div class="controls">
+            <div class="status-badge pulse-active" id="statusBadge">
+                <div class="status-led" id="connectionLed"></div>
+                <div class="status-text" id="connectionText">ONLINE</div>
+            </div>
+            
+            <button class="icon-btn" onclick="toggleModal(true)" title="Info"><i class="fas fa-info"></i></button>
+            <select class="lang-select" id="language_select" onchange="changeLanguage()">
+                <option value="en">EN</option>
+                <option value="ar">AR</option>
+            </select>
+        </div>
     </header>
 
     <div class="main-container">
         <div class="hud-card">
-            <h2 id="ui-title" style="font-family:'Orbitron'; letter-spacing:2px;">USER LOGIN</h2>
-            <div style="height:2px; background:linear-gradient(90deg,transparent,var(--primary-neon),transparent); margin:20px 0 35px;"></div>
+            
+            <div class="card-header">
+                <h2 id="ui-title">USER LOGIN</h2>
+                <div class="energy-divider"></div>
+            </div>
 
             <div id="login-view">
                 <div class="input-wrapper">
-                    <input type="tel" id="phoneInput" class="input-field" oninput="validatePhoneLive()">
+                    <input type="tel" id="userId" class="input-field" placeholder="01xxxxxxxxx" maxlength="11" autocomplete="off">
+                    <div class="id-tooltip" id="id-tooltip">
+                        <span><i class="fas fa-exclamation-circle"></i> Requirements:</span>
+                        Must be 11 Digits<br>Starts with 01
+                    </div>
+                    <div class="error-msg" id="helper-text"></div>
                 </div>
+                <button class="action-btn" id="loginBtn" onclick="processLogin()">
+                    <i class="fas fa-fingerprint"></i> <span id="btn-text">INITIALIZE SCAN</span>
+                </button>
+            </div>
 
-                <label class="remember-group">
-                    <input type="checkbox" id="remCheck"> <span id="lbl-remember">Remember me</span>
-                </label>
-
-                <button class="action-btn" id="loginBtn" onclick="startAuthProcess()">
-                    <i class="fas fa-fingerprint"></i> <span id="lbl-btn">INITIALIZE SCAN</span>
+            <div id="success-view">
+                <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+                <h3 style="margin-bottom: 5px; color: var(--success);" id="success-msg">Access Granted</h3>
+                <p style="color: #aaa; margin-bottom: 25px;" id="welcome-user-msg">User Verified</p>
+                <button class="action-btn dashboard-btn" onclick="goToDashboard()">
+                    <i class="fas fa-chart-pie"></i> <span id="dash-btn-text">OPEN DASHBOARD</span>
+                </button>
+                <button class="icon-btn" onclick="resetView()" style="margin-top: 20px; width: 40px; height: 40px; margin-left: auto; margin-right: auto; border-color: #555; color: #555;">
+                    <i class="fas fa-redo"></i>
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="consentModal" class="modal-overlay">
-        <div class="modal-box">
-            <h2 id="con-title" style="color:var(--primary-neon); font-family:'Orbitron'; font-size:1.2rem;">Terms of Use</h2>
-            <div class="consent-content" id="con-body">
-                </div>
-            <label class="checkbox-container">
-                <input type="checkbox" id="agreeCheck" onchange="toggleConsentBtn()">
-                <span id="lbl-agree">I agree to the terms and data processing policy.</span>
-            </label>
-            <button class="action-btn" id="consentBtn" onclick="openVerifyModal()" disabled>
-                <span id="lbl-send-code">SEND VERIFICATION CODE</span>
-            </button>
-        </div>
-    </div>
+    <div class="footer">Graduation Project 2026 | Zagazig University - Faculty of Engineering</div>
+    <div class="toast-container" id="toastContainer"></div>
 
-    <div id="verifyModal" class="modal-overlay">
+    <div class="modal-overlay" id="aboutModal">
         <div class="modal-box">
-            <h2 id="ver-title" style="color:var(--primary-neon); font-family:'Orbitron'; font-size:1.2rem;">Identity Setup</h2>
-            <p id="ver-sub" style="color:#888; font-size:0.8rem; margin-bottom:20px;">Please complete your profile to register.</p>
+            <button class="close-modal" onclick="toggleModal(false)"><i class="fas fa-times"></i></button>
             
-            <input type="text" id="nameInput" class="input-field" style="margin-bottom:15px; font-size:1rem;" placeholder="Your Full Name">
-            <input type="number" id="codeInput" class="input-field" style="margin-bottom:25px; font-size:1rem;" placeholder="4-Digit Code">
+            <div class="logos-row">
+                <img src="zagazig_logo.png" alt="Zagazig Univ">
+                <img src="eng_logo.png" alt="Engineering Faculty">
+            </div>
 
-            <button class="action-btn" onclick="completeRegistration()">
-                <span id="lbl-finish">REGISTER & LOGIN</span>
-            </button>
+            <h2 id="modal-project-name" style="color:#fff; margin-top:0; text-align: center;">Bioscan ATM</h2>
+            <p id="modal-subtitle" style="text-align:center; font-size:0.8rem; color:#aaa; margin-bottom:25px;">Graduation Project 2026 | Electronics & Comm. Dept.</p>
+
+            <div class="modal-section">
+                <h3><i class="fas fa-bullseye"></i> <span id="mission-title">Mission</span></h3>
+                <p id="mission-text">Empowering communities with instant, hospital-grade health diagnostics via IoT to bridge the gap between patients and care.</p>
+            </div>
+
+            <div class="modal-section">
+                <h3><i class="fas fa-eye"></i> <span id="vision-title">Vision</span></h3>
+                <p id="vision-text">A world where proactive health monitoring is seamless and accessible to everyone everywhere.</p>
+            </div>
+
+            <div class="modal-section">
+                <h3><i class="fas fa-users"></i> <span id="team-title">The Team</span></h3>
+                <div class="team-grid">
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Mohsen M. Elsayed</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Mohamed A. Rashad</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Mohamed A. Karam</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Hossam H. Abdel Aziz</span></div>
+                    <div class="team-member"><i class="fas fa-user-nurse"></i> <span class="t-mem">Lamia I. Mohammed</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Karim H. Mansour</span></div>
+                    <div class="team-member"><i class="fas fa-user-nurse"></i> <span class="t-mem">Fatema M. Saad</span></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <div id="uni-text">Zagazig University - Faculty of Engineering</div>
+                <a href="mailto:bioscanatm@gmail.com" class="email-link"><i class="fas fa-envelope"></i> bioscanatm@gmail.com</a>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- 1. INITIALIZATION ---
+        // --- 1. ENHANCED BIO BACKGROUND ---
+        function createBioBackground() {
+            const container = document.getElementById('bio-background');
+            const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-pills', 'fa-virus', 'fa-microscope', 'fa-user-md', 'fa-syringe', 'fa-lungs', 'fa-brain'];
+            const count = 35; // Increased density
+
+            for (let i = 0; i < count; i++) {
+                const el = document.createElement('i');
+                el.classList.add('fas', icons[Math.floor(Math.random() * icons.length)], 'bio-symbol');
+                
+                // Randomize position and animation properties
+                el.style.left = Math.random() * 100 + 'vw';
+                const size = Math.random() * 2 + 0.5; // Random size
+                el.style.fontSize = size + 'rem';
+                el.style.opacity = Math.random() * 0.2; // Random opacity
+                el.style.animationDuration = (Math.random() * 20 + 15) + 's'; // Slower movement
+                el.style.animationDelay = (Math.random() * 10) + 's';
+                
+                container.appendChild(el);
+            }
+        }
+
+        // --- 2. CONFIG & INIT ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
             authDomain: "smart-a76a0.firebaseapp.com",
@@ -225,166 +427,162 @@
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const auth = firebase.auth();
+        auth.signInAnonymously().catch(console.error);
 
-        // Phone Input
-        const phoneInputField = document.querySelector("#phoneInput");
-        const iti = window.intlTelInput(phoneInputField, {
-            preferredCountries: ["eg", "sa", "ae"],
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
-        });
-
-        // Setup Background
-        const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-lungs', 'fa-brain'];
-        for(let i=0; i<25; i++) {
-            const el = document.createElement('i');
-            el.className = `fas ${icons[Math.floor(Math.random()*icons.length)]} bio-symbol`;
-            el.style.left = Math.random()*100 + 'vw';
-            el.style.fontSize = (Math.random()*2 + 1) + 'rem';
-            el.style.animationDuration = (Math.random()*15 + 15) + 's';
-            el.style.animationDelay = (Math.random()*10) + 's';
-            document.getElementById('bio-background').appendChild(el);
-        }
-
-        // --- 2. LOCALIZATION ---
-        const translations = {
+        // --- 3. LOCALIZATION DATA ---
+        const txt = {
             en: {
-                uiTitle: "USER LOGIN", lblRem: "Remember me", lblBtn: "INITIALIZE SCAN",
-                conTitle: "Terms of Use & Privacy",
-                conBody: "<ul><li><b>Medical Guidance Only:</b> This system is informational and NOT a substitute for diagnosis.</li><li><b>Emergency:</b> Call emergency services immediately for critical cases.</li><li><b>Data Security:</b> Your signs are stored securely on Firebase Cloud.</li><li><b>AI Analysis:</b> Trends are statistical and require doctor verification.</li></ul>",
-                lblAgree: "I agree to the terms and data processing policy.",
-                lblSend: "SEND VERIFICATION CODE",
-                verTitle: "Identity Setup", verSub: "Tell us your name to begin.",
-                phName: "Your Full Name", phCode: "4-Digit Code", lblFinish: "REGISTER & LOGIN",
-                msgInvalid: "Invalid Phone Format", msgRate: "Too many attempts. Wait 60s."
+                uiTitle: "USER LOGIN", ph: "01xxxxxxxxx", btnScan: "INITIALIZE SCAN", success: "Access Granted", welcome: "User Verified", btnDash: "OPEN DASHBOARD", errFormat: "Invalid Format", errInput: "Input Error", toastLogin: "Identity Verified",
+                projName: "Bioscan ATM", sub: "Graduation Project 2026 | Electronics & Comm. Dept.", missionT: "Mission", mission: "Empowering communities with instant, hospital-grade health diagnostics via IoT to bridge the gap between patients and care.", visionT: "Vision", vision: "A world where proactive health monitoring is seamless and accessible to everyone everywhere.", teamT: "The Team", uni: "Zagazig University - Faculty of Engineering",
+                toolTip: "<span><i class='fas fa-exclamation-circle'></i> Requirements:</span>Must be 11 Digits<br>Starts with 01",
+                online: "ONLINE", offline: "OFFLINE",
+                t1: "Mohsen M. Elsayed", t2: "Mohamed A. Rashad", t3: "Mohamed A. Karam", t4: "Hossam H. Abdel Aziz", t5: "Lamia I. Mohammed", t6: "Karim H. Mansour", t7: "Fatema M. Saad"
             },
             ar: {
-                uiTitle: "تسجيل الدخول", lblRem: "تذكرني", lblBtn: "بدء الفحص",
-                conTitle: "شروط الاستخدام والخصوصية",
-                conBody: "<ul><li><b>غرض إرشادي فقط:</b> النظام ليس بديلاً عن التشخيص الطبي المتخصص.</li><li><b>حالات الطوارئ:</b> توجه للمستشفى فوراً في الحالات الحرجة.</li><li><b>خصوصية البيانات:</b> يتم تخزين بياناتك بشكل آمن على خوادمنا السحابية.</li><li><b>الذكاء الاصطناعي:</b> التحليلات إحصائية ويجب مراجعتها طبياً.</li></ul>",
-                lblAgree: "أقر بأنني قرأت الشروط وأوافق على معالجة بياناتي.",
-                lblSend: "إرسال كود التحقق",
-                verTitle: "إكمال الملف الشخصي", verSub: "أدخل اسمك بالكامل لبدء الاستخدام.",
-                phName: "الاسم بالكامل", phCode: "كود التحقق (4 أرقام)", lblFinish: "تسجيل ودخول",
-                msgInvalid: "رقم هاتف غير صحيح", msgRate: "محاولات كثيرة. انتظر دقيقة."
+                uiTitle: "تسجيل الدخول", ph: "رقم الموبايل (01xxxxxxxxx)", btnScan: "بدء الفحص", success: "تم تسجيل الدخول", welcome: "تم التحقق من المستخدم", btnDash: "الانتقال للوحة التحكم", errFormat: "رقم غير صحيح", errInput: "خطأ في الإدخال", toastLogin: "تم التحقق من الهوية",
+                projName: "مشروع Bioscan ATM", sub: "مشروع تخرج 2026 | قسم هندسة الإلكترونيات والاتصالات", missionT: "مهمتنا", mission: "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة عبر إنترنت الأشياء لسد الفجوة بين المرضى والرعاية الطبية.", visionT: "رؤيتنا", vision: "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع في كل مكان.", teamT: "فريق العمل", uni: "جامعة الزقازيق - كلية الهندسة",
+                toolTip: "<span><i class='fas fa-exclamation-circle'></i> الشروط:</span>يجب أن يكون 11 رقم<br>يبدأ بـ 01",
+                online: "متصل", offline: "غير متصل",
+                t1: "محسن م. السيد", t2: "محمد أ. رشاد", t3: "محمد أ. كرم", t4: "حسام ح. عبدالعزيز", t5: "لمياء إ. محمد", t6: "كريم ح. منصور", t7: "فاطمة م. سعد"
             }
         };
 
         let currentLang = localStorage.getItem("language") || "en";
+        let welcomePlayed = false;
 
-        function changeLanguage() {
-            currentLang = document.getElementById('lang-select').value;
-            localStorage.setItem("language", currentLang);
-            updateUI();
-        }
+        // --- 4. CORE LOGIC ---
+        window.addEventListener('load', () => {
+            createBioBackground();
+            startPreloader();
+            startClock();
+            
+            document.getElementById("language_select").value = currentLang;
+            updateTexts();
+            checkConnection();
+            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
+        });
 
-        function updateUI() {
-            const t = translations[currentLang];
-            document.body.classList.toggle('rtl', currentLang === 'ar');
-            document.getElementById('ui-title').innerText = t.uiTitle;
-            document.getElementById('lbl-remember').innerText = t.lblRem;
-            document.getElementById('lbl-btn').innerText = t.lblBtn;
-            document.getElementById('con-title').innerText = t.conTitle;
-            document.getElementById('con-body').innerHTML = t.conBody;
-            document.getElementById('lbl-agree').innerText = t.lblAgree;
-            document.getElementById('lbl-send-code').innerText = t.lblSend;
-            document.getElementById('ver-title').innerText = t.verTitle;
-            document.getElementById('ver-sub').innerText = t.verSub;
-            document.getElementById('nameInput').placeholder = t.phName;
-            document.getElementById('codeInput').placeholder = t.phCode;
-            document.getElementById('lbl-finish').innerText = t.lblFinish;
-        }
-
-        // --- 3. LOGIC & AUTH ---
-        function validatePhoneLive() {
-            if (iti.isValidNumber()) phoneInputField.classList.add('valid');
-            else phoneInputField.classList.remove('valid');
-        }
-
-        function startAuthProcess() {
-            if (!iti.isValidNumber()) {
-                showToast(translations[currentLang].msgInvalid, "error");
-                phoneInputField.classList.add('shake');
-                setTimeout(() => phoneInputField.classList.remove('shake'), 400);
-                return;
-            }
-
-            // Check Rate Limiting
-            const lastAttempt = localStorage.getItem("last_otp_attempt");
-            if (lastAttempt && Date.now() - lastAttempt < 60000) {
-                showToast(translations[currentLang].msgRate, "error");
-                return;
-            }
-
-            const phone = iti.getNumber();
-            database.ref('PatientData/' + phone).once('value').then(snap => {
-                if (snap.exists()) {
-                    // User Exists -> Login directly
-                    finalizeLogin(phone);
-                } else {
-                    // New User -> Show Consent
-                    document.getElementById('consentModal').classList.add('active');
+        function startPreloader() {
+            const bar = document.querySelector('.progress-bar');
+            const txt = document.getElementById('loaderStatus');
+            const pre = document.getElementById('preloader');
+            let w = 0;
+            const iv = setInterval(() => {
+                w += Math.random() * 15; if(w > 100) w = 100;
+                bar.style.width = w + '%';
+                if(w===100) {
+                    clearInterval(iv);
+                    setTimeout(() => { pre.style.opacity = '0'; setTimeout(() => pre.style.display='none', 800); playWelcomeMessage(); }, 500);
                 }
-            });
+            }, 100);
         }
 
-        function toggleConsentBtn() {
-            document.getElementById('consentBtn').disabled = !document.getElementById('agreeCheck').checked;
+        function startClock() {
+            const tEl = document.getElementById('clockTime');
+            const dEl = document.getElementById('clockDate');
+            setInterval(() => {
+                const now = new Date();
+                const loc = currentLang === 'ar' ? 'ar-EG' : 'en-US';
+                tEl.innerText = now.toLocaleTimeString(loc, {hour12: false});
+                dEl.innerText = now.toLocaleDateString(loc, {weekday:'short', day:'numeric', month:'short'});
+            }, 1000);
         }
 
-        function openVerifyModal() {
-            document.getElementById('consentModal').classList.remove('active');
-            document.getElementById('verifyModal').classList.add('active');
-            // Log attempt for rate limiting
-            localStorage.setItem("last_otp_attempt", Date.now());
-            console.log("OTP Sent to: " + iti.getNumber()); // Simulate SMS sending
+        function playWelcomeMessage() {
+            if (welcomePlayed) return;
+            if ('speechSynthesis' in window) {
+                const enMsg = new SpeechSynthesisUtterance("Welcome to Bioscan ATM Station. Please enter your mobile number.");
+                enMsg.lang = 'en-US'; enMsg.rate = 0.9;
+                const arMsg = new SpeechSynthesisUtterance("مرحباً بكم في محطة بايوسكان. يرجى إدخال رقم الهاتف للمتابعة.");
+                arMsg.lang = 'ar-SA'; arMsg.rate = 0.85;
+                window.speechSynthesis.speak(enMsg);
+                window.speechSynthesis.speak(arMsg);
+                welcomePlayed = true;
+            }
         }
 
-        function completeRegistration() {
-            const name = document.getElementById('nameInput').value.trim();
-            const code = document.getElementById('codeInput').value;
-            const phone = iti.getNumber();
-
-            if (name.length < 3) return showToast("Enter your full name", "error");
-            if (code !== "1234") return showToast("Wrong Code (Try 1234)", "error"); // Simulation code
-
-            database.ref('PatientData/' + phone).set({
-                FullName: name,
-                Phone: phone,
-                RegistrationDate: new Date().toLocaleString(),
-                SensorData: "No measurement recorded yet"
-            }).then(() => {
-                finalizeLogin(phone);
-            });
+        function checkConnection() {
+            const badge = document.getElementById('statusBadge');
+            const led = document.getElementById('connectionLed');
+            const txtEl = document.getElementById('connectionText');
+            
+            setInterval(async () => {
+                try {
+                    await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" });
+                    badge.classList.remove('offline');
+                    led.style.backgroundColor = "var(--success)"; led.style.boxShadow = "0 0 10px var(--success)";
+                    txtEl.innerText = txt[currentLang].online; txtEl.style.color = "var(--success)";
+                } catch (e) {
+                    badge.classList.add('offline');
+                    led.style.backgroundColor = "var(--error)"; led.style.boxShadow = "0 0 10px var(--error)";
+                    txtEl.innerText = txt[currentLang].offline; txtEl.style.color = "var(--error)";
+                }
+            }, 3000);
         }
 
-        function finalizeLogin(phone) {
-            if (document.getElementById('remCheck').checked) {
-                localStorage.setItem("saved_phone", phone);
+        function processLogin() {
+            const input = document.getElementById("userId");
+            const helper = document.getElementById("helper-text");
+            const btn = document.getElementById("loginBtn");
+            const userId = input.value.trim();
+            const regex = /^01[0125][0-9]{8}$/;
+
+            input.classList.remove("shake"); helper.innerText = "";
+
+            if (regex.test(userId)) {
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing...';
+                const ref = database.ref('PatientData/' + userId);
+                ref.once('value').then(snapshot => {
+                    if (!snapshot.exists()) ref.set({ Phone: userId, SensorData: "New User", Timestamp: new Date().toLocaleString(), AddedBy: "Self-Registered" });
+                    localStorage.setItem("selectedUserId", userId);
+                    setTimeout(() => { showToast(txt[currentLang].toastLogin, 'success'); switchViewToDashboard(userId); }, 800);
+                });
             } else {
-                localStorage.removeItem("saved_phone");
+                input.classList.add("shake"); helper.innerText = txt[currentLang].errFormat; showToast(txt[currentLang].errInput, 'error');
+                if (navigator.vibrate) navigator.vibrate(200);
             }
-            localStorage.setItem("selectedUserId", phone);
-            window.location.href = "measurements.html";
         }
 
-        function showToast(msg, type) {
-            const toast = document.createElement("div");
-            toast.className = "toast";
-            if(type === 'error') toast.style.borderLeftColor = 'var(--error)';
-            toast.innerHTML = `<i class="fas fa-info-circle"></i> ${msg}`;
-            document.getElementById('toast-container').appendChild(toast);
-            setTimeout(() => toast.remove(), 3500);
+        function updateTexts() {
+            const t = txt[currentLang];
+            const isAr = currentLang === 'ar';
+            document.body.style.direction = isAr ? 'rtl' : 'ltr';
+            document.body.style.fontFamily = isAr ? "'Cairo', sans-serif" : "'Rajdhani', sans-serif";
+
+            document.getElementById("ui-title").innerText = t.uiTitle;
+            document.getElementById("userId").placeholder = t.ph;
+            if(document.getElementById("btn-text")) document.getElementById("btn-text").innerText = t.btnScan;
+            document.getElementById("success-msg").innerText = t.success;
+            document.getElementById("welcome-user-msg").innerText = t.welcome;
+            if(document.getElementById("dash-btn-text")) document.getElementById("dash-btn-text").innerText = t.btnDash;
+            document.getElementById("id-tooltip").innerHTML = t.toolTip;
+            
+            // Connection Text update
+            const connText = document.getElementById('connectionText');
+            if(!document.getElementById('statusBadge').classList.contains('offline')) connText.innerText = t.online;
+            else connText.innerText = t.offline;
+
+            document.getElementById("modal-project-name").innerText = t.projName;
+            document.getElementById("modal-subtitle").innerText = t.sub;
+            document.getElementById("mission-title").innerText = t.missionT;
+            document.getElementById("mission-text").innerText = t.mission;
+            document.getElementById("vision-title").innerText = t.visionT;
+            document.getElementById("vision-text").innerText = t.vision;
+            document.getElementById("team-title").innerText = t.teamT;
+            document.getElementById("uni-text").innerText = t.uni;
+
+            const members = document.querySelectorAll(".t-mem");
+            members[0].innerText = t.t1; members[1].innerText = t.t2; members[2].innerText = t.t3; members[3].innerText = t.t4;
+            members[4].innerText = t.t5; members[5].innerText = t.t6; members[6].innerText = t.t7;
         }
 
-        window.onload = () => {
-            updateUI();
-            const saved = localStorage.getItem("saved_phone");
-            if(saved) {
-                phoneInputField.value = saved;
-                document.getElementById('remCheck').checked = true;
-                validatePhoneLive();
-            }
-        };
+        function changeLanguage() { currentLang = document.getElementById("language_select").value; localStorage.setItem("language", currentLang); updateTexts(); }
+        function switchViewToDashboard(uid) { document.getElementById("login-view").style.display = "none"; document.getElementById("success-view").style.display = "flex"; document.getElementById("welcome-user-msg").innerText = uid; }
+        function resetView() { document.getElementById("success-view").style.display = "none"; document.getElementById("login-view").style.display = "block"; document.getElementById("userId").value = ""; document.getElementById("loginBtn").innerHTML = '<i class="fas fa-fingerprint"></i> <span id="btn-text">' + txt[currentLang].btnScan + '</span>'; }
+        function goToDashboard() { window.location.href = "measurements.html"; }
+        function showToast(msg, type) { const container = document.getElementById("toastContainer"); const toast = document.createElement("div"); toast.className = "toast"; toast.style.borderLeftColor = type === 'error' ? 'var(--error)' : 'var(--success)'; toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'}" style="color:${type === 'error' ? 'var(--error)' : 'var(--success)'}"></i> ${msg}`; container.appendChild(toast); setTimeout(() => toast.remove(), 3500); }
+        function toggleModal(show) { const modal = document.getElementById('aboutModal'); modal.style.display = show ? 'flex' : 'none'; if(show) setTimeout(() => modal.classList.add('modal-active'), 10); else modal.classList.remove('modal-active'); }
     </script>
 </body>
 </html>
