@@ -17,12 +17,12 @@
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 
     <style>
-        /* --- 1. ORIGINAL THEME & SETUP --- */
+        /* --- 1. THEME & SETUP --- */
         :root {
             --primary-neon: #00f2ff;
             --secondary-neon: #7000ff;
             --bg-dark: #020408;
-            --glass-panel: rgba(5, 12, 22, 0.9);
+            --glass-panel: rgba(5, 12, 22, 0.95);
             --border-color: rgba(0, 242, 255, 0.4);
             --text-main: #e0f7fa;
             --error: #ff2a2a;
@@ -41,7 +41,13 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* --- 2. ANIMATED BACKGROUND (ORIGINAL) --- */
+        /* Library Styling Override */
+        .iti { width: 100%; }
+        .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 1000; text-align: left; }
+        .iti__country:hover { background-color: rgba(0, 242, 255, 0.1); }
+        .iti__separate-dial-code .iti__selected-dial-code { color: #fff; font-family: 'Orbitron'; margin-left: 5px; }
+
+        /* --- 2. BACKGROUND ANIMATION --- */
         #bio-background {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             overflow: hidden; 
@@ -60,7 +66,7 @@
             100% { transform: translate(-20px, -10vh) rotate(360deg) scale(0.5); opacity: 0; }
         }
 
-        /* --- 3. HEADER & UI --- */
+        /* --- 3. HEADER --- */
         header {
             position: absolute; top: 0; width: 100%; padding: 15px 40px;
             display: flex; justify-content: space-between; align-items: center; z-index: 10;
@@ -86,33 +92,27 @@
         select.lang-select { background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon); padding: 5px 12px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer; }
         select.lang-select option { background: #050b14; }
 
-        /* --- 4. HUD & LOGIN (Updated with Validation Styles) --- */
+        /* --- 4. HUD & LOGIN --- */
         .main-container { position: relative; z-index: 5; width: 100%; max-width: 480px; padding: 20px; }
         .hud-card { background: var(--glass-panel); backdrop-filter: blur(25px); border: 1px solid var(--border-color); border-radius: 20px; padding: 45px 35px; text-align: center; position: relative; box-shadow: 0 0 30px rgba(0, 242, 255, 0.15); animation: cardBreath 4s infinite ease-in-out; }
         @keyframes cardBreath { 0%, 100% { border-color: rgba(0, 242, 255, 0.3); } 50% { border-color: rgba(0, 242, 255, 0.6); } }
         .card-header h2 { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; margin: 0; text-shadow: 0 0 15px var(--primary-neon); letter-spacing: 2px; }
         .energy-divider { height: 2px; width: 80%; margin: 20px auto 40px; background: radial-gradient(circle, var(--primary-neon) 0%, rgba(0,242,255,0) 90%); box-shadow: 0 0 10px var(--primary-neon); opacity: 0.8; }
 
-        /* Library overrides */
-        .iti { width: 100%; margin-bottom: 15px; }
-        .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 100; text-align: left; }
-        .iti__country:hover { background-color: rgba(0, 242, 255, 0.1); }
-        .iti__selected-dial-code { color: #fff; font-family: 'Orbitron'; margin-left: 5px; }
-
+        .input-wrapper { position: relative; margin-bottom: 30px; }
         .input-field { width: 100%; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.1); padding: 15px; font-size: 1.5rem; color: #fff; border-radius: 12px; font-family: 'Orbitron', sans-serif; transition: 0.3s; }
         .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 25px rgba(0, 242, 255, 0.3); }
-        
-        /* Live Validation Styles */
+        /* Live Validation Colors */
         .input-field.valid { border-color: var(--success); box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
         .input-field.invalid { border-color: var(--error); box-shadow: 0 0 15px rgba(255, 42, 42, 0.3); }
 
-        /* Remember Me */
-        .remember-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; font-size: 0.9rem; color: #aaa; cursor: pointer; justify-content: center; }
-        .remember-wrapper input { cursor: pointer; accent-color: var(--primary-neon); transform: scale(1.2); }
+        .remember-me { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 25px; cursor: pointer; color: #aaa; font-size: 0.9rem; }
+        .remember-me input { cursor: pointer; accent-color: var(--primary-neon); transform: scale(1.2); }
 
         .action-btn { width: 100%; padding: 15px; border: none; border-radius: 50px; background: linear-gradient(90deg, rgba(0,242,255,0.05), rgba(0,242,255,0.15)); border: 1px solid var(--primary-neon); color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .action-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 40px var(--primary-neon); }
-        
+        .action-btn:hover:not(:disabled) { background: var(--primary-neon); color: #000; box-shadow: 0 0 40px var(--primary-neon); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
         #success-view { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
         .dashboard-btn { background: var(--success); color: #000; border: none; font-weight: 700; }
         .success-icon { font-size: 3.5rem; color: var(--success); margin-bottom: 15px; animation: popIn 0.5s; }
@@ -121,31 +121,28 @@
 
         .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
 
-        /* --- 5. MODALS (CONSENT & TEAM) --- */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); opacity: 0; transition: 0.3s; }
+        /* --- 5. MODALS (Updated Styles) --- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); opacity: 0; transition: 0.3s; }
         .modal-overlay.active { opacity: 1; }
-        .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 650px; padding: 30px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: 0.3s; }
+        .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 700px; padding: 40px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: 0.3s; }
         .modal-overlay.active .modal-box { transform: scale(1); }
-        .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+        .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; z-index: 10; }
         .close-modal:hover { color: var(--error); transform: rotate(90deg); }
+
+        /* Consent specific text */
+        .consent-text { text-align: left; font-size: 0.95rem; line-height: 1.7; color: #ccc; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.3); max-height: 300px; overflow-y: auto; }
+        body.rtl .consent-text { text-align: right; }
+        .consent-check { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #fff; margin-bottom: 25px; cursor: pointer; }
 
         /* Team Modal specific */
         .logos-row { display: flex; justify-content: center; gap: 25px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
         .logos-row img { height: 60px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); transition: 0.3s; }
-        .modal-section { margin-bottom: 20px; text-align: left; }
-        .modal-section h3 { color: var(--primary-neon); margin: 0 0 8px 0; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
-        .modal-section p { font-size: 0.9rem; color: #ccc; line-height: 1.6; margin: 0; }
         .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
         .team-member { background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 8px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; transition: 0.2s; }
         .team-member:hover { border-color: var(--secondary-neon); background: rgba(112, 0, 255, 0.15); transform: translateX(5px); }
         .team-member i { color: var(--secondary-neon); font-size: 1rem; }
 
-        /* Consent Modal specific */
-        .consent-text { text-align: left; font-size: 0.9rem; line-height: 1.6; color: #ccc; margin-bottom: 20px; }
-        .consent-check { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #fff; margin-bottom: 20px; cursor: pointer; text-align: left; }
-        body.rtl .consent-text, body.rtl .consent-check { text-align: right; }
-
-        /* --- 6. PRELOADER (ORIGINAL) --- */
+        /* --- 6. PRELOADER & TOAST --- */
         #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
         .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
         .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spin 1.5s linear infinite; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
@@ -155,7 +152,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
 
-        .toast-container { position: fixed; top: 100px; right: 20px; z-index: 200; }
+        .toast-container { position: fixed; top: 100px; right: 20px; z-index: 3000; }
         .toast { background: rgba(5, 11, 20, 0.95); border-left: 4px solid var(--success); padding: 15px 25px; margin-bottom: 10px; border-radius: 5px; color: #fff; animation: slideIn 0.4s ease; display: flex; align-items: center; gap: 10px; }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
         .shake { animation: shake 0.4s; border-color: var(--error) !important; }
@@ -171,8 +168,8 @@
             <div class="loader-logo"></div>
         </div>
         <div class="loader-title">BIOSCAN ATM</div>
-        <div class="loader-status" id="loaderStatus">Initializing Biosensors...</div>
-        <div class="progress-bar"></div>
+        <div class="loader-status" id="loaderStatus" style="color:#aaa; margin:10px 0;">Initializing Biosensors...</div>
+        <div class="progress-bar"><div id="progressFill" style="height:100%; width:0%; background:var(--primary-neon); transition:0.1s;"></div></div>
     </div>
 
     <div id="bio-background"></div>
@@ -214,7 +211,7 @@
                     <div class="error-msg" id="helper-text"></div>
                 </div>
 
-                <label class="remember-wrapper">
+                <label class="remember-me">
                     <input type="checkbox" id="remCheck"> <span id="lblRem">Remember Me</span>
                 </label>
 
@@ -225,8 +222,8 @@
 
             <div id="success-view">
                 <div class="success-icon"><i class="fas fa-check-circle"></i></div>
-                <h3 id="success-msg" style="color: var(--success);">Access Granted</h3>
-                <p id="welcome-user-msg" style="color: #aaa; margin-bottom: 25px;">Verified</p>
+                <h3 style="margin-bottom: 5px; color: var(--success);" id="success-msg">Access Granted</h3>
+                <p style="color: #aaa; margin-bottom: 25px;" id="welcome-user-msg">User Verified</p>
                 <button class="action-btn dashboard-btn" onclick="goToDashboard()">
                     <i class="fas fa-chart-pie"></i> <span id="dash-btn-text">OPEN DASHBOARD</span>
                 </button>
@@ -249,7 +246,7 @@
             <p id="modal-subtitle" style="text-align:center; font-size:0.8rem; color:#aaa; margin-bottom:25px;">Graduation Project 2026 | Electronics & Comm. Dept.</p>
             <div class="modal-section">
                 <h3><i class="fas fa-bullseye"></i> <span id="mission-title">Mission</span></h3>
-                <p id="mission-text">Empowering communities with instant, hospital-grade health diagnostics via IoT to bridge the gap between patients and care.</p>
+                <p id="mission-text">Empowering communities with instant, hospital-grade health diagnostics via IoT.</p>
             </div>
             <div class="modal-section">
                 <h3><i class="fas fa-eye"></i> <span id="vision-title">Vision</span></h3>
@@ -267,40 +264,38 @@
                     <div class="team-member"><i class="fas fa-user-nurse"></i> <span class="t-mem">Fatema M. Saad</span></div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <div id="uni-text">Zagazig University - Faculty of Engineering</div>
-                <a href="mailto:bioscanatm@gmail.com" class="email-link"><i class="fas fa-envelope"></i> bioscanatm@gmail.com</a>
-            </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="consentModal">
         <div class="modal-box">
+            <button class="close-modal" onclick="toggleModal('consentModal', false)"><i class="fas fa-times"></i></button>
             <h2 id="con-title" style="color:var(--primary-neon); margin-top:0; font-family:'Orbitron';">Terms & Privacy</h2>
             <div class="energy-divider" style="margin: 15px auto;"></div>
             <div class="consent-text" id="con-body">
                 </div>
             <label class="consent-check">
                 <input type="checkbox" id="agreeCheck" onchange="toggleConsentBtn()">
-                <span id="lblAgree">I have read and agree to the terms and data processing policy.</span>
+                <span id="lblAgree">I agree to the terms and data processing policy.</span>
             </label>
             <button class="action-btn" id="btnSendCode" onclick="proceedToVerification()" disabled style="opacity:0.5;">
-                <span id="lblSend">SEND VERIFICATION CODE</span>
+                <span id="lblSend">AGREE & PROCEED</span>
             </button>
         </div>
     </div>
 
     <div class="modal-overlay" id="verifyModal">
         <div class="modal-box" style="text-align:center;">
+            <button class="close-modal" onclick="toggleModal('verifyModal', false)"><i class="fas fa-times"></i></button>
             <div style="font-size:3rem; color:var(--primary-neon); margin-bottom:15px;"><i class="fas fa-mobile-alt"></i></div>
             <h2 id="ver-title" style="color:#fff; margin:0;">Verify Identity</h2>
             <p id="ver-sub" style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">Code sent to your phone</p>
             
             <input type="number" id="codeInput" class="input-field" placeholder="Enter Code (e.g. 1234)" style="margin-bottom:15px;">
-            <input type="text" id="nameInput" class="input-field" placeholder="Your Name" style="margin-bottom:20px;">
+            <input type="text" id="nameInput" class="input-field" placeholder="Your Full Name" style="margin-bottom:20px;">
             
             <button class="action-btn" onclick="verifyAndRegister()">
-                <span id="lblVerify">VERIFY & ENTER</span>
+                <span id="lblVerify">VERIFY & REGISTER</span>
             </button>
         </div>
     </div>
@@ -320,7 +315,7 @@
         const auth = firebase.auth();
         auth.signInAnonymously().catch(console.error);
 
-        // --- 2. INTL-TEL-INPUT & LIVE VALIDATION ---
+        // --- 2. SETUP PHONE INPUT & VALIDATION ---
         const phoneInput = document.querySelector("#userId");
         const iti = window.intlTelInput(phoneInput, {
             separateDialCode: true,
@@ -334,11 +329,11 @@
                 phoneInput.classList.remove("invalid");
             } else {
                 phoneInput.classList.remove("valid");
-                if(phoneInput.value.length > 3) phoneInput.classList.add("invalid");
+                if (phoneInput.value.length > 3) phoneInput.classList.add("invalid");
             }
         }
 
-        // --- 3. LOGIN & NEW USER LOGIC ---
+        // --- 3. LOGIC: LOGIN vs NEW USER ---
         let currentFullNumber = "";
 
         function processLogin() {
@@ -360,13 +355,14 @@
                     // USER EXISTS -> LOGIN DIRECTLY
                     completeLogin(currentFullNumber);
                 } else {
-                    // NEW USER -> SHOW CONSENT
+                    // NEW USER -> SHOW CONSENT (Do NOT save yet)
                     btn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan;
                     toggleModal('consentModal', true);
                 }
             });
         }
 
+        // --- 4. CONSENT & REGISTRATION ---
         function toggleConsentBtn() {
             const btn = document.getElementById('btnSendCode');
             const chk = document.getElementById('agreeCheck');
@@ -375,9 +371,9 @@
         }
 
         function proceedToVerification() {
+            // Close Consent, Open Verify
             toggleModal('consentModal', false);
             toggleModal('verifyModal', true);
-            // Simulate Code Sending
             showToast(currentLang === 'ar' ? "تم إرسال الكود" : "Verification Code Sent", "success");
         }
 
@@ -385,16 +381,16 @@
             const code = document.getElementById('codeInput').value;
             const name = document.getElementById('nameInput').value;
 
-            if(code !== "1234") { // Mock Code
+            if (code !== "1234") { // Mock Code
                 showToast(currentLang === 'ar' ? "كود خاطئ" : "Invalid Code", "error");
                 return;
             }
-            if(name.length < 3) {
-                showToast(currentLang === 'ar' ? "أدخل الاسم" : "Enter Name", "error");
+            if (name.length < 3) {
+                showToast(currentLang === 'ar' ? "أدخل الاسم بالكامل" : "Enter valid name", "error");
                 return;
             }
 
-            // Register New User in Firebase
+            // ONLY NOW SAVE TO FIREBASE
             database.ref('PatientData/' + currentFullNumber).set({
                 FullName: name,
                 Phone: currentFullNumber,
@@ -406,14 +402,17 @@
             });
         }
 
+        // --- 5. FINALIZE LOGIN & REMEMBER ME ---
         function completeLogin(number) {
-            // Handle Remember Me
+            // Remember Me Logic
             if(document.getElementById('remCheck').checked) {
-                localStorage.setItem("saved_phone", number); // Save logic needs parsing to handle Country Code next time, simplified for now
+                localStorage.setItem("saved_phone", number);
+            } else {
+                localStorage.removeItem("saved_phone");
             }
+            
             localStorage.setItem("selectedUserId", number);
             
-            // Show Success View
             document.getElementById("login-view").style.display = "none";
             document.getElementById("success-view").style.display = "flex";
             document.getElementById("welcome-user-msg").innerText = number;
@@ -421,7 +420,7 @@
             showToast(txt[currentLang].toastLogin, "success");
         }
 
-        // --- 4. PRELOADER & ANIMATIONS (ORIGINAL) ---
+        // --- 6. PRELOADER, CLOCK, ANIMATIONS (PRESERVED) ---
         let currentLang = localStorage.getItem("language") || "en";
         let welcomePlayed = false;
 
@@ -432,14 +431,19 @@
             document.getElementById("language_select").value = currentLang;
             updateTexts();
             checkConnection();
-            
-            // Check Remember Me
-            /* Note: Restoring intl-tel-input from localstorage is complex because of country codes. 
-               We'll skip auto-fill logic to avoid bugs, but saving works for future use. */
+            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
+
+            // Restore Saved Phone
+            const saved = localStorage.getItem("saved_phone");
+            if (saved) {
+                iti.setNumber(saved);
+                document.getElementById('remCheck').checked = true;
+                validateLive();
+            }
         });
 
         function startPreloader() {
-            const bar = document.querySelector('.progress-bar');
+            const bar = document.getElementById('progressFill');
             let w = 0;
             const iv = setInterval(() => {
                 w += Math.random() * 15; if(w > 100) w = 100;
@@ -503,25 +507,35 @@
             }, 3000);
         }
 
-        // --- 5. TEXTS & LOCALIZATION ---
+        // --- 7. TEXTS & LOCALIZATION (FULL) ---
         const txt = {
             en: { 
                 uiTitle: "USER LOGIN", ph: "1xxxxxxxxx", btnScan: "INITIALIZE SCAN", success: "Access Granted", welcome: "Verified", btnDash: "OPEN DASHBOARD", errFormat: "Invalid Format", errInput: "Input Error", toastLogin: "Verified",
-                projName: "Bioscan ATM", sub: "Graduation Project 2026 | Electronics & Comm. Dept.", missionT: "Mission", mission: "Empowering communities with instant, hospital-grade health diagnostics via IoT to bridge the gap between patients and care.", visionT: "Vision", vision: "A world where proactive health monitoring is seamless and accessible to everyone everywhere.", teamT: "The Team", uni: "Zagazig University - Faculty of Engineering",
+                projName: "Bioscan ATM", sub: "Graduation Project 2026 | Electronics & Comm. Dept.", missionT: "Mission", mission: "Empowering communities with instant, hospital-grade health diagnostics via IoT to bridge the gap between patients and care.", visionT: "Vision", vision: "A world where proactive health monitoring is seamless and accessible to everyone everywhere.", teamT: "The Team", uni: "Zagazig University",
                 rem: "Remember Me",
                 conTitle: "Terms of Use & Data Privacy",
-                conBody: `<b>Medical Guidance Only:</b> Not a substitute for professional diagnosis.<br><b>Emergency Cases:</b> Go to hospital immediately for critical cases.<br><b>Data Security:</b> Stored securely on Firebase Cloud.<br><b>AI Analysis:</b> Statistical trends only.`,
-                agree: "I have read and agree to the terms.", send: "SEND VERIFICATION CODE",
-                verTitle: "Identity Setup", verSub: "Enter code & name", verBtn: "REGISTER & ENTER"
+                conBody: `
+                    <p><b>1. Medical Guidance Only:</b> This system is intended for informational and guidance purposes only. It is NOT a substitute for professional medical diagnosis or treatment.</p>
+                    <p><b>2. Emergency Cases:</b> In case of a medical emergency, please contact your local emergency services or go to the nearest hospital immediately. Do not rely on this system for life-critical decisions.</p>
+                    <p><b>3. Data Security:</b> Your vital signs and personal data are stored securely on our cloud servers (Firebase). By proceeding, you consent to this data processing.</p>
+                    <p><b>4. AI Analysis:</b> AI-generated insights are based on statistical trends and should be verified by a certified healthcare professional.</p>
+                `,
+                agree: "I have read and agree to the terms and data processing policy.", send: "PROCEED TO VERIFICATION",
+                verTitle: "Identity Setup", verSub: "Code sent to your phone", verBtn: "REGISTER & ENTER"
             },
             ar: { 
                 uiTitle: "تسجيل الدخول", ph: "1xxxxxxxxx", btnScan: "بدء الفحص", success: "تم بنجاح", welcome: "تم التحقق", btnDash: "لوحة التحكم", errFormat: "تنسيق خطأ", toastLogin: "تم التحقق",
-                projName: "مشروع Bioscan ATM", sub: "مشروع تخرج 2026 | قسم هندسة الإلكترونيات والاتصالات", missionT: "مهمتنا", mission: "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة عبر إنترنت الأشياء لسد الفجوة بين المرضى والرعاية الطبية.", visionT: "رؤيتنا", vision: "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع في كل مكان.", teamT: "فريق العمل", uni: "جامعة الزقازيق - كلية الهندسة",
+                projName: "مشروع Bioscan ATM", sub: "مشروع تخرج 2026 | قسم هندسة الإلكترونيات والاتصالات", missionT: "مهمتنا", mission: "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة عبر إنترنت الأشياء لسد الفجوة بين المرضى والرعاية الطبية.", visionT: "رؤيتنا", vision: "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع في كل مكان.", teamT: "فريق العمل", uni: "جامعة الزقازيق",
                 rem: "تذكرني",
-                conTitle: "شروط الاستخدام والخصوصية",
-                conBody: `<b>غرض إرشادي:</b> النظام ليس بديلاً عن الطبيب.<br><b>الطوارئ:</b> توجه للمستشفى فوراً في الحالات الحرجة.<br><b>البيانات:</b> مخزنة بأمان على خوادم سحابية.<br><b>الذكاء الاصطناعي:</b> تحليلات إحصائية فقط.`,
-                agree: "أقر بأنني قرأت الشروط وأوافق عليها.", send: "إرسال كود التحقق",
-                verTitle: "إثبات الهوية", verSub: "أدخل الكود والاسم", verBtn: "تسجيل ودخول"
+                conTitle: "شروط الاستخدام واتفاقية الخصوصية",
+                conBody: `
+                    <p><b>1. غرض إرشادي فقط:</b> هذا النظام مخصص للأغراض الاسترشادية والمعلوماتية فقط، ولا يعتبر بديلاً عن التشخيص الطبي المهني أو العلاج.</p>
+                    <p><b>2. حالات الطوارئ:</b> في حالة وجود طارئ طبي، يرجى الاتصال بخدمات الطوارئ المحلية أو التوجه لأقرب مستشفى فوراً. لا تعتمد على هذا النظام في اتخاذ قرارات مصيرية.</p>
+                    <p><b>3. خصوصية البيانات:</b> يتم تخزين علاماتك الحيوية وبياناتك الشخصية بشكل آمن على خوادمنا السحابية. باستمرارك في الاستخدام، فأنت توافق على معالجة هذه البيانات.</p>
+                    <p><b>4. التحليل الذكي:</b> التقارير الصادرة عن الذكاء الاصطناعي هي مجرد تحليل للأنماط الإحصائية ويجب مراجعتها من قبل طبيب مختص.</p>
+                `,
+                agree: "أقر بأنني قرأت الشروط وأوافق على سياسة معالجة البيانات.", send: "متابعة واستلام الكود",
+                verTitle: "إثبات الهوية", verSub: "تم إرسال الكود لهاتفك", verBtn: "تسجيل ودخول"
             }
         };
 
