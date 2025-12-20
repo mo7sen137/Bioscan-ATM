@@ -41,10 +41,11 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* تنسيق مكتبة الدول لتتناسق مع تصميمك */
+        /* تنسيق قائمة الدول لتنسجم مع تصميمك */
         .iti { width: 100%; }
         .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 100; }
         .iti__country:hover { background-color: rgba(0, 242, 255, 0.1); }
+        .iti__separate-dial-code .iti__selected-dial-code { color: #fff; font-family: 'Orbitron'; margin-left: 5px; }
 
         /* --- 2. ENHANCED BIO-BACKGROUND --- */
         #bio-background {
@@ -164,50 +165,81 @@
             opacity: 0.8;
         }
 
+        /* Input */
         .input-wrapper { position: relative; margin-bottom: 30px; }
         .input-field {
             width: 100%; background: rgba(0, 0, 0, 0.5); 
             border: 2px solid rgba(255, 255, 255, 0.1);
-            padding: 15px; font-size: 1.5rem; color: #fff; text-align: center; border-radius: 12px;
+            padding: 15px; font-size: 1.5rem; letter-spacing: 3px; color: #fff; text-align: center; border-radius: 12px;
             font-family: 'Orbitron', sans-serif; transition: 0.3s;
         }
         .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 25px rgba(0, 242, 255, 0.3); background: rgba(0, 10, 20, 0.8); }
+        .input-field::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 1px; font-size: 1rem; }
 
+        /* Improved Tooltip */
         .id-tooltip {
             position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%) translateY(10px);
             background: rgba(5, 10, 15, 0.95); border: 1px solid var(--primary-neon);
             color: #fff; padding: 10px 15px; border-radius: 8px; font-size: 0.8rem; width: 220px;
-            text-align: center; opacity: 0; visibility: hidden; transition: 0.4s;
-            pointer-events: none; z-index: 20;
+            text-align: center; opacity: 0; visibility: hidden; transition: 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            pointer-events: none; z-index: 20; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
         }
+        .id-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; margin-left: -6px;
+            border-width: 6px; border-style: solid; border-color: var(--primary-neon) transparent transparent transparent;
+        }
+        .id-tooltip span { color: var(--primary-neon); font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; }
+        
         .input-wrapper:hover .id-tooltip, .input-field:focus + .id-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
-        .error-msg { color: var(--error); font-size: 0.85rem; margin-top: 10px; min-height: 20px; font-weight: bold; }
-        .shake { animation: shake 0.4s ease-in-out; border-color: var(--error) !important; }
+        .error-msg { color: var(--error); font-size: 0.85rem; margin-top: 10px; min-height: 20px; font-weight: bold; text-shadow: 0 0 8px rgba(255, 42, 42, 0.6); }
+        .shake { animation: shake 0.4s ease-in-out; border-color: var(--error) !important; box-shadow: 0 0 15px var(--error) !important; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
 
+        /* Buttons */
         .action-btn {
             width: 100%; padding: 15px; border: none; border-radius: 50px;
             background: linear-gradient(90deg, rgba(0,242,255,0.05), rgba(0,242,255,0.15));
             border: 1px solid var(--primary-neon); color: #fff;
             font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px;
             cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
+            position: relative; overflow: hidden;
         }
+        .action-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        .action-btn:hover::before { left: 100%; }
         .action-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 40px var(--primary-neon); }
 
+        /* Success & Dashboard */
         #success-view { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
-        .dashboard-btn { background: var(--success); color: #000; border: none; font-weight: 700; }
+        .dashboard-btn { background: var(--success); color: #000; border: none; font-weight: 700; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
         .dashboard-btn:hover { background: #fff; box-shadow: 0 0 40px #fff; }
-        .success-icon { font-size: 3.5rem; color: var(--success); margin-bottom: 15px; }
+        .success-icon { font-size: 3.5rem; color: var(--success); margin-bottom: 15px; filter: drop-shadow(0 0 15px var(--success)); animation: popIn 0.5s; }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); }
+        .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
 
+        /* --- 5. INFO MODAL --- */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 650px; padding: 30px; border-radius: 15px; max-height: 90vh; overflow-y: auto; }
+        .modal-box {
+            background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 650px; padding: 30px; border-radius: 15px;
+            box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; transform: scale(0.9); transition: 0.3s; max-height: 90vh; overflow-y: auto;
+        }
+        .modal-active .modal-box { transform: scale(1); }
+        .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+        .close-modal:hover { color: var(--error); transform: rotate(90deg); }
 
-        #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out; }
-        .progress-bar { width: 200px; height: 4px; background: var(--primary-neon); border-radius: 2px; }
-
+        /* PRELOADER STYLES */
+        #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
+        .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
+        .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spin 1.5s linear infinite; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
+        .loader-logo { position: absolute; inset: 15px; border-radius: 50%; background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover; animation: pulseLoader 2s infinite ease-in-out; filter: drop-shadow(0 0 10px var(--primary-neon)); }
+        .loader-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
+        .progress-bar { width: 0%; height: 4px; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); transition: width 0.3s; border-radius: 2px; width: 200px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -219,9 +251,9 @@
             <div class="loader-ring"></div>
             <div class="loader-logo"></div>
         </div>
-        <div class="loader-title" style="font-family:Orbitron; color:white; font-size:1.8rem;">BIOSCAN ATM</div>
-        <div id="loaderStatus" style="color:#aaa; margin:10px 0;">Initializing System...</div>
-        <div class="progress-bar"><div id="progressFill" style="height:100%; width:0%; background:var(--primary-neon); transition:0.1s;"></div></div>
+        <div class="loader-title">BIOSCAN ATM</div>
+        <div class="loader-status" id="loaderStatus">Initializing Biosensors...</div>
+        <div class="progress-bar"></div>
     </div>
 
     <div id="bio-background"></div>
@@ -240,9 +272,10 @@
                 <div class="clock-date" id="clockDate">--/--/----</div>
             </div>
         </div>
+
         <div class="controls">
             <div class="status-badge pulse-active" id="statusBadge">
-                <div class="status-led"></div>
+                <div class="status-led" id="connectionLed"></div>
                 <div class="status-text" id="connectionText">ONLINE</div>
             </div>
             <button class="icon-btn" onclick="toggleModal(true)" title="Info"><i class="fas fa-info"></i></button>
@@ -265,7 +298,7 @@
                     <input type="tel" id="userId" class="input-field">
                     <div class="id-tooltip" id="id-tooltip">
                         <span>Requirements:</span>
-                        Select country & enter valid mobile number.
+                        Select country & enter valid phone number.
                     </div>
                     <div class="error-msg" id="helper-text"></div>
                 </div>
@@ -281,15 +314,26 @@
                 <button class="action-btn dashboard-btn" onclick="goToDashboard()">
                     <i class="fas fa-chart-pie"></i> <span id="dash-btn-text">OPEN DASHBOARD</span>
                 </button>
+                <button class="icon-btn" onclick="resetView()" style="margin-top: 20px; width: 40px; height: 40px; margin-left: auto; margin-right: auto; border-color: #555; color: #555;">
+                    <i class="fas fa-redo"></i>
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="footer">Graduation Project 2026 | Zagazig University</div>
+    <div class="footer">Graduation Project 2026 | Zagazig University - Faculty of Engineering</div>
     <div class="toast-container" id="toastContainer"></div>
 
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal-box">
+            <button class="close-modal" onclick="toggleModal(false)"><i class="fas fa-times"></i></button>
+            <h2 id="modal-project-name" style="color:#fff; text-align: center;">Bioscan ATM</h2>
+            <div id="uni-text" style="text-align: center; color: var(--primary-neon);">Zagazig University - Faculty of Engineering</div>
+        </div>
+    </div>
+
     <script>
-        // --- 1. CONFIG & INIT ---
+        // --- 1. FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
             authDomain: "smart-a76a0.firebaseapp.com",
@@ -301,58 +345,63 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-        // تأكيد الدخول للسماح بالقراءة بناءً على الـ Rules
         auth.signInAnonymously().catch(console.error);
 
-        // --- 2. INTL-TEL-INPUT SETUP ---
-        const phoneInputField = document.querySelector("#userId");
-        const iti = window.intlTelInput(phoneInputField, {
+        // --- 2. INITIALIZE INTL-TEL-INPUT (تفعيل كود الدولة) ---
+        const phoneInput = document.querySelector("#userId");
+        const iti = window.intlTelInput(phoneInput, {
+            separateDialCode: true, // لإظهار الكود فى خانة منفصلة قبل الرقم
             preferredCountries: ["eg", "sa", "ae"],
             utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
         });
 
-        // --- 3. LOGIN LOGIC (MODIFIED) ---
+        // --- 3. LOGIN LOGIC (تعديل الـ Function فقط) ---
         function processLogin() {
+            const input = document.getElementById("userId");
             const helper = document.getElementById("helper-text");
             const btn = document.getElementById("loginBtn");
-            const input = document.getElementById("userId");
 
             input.classList.remove("shake");
             helper.innerText = "";
 
-            // فحص الرقم عن طريق المكتبة
+            // استخدام المكتبة للتأكد إن الرقم صحيح حسب الدولة
             if (iti.isValidNumber()) {
-                const fullPhoneNumber = iti.getNumber(); // يسحب الرقم بكود الدولة (مثلاً +2010...)
-                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Checking...';
-
-                // البحث في الفايربيز
-                database.ref('PatientData/' + fullPhoneNumber).once('value').then(snapshot => {
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Checking Database...';
+                
+                // سحب الرقم كاملاً بصيغة دولية (مثلاً +201021...)
+                const fullNumber = iti.getNumber();
+                
+                // البحث فى الفايربيز
+                const ref = database.ref('PatientData/' + fullNumber);
+                
+                ref.once('value').then(snapshot => {
                     if (snapshot.exists()) {
-                        localStorage.setItem("selectedUserId", fullPhoneNumber);
+                        // المستخدم موجود
+                        localStorage.setItem("selectedUserId", fullNumber);
                         setTimeout(() => { 
                             showToast(txt[currentLang].toastLogin, 'success'); 
-                            switchViewToDashboard(fullPhoneNumber); 
+                            switchViewToDashboard(fullNumber); 
                         }, 800);
                     } else {
-                        // لو الرقم مش موجود
-                        btn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan;
+                        // المستخدم غير مسجل - نرجعه للوضع الطبيعى ونطلعه Shake
+                        btn.innerHTML = '<i class="fas fa-fingerprint"></i> <span id="btn-text">' + txt[currentLang].btnScan + '</span>';
                         input.classList.add("shake");
-                        helper.innerText = currentLang === 'ar' ? "المستخدم غير مسجل" : "User Not Registered";
-                        if (navigator.vibrate) navigator.vibrate(200);
+                        helper.innerText = currentLang === 'ar' ? "المستخدم غير موجود" : "User not found";
                     }
                 });
             } else {
-                // لو التنسيق غلط أصلاً
+                // الرقم تنسيقه غلط
                 input.classList.add("shake");
                 helper.innerText = txt[currentLang].errFormat;
+                showToast(txt[currentLang].errInput, 'error');
                 if (navigator.vibrate) navigator.vibrate(200);
             }
         }
 
-        // --- 4. PRESERVED ORIGINAL FUNCTIONS ---
+        // --- 4. باقي الأكواد والأنيميشن كما هى تماماً ---
         function createBioBackground() {
             const container = document.getElementById('bio-background');
-            const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-lungs', 'fa-brain'];
+            const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-pills', 'fa-lungs', 'fa-brain'];
             for (let i = 0; i < 35; i++) {
                 const el = document.createElement('i');
                 el.classList.add('fas', icons[Math.floor(Math.random() * icons.length)], 'bio-symbol');
@@ -377,19 +426,17 @@
         });
 
         function startPreloader() {
-            const fill = document.getElementById('progressFill');
+            const bar = document.querySelector('.progress-bar');
+            const pre = document.getElementById('preloader');
             let w = 0;
             const iv = setInterval(() => {
                 w += Math.random() * 15; if(w > 100) w = 100;
-                fill.style.width = w + '%';
+                bar.style.width = w + '%';
                 if(w===100) {
                     clearInterval(iv);
                     setTimeout(() => { 
-                        document.getElementById('preloader').style.opacity = '0'; 
-                        setTimeout(() => {
-                            document.getElementById('preloader').style.display='none';
-                            playWelcomeMessage();
-                        }, 800);
+                        pre.style.opacity = '0'; 
+                        setTimeout(() => { pre.style.display='none'; playWelcomeMessage(); }, 800); 
                     }, 500);
                 }
             }, 100);
@@ -419,11 +466,14 @@
                 try {
                     await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" });
                     badge.classList.remove('offline');
-                } catch (e) {
-                    badge.classList.add('offline');
-                }
+                } catch (e) { badge.classList.add('offline'); }
             }, 3000);
         }
+
+        const txt = {
+            en: { uiTitle: "USER LOGIN", btnScan: "INITIALIZE SCAN", success: "Access Granted", welcome: "Verified", btnDash: "OPEN DASHBOARD", errFormat: "Invalid Format", errInput: "Input Error", toastLogin: "Verified" },
+            ar: { uiTitle: "تسجيل الدخول", btnScan: "بدء الفحص", success: "تم بنجاح", welcome: "تم التحقق", btnDash: "لوحة التحكم", errFormat: "تنسيق خطأ", toastLogin: "تم التحقق" }
+        };
 
         function updateTexts() {
             const t = txt[currentLang];
@@ -438,14 +488,10 @@
 
         function changeLanguage() { currentLang = document.getElementById("language_select").value; localStorage.setItem("language", currentLang); updateTexts(); }
         function switchViewToDashboard(uid) { document.getElementById("login-view").style.display = "none"; document.getElementById("success-view").style.display = "flex"; document.getElementById("welcome-user-msg").innerText = uid; }
+        function resetView() { document.getElementById("success-view").style.display = "none"; document.getElementById("login-view").style.display = "block"; document.getElementById("userId").value = ""; }
         function goToDashboard() { window.location.href = "measurements.html"; }
         function showToast(msg, type) { const container = document.getElementById("toastContainer"); const toast = document.createElement("div"); toast.className = "toast"; toast.innerText = msg; container.appendChild(toast); setTimeout(() => toast.remove(), 3500); }
         function toggleModal(show) { document.getElementById('aboutModal').style.display = show ? 'flex' : 'none'; }
-
-        const txt = {
-            en: { uiTitle: "USER LOGIN", btnScan: "INITIALIZE SCAN", success: "Access Granted", welcome: "Verified", btnDash: "OPEN DASHBOARD", errFormat: "Invalid Number", toastLogin: "Verified" },
-            ar: { uiTitle: "تسجيل الدخول", btnScan: "بدء الفحص", success: "تم بنجاح", welcome: "تم التحقق", btnDash: "لوحة التحكم", errFormat: "رقم خطأ", toastLogin: "تم التحقق" }
-        };
     </script>
 </body>
 </html>
