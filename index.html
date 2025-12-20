@@ -46,7 +46,7 @@
         .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
         .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spin 1.5s linear infinite; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
         .loader-logo { position: absolute; inset: 15px; border-radius: 50%; background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover; animation: pulseLoader 2s infinite ease-in-out; filter: drop-shadow(0 0 10px var(--primary-neon)); }
-        .loader-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
+        .loader-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
         .progress-bar { width: 0%; height: 4px; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); transition: width 0.3s; border-radius: 2px; width: 200px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
@@ -80,7 +80,7 @@
         .header-left { display: flex; align-items: center; gap: 20px; }
         .brand { display: flex; align-items: center; gap: 15px; }
         .brand-logo { width: 45px; height: 45px; border: 2px solid var(--primary-neon); border-radius: 50%; box-shadow: 0 0 15px var(--primary-neon); animation: pulseLogo 3s infinite; }
-        .brand-text h1 { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin: 0; letter-spacing: 2px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .brand-text h1 { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin: 0; letter-spacing: 2px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .brand-text p { margin: 0; font-size: 0.7rem; color: var(--primary-neon); opacity: 0.8; letter-spacing: 2px; }
         .live-clock { display: flex; flex-direction: column; align-items: flex-start; border-left: 2px solid rgba(0, 242, 255, 0.3); padding-left: 15px; font-family: 'Orbitron', sans-serif; }
         .clock-time { font-size: 1.1rem; font-weight: bold; color: var(--primary-neon); }
@@ -310,6 +310,17 @@
         const database = firebase.database();
         const auth = firebase.auth();
 
+        // --- GLOBAL VARIABLES ---
+        let welcomePlayed = false;
+
+        // أرقام التيست في Firebase (ضع أرقامك وكودها هنا)
+        // Example:
+        // '+201234567890': '123456'
+        const testPhones = {
+            // '+201234567890': '123456',
+        };
+        let isTestPhone = false;
+
         // --- 2. RESTORED PRELOADER JS (Random Increments) ---
         function startPreloader() {
             const bar = document.querySelector('.progress-bar');
@@ -330,14 +341,6 @@
             }, 100);
         }
 
-        window.onload = () => {
-            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
-            createBioBackground(); startPreloader(); startClock(); updateTexts(); checkConnection();
-            const saved = localStorage.getItem("saved_phone");
-            if(saved) { iti.setNumber(saved); document.getElementById('remCheck').checked = true; validateLive(); }
-            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
-        };
-
         // --- 3. INPUT SETUP ---
         const phoneInput = document.querySelector("#userId");
         const iti = window.intlTelInput(phoneInput, {
@@ -345,6 +348,14 @@
             preferredCountries: ["eg", "sa", "ae"],
             utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
         });
+
+        window.onload = () => {
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
+            createBioBackground(); startPreloader(); startClock(); updateTexts(); checkConnection();
+            const saved = localStorage.getItem("saved_phone");
+            if(saved) { iti.setNumber(saved); document.getElementById('remCheck').checked = true; validateLive(); }
+            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
+        };
 
         function validateLive() {
             if (iti.isValidNumber()) { phoneInput.classList.add("valid"); phoneInput.classList.remove("invalid"); } 
@@ -358,31 +369,105 @@
         function processLogin() {
             if (!iti.isValidNumber()) { phoneInput.classList.add("shake"); setTimeout(() => phoneInput.classList.remove("shake"), 400); return; }
             currentFullNumber = iti.getNumber();
-            document.getElementById("loginBtn").innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Checking Database...';
+            isTestPhone = !!testPhones[currentFullNumber];
+            const loginBtn = document.getElementById("loginBtn");
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Checking Database...';
             
             auth.signInAnonymously().then(() => {
                 database.ref('PatientData/' + currentFullNumber).once('value').then(snapshot => {
                     if (snapshot.exists()) { completeLogin(currentFullNumber); } 
-                    else { document.getElementById("loginBtn").innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan; toggleModal('consentModal', true); }
+                    else { 
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan; 
+                        toggleModal('consentModal', true); 
+                    }
+                }).catch(e => {
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan;
+                    showToast("Database Error", "error");
+                    console.error(e);
                 });
-            }).catch(e => { toggleModal('consentModal', true); });
+            }).catch(e => { 
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan;
+                toggleModal('consentModal', true);
+                console.error(e);
+            });
         }
 
         function proceedToVerification() {
             toggleModal('consentModal', false);
+            const btnSendCode = document.getElementById('btnSendCode');
+            btnSendCode.disabled = true;
+            btnSendCode.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> ' + (currentLang === 'ar' ? 'جاري الإرسال...' : 'Sending...');
+
+            // في حالة أرقام التيست: لا نستدعي SMS API، فقط نُظهر مودال التحقق ونستخدم الكود الثابت
+            if (isTestPhone) {
+                window.confirmationResult = null; // تأكيد أننا في وضع تيست
+                toggleModal('verifyModal', true);
+                btnSendCode.disabled = false;
+                btnSendCode.innerHTML = '<span id="lblSend">' + txt[currentLang].lblSend + '</span>';
+                showToast(currentLang === 'ar' ? "تم إرسال كود تجريبي (بدون خصم من الكوتة)" : "Test OTP 'sent' (no real SMS).", "success");
+                return;
+            }
+            
             auth.signInWithPhoneNumber(currentFullNumber, window.recaptchaVerifier).then(result => {
-                window.confirmationResult = result; toggleModal('verifyModal', true);
-            }).catch(e => { showToast("SMS Error: Check Console", "error"); console.error(e); });
+                window.confirmationResult = result; 
+                toggleModal('verifyModal', true);
+                btnSendCode.disabled = false;
+                btnSendCode.innerHTML = '<span id="lblSend">' + txt[currentLang].lblSend + '</span>';
+            }).catch(e => { 
+                btnSendCode.disabled = false;
+                btnSendCode.innerHTML = '<span id="lblSend">' + txt[currentLang].lblSend + '</span>';
+                showToast(currentLang === 'ar' ? "خطأ في إرسال الرسالة" : "SMS Error: Check Console", "error"); 
+                console.error(e); 
+            });
         }
 
         function verifyAndRegister() {
             const code = document.getElementById('codeInput').value;
-            const name = document.getElementById('nameInput').value;
-            if(name.length < 3) return showToast("Enter Name", "error");
+            const name = document.getElementById('nameInput').value.trim();
+            if(name.length < 3) {
+                showToast(currentLang === 'ar' ? "أدخل الاسم" : "Enter Name", "error");
+                return;
+            }
+            if(!code || code.length !== 6) {
+                showToast(currentLang === 'ar' ? "أدخل الرمز المكون من 6 أرقام" : "Enter 6-digit code", "error");
+                return;
+            }
+
+            // حالة أرقام التيست: نتحقق بالكود الثابت من الماب فقط بدون Firebase Phone Auth
+            if (isTestPhone) {
+                const expectedCode = testPhones[currentFullNumber];
+                if (!expectedCode || code !== expectedCode) {
+                    showToast(currentLang === 'ar' ? "رمز غير صحيح (وضع تيست)" : "Invalid test code", "error");
+                    return;
+                }
+                database.ref('PatientData/' + currentFullNumber).set({ FullName: name, Phone: currentFullNumber, RegistrationDate: new Date().toLocaleString(), SensorData: "No measurement recorded yet" })
+                .then(() => { toggleModal('verifyModal', false); completeLogin(currentFullNumber); })
+                .catch(e => {
+                    showToast(currentLang === 'ar' ? "خطأ في حفظ البيانات" : "Database Save Error", "error");
+                    console.error(e);
+                });
+                return;
+            }
+
+            if(!window.confirmationResult) {
+                showToast(currentLang === 'ar' ? "خطأ في التحقق" : "Verification Error", "error");
+                return;
+            }
             window.confirmationResult.confirm(code).then(() => {
                 database.ref('PatientData/' + currentFullNumber).set({ FullName: name, Phone: currentFullNumber, RegistrationDate: new Date().toLocaleString(), SensorData: "No measurement recorded yet" })
-                .then(() => { toggleModal('verifyModal', false); completeLogin(currentFullNumber); });
-            }).catch(() => showToast("Invalid Code", "error"));
+                .then(() => { toggleModal('verifyModal', false); completeLogin(currentFullNumber); })
+                .catch(e => {
+                    showToast(currentLang === 'ar' ? "خطأ في حفظ البيانات" : "Database Save Error", "error");
+                    console.error(e);
+                });
+            }).catch(e => {
+                showToast(currentLang === 'ar' ? "رمز غير صحيح" : "Invalid Code", "error");
+                console.error(e);
+            });
         }
 
         function completeLogin(number) {
@@ -455,13 +540,23 @@
                 uiTitle: "USER LOGIN", ph: "1xxxxxxxxx", btnScan: "INITIALIZE SCAN", success: "Access Granted", toastLogin: "Verified",
                 conTitle: "Terms of Use & Privacy",
                 conBody: `<b>Terms of Use & Data Privacy Agreement</b><br><br><b>1. Medical Guidance Only:</b> This system is intended for informational and guidance purposes only. It is NOT a substitute for professional medical diagnosis or treatment.<br><br><b>2. Emergency Cases:</b> In case of a medical emergency, please contact your local emergency services or go to the nearest hospital immediately. Do not rely on this system for life-critical decisions.<br><br><b>3. Data Security:</b> Your vital signs and personal data are stored securely on our cloud servers (Firebase). By proceeding, you consent to this data processing.<br><br><b>4. AI Analysis:</b> AI-generated insights are based on statistical trends and should be verified by a certified healthcare professional.`,
-                lblAgree: "I have read and agree to the terms.", lblSend: "AGREE & PROCEED"
+                lblAgree: "I have read and agree to the terms.", lblSend: "AGREE & PROCEED",
+                projName: "Bioscan ATM", sub: "Graduation Project 2026", missionT: "Mission", mission: "Empowering communities with instant, hospital-grade health diagnostics via IoT.",
+                visionT: "Vision", vision: "A world where proactive health monitoring is seamless and accessible to everyone everywhere.",
+                teamT: "The Team", uni: "Zagazig University - Faculty of Engineering",
+                verTitle: "Verify Identity", verSub: "Code sent via SMS", lblVerify: "VERIFY & REGISTER",
+                dashBtnText: "OPEN DASHBOARD"
             },
             ar: { 
                 uiTitle: "تسجيل الدخول", ph: "1xxxxxxxxx", btnScan: "بدء الفحص", success: "تم بنجاح", toastLogin: "تم التحقق",
                 conTitle: "شروط الاستخدام والخصوصية",
                 conBody: `<b>شروط الاستخدام واتفاقية خصوصية البيانات</b><br><br><b>1. غرض إرشادي فقط:</b> هذا النظام مخصص للأغراض الاسترشادية والمعلوماتية فقط، ولا يعتبر بديلاً عن التشخيص الطبي المهني أو العلاج.<br><br><b>2. حالات الطوارئ:</b> في حالة وجود طارئ طبي، يرجى الاتصال بخدمات الطوارئ المحلية أو التوجه لأقرب مستشفى فوراً. لا تعتمد على هذا النظام في اتخاذ قرارات مصيرية.<br><br><b>3. خصوصية البيانات:</b> يتم تخزين علاماتك الحيوية وبياناتك الشخصية بشكل آمن على خوادمنا السحابية (Firebase). باستمرارك في الاستخدام، فأنت توافق على معالجة هذه البيانات.<br><br><b>4. التحليل الذكي:</b> التقارير الصادرة عن الذكاء الاصطناعي هي مجرد تحليل للأنماط الإحصائية ويجب مراجعتها من قبل طبيب مختص.`,
-                lblAgree: "أقر بأنني قرأت الشروط وأوافق عليها.", lblSend: "موافق والمتابعة"
+                lblAgree: "أقر بأنني قرأت الشروط وأوافق عليها.", lblSend: "موافق والمتابعة",
+                projName: "بايوسكان ATM", sub: "مشروع التخرج 2026", missionT: "المهمة", mission: "تمكين المجتمعات من التشخيص الصحي الفوري على مستوى المستشفيات عبر إنترنت الأشياء.",
+                visionT: "الرؤية", vision: "عالم حيث يكون مراقبة الصحة الاستباقية سلسة ومتاحة للجميع في كل مكان.",
+                teamT: "الفريق", uni: "جامعة الزقازيق - كلية الهندسة",
+                verTitle: "التحقق من الهوية", verSub: "تم إرسال الرمز عبر الرسائل النصية", lblVerify: "التحقق والتسجيل",
+                dashBtnText: "فتح لوحة التحكم"
             }
         };
 
@@ -475,15 +570,35 @@
             document.getElementById("lblSend").innerText = t.lblSend;
             document.getElementById("lblRem").innerText = currentLang === 'ar' ? "تذكرني" : "Remember Me";
             
-            // Modals Static
-            document.getElementById("modal-project-name").innerText = t.projName;
-            document.getElementById("modal-subtitle").innerText = t.sub;
+            // Modals Static - with safe checks
+            const modalProjName = document.getElementById("modal-project-name");
+            if(modalProjName) modalProjName.innerText = t.projName;
+            
+            const modalSubtitle = document.getElementById("modal-subtitle");
+            if(modalSubtitle) modalSubtitle.innerText = t.sub;
+            
             document.getElementById("mission-title").innerText = t.missionT;
             document.getElementById("mission-text").innerText = t.mission;
             document.getElementById("vision-title").innerText = t.visionT;
             document.getElementById("vision-text").innerText = t.vision;
             document.getElementById("team-title").innerText = t.teamT;
-            document.getElementById("uni-text").innerText = t.uni;
+            
+            const uniText = document.getElementById("uni-text");
+            if(uniText) uniText.innerText = t.uni;
+            
+            // Verification Modal
+            const verTitle = document.getElementById("ver-title");
+            if(verTitle) verTitle.innerText = t.verTitle;
+            
+            const verSub = document.getElementById("ver-sub");
+            if(verSub) verSub.innerText = t.verSub;
+            
+            const lblVerify = document.getElementById("lblVerify");
+            if(lblVerify) lblVerify.innerText = t.lblVerify;
+            
+            // Dashboard Button
+            const dashBtnText = document.getElementById("dash-btn-text");
+            if(dashBtnText) dashBtnText.innerText = t.dashBtnText;
         }
 
         function showToast(m, t) { const c = document.getElementById("toastContainer"); const el = document.createElement("div"); el.className = "toast"; el.style.borderLeftColor = t==='error'?'var(--error)':'var(--success)'; el.innerHTML = `<i class="fas fa-info-circle"></i> ${m}`; c.appendChild(el); setTimeout(()=>el.remove(), 3500); }
