@@ -17,7 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 
     <style>
-        /* --- 1. THEME & SETUP --- */
+        /* --- 1. THEME & VARIABLES (ORIGINAL) --- */
         :root {
             --primary-neon: #00f2ff;
             --secondary-neon: #7000ff;
@@ -41,13 +41,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* Library Styling Override */
-        .iti { width: 100%; }
-        .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 1000; text-align: left; }
-        .iti__country:hover { background-color: rgba(0, 242, 255, 0.1); }
-        .iti__separate-dial-code .iti__selected-dial-code { color: #fff; font-family: 'Orbitron'; margin-left: 5px; }
-
-        /* --- 2. BACKGROUND ANIMATION (Original) --- */
+        /* --- 2. BACKGROUND ANIMATION (RESTORED) --- */
         #bio-background {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             overflow: hidden; 
@@ -66,7 +60,7 @@
             100% { transform: translate(-20px, -10vh) rotate(360deg) scale(0.5); opacity: 0; }
         }
 
-        /* --- 3. HEADER --- */
+        /* --- 3. HEADER & STATUS --- */
         header {
             position: absolute; top: 0; width: 100%; padding: 15px 40px;
             display: flex; justify-content: space-between; align-items: center; z-index: 10;
@@ -81,25 +75,33 @@
         .live-clock { display: flex; flex-direction: column; align-items: flex-start; border-left: 2px solid rgba(0, 242, 255, 0.3); padding-left: 15px; font-family: 'Orbitron', sans-serif; }
         .clock-time { font-size: 1.1rem; font-weight: bold; color: var(--primary-neon); }
         .clock-date { font-size: 0.7rem; color: #aaa; letter-spacing: 1px; }
+        
         .controls { display: flex; gap: 15px; align-items: center; }
         .status-badge { display: flex; align-items: center; gap: 10px; background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.2); padding: 5px 12px; border-radius: 20px; }
         .status-led { width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 10px var(--success); }
         .status-text { font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: var(--success); font-weight: bold; }
         .status-badge.offline .status-led { background-color: var(--error); box-shadow: 0 0 10px var(--error); }
         .status-badge.offline .status-text { color: var(--error); }
+        
         .icon-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: var(--primary-neon); width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
         .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
+        
         select.lang-select { background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon); padding: 5px 12px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer; }
         select.lang-select option { background: #050b14; }
 
-        /* --- 4. HUD & LOGIN --- */
+        /* --- 4. HUD CARD & INPUTS --- */
         .main-container { position: relative; z-index: 5; width: 100%; max-width: 480px; padding: 20px; }
         .hud-card { background: var(--glass-panel); backdrop-filter: blur(25px); border: 1px solid var(--border-color); border-radius: 20px; padding: 45px 35px; text-align: center; position: relative; box-shadow: 0 0 30px rgba(0, 242, 255, 0.15); animation: cardBreath 4s infinite ease-in-out; }
         @keyframes cardBreath { 0%, 100% { border-color: rgba(0, 242, 255, 0.3); } 50% { border-color: rgba(0, 242, 255, 0.6); } }
         .card-header h2 { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; margin: 0; text-shadow: 0 0 15px var(--primary-neon); letter-spacing: 2px; }
         .energy-divider { height: 2px; width: 80%; margin: 20px auto 40px; background: radial-gradient(circle, var(--primary-neon) 0%, rgba(0,242,255,0) 90%); box-shadow: 0 0 10px var(--primary-neon); opacity: 0.8; }
 
-        .input-wrapper { position: relative; margin-bottom: 30px; }
+        /* ITI & Input Styling */
+        .iti { width: 100%; margin-bottom: 15px; }
+        .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 2000; text-align: left; }
+        .iti__country:hover { background-color: rgba(0, 242, 255, 0.1); }
+        .iti__selected-dial-code { color: #fff; font-family: 'Orbitron'; margin-left: 5px; }
+
         .input-field { width: 100%; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.1); padding: 15px; font-size: 1.5rem; color: #fff; border-radius: 12px; font-family: 'Orbitron', sans-serif; transition: 0.3s; }
         .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 25px rgba(0, 242, 255, 0.3); }
         .input-field.valid { border-color: var(--success); box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
@@ -120,15 +122,16 @@
 
         .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
 
-        /* --- 5. MODALS (CONSENT & TEAM) --- */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); opacity: 0; transition: 0.3s; }
+        /* --- 5. MODALS (Updated) --- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); opacity: 0; transition: 0.3s; }
         .modal-overlay.active { opacity: 1; }
-        .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 700px; padding: 40px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: 0.3s; }
+        .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 700px; padding: 30px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: 0.3s; }
         .modal-overlay.active .modal-box { transform: scale(1); }
         .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; z-index: 10; }
         .close-modal:hover { color: var(--error); transform: rotate(90deg); }
 
-        .consent-text { text-align: left; font-size: 0.95rem; line-height: 1.7; color: #ccc; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.3); max-height: 350px; overflow-y: auto; }
+        /* Consent Text */
+        .consent-text { text-align: left; font-size: 0.9rem; line-height: 1.7; color: #ccc; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.3); max-height: 350px; overflow-y: auto; }
         body.rtl .consent-text { text-align: right; }
         .consent-check { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #fff; margin-bottom: 25px; cursor: pointer; }
 
@@ -143,7 +146,7 @@
         .team-member:hover { border-color: var(--secondary-neon); background: rgba(112, 0, 255, 0.15); transform: translateX(5px); }
         .team-member i { color: var(--secondary-neon); font-size: 1rem; }
 
-        /* --- 6. ORIGINAL PRELOADER --- */
+        /* --- 6. PRELOADER & TOAST (ORIGINAL) --- */
         #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
         .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
         .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spin 1.5s linear infinite; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
@@ -153,7 +156,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
 
-        .toast-container { position: fixed; top: 100px; right: 20px; z-index: 3000; }
+        .toast-container { position: fixed; top: 100px; right: 20px; z-index: 4000; }
         .toast { background: rgba(5, 11, 20, 0.95); border-left: 4px solid var(--success); padding: 15px 25px; margin-bottom: 10px; border-radius: 5px; color: #fff; animation: slideIn 0.4s ease; display: flex; align-items: center; gap: 10px; }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
         .shake { animation: shake 0.4s; border-color: var(--error) !important; }
@@ -169,8 +172,8 @@
             <div class="loader-logo"></div>
         </div>
         <div class="loader-title">BIOSCAN ATM</div>
-        <div class="loader-status" id="loaderStatus">Initializing Biosensors...</div>
-        <div class="progress-bar"></div>
+        <div class="loader-status" id="loaderStatus" style="color:#aaa; margin:10px 0;">Initializing Biosensors...</div>
+        <div class="progress-bar"><div id="progressFill" style="height:100%; width:0%; background:var(--primary-neon); transition:0.1s;"></div></div>
     </div>
 
     <div id="bio-background"></div>
@@ -282,7 +285,7 @@
                 <span id="lblAgree">I have read and agree to the terms.</span>
             </label>
             <button class="action-btn" id="btnSendCode" onclick="proceedToVerification()" disabled style="opacity:0.5;">
-                <span id="lblSend">PROCEED TO VERIFICATION</span>
+                <span id="lblSend">AGREE & SEND SMS</span>
             </button>
         </div>
     </div>
@@ -292,9 +295,9 @@
             <button class="close-modal" onclick="toggleModal('verifyModal', false)"><i class="fas fa-times"></i></button>
             <div style="font-size:3rem; color:var(--primary-neon); margin-bottom:15px;"><i class="fas fa-mobile-alt"></i></div>
             <h2 id="ver-title" style="color:#fff; margin:0;">Verify Identity</h2>
-            <p id="ver-sub" style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">Code sent to your phone via SMS</p>
+            <p id="ver-sub" style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">Code sent to your phone</p>
             
-            <input type="number" id="codeInput" class="input-field" placeholder="6-Digit SMS Code" style="margin-bottom:15px;">
+            <input type="number" id="codeInput" class="input-field" placeholder="6-Digit Code" style="margin-bottom:15px;">
             <input type="text" id="nameInput" class="input-field" placeholder="Your Full Name" style="margin-bottom:20px;">
             
             <button class="action-btn" onclick="verifyAndRegister()">
@@ -317,21 +320,21 @@
         const database = firebase.database();
         const auth = firebase.auth();
         
-        // Setup invisible recaptcha for phone auth
+        // --- 2. RECAPTCHA & PRELOADER ---
         window.onload = () => {
+            // Setup Invisible Recaptcha for Phone Auth
             window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
                 'size': 'invisible'
             });
-            // Init Preloader & Background
+
             createBioBackground();
             startPreloader();
             startClock();
             document.getElementById("language_select").value = currentLang;
             updateTexts();
             checkConnection();
-            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
-
-            // Restore Saved Phone
+            
+            // Restore Saved Phone (Remember Me)
             const saved = localStorage.getItem("saved_phone");
             if (saved) {
                 iti.setNumber(saved);
@@ -340,7 +343,7 @@
             }
         };
 
-        // --- 2. INPUT & VALIDATION ---
+        // --- 3. INPUT SETUP & VALIDATION ---
         const phoneInput = document.querySelector("#userId");
         const iti = window.intlTelInput(phoneInput, {
             separateDialCode: true,
@@ -354,11 +357,11 @@
                 phoneInput.classList.remove("invalid");
             } else {
                 phoneInput.classList.remove("valid");
-                if (phoneInput.value.length > 3) phoneInput.classList.add("invalid");
+                if(phoneInput.value.length > 3) phoneInput.classList.add("invalid");
             }
         }
 
-        // --- 3. LOGIN LOGIC (REAL SMS) ---
+        // --- 4. MAIN LOGIC: CHECK DB -> LOGIN or SIGNUP ---
         let currentFullNumber = "";
         let confirmationResult = null;
 
@@ -371,44 +374,51 @@
                 return;
             }
 
-            currentFullNumber = iti.getNumber();
+            currentFullNumber = iti.getNumber(); // e.g., +2010xxxxxx
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Checking Database...';
 
-            // 1. Check if user exists in Firebase Realtime DB
-            // We use signInAnonymously first to allow reading DB (if rules require auth)
+            // Check Firebase (Using Anonymous Auth for Read Access)
             auth.signInAnonymously().then(() => {
                 database.ref('PatientData/' + currentFullNumber).once('value').then(snapshot => {
                     if (snapshot.exists()) {
-                        // User exists -> Login directly
+                        // USER EXISTS -> LOGIN DIRECTLY
                         completeLogin(currentFullNumber);
                     } else {
-                        // User NEW -> Show Consent
+                        // NEW USER -> SHOW CONSENT (Do not save yet)
                         btn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan;
                         toggleModal('consentModal', true);
                     }
                 });
             }).catch(e => {
-                // If checking fails, proceed to SMS anyway (safety fallback)
+                // Fallback if anonymous auth fails (internet issues etc)
                 toggleModal('consentModal', true);
             });
+        }
+
+        function toggleConsentBtn() {
+            const btn = document.getElementById('btnSendCode');
+            const chk = document.getElementById('agreeCheck');
+            btn.disabled = !chk.checked;
+            btn.style.opacity = chk.checked ? "1" : "0.5";
         }
 
         function proceedToVerification() {
             toggleModal('consentModal', false);
             const btn = document.getElementById("btnSendCode");
-            btn.innerText = "Sending SMS...";
             
+            // SEND REAL SMS (Requires Blaze Plan OR Test Number in Console)
             const appVerifier = window.recaptchaVerifier;
-            
-            // SEND REAL SMS
             auth.signInWithPhoneNumber(currentFullNumber, appVerifier)
                 .then((result) => {
                     window.confirmationResult = result;
                     toggleModal('verifyModal', true);
                     showToast(currentLang === 'ar' ? "تم إرسال الرمز" : "SMS Sent!", "success");
                 }).catch((error) => {
-                    showToast("SMS Error: " + error.message, "error");
-                    console.error(error);
+                    // Handle Errors (Like Billing Not Enabled)
+                    console.error("SMS Error:", error);
+                    showToast("SMS Failed: " + error.code, "error");
+                    // Important: If "billing_not_enabled", warn user to use Test Number
+                    if(error.code.includes("billing")) alert("Project is on Free Plan. Please add this number to 'Phone Authentication -> Test Numbers' in Firebase Console.");
                 });
         }
 
@@ -425,10 +435,7 @@
 
             // VERIFY CODE
             window.confirmationResult.confirm(code).then((result) => {
-                // User signed in successfully.
-                const user = result.user;
-                
-                // SAVE TO DATABASE
+                // Code Valid -> Save to DB
                 database.ref('PatientData/' + currentFullNumber).set({
                     FullName: name,
                     Phone: currentFullNumber,
@@ -445,11 +452,13 @@
         }
 
         function completeLogin(number) {
+            // REMEMBER ME
             if(document.getElementById('remCheck').checked) {
                 localStorage.setItem("saved_phone", number);
             } else {
                 localStorage.removeItem("saved_phone");
             }
+            
             localStorage.setItem("selectedUserId", number);
             
             document.getElementById("login-view").style.display = "none";
@@ -459,9 +468,9 @@
             showToast(txt[currentLang].toastLogin, "success");
         }
 
-        // --- 4. PRELOADER & ANIMATION (ORIGINAL) ---
+        // --- 5. PRELOADER & ANIMATIONS (PRESERVED) ---
         function startPreloader() {
-            const bar = document.querySelector('.progress-bar');
+            const bar = document.getElementById('progressFill');
             let w = 0;
             const iv = setInterval(() => {
                 w += Math.random() * 15; if(w > 100) w = 100;
@@ -479,22 +488,6 @@
             }, 100);
         }
 
-        let currentLang = localStorage.getItem("language") || "en";
-        let welcomePlayed = false;
-
-        function playWelcomeMessage() {
-            if (welcomePlayed) return;
-            if ('speechSynthesis' in window) {
-                const enMsg = new SpeechSynthesisUtterance("Welcome to Bioscan ATM Station. Please enter your mobile number.");
-                enMsg.lang = 'en-US'; enMsg.rate = 0.9;
-                const arMsg = new SpeechSynthesisUtterance("مرحباً بكم في محطة بايوسكان. يرجى إدخال رقم الهاتف للمتابعة.");
-                arMsg.lang = 'ar-SA'; arMsg.rate = 0.85;
-                window.speechSynthesis.speak(enMsg);
-                window.speechSynthesis.speak(arMsg);
-                welcomePlayed = true;
-            }
-        }
-
         function createBioBackground() {
             const container = document.getElementById('bio-background');
             const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-pills', 'fa-virus', 'fa-microscope', 'fa-user-md', 'fa-syringe', 'fa-lungs', 'fa-brain'];
@@ -506,6 +499,23 @@
                 el.style.animationDuration = (Math.random() * 20 + 15) + 's';
                 el.style.animationDelay = (Math.random() * 10) + 's';
                 container.appendChild(el);
+            }
+        }
+
+        let currentLang = localStorage.getItem("language") || "en";
+        let welcomePlayed = false;
+
+        function playWelcomeMessage() {
+            if (welcomePlayed) return;
+            if ('speechSynthesis' in window) {
+                // Ensure interaction first (handled by click listener in onload)
+                const enMsg = new SpeechSynthesisUtterance("Welcome to Bioscan ATM Station. Please enter your mobile number.");
+                enMsg.lang = 'en-US'; enMsg.rate = 0.9;
+                const arMsg = new SpeechSynthesisUtterance("مرحباً بكم في محطة بايوسكان. يرجى إدخال رقم الهاتف للمتابعة.");
+                arMsg.lang = 'ar-SA'; arMsg.rate = 0.85;
+                window.speechSynthesis.speak(enMsg);
+                window.speechSynthesis.speak(arMsg);
+                welcomePlayed = true;
             }
         }
 
@@ -528,7 +538,7 @@
             }, 3000);
         }
 
-        // --- 5. TEXTS & TRANSLATION ---
+        // --- 6. TEXTS & TRANSLATIONS (UPDATED WITH LEGAL TEXT) ---
         const txt = {
             en: { 
                 uiTitle: "USER LOGIN", ph: "1xxxxxxxxx", btnScan: "INITIALIZE SCAN", success: "Access Granted", welcome: "Verified", btnDash: "OPEN DASHBOARD", errFormat: "Invalid Format", toastLogin: "Verified",
@@ -541,7 +551,7 @@
                     <p><b>3. Data Security:</b> Your vital signs and personal data are stored securely on our cloud servers (Firebase). By proceeding, you consent to this data processing.</p>
                     <p><b>4. AI Analysis:</b> AI-generated insights are based on statistical trends and should be verified by a certified healthcare professional.</p>
                 `,
-                agree: "I have read and agree to the terms and data processing policy.", send: "PROCEED TO VERIFICATION",
+                agree: "I have read and agree to the terms and data processing policy.", send: "AGREE & SEND SMS",
                 verTitle: "Identity Setup", verSub: "Code sent to your phone via SMS", verBtn: "REGISTER & ENTER"
             },
             ar: { 
@@ -555,7 +565,7 @@
                     <p><b>3. خصوصية البيانات:</b> يتم تخزين علاماتك الحيوية وبياناتك الشخصية بشكل آمن على خوادمنا السحابية. باستمرارك في الاستخدام، فأنت توافق على معالجة هذه البيانات.</p>
                     <p><b>4. التحليل الذكي:</b> التقارير الصادرة عن الذكاء الاصطناعي هي مجرد تحليل للأنماط الإحصائية ويجب مراجعتها من قبل طبيب مختص.</p>
                 `,
-                agree: "أقر بأنني قرأت الشروط وأوافق على سياسة معالجة البيانات.", send: "متابعة واستلام الكود",
+                agree: "أقر بأنني قرأت الشروط وأوافق على سياسة معالجة البيانات.", send: "موافقة وإرسال الرمز",
                 verTitle: "إثبات الهوية", verSub: "تم إرسال كود التحقق لهاتفك", verBtn: "تسجيل ودخول"
             }
         };
@@ -573,6 +583,7 @@
             document.getElementById("dash-btn-text").innerText = t.btnDash;
             document.getElementById("lblRem").innerText = t.rem;
 
+            // Modal Texts
             document.getElementById("modal-project-name").innerText = t.projName;
             document.getElementById("modal-subtitle").innerText = t.sub;
             document.getElementById("mission-title").innerText = t.missionT;
@@ -582,6 +593,7 @@
             document.getElementById("team-title").innerText = t.teamT;
             document.getElementById("uni-text").innerText = t.uni;
 
+            // Consent & Verify Texts
             document.getElementById("con-title").innerText = t.conTitle;
             document.getElementById("con-body").innerHTML = t.conBody;
             document.getElementById("lblAgree").innerText = t.agree;
@@ -623,6 +635,8 @@
                 setTimeout(() => modal.style.display = 'none', 300);
             }
         }
+        
+        document.addEventListener('click', () => playWelcomeMessage(), { once: true });
     </script>
 </body>
 </html>
