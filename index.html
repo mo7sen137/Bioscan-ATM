@@ -41,9 +41,9 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* تنسيق قائمة الدول لتناسب الثيم الداكن */
+        /* تنسيق مكتبة الدول لتتناسق مع تصميمك */
         .iti { width: 100%; }
-        .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); }
+        .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 100; }
         .iti__country:hover { background-color: rgba(0, 242, 255, 0.1); }
 
         /* --- 2. ENHANCED BIO-BACKGROUND --- */
@@ -135,6 +135,7 @@
             background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon);
             padding: 5px 12px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer;
         }
+        select.lang-select option { background: #050b14; }
 
         /* --- 4. GLOWING HUD CARD --- */
         .main-container { position: relative; z-index: 5; width: 100%; max-width: 480px; padding: 20px; }
@@ -163,17 +164,15 @@
             opacity: 0.8;
         }
 
-        /* Input */
         .input-wrapper { position: relative; margin-bottom: 30px; }
         .input-field {
             width: 100%; background: rgba(0, 0, 0, 0.5); 
             border: 2px solid rgba(255, 255, 255, 0.1);
-            padding: 15px; font-size: 1.5rem; letter-spacing: 3px; color: #fff; text-align: center; border-radius: 12px;
+            padding: 15px; font-size: 1.5rem; color: #fff; text-align: center; border-radius: 12px;
             font-family: 'Orbitron', sans-serif; transition: 0.3s;
         }
         .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 25px rgba(0, 242, 255, 0.3); background: rgba(0, 10, 20, 0.8); }
 
-        /* Improved Tooltip */
         .id-tooltip {
             position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%) translateY(10px);
             background: rgba(5, 10, 15, 0.95); border: 1px solid var(--primary-neon);
@@ -197,22 +196,16 @@
         .action-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 40px var(--primary-neon); }
 
         #success-view { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
+        .dashboard-btn { background: var(--success); color: #000; border: none; font-weight: 700; }
+        .dashboard-btn:hover { background: #fff; box-shadow: 0 0 40px #fff; }
         .success-icon { font-size: 3.5rem; color: var(--success); margin-bottom: 15px; }
 
         .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); }
 
-        /* --- 5. INFO MODAL --- */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: none; justify-content: center; align-items: center; }
-        .modal-box {
-            background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 650px; padding: 30px; border-radius: 15px;
-            box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; max-height: 90vh; overflow-y: auto;
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 650px; padding: 30px; border-radius: 15px; max-height: 90vh; overflow-y: auto; }
 
-        /* PRELOADER STYLES */
         #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out; }
-        .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
-        .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spin 1.5s linear infinite; }
-        .loader-logo { position: absolute; inset: 15px; border-radius: 50%; background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover; }
         .progress-bar { width: 200px; height: 4px; background: var(--primary-neon); border-radius: 2px; }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -227,8 +220,8 @@
             <div class="loader-logo"></div>
         </div>
         <div class="loader-title" style="font-family:Orbitron; color:white; font-size:1.8rem;">BIOSCAN ATM</div>
-        <div class="loader-status" id="loaderStatus" style="color:#aaa; margin:10px 0;">Initializing...</div>
-        <div class="progress-bar"></div>
+        <div id="loaderStatus" style="color:#aaa; margin:10px 0;">Initializing System...</div>
+        <div class="progress-bar"><div id="progressFill" style="height:100%; width:0%; background:var(--primary-neon); transition:0.1s;"></div></div>
     </div>
 
     <div id="bio-background"></div>
@@ -247,10 +240,9 @@
                 <div class="clock-date" id="clockDate">--/--/----</div>
             </div>
         </div>
-
         <div class="controls">
             <div class="status-badge pulse-active" id="statusBadge">
-                <div class="status-led" id="connectionLed"></div>
+                <div class="status-led"></div>
                 <div class="status-text" id="connectionText">ONLINE</div>
             </div>
             <button class="icon-btn" onclick="toggleModal(true)" title="Info"><i class="fas fa-info"></i></button>
@@ -286,18 +278,18 @@
                 <div class="success-icon"><i class="fas fa-check-circle"></i></div>
                 <h3 style="margin-bottom: 5px; color: var(--success);" id="success-msg">Access Granted</h3>
                 <p style="color: #aaa; margin-bottom: 25px;" id="welcome-user-msg">User Verified</p>
-                <button class="action-btn" style="background:var(--success); color:#000;" onclick="goToDashboard()">
+                <button class="action-btn dashboard-btn" onclick="goToDashboard()">
                     <i class="fas fa-chart-pie"></i> <span id="dash-btn-text">OPEN DASHBOARD</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <div class="footer">Graduation Project 2026 | Zagazig University - Faculty of Engineering</div>
+    <div class="footer">Graduation Project 2026 | Zagazig University</div>
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // --- 1. FIREBASE CONFIG ---
+        // --- 1. CONFIG & INIT ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
             authDomain: "smart-a76a0.firebaseapp.com",
@@ -308,75 +300,62 @@
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const auth = firebase.auth();
+        // تأكيد الدخول للسماح بالقراءة بناءً على الـ Rules
+        auth.signInAnonymously().catch(console.error);
 
-        // --- 2. INITIALIZE INTL-TEL-INPUT ---
-        const phoneInput = document.querySelector("#userId");
-        const iti = window.intlTelInput(phoneInput, {
+        // --- 2. INTL-TEL-INPUT SETUP ---
+        const phoneInputField = document.querySelector("#userId");
+        const iti = window.intlTelInput(phoneInputField, {
             preferredCountries: ["eg", "sa", "ae"],
             utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
         });
 
-        // --- 3. LOGIN LOGIC (FIREBASE CHECK) ---
+        // --- 3. LOGIN LOGIC (MODIFIED) ---
         function processLogin() {
             const helper = document.getElementById("helper-text");
             const btn = document.getElementById("loginBtn");
-            
-            // التأكد إن الرقم صحيح برمجياً حسب الدولة المختارة
-            if (!iti.isValidNumber()) {
-                phoneInput.classList.add("shake");
-                helper.innerText = currentLang === 'ar' ? "رقم غير صحيح" : "Invalid Number";
-                setTimeout(() => phoneInput.classList.remove("shake"), 400);
-                return;
+            const input = document.getElementById("userId");
+
+            input.classList.remove("shake");
+            helper.innerText = "";
+
+            // فحص الرقم عن طريق المكتبة
+            if (iti.isValidNumber()) {
+                const fullPhoneNumber = iti.getNumber(); // يسحب الرقم بكود الدولة (مثلاً +2010...)
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Checking...';
+
+                // البحث في الفايربيز
+                database.ref('PatientData/' + fullPhoneNumber).once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        localStorage.setItem("selectedUserId", fullPhoneNumber);
+                        setTimeout(() => { 
+                            showToast(txt[currentLang].toastLogin, 'success'); 
+                            switchViewToDashboard(fullPhoneNumber); 
+                        }, 800);
+                    } else {
+                        // لو الرقم مش موجود
+                        btn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan;
+                        input.classList.add("shake");
+                        helper.innerText = currentLang === 'ar' ? "المستخدم غير مسجل" : "User Not Registered";
+                        if (navigator.vibrate) navigator.vibrate(200);
+                    }
+                });
+            } else {
+                // لو التنسيق غلط أصلاً
+                input.classList.add("shake");
+                helper.innerText = txt[currentLang].errFormat;
+                if (navigator.vibrate) navigator.vibrate(200);
             }
-
-            // سحب الرقم كاملاً بكود الدولة (مثلاً +2010...)
-            const fullPhoneNumber = iti.getNumber();
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Checking Archive...';
-
-            // البحث في قاعدة البيانات
-            database.ref('PatientData/' + fullPhoneNumber).once('value').then(snapshot => {
-                if (snapshot.exists()) {
-                    // المستخدم موجود فعلاً
-                    localStorage.setItem("selectedUserId", fullPhoneNumber);
-                    showToast(currentLang === 'ar' ? "تم التحقق" : "Identity Verified", 'success');
-                    switchViewToSuccess(fullPhoneNumber);
-                } else {
-                    // المستخدم غير موجود
-                    btn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan;
-                    helper.innerText = currentLang === 'ar' ? "المستخدم غير مسجل" : "User Not Registered";
-                    phoneInput.classList.add("shake");
-                    setTimeout(() => phoneInput.classList.remove("shake"), 400);
-                }
-            });
         }
 
-        function switchViewToSuccess(uid) {
-            document.getElementById("login-view").style.display = "none";
-            document.getElementById("success-view").style.display = "flex";
-            document.getElementById("welcome-user-msg").innerText = uid;
-        }
-
-        function goToDashboard() {
-            window.location.href = "measurements.html";
-        }
-
-        // --- 4. PRELOADER & UI CORE ---
-        let currentLang = localStorage.getItem("language") || "en";
-
-        window.addEventListener('load', () => {
-            createBioBackground();
-            startPreloader();
-            startClock();
-            document.getElementById("language_select").value = currentLang;
-            updateTexts();
-        });
-
+        // --- 4. PRESERVED ORIGINAL FUNCTIONS ---
         function createBioBackground() {
             const container = document.getElementById('bio-background');
             const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-lungs', 'fa-brain'];
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 35; i++) {
                 const el = document.createElement('i');
-                el.className = `fas ${icons[Math.floor(Math.random() * icons.length)]} bio-symbol`;
+                el.classList.add('fas', icons[Math.floor(Math.random() * icons.length)], 'bio-symbol');
                 el.style.left = Math.random() * 100 + 'vw';
                 el.style.fontSize = (Math.random() * 2 + 0.5) + 'rem';
                 el.style.animationDuration = (Math.random() * 20 + 15) + 's';
@@ -385,17 +364,44 @@
             }
         }
 
+        let currentLang = localStorage.getItem("language") || "en";
+        let welcomePlayed = false;
+
+        window.addEventListener('load', () => {
+            createBioBackground();
+            startPreloader();
+            startClock();
+            document.getElementById("language_select").value = currentLang;
+            updateTexts();
+            checkConnection();
+        });
+
         function startPreloader() {
-            const bar = document.querySelector('.progress-bar');
+            const fill = document.getElementById('progressFill');
             let w = 0;
             const iv = setInterval(() => {
-                w += 5; bar.style.width = w + '%';
-                if(w>=100) {
+                w += Math.random() * 15; if(w > 100) w = 100;
+                fill.style.width = w + '%';
+                if(w===100) {
                     clearInterval(iv);
-                    setTimeout(() => { document.getElementById('preloader').style.opacity = '0'; 
-                    setTimeout(() => document.getElementById('preloader').style.display='none', 800); }, 500);
+                    setTimeout(() => { 
+                        document.getElementById('preloader').style.opacity = '0'; 
+                        setTimeout(() => {
+                            document.getElementById('preloader').style.display='none';
+                            playWelcomeMessage();
+                        }, 800);
+                    }, 500);
                 }
-            }, 50);
+            }, 100);
+        }
+
+        function playWelcomeMessage() {
+            if (welcomePlayed) return;
+            if ('speechSynthesis' in window) {
+                const enMsg = new SpeechSynthesisUtterance("Welcome to Bioscan ATM Station.");
+                enMsg.lang = 'en-US'; window.speechSynthesis.speak(enMsg);
+                welcomePlayed = true;
+            }
         }
 
         function startClock() {
@@ -407,35 +413,39 @@
             }, 1000);
         }
 
-        function changeLanguage() {
-            currentLang = document.getElementById("language_select").value;
-            localStorage.setItem("language", currentLang);
-            updateTexts();
+        function checkConnection() {
+            setInterval(async () => {
+                const badge = document.getElementById('statusBadge');
+                try {
+                    await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" });
+                    badge.classList.remove('offline');
+                } catch (e) {
+                    badge.classList.add('offline');
+                }
+            }, 3000);
         }
-
-        const txt = {
-            en: { uiTitle: "USER LOGIN", btnScan: "INITIALIZE SCAN", success: "Access Granted" },
-            ar: { uiTitle: "تسجيل الدخول", btnScan: "بدء الفحص", success: "تم تسجيل الدخول" }
-        };
 
         function updateTexts() {
+            const t = txt[currentLang];
             const isAr = currentLang === 'ar';
             document.body.style.direction = isAr ? 'rtl' : 'ltr';
-            document.body.style.fontFamily = isAr ? "'Cairo', sans-serif" : "'Rajdhani', sans-serif";
-            document.getElementById("ui-title").innerText = txt[currentLang].uiTitle;
-            document.getElementById("btn-text").innerText = txt[currentLang].btnScan;
-            document.getElementById("success-msg").innerText = txt[currentLang].success;
+            document.getElementById("ui-title").innerText = t.uiTitle;
+            document.getElementById("btn-text").innerText = t.btnScan;
+            document.getElementById("success-msg").innerText = t.success;
+            document.getElementById("welcome-user-msg").innerText = t.welcome;
+            document.getElementById("dash-btn-text").innerText = t.btnDash;
         }
 
-        function showToast(msg, type) {
-            const container = document.getElementById("toastContainer");
-            const toast = document.createElement("div");
-            toast.className = "toast";
-            toast.style.cssText = `background:rgba(5,11,20,0.95); padding:15px 25px; border-left:4px solid var(--success); color:white; margin-top:10px; animation:fadeIn 0.5s;`;
-            toast.innerText = msg;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3500);
-        }
+        function changeLanguage() { currentLang = document.getElementById("language_select").value; localStorage.setItem("language", currentLang); updateTexts(); }
+        function switchViewToDashboard(uid) { document.getElementById("login-view").style.display = "none"; document.getElementById("success-view").style.display = "flex"; document.getElementById("welcome-user-msg").innerText = uid; }
+        function goToDashboard() { window.location.href = "measurements.html"; }
+        function showToast(msg, type) { const container = document.getElementById("toastContainer"); const toast = document.createElement("div"); toast.className = "toast"; toast.innerText = msg; container.appendChild(toast); setTimeout(() => toast.remove(), 3500); }
+        function toggleModal(show) { document.getElementById('aboutModal').style.display = show ? 'flex' : 'none'; }
+
+        const txt = {
+            en: { uiTitle: "USER LOGIN", btnScan: "INITIALIZE SCAN", success: "Access Granted", welcome: "Verified", btnDash: "OPEN DASHBOARD", errFormat: "Invalid Number", toastLogin: "Verified" },
+            ar: { uiTitle: "تسجيل الدخول", btnScan: "بدء الفحص", success: "تم بنجاح", welcome: "تم التحقق", btnDash: "لوحة التحكم", errFormat: "رقم خطأ", toastLogin: "تم التحقق" }
+        };
     </script>
 </body>
 </html>
