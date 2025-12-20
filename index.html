@@ -17,7 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 
     <style>
-        /* --- 1. THEME & VARIABLES (ORIGINAL) --- */
+        /* --- 1. THEME & VARIABLES --- */
         :root {
             --primary-neon: #00f2ff;
             --secondary-neon: #7000ff;
@@ -41,7 +41,17 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* --- 2. BACKGROUND ANIMATION (RESTORED) --- */
+        /* --- 2. PRELOADER (ORIGINAL RESTORED) --- */
+        #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
+        .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
+        .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spin 1.5s linear infinite; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
+        .loader-logo { position: absolute; inset: 15px; border-radius: 50%; background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover; animation: pulseLoader 2s infinite ease-in-out; filter: drop-shadow(0 0 10px var(--primary-neon)); }
+        .loader-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
+        .progress-bar { width: 0%; height: 4px; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); transition: width 0.3s; border-radius: 2px; width: 200px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
+
+        /* --- 3. BACKGROUND ANIMATION --- */
         #bio-background {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             overflow: hidden; 
@@ -60,7 +70,7 @@
             100% { transform: translate(-20px, -10vh) rotate(360deg) scale(0.5); opacity: 0; }
         }
 
-        /* --- 3. HEADER & STATUS --- */
+        /* --- 4. HEADER --- */
         header {
             position: absolute; top: 0; width: 100%; padding: 15px 40px;
             display: flex; justify-content: space-between; align-items: center; z-index: 10;
@@ -75,28 +85,25 @@
         .live-clock { display: flex; flex-direction: column; align-items: flex-start; border-left: 2px solid rgba(0, 242, 255, 0.3); padding-left: 15px; font-family: 'Orbitron', sans-serif; }
         .clock-time { font-size: 1.1rem; font-weight: bold; color: var(--primary-neon); }
         .clock-date { font-size: 0.7rem; color: #aaa; letter-spacing: 1px; }
-        
         .controls { display: flex; gap: 15px; align-items: center; }
         .status-badge { display: flex; align-items: center; gap: 10px; background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.2); padding: 5px 12px; border-radius: 20px; }
         .status-led { width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 10px var(--success); }
         .status-text { font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: var(--success); font-weight: bold; }
         .status-badge.offline .status-led { background-color: var(--error); box-shadow: 0 0 10px var(--error); }
         .status-badge.offline .status-text { color: var(--error); }
-        
         .icon-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: var(--primary-neon); width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
         .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
-        
         select.lang-select { background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon); padding: 5px 12px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer; }
         select.lang-select option { background: #050b14; }
 
-        /* --- 4. HUD CARD & INPUTS --- */
+        /* --- 5. LOGIN CARD --- */
         .main-container { position: relative; z-index: 5; width: 100%; max-width: 480px; padding: 20px; }
         .hud-card { background: var(--glass-panel); backdrop-filter: blur(25px); border: 1px solid var(--border-color); border-radius: 20px; padding: 45px 35px; text-align: center; position: relative; box-shadow: 0 0 30px rgba(0, 242, 255, 0.15); animation: cardBreath 4s infinite ease-in-out; }
         @keyframes cardBreath { 0%, 100% { border-color: rgba(0, 242, 255, 0.3); } 50% { border-color: rgba(0, 242, 255, 0.6); } }
         .card-header h2 { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; margin: 0; text-shadow: 0 0 15px var(--primary-neon); letter-spacing: 2px; }
         .energy-divider { height: 2px; width: 80%; margin: 20px auto 40px; background: radial-gradient(circle, var(--primary-neon) 0%, rgba(0,242,255,0) 90%); box-shadow: 0 0 10px var(--primary-neon); opacity: 0.8; }
 
-        /* ITI & Input Styling */
+        /* Phone Input Styling */
         .iti { width: 100%; margin-bottom: 15px; }
         .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 2000; text-align: left; }
         .iti__country:hover { background-color: rgba(0, 242, 255, 0.1); }
@@ -122,20 +129,20 @@
 
         .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
 
-        /* --- 5. MODALS (Updated) --- */
+        /* --- 6. MODALS --- */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); opacity: 0; transition: 0.3s; }
         .modal-overlay.active { opacity: 1; }
-        .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 700px; padding: 30px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: 0.3s; }
+        .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 750px; padding: 30px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: 0.3s; }
         .modal-overlay.active .modal-box { transform: scale(1); }
         .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; z-index: 10; }
         .close-modal:hover { color: var(--error); transform: rotate(90deg); }
 
-        /* Consent Text */
-        .consent-text { text-align: left; font-size: 0.9rem; line-height: 1.7; color: #ccc; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.3); max-height: 350px; overflow-y: auto; }
+        /* Consent Modal Text */
+        .consent-text { text-align: left; font-size: 0.95rem; line-height: 1.7; color: #ccc; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.3); max-height: 400px; overflow-y: auto; }
         body.rtl .consent-text { text-align: right; }
         .consent-check { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #fff; margin-bottom: 25px; cursor: pointer; }
 
-        /* Team Modal */
+        /* Team Info Modal */
         .logos-row { display: flex; justify-content: center; gap: 25px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
         .logos-row img { height: 60px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); transition: 0.3s; }
         .modal-section { margin-bottom: 20px; text-align: left; }
@@ -145,16 +152,6 @@
         .team-member { background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 8px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; transition: 0.2s; }
         .team-member:hover { border-color: var(--secondary-neon); background: rgba(112, 0, 255, 0.15); transform: translateX(5px); }
         .team-member i { color: var(--secondary-neon); font-size: 1rem; }
-
-        /* --- 6. PRELOADER & TOAST (ORIGINAL) --- */
-        #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
-        .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
-        .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spin 1.5s linear infinite; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
-        .loader-logo { position: absolute; inset: 15px; border-radius: 50%; background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover; animation: pulseLoader 2s infinite ease-in-out; filter: drop-shadow(0 0 10px var(--primary-neon)); }
-        .loader-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
-        .progress-bar { width: 0%; height: 4px; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); transition: width 0.3s; border-radius: 2px; width: 200px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
 
         .toast-container { position: fixed; top: 100px; right: 20px; z-index: 4000; }
         .toast { background: rgba(5, 11, 20, 0.95); border-left: 4px solid var(--success); padding: 15px 25px; margin-bottom: 10px; border-radius: 5px; color: #fff; animation: slideIn 0.4s ease; display: flex; align-items: center; gap: 10px; }
@@ -295,7 +292,7 @@
             <button class="close-modal" onclick="toggleModal('verifyModal', false)"><i class="fas fa-times"></i></button>
             <div style="font-size:3rem; color:var(--primary-neon); margin-bottom:15px;"><i class="fas fa-mobile-alt"></i></div>
             <h2 id="ver-title" style="color:#fff; margin:0;">Verify Identity</h2>
-            <p id="ver-sub" style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">Code sent to your phone</p>
+            <p id="ver-sub" style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">Code sent via SMS</p>
             
             <input type="number" id="codeInput" class="input-field" placeholder="6-Digit Code" style="margin-bottom:15px;">
             <input type="text" id="nameInput" class="input-field" placeholder="Your Full Name" style="margin-bottom:20px;">
@@ -319,22 +316,24 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-        
-        // --- 2. RECAPTCHA & PRELOADER ---
+
+        // --- 2. INIT & RECAPTCHA ---
         window.onload = () => {
             // Setup Invisible Recaptcha for Phone Auth
             window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
                 'size': 'invisible'
             });
 
+            // UI Init
             createBioBackground();
             startPreloader();
             startClock();
             document.getElementById("language_select").value = currentLang;
             updateTexts();
             checkConnection();
-            
-            // Restore Saved Phone (Remember Me)
+            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
+
+            // Restore Saved Phone
             const saved = localStorage.getItem("saved_phone");
             if (saved) {
                 iti.setNumber(saved);
@@ -343,7 +342,7 @@
             }
         };
 
-        // --- 3. INPUT SETUP & VALIDATION ---
+        // --- 3. INPUT SETUP ---
         const phoneInput = document.querySelector("#userId");
         const iti = window.intlTelInput(phoneInput, {
             separateDialCode: true,
@@ -361,7 +360,7 @@
             }
         }
 
-        // --- 4. MAIN LOGIC: CHECK DB -> LOGIN or SIGNUP ---
+        // --- 4. MAIN LOGIC ---
         let currentFullNumber = "";
         let confirmationResult = null;
 
@@ -374,23 +373,23 @@
                 return;
             }
 
-            currentFullNumber = iti.getNumber(); // e.g., +2010xxxxxx
+            currentFullNumber = iti.getNumber();
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Checking Database...';
 
-            // Check Firebase (Using Anonymous Auth for Read Access)
+            // Check Firebase (Using Anonymous Auth first to read DB)
             auth.signInAnonymously().then(() => {
                 database.ref('PatientData/' + currentFullNumber).once('value').then(snapshot => {
                     if (snapshot.exists()) {
-                        // USER EXISTS -> LOGIN DIRECTLY
+                        // User EXISTS -> Login immediately
                         completeLogin(currentFullNumber);
                     } else {
-                        // NEW USER -> SHOW CONSENT (Do not save yet)
+                        // User NEW -> Open Consent Modal
                         btn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan;
                         toggleModal('consentModal', true);
                     }
                 });
             }).catch(e => {
-                // Fallback if anonymous auth fails (internet issues etc)
+                // Fallback: Proceed as new user if anonymous auth fails
                 toggleModal('consentModal', true);
             });
         }
@@ -404,21 +403,17 @@
 
         function proceedToVerification() {
             toggleModal('consentModal', false);
-            const btn = document.getElementById("btnSendCode");
             
-            // SEND REAL SMS (Requires Blaze Plan OR Test Number in Console)
+            // SEND SMS (Real or Test)
             const appVerifier = window.recaptchaVerifier;
             auth.signInWithPhoneNumber(currentFullNumber, appVerifier)
                 .then((result) => {
                     window.confirmationResult = result;
                     toggleModal('verifyModal', true);
-                    showToast(currentLang === 'ar' ? "تم إرسال الرمز" : "SMS Sent!", "success");
+                    showToast(currentLang === 'ar' ? "تم إرسال الرمز" : "Code Sent!", "success");
                 }).catch((error) => {
-                    // Handle Errors (Like Billing Not Enabled)
-                    console.error("SMS Error:", error);
-                    showToast("SMS Failed: " + error.code, "error");
-                    // Important: If "billing_not_enabled", warn user to use Test Number
-                    if(error.code.includes("billing")) alert("Project is on Free Plan. Please add this number to 'Phone Authentication -> Test Numbers' in Firebase Console.");
+                    showToast("Error: " + error.message, "error");
+                    console.error(error);
                 });
         }
 
@@ -433,9 +428,9 @@
 
             if(!window.confirmationResult) return;
 
-            // VERIFY CODE
+            // Confirm Code
             window.confirmationResult.confirm(code).then((result) => {
-                // Code Valid -> Save to DB
+                // Code is correct -> Save to DB & Login
                 database.ref('PatientData/' + currentFullNumber).set({
                     FullName: name,
                     Phone: currentFullNumber,
@@ -452,7 +447,7 @@
         }
 
         function completeLogin(number) {
-            // REMEMBER ME
+            // Save if Remember Me is checked
             if(document.getElementById('remCheck').checked) {
                 localStorage.setItem("saved_phone", number);
             } else {
@@ -468,7 +463,7 @@
             showToast(txt[currentLang].toastLogin, "success");
         }
 
-        // --- 5. PRELOADER & ANIMATIONS (PRESERVED) ---
+        // --- 5. PRELOADER & ANIMATIONS ---
         function startPreloader() {
             const bar = document.getElementById('progressFill');
             let w = 0;
@@ -488,6 +483,22 @@
             }, 100);
         }
 
+        let currentLang = localStorage.getItem("language") || "en";
+        let welcomePlayed = false;
+
+        function playWelcomeMessage() {
+            if (welcomePlayed) return;
+            if ('speechSynthesis' in window) {
+                const enMsg = new SpeechSynthesisUtterance("Welcome to Bioscan ATM Station. Please enter your mobile number.");
+                enMsg.lang = 'en-US'; enMsg.rate = 0.9;
+                const arMsg = new SpeechSynthesisUtterance("مرحباً بكم في محطة بايوسكان. يرجى إدخال رقم الهاتف للمتابعة.");
+                arMsg.lang = 'ar-SA'; arMsg.rate = 0.85;
+                window.speechSynthesis.speak(enMsg);
+                window.speechSynthesis.speak(arMsg);
+                welcomePlayed = true;
+            }
+        }
+
         function createBioBackground() {
             const container = document.getElementById('bio-background');
             const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-pills', 'fa-virus', 'fa-microscope', 'fa-user-md', 'fa-syringe', 'fa-lungs', 'fa-brain'];
@@ -499,23 +510,6 @@
                 el.style.animationDuration = (Math.random() * 20 + 15) + 's';
                 el.style.animationDelay = (Math.random() * 10) + 's';
                 container.appendChild(el);
-            }
-        }
-
-        let currentLang = localStorage.getItem("language") || "en";
-        let welcomePlayed = false;
-
-        function playWelcomeMessage() {
-            if (welcomePlayed) return;
-            if ('speechSynthesis' in window) {
-                // Ensure interaction first (handled by click listener in onload)
-                const enMsg = new SpeechSynthesisUtterance("Welcome to Bioscan ATM Station. Please enter your mobile number.");
-                enMsg.lang = 'en-US'; enMsg.rate = 0.9;
-                const arMsg = new SpeechSynthesisUtterance("مرحباً بكم في محطة بايوسكان. يرجى إدخال رقم الهاتف للمتابعة.");
-                arMsg.lang = 'ar-SA'; arMsg.rate = 0.85;
-                window.speechSynthesis.speak(enMsg);
-                window.speechSynthesis.speak(arMsg);
-                welcomePlayed = true;
             }
         }
 
@@ -538,35 +532,37 @@
             }, 3000);
         }
 
-        // --- 6. TEXTS & TRANSLATIONS (UPDATED WITH LEGAL TEXT) ---
+        // --- 6. TEXTS ---
         const txt = {
             en: { 
                 uiTitle: "USER LOGIN", ph: "1xxxxxxxxx", btnScan: "INITIALIZE SCAN", success: "Access Granted", welcome: "Verified", btnDash: "OPEN DASHBOARD", errFormat: "Invalid Format", toastLogin: "Verified",
-                projName: "Bioscan ATM", sub: "Graduation Project 2026 | Electronics & Comm. Dept.", missionT: "Mission", mission: "Empowering communities with instant, hospital-grade health diagnostics via IoT.", visionT: "Vision", vision: "A world where proactive health monitoring is accessible to everyone.", teamT: "The Team", uni: "Zagazig University",
+                projName: "Bioscan ATM", sub: "Graduation Project 2026 | Electronics & Comm. Dept.", missionT: "Mission", mission: "Empowering communities with instant, hospital-grade health diagnostics via IoT to bridge the gap between patients and care.", visionT: "Vision", vision: "A world where proactive health monitoring is seamless and accessible to everyone everywhere.", teamT: "The Team", uni: "Zagazig University",
                 rem: "Remember Me",
                 conTitle: "Terms of Use & Data Privacy",
                 conBody: `
+                    <p><b>Terms of Use & Data Privacy Agreement</b></p>
                     <p><b>1. Medical Guidance Only:</b> This system is intended for informational and guidance purposes only. It is NOT a substitute for professional medical diagnosis or treatment.</p>
                     <p><b>2. Emergency Cases:</b> In case of a medical emergency, please contact your local emergency services or go to the nearest hospital immediately. Do not rely on this system for life-critical decisions.</p>
                     <p><b>3. Data Security:</b> Your vital signs and personal data are stored securely on our cloud servers (Firebase). By proceeding, you consent to this data processing.</p>
                     <p><b>4. AI Analysis:</b> AI-generated insights are based on statistical trends and should be verified by a certified healthcare professional.</p>
                 `,
                 agree: "I have read and agree to the terms and data processing policy.", send: "AGREE & SEND SMS",
-                verTitle: "Identity Setup", verSub: "Code sent to your phone via SMS", verBtn: "REGISTER & ENTER"
+                verTitle: "Identity Setup", verSub: "Code sent via SMS", verBtn: "REGISTER & ENTER"
             },
             ar: { 
                 uiTitle: "تسجيل الدخول", ph: "1xxxxxxxxx", btnScan: "بدء الفحص", success: "تم بنجاح", welcome: "تم التحقق", btnDash: "لوحة التحكم", errFormat: "تنسيق خطأ", toastLogin: "تم التحقق",
-                projName: "مشروع Bioscan ATM", sub: "مشروع تخرج 2026 | قسم هندسة الإلكترونيات والاتصالات", missionT: "مهمتنا", mission: "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة عبر إنترنت الأشياء.", visionT: "رؤيتنا", vision: "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع.", teamT: "فريق العمل", uni: "جامعة الزقازيق",
+                projName: "مشروع Bioscan ATM", sub: "مشروع تخرج 2026 | قسم هندسة الإلكترونيات والاتصالات", missionT: "مهمتنا", mission: "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة عبر إنترنت الأشياء لسد الفجوة بين المرضى والرعاية الطبية.", visionT: "رؤيتنا", vision: "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع في كل مكان.", teamT: "فريق العمل", uni: "جامعة الزقازيق",
                 rem: "تذكرني",
                 conTitle: "شروط الاستخدام واتفاقية الخصوصية",
                 conBody: `
+                    <p><b>شروط الاستخدام واتفاقية خصوصية البيانات</b></p>
                     <p><b>1. غرض إرشادي فقط:</b> هذا النظام مخصص للأغراض الاسترشادية والمعلوماتية فقط، ولا يعتبر بديلاً عن التشخيص الطبي المهني أو العلاج.</p>
                     <p><b>2. حالات الطوارئ:</b> في حالة وجود طارئ طبي، يرجى الاتصال بخدمات الطوارئ المحلية أو التوجه لأقرب مستشفى فوراً. لا تعتمد على هذا النظام في اتخاذ قرارات مصيرية.</p>
                     <p><b>3. خصوصية البيانات:</b> يتم تخزين علاماتك الحيوية وبياناتك الشخصية بشكل آمن على خوادمنا السحابية. باستمرارك في الاستخدام، فأنت توافق على معالجة هذه البيانات.</p>
                     <p><b>4. التحليل الذكي:</b> التقارير الصادرة عن الذكاء الاصطناعي هي مجرد تحليل للأنماط الإحصائية ويجب مراجعتها من قبل طبيب مختص.</p>
                 `,
                 agree: "أقر بأنني قرأت الشروط وأوافق على سياسة معالجة البيانات.", send: "موافقة وإرسال الرمز",
-                verTitle: "إثبات الهوية", verSub: "تم إرسال كود التحقق لهاتفك", verBtn: "تسجيل ودخول"
+                verTitle: "إثبات الهوية", verSub: "تم إرسال كود التحقق", verBtn: "تسجيل ودخول"
             }
         };
 
@@ -583,7 +579,7 @@
             document.getElementById("dash-btn-text").innerText = t.btnDash;
             document.getElementById("lblRem").innerText = t.rem;
 
-            // Modal Texts
+            // Modals
             document.getElementById("modal-project-name").innerText = t.projName;
             document.getElementById("modal-subtitle").innerText = t.sub;
             document.getElementById("mission-title").innerText = t.missionT;
@@ -593,7 +589,7 @@
             document.getElementById("team-title").innerText = t.teamT;
             document.getElementById("uni-text").innerText = t.uni;
 
-            // Consent & Verify Texts
+            // Consent
             document.getElementById("con-title").innerText = t.conTitle;
             document.getElementById("con-body").innerHTML = t.conBody;
             document.getElementById("lblAgree").innerText = t.agree;
@@ -607,36 +603,13 @@
         function switchViewToDashboard(uid) { document.getElementById("login-view").style.display = "none"; document.getElementById("success-view").style.display = "flex"; document.getElementById("welcome-user-msg").innerText = uid; }
         function resetView() { document.getElementById("success-view").style.display = "none"; document.getElementById("login-view").style.display = "block"; document.getElementById("userId").value = ""; phoneInput.classList.remove("valid"); }
         function goToDashboard() { window.location.href = "measurements.html"; }
+        function showToast(msg, type) { const container = document.getElementById("toastContainer"); const toast = document.createElement("div"); toast.className = "toast"; toast.style.borderLeftColor = type === 'error' ? 'var(--error)' : 'var(--success)'; toast.innerHTML = `<i class="fas ${type==='error'?'fa-exclamation-circle':'fa-check-circle'}"></i> ${msg}`; container.appendChild(toast); setTimeout(() => toast.remove(), 3500); }
         
-        function showToast(msg, type) { 
-            const container = document.getElementById("toastContainer"); 
-            const toast = document.createElement("div"); 
-            toast.className = "toast"; 
-            toast.style.borderLeftColor = type === 'error' ? 'var(--error)' : 'var(--success)';
-            toast.innerHTML = `<i class="fas ${type==='error'?'fa-exclamation-circle':'fa-check-circle'}"></i> ${msg}`;
-            container.appendChild(toast); 
-            setTimeout(() => toast.remove(), 3500); 
-        }
-
-        function toggleConsentBtn() {
-            const btn = document.getElementById('btnSendCode');
-            const chk = document.getElementById('agreeCheck');
-            btn.disabled = !chk.checked;
-            btn.style.opacity = chk.checked ? "1" : "0.5";
-        }
-
         function toggleModal(id, show) { 
             const modal = document.getElementById(id);
-            if(show) {
-                modal.style.display = 'flex';
-                setTimeout(() => modal.classList.add('active'), 10);
-            } else {
-                modal.classList.remove('active');
-                setTimeout(() => modal.style.display = 'none', 300);
-            }
+            if(show) { modal.style.display = 'flex'; setTimeout(() => modal.classList.add('active'), 10); } 
+            else { modal.classList.remove('active'); setTimeout(() => modal.style.display = 'none', 300); }
         }
-        
-        document.addEventListener('click', () => playWelcomeMessage(), { once: true });
     </script>
 </body>
 </html>
