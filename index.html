@@ -17,12 +17,12 @@
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
 
     <style>
-        /* --- 1. SETUP & VARIABLES --- */
+        /* --- 1. THEME & VARIABLES --- */
         :root {
             --primary-neon: #00f2ff;
             --secondary-neon: #7000ff;
             --bg-dark: #020408;
-            --glass-panel: rgba(5, 12, 22, 0.9);
+            --glass-panel: rgba(5, 12, 22, 0.95);
             --border-color: rgba(0, 242, 255, 0.4);
             --text-main: #e0f7fa;
             --error: #ff2a2a;
@@ -41,13 +41,17 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* Library Styling Override */
-        .iti { width: 100%; margin-bottom: 20px; }
-        .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 2000; text-align: left; }
-        .iti__country:hover { background-color: rgba(0, 242, 255, 0.1); }
-        .iti__selected-dial-code { color: #fff; font-family: 'Orbitron'; margin-left: 5px; }
+        /* --- 2. PRELOADER STYLES (FROM ORIGINAL CODE) --- */
+        #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
+        .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
+        .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spin 1.5s linear infinite; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
+        .loader-logo { position: absolute; inset: 15px; border-radius: 50%; background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover; animation: pulseLoader 2s infinite ease-in-out; filter: drop-shadow(0 0 10px var(--primary-neon)); }
+        .loader-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
+        .progress-bar { width: 0%; height: 4px; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); transition: width 0.3s; border-radius: 2px; width: 200px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
 
-        /* --- 2. ENHANCED BIO-BACKGROUND --- */
+        /* --- 3. BACKGROUND ANIMATION --- */
         #bio-background {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             overflow: hidden; 
@@ -66,7 +70,7 @@
             100% { transform: translate(-20px, -10vh) rotate(360deg) scale(0.5); opacity: 0; }
         }
 
-        /* --- 3. HEADER & STATUS --- */
+        /* --- 4. HEADER --- */
         header {
             position: absolute; top: 0; width: 100%; padding: 15px 40px;
             display: flex; justify-content: space-between; align-items: center; z-index: 10;
@@ -92,14 +96,19 @@
         select.lang-select { background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon); padding: 5px 12px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer; }
         select.lang-select option { background: #050b14; }
 
-        /* --- 4. HUD & LOGIN --- */
+        /* --- 5. LOGIN HUD & INPUTS --- */
         .main-container { position: relative; z-index: 5; width: 100%; max-width: 480px; padding: 20px; }
         .hud-card { background: var(--glass-panel); backdrop-filter: blur(25px); border: 1px solid var(--border-color); border-radius: 20px; padding: 45px 35px; text-align: center; position: relative; box-shadow: 0 0 30px rgba(0, 242, 255, 0.15); animation: cardBreath 4s infinite ease-in-out; }
         @keyframes cardBreath { 0%, 100% { border-color: rgba(0, 242, 255, 0.3); } 50% { border-color: rgba(0, 242, 255, 0.6); } }
         .card-header h2 { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; margin: 0; text-shadow: 0 0 15px var(--primary-neon); letter-spacing: 2px; }
         .energy-divider { height: 2px; width: 80%; margin: 20px auto 40px; background: radial-gradient(circle, var(--primary-neon) 0%, rgba(0,242,255,0) 90%); box-shadow: 0 0 10px var(--primary-neon); opacity: 0.8; }
 
-        .input-wrapper { position: relative; margin-bottom: 20px; }
+        /* ITI Library Styling */
+        .iti { width: 100%; margin-bottom: 15px; }
+        .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 2000; text-align: left; }
+        .iti__country:hover { background-color: rgba(0, 242, 255, 0.1); }
+        .iti__selected-dial-code { color: #fff; font-family: 'Orbitron'; margin-left: 5px; }
+
         .input-field { width: 100%; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.1); padding: 15px; font-size: 1.5rem; color: #fff; border-radius: 12px; font-family: 'Orbitron', sans-serif; transition: 0.3s; text-align: center; }
         .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 25px rgba(0, 242, 255, 0.3); }
         .input-field.valid { border-color: var(--success); box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
@@ -120,21 +129,21 @@
 
         .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
 
-        /* --- 5. MODALS (CONSENT & TEAM) --- */
+        /* --- 6. MODALS (Updated) --- */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); opacity: 0; transition: 0.3s; }
-        .modal-overlay.active { opacity: 1; }
+        .modal-overlay.active { opacity: 1; display: flex; }
         .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 750px; padding: 40px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: 0.3s; }
         .modal-overlay.active .modal-box { transform: scale(1); }
         .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; z-index: 10; }
         .close-modal:hover { color: var(--error); transform: rotate(90deg); }
 
-        /* Consent Text */
-        .consent-text { text-align: left; font-size: 0.95rem; line-height: 1.7; color: #ccc; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; background: rgba(0,0,0,0.3); max-height: 350px; overflow-y: auto; }
+        /* Consent Text Area */
+        .consent-text { text-align: left; font-size: 0.95rem; line-height: 1.7; color: #ccc; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.3); max-height: 400px; overflow-y: auto; }
         body.rtl .consent-text { text-align: right; }
         .consent-text b { color: var(--primary-neon); display: block; margin-top: 15px; margin-bottom: 5px; font-size: 1rem; }
         .consent-check { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #fff; margin-bottom: 25px; cursor: pointer; }
 
-        /* Team Info Modal */
+        /* Team Info */
         .logos-row { display: flex; justify-content: center; gap: 25px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
         .logos-row img { height: 60px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); transition: 0.3s; }
         .modal-section { margin-bottom: 20px; text-align: left; }
@@ -144,16 +153,6 @@
         .team-member { background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 8px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; border: 1px solid transparent; transition: 0.2s; }
         .team-member:hover { border-color: var(--secondary-neon); background: rgba(112, 0, 255, 0.15); transform: translateX(5px); }
         .team-member i { color: var(--secondary-neon); font-size: 1rem; }
-
-        /* --- 6. PRELOADER & TOAST (ORIGINAL RESTORED) --- */
-        #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
-        .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
-        .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spin 1.5s linear infinite; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
-        .loader-logo { position: absolute; inset: 15px; border-radius: 50%; background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover; animation: pulseLoader 2s infinite ease-in-out; filter: drop-shadow(0 0 10px var(--primary-neon)); }
-        .loader-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
-        .progress-bar { width: 0%; height: 4px; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); transition: width 0.3s; border-radius: 2px; width: 200px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
 
         .toast-container { position: fixed; top: 100px; right: 20px; z-index: 4000; }
         .toast { background: rgba(5, 11, 20, 0.95); border-left: 4px solid var(--success); padding: 15px 25px; margin-bottom: 10px; border-radius: 5px; color: #fff; animation: slideIn 0.4s ease; display: flex; align-items: center; gap: 10px; }
@@ -172,7 +171,7 @@
         </div>
         <div class="loader-title">BIOSCAN ATM</div>
         <div class="loader-status" id="loaderStatus">Initializing Biosensors...</div>
-        <div class="progress-bar"><div id="progressFill" style="height:100%; width:0%; background:var(--primary-neon); transition:0.1s;"></div></div>
+        <div class="progress-bar"></div>
     </div>
 
     <div id="bio-background"></div>
@@ -227,8 +226,8 @@
 
             <div id="success-view">
                 <div class="success-icon"><i class="fas fa-check-circle"></i></div>
-                <h3 style="margin-bottom: 5px; color: var(--success);" id="success-msg">Access Granted</h3>
-                <p style="color: #aaa; margin-bottom: 25px;" id="welcome-user-msg">User Verified</p>
+                <h3 id="success-msg" style="color: var(--success);">Access Granted</h3>
+                <p id="welcome-user-msg" style="color: #aaa; margin-bottom: 25px;">Verified</p>
                 <button class="action-btn dashboard-btn" onclick="goToDashboard()">
                     <i class="fas fa-chart-pie"></i> <span id="dash-btn-text">OPEN DASHBOARD</span>
                 </button>
@@ -243,12 +242,8 @@
     <div class="modal-overlay" id="aboutModal">
         <div class="modal-box">
             <button class="close-modal" onclick="toggleModal('aboutModal', false)"><i class="fas fa-times"></i></button>
-            <div class="logos-row">
-                <img src="zagazig_logo.png" alt="Zagazig Univ">
-                <img src="eng_logo.png" alt="Engineering Faculty">
-            </div>
+            <div class="logos-row"><img src="zagazig_logo.png" alt="Zag Univ"><img src="eng_logo.png" alt="Eng Fac"></div>
             <h2 id="modal-project-name" style="color:#fff; margin-top:0; text-align: center;">Bioscan ATM</h2>
-            <p id="modal-subtitle" style="text-align:center; font-size:0.8rem; color:#aaa; margin-bottom:25px;">Graduation Project 2026 | Electronics & Comm. Dept.</p>
             <div class="modal-section">
                 <h3><i class="fas fa-bullseye"></i> <span id="mission-title">Mission</span></h3>
                 <p id="mission-text">Empowering communities with instant, hospital-grade health diagnostics via IoT.</p>
@@ -260,13 +255,13 @@
             <div class="modal-section">
                 <h3><i class="fas fa-users"></i> <span id="team-title">The Team</span></h3>
                 <div class="team-grid">
-                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Mohsen M. Elsayed</span></div>
-                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Mohamed A. Rashad</span></div>
-                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Mohamed A. Karam</span></div>
-                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Hossam H. Abdel Aziz</span></div>
-                    <div class="team-member"><i class="fas fa-user-nurse"></i> <span class="t-mem">Lamia I. Mohammed</span></div>
-                    <div class="team-member"><i class="fas fa-user-tie"></i> <span class="t-mem">Karim H. Mansour</span></div>
-                    <div class="team-member"><i class="fas fa-user-nurse"></i> <span class="t-mem">Fatema M. Saad</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span>Mohsen M. Elsayed</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span>Mohamed A. Rashad</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span>Mohamed A. Karam</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span>Hossam H. Abdel Aziz</span></div>
+                    <div class="team-member"><i class="fas fa-user-nurse"></i> <span>Lamia I. Mohammed</span></div>
+                    <div class="team-member"><i class="fas fa-user-tie"></i> <span>Karim H. Mansour</span></div>
+                    <div class="team-member"><i class="fas fa-user-nurse"></i> <span>Fatema M. Saad</span></div>
                 </div>
             </div>
         </div>
@@ -295,13 +290,9 @@
             <div style="font-size:3rem; color:var(--primary-neon); margin-bottom:15px;"><i class="fas fa-mobile-alt"></i></div>
             <h2 id="ver-title" style="color:#fff; margin:0;">Verify Identity</h2>
             <p id="ver-sub" style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">Code sent via SMS</p>
-            
             <input type="number" id="codeInput" class="input-field" placeholder="6-Digit Code" style="margin-bottom:15px;">
-            <input type="text" id="nameInput" class="input-field" placeholder="Your Full Name" style="margin-bottom:20px;">
-            
-            <button class="action-btn" onclick="verifyAndRegister()">
-                <span id="lblVerify">VERIFY & REGISTER</span>
-            </button>
+            <input type="text" id="nameInput" class="input-field" placeholder="Full Name" style="margin-bottom:20px;">
+            <button class="action-btn" onclick="verifyAndRegister()"><span id="lblVerify">VERIFY & REGISTER</span></button>
         </div>
     </div>
 
@@ -318,163 +309,10 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
-        
-        // --- 2. INIT & RECAPTCHA ---
-        window.onload = () => {
-            // Setup Invisible Recaptcha for Phone Auth
-            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-                'size': 'invisible'
-            });
 
-            // UI Init
-            createBioBackground();
-            startPreloader();
-            startClock();
-            document.getElementById("language_select").value = currentLang;
-            updateTexts();
-            checkConnection();
-            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
-
-            // Restore Saved Phone
-            const saved = localStorage.getItem("saved_phone");
-            if (saved) {
-                iti.setNumber(saved);
-                document.getElementById('remCheck').checked = true;
-                validateLive();
-            }
-        };
-
-        // --- 3. INPUT SETUP & VALIDATION ---
-        const phoneInput = document.querySelector("#userId");
-        const iti = window.intlTelInput(phoneInput, {
-            separateDialCode: true,
-            preferredCountries: ["eg", "sa", "ae"],
-            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
-        });
-
-        function validateLive() {
-            if (iti.isValidNumber()) {
-                phoneInput.classList.add("valid");
-                phoneInput.classList.remove("invalid");
-            } else {
-                phoneInput.classList.remove("valid");
-                if (phoneInput.value.length > 3) phoneInput.classList.add("invalid");
-            }
-        }
-
-        // --- 4. MAIN LOGIC: CHECK DB -> LOGIN or SIGNUP ---
-        let currentFullNumber = "";
-        let confirmationResult = null;
-
-        function processLogin() {
-            const btn = document.getElementById("loginBtn");
-            
-            if (!iti.isValidNumber()) {
-                phoneInput.classList.add("shake");
-                setTimeout(() => phoneInput.classList.remove("shake"), 400);
-                return;
-            }
-
-            currentFullNumber = iti.getNumber();
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Checking Database...';
-
-            // Check Firebase (Using Anonymous Auth first to read DB)
-            auth.signInAnonymously().then(() => {
-                database.ref('PatientData/' + currentFullNumber).once('value').then(snapshot => {
-                    if (snapshot.exists()) {
-                        // User EXISTS -> Login immediately
-                        completeLogin(currentFullNumber);
-                    } else {
-                        // User NEW -> Show Consent
-                        btn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan;
-                        toggleModal('consentModal', true);
-                    }
-                });
-            }).catch(e => {
-                // Fallback if anonymous auth fails (internet issues etc)
-                toggleModal('consentModal', true);
-            });
-        }
-
-        function toggleConsentBtn() {
-            const btn = document.getElementById('btnSendCode');
-            const chk = document.getElementById('agreeCheck');
-            btn.disabled = !chk.checked;
-            btn.style.opacity = chk.checked ? "1" : "0.5";
-        }
-
-        function proceedToVerification() {
-            toggleModal('consentModal', false);
-            const btn = document.getElementById("btnSendCode");
-            
-            // SEND REAL SMS (Requires Blaze Plan OR Test Number in Console)
-            const appVerifier = window.recaptchaVerifier;
-            auth.signInWithPhoneNumber(currentFullNumber, appVerifier)
-                .then((result) => {
-                    window.confirmationResult = result;
-                    toggleModal('verifyModal', true);
-                    showToast(currentLang === 'ar' ? "تم إرسال الرمز" : "SMS Sent!", "success");
-                }).catch((error) => {
-                    // Handle Errors (Like Billing Not Enabled)
-                    console.error("SMS Error:", error);
-                    showToast("SMS Failed: " + error.code, "error");
-                    // Important: If "billing_not_enabled", warn user to use Test Number
-                    if(error.code.includes("billing")) alert("Project is on Free Plan. Please add this number to 'Phone Authentication -> Test Numbers' in Firebase Console.");
-                });
-        }
-
-        function verifyAndRegister() {
-            const code = document.getElementById('codeInput').value;
-            const name = document.getElementById('nameInput').value;
-
-            if (name.length < 3) {
-                showToast(currentLang === 'ar' ? "أدخل الاسم" : "Enter Name", "error");
-                return;
-            }
-
-            if(!window.confirmationResult) return;
-
-            // VERIFY CODE
-            window.confirmationResult.confirm(code).then((result) => {
-                // User signed in successfully.
-                const user = result.user;
-                
-                // SAVE TO DATABASE
-                database.ref('PatientData/' + currentFullNumber).set({
-                    FullName: name,
-                    Phone: currentFullNumber,
-                    RegistrationDate: new Date().toLocaleString(),
-                    SensorData: "No measurement recorded yet"
-                }).then(() => {
-                    toggleModal('verifyModal', false);
-                    completeLogin(currentFullNumber);
-                });
-
-            }).catch((error) => {
-                showToast(currentLang === 'ar' ? "الكود خطأ" : "Invalid Code", "error");
-            });
-        }
-
-        function completeLogin(number) {
-            // Save if Remember Me is checked
-            if(document.getElementById('remCheck').checked) {
-                localStorage.setItem("saved_phone", number);
-            } else {
-                localStorage.removeItem("saved_phone");
-            }
-            
-            localStorage.setItem("selectedUserId", number);
-            
-            document.getElementById("login-view").style.display = "none";
-            document.getElementById("success-view").style.display = "flex";
-            document.getElementById("welcome-user-msg").innerText = number;
-            
-            showToast(txt[currentLang].toastLogin, "success");
-        }
-
-        // --- 5. PRELOADER & ANIMATIONS (PRESERVED) ---
+        // --- 2. RESTORED PRELOADER JS (Random Increments) ---
         function startPreloader() {
-            const bar = document.getElementById('progressFill');
+            const bar = document.querySelector('.progress-bar');
             let w = 0;
             const iv = setInterval(() => {
                 w += Math.random() * 15; if(w > 100) w = 100;
@@ -492,19 +330,87 @@
             }, 100);
         }
 
-        let currentLang = localStorage.getItem("language") || "en";
-        let welcomePlayed = false;
+        window.onload = () => {
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
+            createBioBackground(); startPreloader(); startClock(); updateTexts(); checkConnection();
+            const saved = localStorage.getItem("saved_phone");
+            if(saved) { iti.setNumber(saved); document.getElementById('remCheck').checked = true; validateLive(); }
+            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
+        };
 
+        // --- 3. INPUT SETUP ---
+        const phoneInput = document.querySelector("#userId");
+        const iti = window.intlTelInput(phoneInput, {
+            separateDialCode: true,
+            preferredCountries: ["eg", "sa", "ae"],
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
+        });
+
+        function validateLive() {
+            if (iti.isValidNumber()) { phoneInput.classList.add("valid"); phoneInput.classList.remove("invalid"); } 
+            else { phoneInput.classList.remove("valid"); if(phoneInput.value.length > 3) phoneInput.classList.add("invalid"); }
+        }
+
+        // --- 4. MAIN LOGIC ---
+        let currentFullNumber = "";
+        let confirmationResult = null;
+
+        function processLogin() {
+            if (!iti.isValidNumber()) { phoneInput.classList.add("shake"); setTimeout(() => phoneInput.classList.remove("shake"), 400); return; }
+            currentFullNumber = iti.getNumber();
+            document.getElementById("loginBtn").innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Checking Database...';
+            
+            auth.signInAnonymously().then(() => {
+                database.ref('PatientData/' + currentFullNumber).once('value').then(snapshot => {
+                    if (snapshot.exists()) { completeLogin(currentFullNumber); } 
+                    else { document.getElementById("loginBtn").innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan; toggleModal('consentModal', true); }
+                });
+            }).catch(e => { toggleModal('consentModal', true); });
+        }
+
+        function proceedToVerification() {
+            toggleModal('consentModal', false);
+            auth.signInWithPhoneNumber(currentFullNumber, window.recaptchaVerifier).then(result => {
+                window.confirmationResult = result; toggleModal('verifyModal', true);
+            }).catch(e => { showToast("SMS Error: Check Console", "error"); console.error(e); });
+        }
+
+        function verifyAndRegister() {
+            const code = document.getElementById('codeInput').value;
+            const name = document.getElementById('nameInput').value;
+            if(name.length < 3) return showToast("Enter Name", "error");
+            window.confirmationResult.confirm(code).then(() => {
+                database.ref('PatientData/' + currentFullNumber).set({ FullName: name, Phone: currentFullNumber, RegistrationDate: new Date().toLocaleString(), SensorData: "No measurement recorded yet" })
+                .then(() => { toggleModal('verifyModal', false); completeLogin(currentFullNumber); });
+            }).catch(() => showToast("Invalid Code", "error"));
+        }
+
+        function completeLogin(number) {
+            if(document.getElementById('remCheck').checked) localStorage.setItem("saved_phone", number);
+            else localStorage.removeItem("saved_phone");
+            localStorage.setItem("selectedUserId", number);
+            document.getElementById("login-view").style.display = "none";
+            document.getElementById("success-view").style.display = "flex";
+            document.getElementById("welcome-user-msg").innerText = number;
+            showToast(txt[currentLang].toastLogin, "success");
+        }
+
+        function toggleConsentBtn() {
+            const btn = document.getElementById('btnSendCode');
+            const chk = document.getElementById('agreeCheck');
+            btn.disabled = !chk.checked;
+            btn.style.opacity = chk.checked ? "1" : "0.5";
+        }
+
+        // --- 5. UI CORE ---
         function playWelcomeMessage() {
             if (welcomePlayed) return;
             if ('speechSynthesis' in window) {
-                // Ensure interaction first (handled by click listener in onload)
                 const enMsg = new SpeechSynthesisUtterance("Welcome to Bioscan ATM Station. Please enter your mobile number.");
                 enMsg.lang = 'en-US'; enMsg.rate = 0.9;
                 const arMsg = new SpeechSynthesisUtterance("مرحباً بكم في محطة بايوسكان. يرجى إدخال رقم الهاتف للمتابعة.");
                 arMsg.lang = 'ar-SA'; arMsg.rate = 0.85;
-                window.speechSynthesis.speak(enMsg);
-                window.speechSynthesis.speak(arMsg);
+                window.speechSynthesis.speak(enMsg); window.speechSynthesis.speak(arMsg);
                 welcomePlayed = true;
             }
         }
@@ -525,8 +431,7 @@
 
         function startClock() {
             setInterval(() => {
-                const now = new Date();
-                const loc = currentLang === 'ar' ? 'ar-EG' : 'en-US';
+                const now = new Date(); const loc = currentLang === 'ar' ? 'ar-EG' : 'en-US';
                 document.getElementById('clockTime').innerText = now.toLocaleTimeString(loc, {hour12: false});
                 document.getElementById('clockDate').innerText = now.toLocaleDateString(loc, {weekday:'short', day:'numeric', month:'short'});
             }, 1000);
@@ -542,54 +447,35 @@
             }, 3000);
         }
 
-        // --- 6. TEXTS & TRANSLATIONS (UPDATED WITH LEGAL TEXT) ---
+        let currentLang = localStorage.getItem("language") || "en";
+        function changeLanguage() { currentLang = document.getElementById("language_select").value; localStorage.setItem("language", currentLang); updateTexts(); }
+
         const txt = {
             en: { 
-                uiTitle: "USER LOGIN", ph: "1xxxxxxxxx", btnScan: "INITIALIZE SCAN", success: "Access Granted", welcome: "Verified", btnDash: "OPEN DASHBOARD", errFormat: "Invalid Format", toastLogin: "Verified",
-                projName: "Bioscan ATM", sub: "Graduation Project 2026 | Electronics & Comm. Dept.", missionT: "Mission", mission: "Empowering communities with instant, hospital-grade health diagnostics via IoT to bridge the gap between patients and care.", visionT: "Vision", vision: "A world where proactive health monitoring is accessible to everyone.", teamT: "The Team", uni: "Zagazig University",
-                rem: "Remember Me",
-                conTitle: "Terms of Use & Data Privacy",
-                conBody: `
-                    <b>Terms of Use & Data Privacy Agreement</b><br><br>
-                    <b>1. Medical Guidance Only:</b> This system is intended for informational and guidance purposes only. It is NOT a substitute for professional medical diagnosis or treatment.<br><br>
-                    <b>2. Emergency Cases:</b> In case of a medical emergency, please contact your local emergency services or go to the nearest hospital immediately. Do not rely on this system for life-critical decisions.<br><br>
-                    <b>3. Data Security:</b> Your vital signs and personal data are stored securely on our cloud servers (Firebase). By proceeding, you consent to this data processing.<br><br>
-                    <b>4. AI Analysis:</b> AI-generated insights are based on statistical trends and should be verified by a certified healthcare professional.
-                `,
-                agree: "I have read and agree to the terms and data processing policy.", send: "AGREE & PROCEED",
-                verTitle: "Identity Setup", verSub: "Code sent via SMS", verBtn: "REGISTER & ENTER"
+                uiTitle: "USER LOGIN", ph: "1xxxxxxxxx", btnScan: "INITIALIZE SCAN", success: "Access Granted", toastLogin: "Verified",
+                conTitle: "Terms of Use & Privacy",
+                conBody: `<b>Terms of Use & Data Privacy Agreement</b><br><br><b>1. Medical Guidance Only:</b> This system is intended for informational and guidance purposes only. It is NOT a substitute for professional medical diagnosis or treatment.<br><br><b>2. Emergency Cases:</b> In case of a medical emergency, please contact your local emergency services or go to the nearest hospital immediately. Do not rely on this system for life-critical decisions.<br><br><b>3. Data Security:</b> Your vital signs and personal data are stored securely on our cloud servers (Firebase). By proceeding, you consent to this data processing.<br><br><b>4. AI Analysis:</b> AI-generated insights are based on statistical trends and should be verified by a certified healthcare professional.`,
+                lblAgree: "I have read and agree to the terms.", lblSend: "AGREE & PROCEED"
             },
             ar: { 
-                uiTitle: "تسجيل الدخول", ph: "1xxxxxxxxx", btnScan: "بدء الفحص", success: "تم بنجاح", welcome: "تم التحقق", btnDash: "لوحة التحكم", errFormat: "تنسيق خطأ", toastLogin: "تم التحقق",
-                projName: "مشروع Bioscan ATM", sub: "مشروع تخرج 2026 | قسم هندسة الإلكترونيات والاتصالات", missionT: "مهمتنا", mission: "تمكين المجتمع من الحصول على تشخيصات صحية فورية ودقيقة عبر إنترنت الأشياء.", visionT: "رؤيتنا", vision: "عالم تكون فيه مراقبة الصحة استباقية وسلسة ومتاحة للجميع.", teamT: "فريق العمل", uni: "جامعة الزقازيق",
-                rem: "تذكرني",
-                conTitle: "شروط الاستخدام واتفاقية الخصوصية",
-                conBody: `
-                    <b>شروط الاستخدام واتفاقية خصوصية البيانات</b><br><br>
-                    <b>1. غرض إرشادي فقط:</b> هذا النظام مخصص للأغراض الاسترشادية والمعلوماتية فقط، ولا يعتبر بديلاً عن التشخيص الطبي المهني أو العلاج.<br><br>
-                    <b>2. حالات الطوارئ:</b> في حالة وجود طارئ طبي، يرجى الاتصال بخدمات الطوارئ المحلية أو التوجه لأقرب مستشفى فوراً. لا تعتمد على هذا النظام في اتخاذ قرارات مصيرية.<br><br>
-                    <b>3. خصوصية البيانات:</b> يتم تخزين علاماتك الحيوية وبياناتك الشخصية بشكل آمن على خوادمنا السحابية (Firebase). باستمرارك في الاستخدام، فأنت توافق على معالجة هذه البيانات.<br><br>
-                    <b>4. التحليل الذكي:</b> التقارير الصادرة عن الذكاء الاصطناعي هي مجرد تحليل للأنماط الإحصائية ويجب مراجعتها من قبل طبيب مختص.
-                `,
-                agree: "أقر بأنني قرأت الشروط وأوافق على سياسة معالجة البيانات.", send: "موافقة والمتابعة",
-                verTitle: "إثبات الهوية", verSub: "تم إرسال كود التحقق لهاتفك", verBtn: "تسجيل ودخول"
+                uiTitle: "تسجيل الدخول", ph: "1xxxxxxxxx", btnScan: "بدء الفحص", success: "تم بنجاح", toastLogin: "تم التحقق",
+                conTitle: "شروط الاستخدام والخصوصية",
+                conBody: `<b>شروط الاستخدام واتفاقية خصوصية البيانات</b><br><br><b>1. غرض إرشادي فقط:</b> هذا النظام مخصص للأغراض الاسترشادية والمعلوماتية فقط، ولا يعتبر بديلاً عن التشخيص الطبي المهني أو العلاج.<br><br><b>2. حالات الطوارئ:</b> في حالة وجود طارئ طبي، يرجى الاتصال بخدمات الطوارئ المحلية أو التوجه لأقرب مستشفى فوراً. لا تعتمد على هذا النظام في اتخاذ قرارات مصيرية.<br><br><b>3. خصوصية البيانات:</b> يتم تخزين علاماتك الحيوية وبياناتك الشخصية بشكل آمن على خوادمنا السحابية (Firebase). باستمرارك في الاستخدام، فأنت توافق على معالجة هذه البيانات.<br><br><b>4. التحليل الذكي:</b> التقارير الصادرة عن الذكاء الاصطناعي هي مجرد تحليل للأنماط الإحصائية ويجب مراجعتها من قبل طبيب مختص.`,
+                lblAgree: "أقر بأنني قرأت الشروط وأوافق عليها.", lblSend: "موافق والمتابعة"
             }
         };
 
         function updateTexts() {
-            const t = txt[currentLang];
-            const isAr = currentLang === 'ar';
-            document.body.style.direction = isAr ? 'rtl' : 'ltr';
-            
+            const t = txt[currentLang]; document.body.style.direction = currentLang === 'ar' ? 'rtl' : 'ltr';
             document.getElementById("ui-title").innerText = t.uiTitle;
-            document.getElementById("userId").placeholder = t.ph;
             document.getElementById("btn-text").innerText = t.btnScan;
-            document.getElementById("success-msg").innerText = t.success;
-            document.getElementById("welcome-user-msg").innerText = t.welcome;
-            document.getElementById("dash-btn-text").innerText = t.btnDash;
-            document.getElementById("lblRem").innerText = t.rem;
-
-            // Modal Texts
+            document.getElementById("con-title").innerText = t.conTitle;
+            document.getElementById("con-body").innerHTML = t.conBody;
+            document.getElementById("lblAgree").innerText = t.lblAgree;
+            document.getElementById("lblSend").innerText = t.lblSend;
+            document.getElementById("lblRem").innerText = currentLang === 'ar' ? "تذكرني" : "Remember Me";
+            
+            // Modals Static
             document.getElementById("modal-project-name").innerText = t.projName;
             document.getElementById("modal-subtitle").innerText = t.sub;
             document.getElementById("mission-title").innerText = t.missionT;
@@ -598,30 +484,12 @@
             document.getElementById("vision-text").innerText = t.vision;
             document.getElementById("team-title").innerText = t.teamT;
             document.getElementById("uni-text").innerText = t.uni;
-
-            // Consent
-            document.getElementById("con-title").innerText = t.conTitle;
-            document.getElementById("con-body").innerHTML = t.conBody;
-            document.getElementById("lblAgree").innerText = t.agree;
-            document.getElementById("lblSend").innerText = t.send;
-            document.getElementById("ver-title").innerText = t.verTitle;
-            document.getElementById("ver-sub").innerText = t.verSub;
-            document.getElementById("lblVerify").innerText = t.verBtn;
         }
 
-        function changeLanguage() { currentLang = document.getElementById("language_select").value; localStorage.setItem("language", currentLang); updateTexts(); }
-        function switchViewToDashboard(uid) { document.getElementById("login-view").style.display = "none"; document.getElementById("success-view").style.display = "flex"; document.getElementById("welcome-user-msg").innerText = uid; }
-        function resetView() { document.getElementById("success-view").style.display = "none"; document.getElementById("login-view").style.display = "block"; document.getElementById("userId").value = ""; phoneInput.classList.remove("valid"); }
+        function showToast(m, t) { const c = document.getElementById("toastContainer"); const el = document.createElement("div"); el.className = "toast"; el.style.borderLeftColor = t==='error'?'var(--error)':'var(--success)'; el.innerHTML = `<i class="fas fa-info-circle"></i> ${m}`; c.appendChild(el); setTimeout(()=>el.remove(), 3500); }
         function goToDashboard() { window.location.href = "measurements.html"; }
-        function showToast(msg, type) { const container = document.getElementById("toastContainer"); const toast = document.createElement("div"); toast.className = "toast"; toast.style.borderLeftColor = type === 'error' ? 'var(--error)' : 'var(--success)'; toast.innerHTML = `<i class="fas ${type==='error'?'fa-exclamation-circle':'fa-check-circle'}"></i> ${msg}`; container.appendChild(toast); setTimeout(() => toast.remove(), 3500); }
-        
-        function toggleModal(id, show) { 
-            const modal = document.getElementById(id);
-            if(show) { modal.style.display = 'flex'; setTimeout(() => modal.classList.add('active'), 10); } 
-            else { modal.classList.remove('active'); setTimeout(() => modal.style.display = 'none', 300); }
-        }
-        
-        document.addEventListener('click', () => playWelcomeMessage(), { once: true });
+        function resetView() { document.getElementById("success-view").style.display = "none"; document.getElementById("login-view").style.display = "block"; }
+        function toggleModal(id, show) { const m = document.getElementById(id); if(show) { m.style.display = 'flex'; setTimeout(()=>m.classList.add('active'), 10); } else { m.classList.remove('active'); setTimeout(()=>m.style.display='none', 300); } }
     </script>
 </body>
 </html>
