@@ -868,38 +868,41 @@
             setTimeout(() => modal.style.display = 'none', 300);
         }
         
-        // --- FULLSCREEN LOGIC WITH PERSISTENCE ---
+        // --- FULLSCREEN LOGIC (Optimized) ---
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().then(() => {
-                    localStorage.setItem('isFullscreen', 'true');
-                }).catch(err => {
-                    console.log("Fullscreen error:", err);
-                });
+                    sessionStorage.setItem('wantsFullscreen', 'true');
+                }).catch(err => console.log("Fullscreen error:", err));
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen().then(() => {
-                        localStorage.removeItem('isFullscreen');
-                    });
-                }
+                document.exitFullscreen().then(() => {
+                    sessionStorage.removeItem('wantsFullscreen');
+                }).catch(err => console.log("Exit fullscreen error:", err));
             }
         }
 
-        // Auto-restore fullscreen on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('isFullscreen') === 'true') {
-                setTimeout(() => {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        console.log("Auto-fullscreen failed:", err);
-                    });
-                }, 100);
+        // Restore fullscreen after navigation
+        window.addEventListener('load', () => {
+            if (sessionStorage.getItem('wantsFullscreen') === 'true') {
+                // User interaction required - wait for first click
+                const tryFullscreen = () => {
+                    document.documentElement.requestFullscreen()
+                        .then(() => {
+                            document.removeEventListener('click', tryFullscreen);
+                            document.removeEventListener('touchstart', tryFullscreen);
+                        })
+                        .catch(err => console.log("Auto-fullscreen blocked:", err));
+                };
+                
+                document.addEventListener('click', tryFullscreen, { once: true });
+                document.addEventListener('touchstart', tryFullscreen, { once: true });
             }
         });
 
-        // Clear flag when user exits via ESC
+        // Clear flag on ESC
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
-                localStorage.removeItem('isFullscreen');
+                sessionStorage.removeItem('wantsFullscreen');
             }
         });
 
