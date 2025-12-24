@@ -844,11 +844,13 @@
     }
   }
 
-  window.addEventListener('load', () => {
+  document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('isFullscreen') === 'true') {
-      document.documentElement.requestFullscreen().catch(err => {
-        console.log("Auto-fullscreen error:", err);
-      });
+      setTimeout(() => {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log("Auto-fullscreen failed:", err);
+        });
+      }, 100);
     }
   });
 

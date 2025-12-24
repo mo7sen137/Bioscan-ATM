@@ -861,11 +861,13 @@
     }
   }
 
-  window.addEventListener('load', () => {
+  document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('isFullscreen') === 'true') {
-      document.documentElement.requestFullscreen().catch(err => {
-        console.log("Auto-fullscreen error:", err);
-      });
+      setTimeout(() => {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log("Auto-fullscreen failed:", err);
+        });
+      }, 100);
     }
   });
 
@@ -875,7 +877,22 @@
     }
   });
 
-  applyLanguage(lang);
+  function goBack() { 
+    stopHeartbeatSound(); 
+    window.location.href = "measurements.html"; 
+  }
+
+  // --- DEBUG BUTTONS ---
+  function debugPulse(fixedValue) {
+    const val = fixedValue !== undefined ? fixedValue : Math.floor(Math.random() * 100 + 60);
+    updatePulseUI(val);
+    
+    const str = `HR=${val}, Temp=36.6, SpO2=98`;
+    db.ref(`${PATIENT_DATA_PATH}/${userId}`).update({ 
+      SensorData: str, 
+      Timestamp: new Date().toLocaleString() 
+    });
+  }
 
   console.log("User ID:", userId);
   console.log("Firebase initialized");
