@@ -867,7 +867,7 @@
         document.documentElement.requestFullscreen().catch(err => {
           console.log("Auto-fullscreen failed:", err);
         });
-      }, 100);
+      }, 300);
     }
   });
 
@@ -877,9 +877,10 @@
     }
   });
 
-  function goBack() { 
-    stopHeartbeatSound(); 
-    window.location.href = "measurements.html"; 
+  // ✅ زرار الرجوع الصحيح
+  function goBack() {
+    stopHeartbeatSound(); // إيقاف الصوت الأول
+    window.location.href = "measurements.html";
   }
 
   // --- DEBUG BUTTONS ---

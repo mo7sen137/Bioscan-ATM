@@ -879,7 +879,7 @@
         document.documentElement.requestFullscreen().catch(err => {
           console.log("Auto-fullscreen failed:", err);
         });
-      }, 100);
+      }, 300);
     }
   });
 
@@ -889,9 +889,9 @@
     }
   });
 
-  function goBack() { 
-    clearSOS(); 
-    window.location.href = "measurements.html"; 
+  function goBack() {
+    clearSOS();
+    window.location.href = "measurements.html";
   }
 
   // --- 7. LOG FOR DEBUGGING ---

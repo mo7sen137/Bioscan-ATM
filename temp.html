@@ -801,6 +801,7 @@
     applyLanguage(newLang);
   }
 
+  // ✅ تصليح زرار Fullscreen
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().then(() => {
@@ -817,104 +818,29 @@
     }
   }
 
-  // Auto-restore fullscreen
+  // ✅ Auto-restore عند فتح الصفحة
   document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('isFullscreen') === 'true') {
       setTimeout(() => {
         document.documentElement.requestFullscreen().catch(err => {
           console.log("Auto-fullscreen failed:", err);
         });
-      }, 100);
+      }, 300); // زودنا الوقت شوية
     }
   });
 
-  // Clear flag on ESC
+  // ✅ مسح الـ flag لما يخرج بـ ESC
   document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement) {
       localStorage.removeItem('isFullscreen');
     }
   });
 
-  function goBack() { 
-    clearSOS(); 
-    window.location.href = "measurements.html"; 
+  // ✅ زرار الرجوع (يحافظ على fullscreen)
+  function goBack() {
+    clearSOS();
+    window.location.href = "measurements.html";
   }
-
-  // --- 6. RTL SUPPORT ---
-  const lang = localStorage.getItem("language") || "en";
-  
-  function applyLanguage(language) {
-    const isAr = language === "ar";
-    
-    if (isAr) {
-      document.body.classList.add("rtl");
-      document.getElementById("headerTitle").innerText = "قياس الحرارة";
-      document.getElementById("backBtn").innerHTML = '<span>عودة</span> <i class="fas fa-arrow-right"></i>';
-      document.getElementById("instrTitle").innerText = "تعليمات القياس";
-      document.getElementById("btnText").innerText = "النصيحة الطبية";
-      document.getElementById("saveBtnText").innerText = "حفظ القياس";
-      document.getElementById("instructions").innerHTML = `
-        <li><i class="fas fa-bullseye"></i> ضع المستشعر قريباً من الجلد</li>
-        <li><i class="fas fa-user-clock"></i> اثبت لمدة 3-5 ثوان</li>
-        <li><i class="fas fa-wind"></i> تجنب أشعة الشمس المباشرة</li>
-      `;
-      document.getElementById("langBtn").innerText = "ع";
-    } else {
-      document.body.classList.remove("rtl");
-      document.getElementById("headerTitle").innerText = "TEMPERATURE";
-      document.getElementById("backBtn").innerHTML = '<i class="fas fa-arrow-left"></i> <span>Back</span>';
-      document.getElementById("instrTitle").innerText = "INSTRUCTIONS";
-      document.getElementById("btnText").innerText = "Medical Advice";
-      document.getElementById("saveBtnText").innerText = "Save Reading";
-      document.getElementById("instructions").innerHTML = `
-        <li><i class="fas fa-bullseye"></i> Place sensor close to skin</li>
-        <li><i class="fas fa-user-clock"></i> Keep still for 3-5 seconds</li>
-        <li><i class="fas fa-wind"></i> Avoid direct sunlight</li>
-      `;
-      document.getElementById("langBtn").innerText = "EN";
-    }
-  }
-
-  function toggleLanguage() {
-    const currentLang = localStorage.getItem("language") || "en";
-    const newLang = currentLang === "en" ? "ar" : "en";
-    localStorage.setItem("language", newLang);
-    applyLanguage(newLang);
-  }
-
-  function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().then(() => {
-        localStorage.setItem('isFullscreen', 'true');
-      }).catch(err => {
-        console.log("Fullscreen error:", err);
-      });
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().then(() => {
-          localStorage.removeItem('isFullscreen');
-        });
-      }
-    }
-  }
-
-  // Auto-restore fullscreen
-  document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('isFullscreen') === 'true') {
-      setTimeout(() => {
-        document.documentElement.requestFullscreen().catch(err => {
-          console.log("Auto-fullscreen failed:", err);
-        });
-      }, 100);
-    }
-  });
-
-  // Clear flag on ESC
-  document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-      localStorage.removeItem('isFullscreen');
-    }
-  });
 
   console.log("User ID:", userId);
   console.log("Firebase initialized");
