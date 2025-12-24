@@ -470,19 +470,31 @@
         // Display ID first
         userIdSpan.innerText = "ID: " + currentUserId;
         
-        // Fetch fullName from Firebase and extract first name
-        db.ref(PATIENT_DATA_PATH + '/' + currentUserId + '/fullName').once('value').then(snapshot => {
+        // Fetch fullName from Firebase - check the whole user data first
+        db.ref(PATIENT_DATA_PATH + '/' + currentUserId).once('value').then(snapshot => {
             if(snapshot.exists()) {
-                const fullName = snapshot.val();
-                // Extract first name only (split by space and take first part)
-                const firstName = fullName.split(' ')[0];
-                userNameSpan.innerText = firstName;
+                const userData = snapshot.val();
+                console.log("User Data:", userData); // Debug log
+                
+                // Try different possible field names
+                let fullName = userData.fullName || userData.FullName || userData.name || userData.Name;
+                
+                if(fullName) {
+                    // Extract first name only (split by space and take first part)
+                    const firstName = fullName.split(' ')[0];
+                    userNameSpan.innerText = firstName;
+                    console.log("Name found:", firstName);
+                } else {
+                    console.log("No name field found in user data");
+                    userNameSpan.innerText = currentUserId.substring(0, 8); // Show first 8 digits as fallback
+                }
             } else {
-                userNameSpan.innerText = "User"; // Fallback
+                console.log("User data not found");
+                userNameSpan.innerText = currentUserId.substring(0, 8);
             }
         }).catch(err => {
-            console.error("Error fetching name:", err);
-            userNameSpan.innerText = "User";
+            console.error("Error fetching user data:", err);
+            userNameSpan.innerText = currentUserId.substring(0, 8);
         });
     }
 
@@ -506,7 +518,7 @@
         recognition.start();
         const btn = document.getElementById('micBtn'); btn.classList.add('listening');
         recognition.onresult = (event) => {
-            const cmd = event.results[0][0].transcript.toLowerCase();
+            const cmd = event.results[0][0].transcript toLowerCase();
             showToast(`Heard: "${cmd}"`, "info");
             if(cmd.includes('temp') || cmd.includes('حرارة')) goToTemperature();
             else if(cmd.includes('pulse') || cmd.includes('نبض')) goToPulse();
