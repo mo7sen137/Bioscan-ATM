@@ -273,7 +273,7 @@
   }
   .action-btn { 
     padding: 14px 24px; border-radius: 50px; 
-    border: none, cursor: pointer; 
+    border: none; cursor: pointer; 
     font-size: 0.95rem; font-weight: 600; 
     font-family: 'Rajdhani', sans-serif; 
     transition: 0.3s; 
@@ -528,10 +528,10 @@
     </ul>
     
     <div class="actions-row">
-      <button class="action-btn save-btn" id="saveBtn" onclick="saveMeasurement()">
+      <button class="action-btn save-btn" onclick="saveMeasurement()">
         <i class="fas fa-save"></i> <span id="saveBtnText">Save Reading</span>
       </button>
-      <button class="action-btn advice-btn" id="adviceBtn" onclick="showAdvice()">
+      <button class="action-btn advice-btn" onclick="showAdvice()">
         <i class="fas fa-user-md"></i> <span id="btnText">Medical Advice</span>
       </button>
       <button class="action-btn voice-btn" onclick="speakResult()">
@@ -643,10 +643,17 @@
   function saveMeasurement() {
     const s = sysValBox.innerText;
     const d = diaValBox.innerText;
-    if (s === "--" || d === "--") return;
+    if (s === "--" || d === "--") {
+      alert("No pressure reading available!");
+      return;
+    }
     const fullVal = `${s}/${d}`;
     
-    if (!userId) { window.location.href = "index.html"; return; }
+    if (!userId) { 
+      alert("No user selected!");
+      window.location.href = "index.html"; 
+      return; 
+    }
     
     let sessionId = localStorage.getItem("currentSessionId");
     if (!sessionId) { 
@@ -663,14 +670,24 @@
     
     db.ref(`${PATIENT_DATA_PATH}/${userId}/SensorData`).once('value').then(snapshot => {
       let currentStr = snapshot.val() || "";
-      if (currentStr.includes("BP=")) currentStr = currentStr.replace(/BP=[^,]+/, `BP=${fullVal}`);
-      else if (currentStr === "No measurement recorded yet") currentStr = `BP=${fullVal}`;
-      else currentStr = currentStr ? `${currentStr}, BP=${fullVal}` : `BP=${fullVal}`;
+      if (currentStr.includes("BP=")) {
+        currentStr = currentStr.replace(/BP=[^,]+/, `BP=${fullVal}`);
+      } else if (currentStr === "No measurement recorded yet" || !currentStr) {
+        currentStr = `BP=${fullVal}`;
+      } else {
+        currentStr = currentStr ? `${currentStr}, BP=${fullVal}` : `BP=${fullVal}`;
+      }
       
       db.ref(`${PATIENT_DATA_PATH}/${userId}`).update({ 
         SensorData: currentStr, 
         Timestamp: timestamp 
-      }).then(() => showConfirmModal());
+      }).then(() => {
+        console.log("Saved successfully!");
+        showConfirmModal();
+      }).catch(err => {
+        console.error("Save error:", err);
+        alert("Failed to save!");
+      });
     });
   }
 
@@ -696,7 +713,7 @@
     isCritical = true; 
     mainCard.classList.add("critical-state"); 
     sosBanner.style.display = "block"; 
-    alarmSound.play().catch(e=>{}); 
+    alarmSound.play().catch(e=>console.log("Audio error:", e)); 
     const lang = localStorage.getItem("language") || "en"; 
     sosBanner.innerHTML = lang === "ar" 
       ? '<i class="fas fa-exclamation-triangle"></i> خطر: ضغط حرج!' 
@@ -715,25 +732,31 @@
   function speakResult() {
     let s = sysValBox.innerText;
     let d = diaValBox.innerText;
+    if (s === "--" || d === "--") {
+      alert("No reading to speak!");
+      return;
+    }
     const lang = localStorage.getItem("language") || "en";
     let text = (lang === "ar") 
       ? `ضغط الدم ${s} على ${d}` 
       : `Blood pressure is ${s} over ${d}`;
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang === "ar" ? "ar-SA" : "en-US";
+    window.speechSynthesis.speak(utterance);
   }
 
   function showAdvice() {
     let val = parseInt(sysValBox.innerText);
     const lang = localStorage.getItem("language") || "en";
     let txt = "";
-    if (isNaN(val)) txt = lang === "ar" ? "لا توجد بيانات." : "No data available.";
-    else if (val > 140) { 
+    if (isNaN(val)) {
+      txt = lang === "ar" ? "لا توجد بيانات." : "No data available.";
+    } else if (val > 140) { 
       txt = lang === "ar" ? "ضغط مرتفع! قلل الملح." : "High Pressure! Reduce salt intake."; 
       adviceBox.style.borderLeftColor = "#ff0000"; 
-    }
-    else { 
+    } else { 
       txt = lang === "ar" ? "ضغط طبيعي." : "Normal Pressure."; 
-      adviceBox.style.borderLeftColor = var(--primary-neon); 
+      adviceBox.style.borderLeftColor = "var(--primary-neon)"; 
     }
     adviceBox.innerText = txt; 
     adviceBox.style.display = "block";
@@ -758,6 +781,10 @@
       <li><i class="fas fa-hand-holding-heart"></i> ارح ذراعك بشكل مريح</li>
     `;
   }
+
+  // --- 7. LOG FOR DEBUGGING ---
+  console.log("User ID:", userId);
+  console.log("Firebase initialized");
 </script>
 
 <div style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; display: flex; gap: 5px;">
