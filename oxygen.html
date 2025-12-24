@@ -157,28 +157,152 @@
     .confirm-btn { padding: 10px 25px; font-size: 0.95rem; }
   }
 
-  @media (max-width: 480px) {
-    header h1 { font-size: 1rem; }
-    .back-btn { padding: 5px 10px; font-size: 12px; }
+  @media (max-width: 600px) {
+    body { padding-top: 70px; padding: 70px 10px 20px 10px; }
     
-    .card { padding: 20px 15px; }
+    .user-card { 
+        height: 60px; 
+        padding: 0 10px;
+    }
     
-    .oxygen-visual { width: 150px; height: 150px; margin: 0 auto 20px; }
-    .center-icon { font-size: 3rem; }
+    .header-title h2 { 
+        font-size: 0.9rem; 
+        letter-spacing: 0.5px;
+    }
+    .header-title span { 
+        font-size: 0.75rem; 
+    }
     
-    .ox-box { padding: 12px; margin: 15px 0; }
-    #oxValue { font-size: 2.2rem; }
-    .unit { font-size: 1.1rem; }
-    
-    .instructions-list li { font-size: 0.8rem; }
-    
-    .advice-btn, .save-btn { padding: 9px 14px; font-size: 13px; }
-    .voice-btn { padding: 9px 12px; }
-    
-    .confirm-content { padding: 20px 15px; }
-    .success-icon { font-size: 2.5rem; }
-    .confirm-title { font-size: 1.2rem; }
-    .confirm-text { font-size: 0.8rem; }
+    .actions { gap: 5px; }
+    .btn { 
+        width: 35px; 
+        height: 35px; 
+        font-size: 0.9rem;
+    }
+    #langBtn { 
+        width: 35px; 
+        font-size: 0.7rem;
+    }
+
+    .measurement-card {
+        width: 95%;
+        max-width: 95%;
+        padding: 20px 15px;
+        margin: 10px auto;
+    }
+
+    .card-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+
+    .measure-title {
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+    }
+
+    .measure-value {
+        font-size: 2.2rem;
+        margin: 10px 0;
+    }
+
+    .measure-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .info-grid {
+        gap: 8px;
+        margin: 15px 0;
+    }
+
+    .info-item {
+        padding: 8px;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+    }
+
+    .info-value {
+        font-size: 0.95rem;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        margin: 10px 0;
+    }
+
+    .card-actions {
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .action-btn {
+        padding: 10px 15px;
+        font-size: 0.85rem;
+    }
+
+    .modal-content {
+        width: 90%;
+        max-width: 90%;
+        padding: 20px 15px;
+    }
+
+    .qr-title {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    #qrcode {
+        width: 180px !important;
+        height: 180px !important;
+    }
+
+    #qrcode canvas,
+    #qrcode img {
+        width: 180px !important;
+        height: 180px !important;
+    }
+
+    .qr-info {
+        font-size: 0.8rem;
+        margin-top: 10px;
+    }
+
+    .modal-btn {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .user-card {
+        height: 55px;
+        padding: 0 8px;
+    }
+
+    .header-title h2 {
+        font-size: 0.8rem;
+    }
+
+    .header-title span {
+        font-size: 0.7rem;
+    }
+
+    .btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+
+    .measure-value {
+        font-size: 2rem;
+    }
+
+    .card-icon {
+        font-size: 2.5rem;
+    }
   }
 </style>
 </head>
