@@ -747,17 +747,40 @@
     function findHospitals(){window.open("https://www.google.com/maps/search/hospitals+near+me","_blank");}
     function toggleFullScreen(){
         if(!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
+            document.documentElement.requestFullscreen().then(() => {
+                localStorage.setItem('isFullscreen', 'true');
+            }).catch(err => {
                 console.log("Fullscreen error:", err);
             });
         } else {
             if(document.exitFullscreen) {
-                document.exitFullscreen();
+                document.exitFullscreen().then(() => {
+                    localStorage.removeItem('isFullscreen');
+                });
             }
         }
     }
+
+    // Auto-restore fullscreen
+    document.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('isFullscreen') === 'true') {
+            setTimeout(() => {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log("Auto-fullscreen failed:", err);
+                });
+            }, 100);
+        }
+    });
+
+    // Clear flag on ESC
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            localStorage.removeItem('isFullscreen');
+        }
+    });
+
     function closeMeasurements(){localStorage.removeItem("selectedUserId");window.location.href="index.html";}
-    
+
     let idle=0; setInterval(()=>{idle++;if(idle>=120)closeMeasurements();},1000);
     document.onmousemove=document.onkeypress=document.ontouchstart=document.onclick=()=>{idle=0;};
 

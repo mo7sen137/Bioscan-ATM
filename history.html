@@ -885,16 +885,18 @@
             }
         }
 
-        // Check and restore fullscreen state on load
-        window.addEventListener('load', () => {
+        // Auto-restore fullscreen on page load
+        document.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('isFullscreen') === 'true') {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log("Auto-fullscreen error:", err);
-                });
+                setTimeout(() => {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.log("Auto-fullscreen failed:", err);
+                    });
+                }, 100);
             }
         });
 
-        // Clear fullscreen flag when user exits via ESC
+        // Clear flag when user exits via ESC
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 localStorage.removeItem('isFullscreen');
@@ -902,7 +904,6 @@
         });
 
         function goBack() {
-            // Keep fullscreen state when going back
             window.location.href = 'measurements.html';
         }
 
