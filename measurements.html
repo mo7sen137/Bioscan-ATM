@@ -506,7 +506,7 @@
         recognition.start();
         const btn = document.getElementById('micBtn'); btn.classList.add('listening');
         recognition.onresult = (event) => {
-            const cmd = event.results[0][0].transcript toLowerCase();
+            const cmd = event.results[0][0].transcript.toLowerCase();
             showToast(`Heard: "${cmd}"`, "info");
             if(cmd.includes('temp') || cmd.includes('حرارة')) goToTemperature();
             else if(cmd.includes('pulse') || cmd.includes('نبض')) goToPulse();
