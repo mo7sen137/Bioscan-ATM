@@ -307,46 +307,42 @@
   }
 
   @media (max-width: 600px) {
-    body { padding-top: 70px; padding: 70px 10px 20px 10px; }
+    body { padding-top: 75px; }
     
-    .user-card { 
+    header { 
         height: 60px; 
         padding: 0 10px;
     }
     
-    .header-title h2 { 
-        font-size: 0.9rem; 
+    header h1 { 
+        font-size: 0.95rem; 
         letter-spacing: 0.5px;
     }
-    .header-title span { 
-        font-size: 0.75rem; 
-    }
     
-    .actions { gap: 5px; }
-    .btn { 
-        width: 35px; 
-        height: 35px; 
-        font-size: 0.9rem;
+    .back-btn { 
+        left: 8px;
+        padding: 6px 10px;
+        font-size: 0.85rem;
     }
-    #langBtn { 
-        width: 35px; 
-        font-size: 0.7rem;
+
+    .container {
+        padding: 20px 15px;
     }
 
     .test-container {
-        width: 95%;
-        max-width: 95%;
-        padding: 20px 15px;
-        margin: 10px auto;
+        width: calc(100% - 20px);
+        max-width: 450px;
+        margin: 0 auto;
+        padding: 25px 18px;
     }
 
     .test-header h2 {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
         margin-bottom: 8px;
     }
 
     .test-subtitle {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
 
     .sensor-grid {
@@ -355,40 +351,42 @@
     }
 
     .sensor-card {
-        padding: 12px;
+        padding: 12px 10px;
     }
 
     .sensor-icon {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         margin-bottom: 8px;
     }
 
     .sensor-label {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
     }
 
     .sensor-value {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
     }
 
     .sensor-unit {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
     }
 
     .test-actions {
         gap: 8px;
         margin-top: 15px;
+        flex-direction: column;
     }
 
     .test-btn {
-        padding: 12px 20px;
+        width: 100%;
+        padding: 12px 18px;
         font-size: 0.85rem;
     }
 
     .modal-content {
-        width: 90%;
-        max-width: 90%;
-        padding: 20px 15px;
+        width: calc(100% - 30px);
+        max-width: 350px;
+        padding: 25px 18px;
     }
 
     .modal-icon {
@@ -397,12 +395,12 @@
     }
 
     .modal-title {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         margin-bottom: 8px;
     }
 
     .modal-text {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
 
     .modal-btn {
@@ -411,30 +409,38 @@
     }
   }
 
-  @media (max-width: 480px) {
-    .header-title { font-size: 1rem; }
-    .back-btn { padding: 5px 10px; font-size: 12px; }
-    
-    .card { padding: 20px 15px; }
-    .card h2 { font-size: 1.2rem; }
-    .card p { font-size: 0.85rem; }
-    
-    .letter-display { width: 120px; height: 120px; font-size: 3.5rem; }
-    .letter-size-label { font-size: 0.8rem; }
-    
-    .controls-row { gap: 8px; }
-    .btn-direction { width: 45px; height: 45px; font-size: 1.1rem; }
-    .btn-skip { padding: 9px 18px; font-size: 0.85rem; }
-    
-    .progress-text { font-size: 0.85rem; }
-    
-    #resultCard h2 { font-size: 1.3rem; }
-    .score-display { font-size: 2.5rem; }
-    .result-text { font-size: 0.9rem; }
-    .btn-save, .btn-retry { padding: 10px 18px; font-size: 0.9rem; }
-    .btn-speak-result { width: 36px; height: 36px; font-size: 1rem; }
-  }
+  @media (max-width: 400px) {
+    header {
+        height: 55px;
+    }
 
+    header h1 {
+        font-size: 0.85rem;
+    }
+
+    .back-btn {
+        padding: 5px 8px;
+        font-size: 0.8rem;
+    }
+
+    .test-container {
+        width: calc(100% - 16px);
+        padding: 20px 15px;
+    }
+
+    .sensor-value {
+        font-size: 1.1rem;
+    }
+
+    .sensor-icon {
+        font-size: 1.4rem;
+    }
+
+    .test-btn {
+        padding: 10px 15px;
+        font-size: 0.8rem;
+    }
+  }
 </style>
 </head>
 

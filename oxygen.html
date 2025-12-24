@@ -158,56 +158,52 @@
   }
 
   @media (max-width: 600px) {
-    body { padding-top: 70px; padding: 70px 10px 20px 10px; }
+    body { padding-top: 75px; }
     
-    .user-card { 
+    header { 
         height: 60px; 
         padding: 0 10px;
     }
     
-    .header-title h2 { 
-        font-size: 0.9rem; 
+    header h1 { 
+        font-size: 0.95rem; 
         letter-spacing: 0.5px;
     }
-    .header-title span { 
-        font-size: 0.75rem; 
-    }
     
-    .actions { gap: 5px; }
-    .btn { 
-        width: 35px; 
-        height: 35px; 
-        font-size: 0.9rem;
+    .back-btn { 
+        left: 8px;
+        padding: 6px 10px;
+        font-size: 0.85rem;
     }
-    #langBtn { 
-        width: 35px; 
-        font-size: 0.7rem;
+
+    .container {
+        padding: 20px 15px;
     }
 
     .measurement-card {
-        width: 95%;
-        max-width: 95%;
-        padding: 20px 15px;
-        margin: 10px auto;
+        width: calc(100% - 20px);
+        max-width: 450px;
+        margin: 0 auto;
+        padding: 25px 18px;
     }
 
     .card-icon {
-        font-size: 3rem;
-        margin-bottom: 15px;
+        font-size: 2.8rem;
+        margin-bottom: 12px;
     }
 
     .measure-title {
-        font-size: 1.2rem;
+        font-size: 1.15rem;
         margin-bottom: 8px;
     }
 
     .measure-value {
-        font-size: 2.2rem;
-        margin: 10px 0;
+        font-size: 2rem;
+        margin: 12px 0;
     }
 
     .measure-subtitle {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
 
     .info-grid {
@@ -216,58 +212,50 @@
     }
 
     .info-item {
-        padding: 8px;
+        padding: 10px 8px;
     }
 
     .info-label {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
     }
 
     .info-value {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
     }
 
     .status-badge {
-        padding: 6px 12px;
-        font-size: 0.8rem;
-        margin: 10px 0;
+        padding: 8px 15px;
+        font-size: 0.75rem;
+        margin: 12px 0;
     }
 
     .card-actions {
         gap: 8px;
         margin-top: 15px;
+        flex-direction: column;
     }
 
     .action-btn {
-        padding: 10px 15px;
+        width: 100%;
+        padding: 12px 18px;
         font-size: 0.85rem;
     }
 
     .modal-content {
-        width: 90%;
-        max-width: 90%;
-        padding: 20px 15px;
-    }
-
-    .qr-title {
-        font-size: 1.1rem;
-        margin-bottom: 10px;
+        width: calc(100% - 30px);
+        max-width: 350px;
+        padding: 25px 18px;
     }
 
     #qrcode {
-        width: 180px !important;
-        height: 180px !important;
+        width: 170px !important;
+        height: 170px !important;
     }
 
     #qrcode canvas,
     #qrcode img {
-        width: 180px !important;
-        height: 180px !important;
-    }
-
-    .qr-info {
-        font-size: 0.8rem;
-        margin-top: 10px;
+        width: 170px !important;
+        height: 170px !important;
     }
 
     .modal-btn {
@@ -277,27 +265,26 @@
   }
 
   @media (max-width: 400px) {
-    .user-card {
+    header {
         height: 55px;
-        padding: 0 8px;
     }
 
-    .header-title h2 {
-        font-size: 0.8rem;
-    }
-
-    .header-title span {
-        font-size: 0.7rem;
-    }
-
-    .btn {
-        width: 32px;
-        height: 32px;
+    header h1 {
         font-size: 0.85rem;
     }
 
+    .back-btn {
+        padding: 5px 8px;
+        font-size: 0.8rem;
+    }
+
+    .measurement-card {
+        width: calc(100% - 16px);
+        padding: 20px 15px;
+    }
+
     .measure-value {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
 
     .card-icon {
