@@ -200,6 +200,45 @@
       transform: scale(0.98);
     }
 
+    /* --- MOBILE RESPONSIVE --- */
+    @media (max-width: 768px) {
+      header { padding: 10px 15px; }
+      header h1 { font-size: 1.2rem; letter-spacing: 0.5px; }
+      .exit-btn { right: 15px; padding: 6px 15px; font-size: 13px; gap: 5px; }
+      .exit-btn span { display: none; }
+      
+      .container { padding: 15px 10px; }
+      .card { padding: 25px 20px; border-radius: 18px; max-width: 100%; width: 95%; }
+      
+      .card h2 { font-size: 1.4rem; margin-bottom: 15px; }
+      .intro-text { font-size: 0.95rem; margin-bottom: 25px; }
+      
+      .steps-grid { gap: 15px; }
+      .step { padding: 18px; }
+      .step-icon { width: 50px; height: 50px; font-size: 1.2rem; }
+      .step h3 { font-size: 1rem; margin: 10px 0 8px; }
+      .step p { font-size: 0.85rem; }
+      
+      .start-btn { padding: 12px 25px; font-size: 1rem; }
+    }
+
+    @media (max-width: 480px) {
+      header h1 { font-size: 1.1rem; }
+      .exit-btn { padding: 5px 12px; font-size: 12px; }
+      
+      .card { padding: 20px 15px; }
+      .card h2 { font-size: 1.3rem; }
+      .intro-text { font-size: 0.9rem; margin-bottom: 20px; }
+      
+      .steps-grid { grid-template-columns: 1fr; gap: 12px; }
+      .step { padding: 15px; }
+      .step-icon { width: 45px; height: 45px; font-size: 1.1rem; }
+      .step h3 { font-size: 0.95rem; }
+      .step p { font-size: 0.8rem; }
+      
+      .start-btn { padding: 11px 22px; font-size: 0.95rem; }
+    }
+
   </style>
 
 </head>
