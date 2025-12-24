@@ -88,9 +88,10 @@
     }
     .user-avatar { font-size: 1.6rem; color: var(--primary-neon); filter: drop-shadow(0 0 8px var(--primary-neon)); flex-shrink: 0; }
     .user-info { display: flex; flex-direction: column; overflow: hidden; }
-    .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.65rem; color: #888; letter-spacing: 1px; white-space: nowrap; }
-    .user-info span { font-size: 0.95rem; color: #fff; font-weight: 700; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    
+    .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.65rem; color: #888; letter-spacing: 1px; white-space: nowrap; text-transform: uppercase; }
+    .user-info .user-name { font-size: 1.05rem; color: #fff; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-bottom: 2px; }
+    .user-info .user-id { font-size: 0.75rem; color: #888; font-weight: 400; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+
     .top-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
     
     .icon-btn { 
@@ -293,8 +294,8 @@
     <div class="user-left">
         <div class="user-avatar"><i class="fas fa-user"></i></div>
         <div class="user-info">
-            <h2>USER ID</h2>
-            <span id="currentUserName">Loading...</span>
+            <span class="user-name" id="currentUserName">Loading...</span>
+            <span class="user-id" id="currentUserId">ID: --</span>
         </div>
     </div>
     <div class="top-actions">
@@ -460,21 +461,28 @@
 
     const PATIENT_DATA_PATH = 'PatientData';
     const currentUserId = localStorage.getItem("selectedUserId");
-    const userSpan = document.getElementById('currentUserName');
+    const userNameSpan = document.getElementById('currentUserName');
+    const userIdSpan = document.getElementById('currentUserId');
     
     if(!currentUserId) {
         window.location.href="index.html"; 
     } else {
-        // Fetch fullName from Firebase
+        // Display ID first
+        userIdSpan.innerText = "ID: " + currentUserId;
+        
+        // Fetch fullName from Firebase and extract first name
         db.ref(PATIENT_DATA_PATH + '/' + currentUserId + '/fullName').once('value').then(snapshot => {
             if(snapshot.exists()) {
-                userSpan.innerText = snapshot.val();
+                const fullName = snapshot.val();
+                // Extract first name only (split by space and take first part)
+                const firstName = fullName.split(' ')[0];
+                userNameSpan.innerText = firstName;
             } else {
-                userSpan.innerText = currentUserId; // Fallback to ID if no name
+                userNameSpan.innerText = "User"; // Fallback
             }
         }).catch(err => {
             console.error("Error fetching name:", err);
-            userSpan.innerText = currentUserId;
+            userNameSpan.innerText = "User";
         });
     }
 
@@ -498,7 +506,7 @@
         recognition.start();
         const btn = document.getElementById('micBtn'); btn.classList.add('listening');
         recognition.onresult = (event) => {
-            const cmd = event.results[0][0].transcript.toLowerCase();
+            const cmd = event.results[0][0].transcript toLowerCase();
             showToast(`Heard: "${cmd}"`, "info");
             if(cmd.includes('temp') || cmd.includes('حرارة')) goToTemperature();
             else if(cmd.includes('pulse') || cmd.includes('نبض')) goToPulse();
@@ -528,7 +536,7 @@
 
         const texts = {
             en: {
-                uid: "USER ID", aiT: "AI DIAGNOSTICS", aiSub: "Real-time Health Analysis",
+                aiT: "AI DIAGNOSTICS", aiSub: "Real-time Health Analysis",
                 temp: "Temperature", pulse: "Pulse Rate", bp: "Blood Pressure", ox: "Oxygen (SpO2)",
                 vision: "VISION TEST", vSub: "Start eye exam", hist: "HISTORY LOGS", hSub: "View previous data",
                 save: "SAVE ALL READINGS", exit: "TERMINATE SESSION",
@@ -538,7 +546,7 @@
                 saveBtn: "Save", cancel: "Cancel", yes: "YES, SEND HELP"
             },
             ar: {
-                uid: "المستخدم", aiT: "التحليل الذكي", aiSub: "تحليل صحي فوري",
+                aiT: "التحليل الذكي", aiSub: "تحليل صحي فوري",
                 temp: "درجة الحرارة", pulse: "نبض القلب", bp: "ضغط الدم", ox: "نسبة الأكسجين",
                 vision: "فحص النظر", vSub: "بدء الفحص", hist: "سجل البيانات", hSub: "عرض القراءات السابقة",
                 save: "حفظ جميع القراءات", exit: "إنهاء الجلسة",
@@ -551,7 +559,6 @@
 
         const t = isAr ? texts.ar : texts.en;
 
-        document.querySelector(".user-info h2").innerText = t.uid;
         document.getElementById("aiTitle").innerText = t.aiT;
         document.querySelector(".ai-title p").innerText = t.aiSub;
         
