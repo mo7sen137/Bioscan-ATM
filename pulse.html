@@ -2,278 +2,479 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Bioscan | Pulse Rate</title>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-  /* --- CSS Styles --- */
-  :root { --primary-color: #ff416c; --danger-color: #ff0000; --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --text-color: #ffffff; }
-  body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientBG 15s ease infinite; min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; color: var(--text-color); overflow-x: hidden; transition: background 0.5s; cursor: pointer; }
-  @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-  
-  /* SOS Styles */
-  @keyframes sos-flash { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); border-color: red; } 50% { box-shadow: 0 0 50px 20px rgba(255, 0, 0, 0.5); border-color: #ff4d4d; background: rgba(50, 0, 0, 0.6); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); border-color: red; } }
-  .critical-state { animation: sos-flash 1s infinite; border: 2px solid red !important; }
-  .critical-bg { background: radial-gradient(circle, #3a0000, #000) !important; }
+  /* --- THEME VARIABLES --- */
+  :root { 
+    --primary-neon: #ff4757;
+    --secondary-neon: #ff6348;
+    --bg-dark: #020408;
+    --glass-panel: rgba(8, 15, 25, 0.92);
+    --border-color: rgba(255, 71, 87, 0.3);
+    --text-main: #e0f7fa;
+    --error: #ff2a2a;
+    --success: #00ff88;
+  }
 
-  header { width: 100%; background: rgba(15, 32, 39, 0.9); backdrop-filter: blur(10px); padding: 15px 0; display: flex; justify-content: center; align-items: center; position: relative; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); z-index: 100; }
-  header h1 { font-size: 1.4rem; margin: 0; font-weight: 600; letter-spacing: 1px; color: var(--primary-color); text-transform: uppercase; pointer-events: none; }
-  .back-btn { position: absolute; left: 20px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--primary-color); color: white; padding: 8px 15px; border-radius: 50px; cursor: pointer; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 5px; z-index: 1000; }
-  .back-btn:hover { background: var(--primary-color); color: #fff; box-shadow: 0 0 15px rgba(255, 65, 108, 0.5); }
+  * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    margin: 0; padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-top: 80px;
+    cursor: pointer;
+  }
+
+  /* RTL Support */
+  body.rtl { font-family: 'Cairo', sans-serif; direction: rtl; }
+
+  /* --- ANIMATED BACKGROUND --- */
+  #bio-background {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+    overflow: hidden; background: radial-gradient(circle at center, #0f1c2e 0%, #000000 100%);
+  }
+  .bio-symbol {
+    position: absolute; color: var(--primary-neon); opacity: 0.12;
+    animation: floatData 30s linear infinite; pointer-events: none;
+  }
+  @keyframes floatData {
+    0% { transform: translateY(110vh) rotate(0deg) scale(0.5); opacity: 0; }
+    20% { opacity: 0.15; }
+    80% { opacity: 0.15; }
+    100% { transform: translateY(-10vh) rotate(360deg) scale(1.3); opacity: 0; }
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #050b14; }
+  ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 10px; }
+
+  /* --- HEADER BAR --- */
+  .user-card { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 75px;
+    background: rgba(5, 10, 18, 0.98); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--primary-neon); 
+    box-shadow: 0 0 25px rgba(255, 71, 87, 0.15); z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 25px;
+  }
   
-  .container { display: flex; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; }
-  .card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 25px; padding: 40px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); transition: 0.3s; }
-  .sos-banner { display: none; background: red; color: white; font-weight: bold; padding: 10px; border-radius: 10px; margin-bottom: 15px; animation: blink 0.5s infinite alternate; }
+  .header-title { display: flex; flex-direction: column; }
+  .header-title h2 { 
+    margin: 0; font-family: 'Orbitron', sans-serif; 
+    color: var(--primary-neon); font-size: 1.3rem; 
+    letter-spacing: 1.5px; text-shadow: 0 0 10px var(--primary-neon);
+  }
+
+  .back-btn { 
+    background: rgba(255,255,255,0.05); border: 1px solid var(--primary-neon);
+    color: var(--primary-neon); padding: 8px 18px; border-radius: 50px;
+    cursor: pointer; font-size: 0.9rem; transition: 0.3s;
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Orbitron', sans-serif; font-weight: 600;
+  }
+  .back-btn:hover { 
+    background: var(--primary-neon); color: #000; 
+    box-shadow: 0 0 20px var(--primary-neon); transform: translateY(-2px);
+  }
+
+  /* --- MAIN CONTAINER --- */
+  .container { 
+    display: flex; flex-direction: column; align-items: center;
+    width: 100%; max-width: 1200px; margin: 0 auto;
+    padding: 30px 20px; min-height: calc(100vh - 80px);
+  }
+
+  /* --- NEON GLOWING CARD --- */
+  .measurement-card {
+    background: var(--glass-panel);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--border-color);
+    border-radius: 25px;
+    padding: 35px;
+    width: 100%; max-width: 550px;
+    margin: 0 auto;
+    box-shadow: 0 0 30px rgba(255, 71, 87, 0.2), inset 0 0 20px rgba(255, 71, 87, 0.05);
+    animation: cardPulse 4s infinite ease-in-out;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @keyframes cardPulse {
+    0%, 100% { 
+      box-shadow: 0 0 30px rgba(255, 71, 87, 0.2), inset 0 0 20px rgba(255, 71, 87, 0.05);
+      border-color: rgba(255, 71, 87, 0.3);
+    }
+    50% { 
+      box-shadow: 0 0 50px rgba(255, 71, 87, 0.4), inset 0 0 30px rgba(255, 71, 87, 0.1);
+      border-color: rgba(255, 71, 87, 0.6);
+    }
+  }
+
+  /* SOS Critical State */
+  .critical-state {
+    animation: sosFlash 1s infinite !important;
+    border: 2px solid var(--error) !important;
+  }
+  @keyframes sosFlash {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+    50% { box-shadow: 0 0 60px 30px rgba(255, 0, 0, 0.5); background: rgba(50, 0, 0, 0.3); }
+  }
+
+  .sos-banner { 
+    display: none; background: var(--error); color: white; 
+    font-weight: bold; padding: 12px; border-radius: 15px; 
+    margin-bottom: 20px; text-align: center;
+    animation: blink 0.5s infinite alternate;
+    font-family: 'Orbitron', sans-serif; font-size: 1rem;
+  }
   @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
 
-  /* --- RESTORED HEART ANIMATION --- */
-  .icon-container { margin-bottom: 20px; position: relative; height: 100px; display: flex; align-items: center; justify-content: center; }
+  /* --- HEART ANIMATION --- */
+  .icon-container { 
+    margin: 20px auto; 
+    position: relative; height: 150px; 
+    display: flex; align-items: center; justify-content: center; 
+  }
   
   #heartIcon { 
-    font-size: 6rem; 
-    background: -webkit-linear-gradient(#ff4b2b, #ff416c); 
+    font-size: 7rem; 
+    background: linear-gradient(135deg, var(--primary-neon), var(--secondary-neon));
     -webkit-background-clip: text; 
     -webkit-text-fill-color: transparent; 
-    filter: drop-shadow(0 0 15px rgba(255, 65, 108, 0.6)); 
-    /* Important: Animation name must match the keyframes */
-    animation-name: pumping; 
-    animation-timing-function: ease-in-out; 
-    animation-iteration-count: infinite;
+    filter: drop-shadow(0 0 20px var(--primary-neon)); 
+    animation: pumping 1s ease-in-out infinite;
     transform-origin: center;
   }
 
-  /* Original Smooth Animation */
   @keyframes pumping { 
     0% { transform: scale(1); } 
-    15% { transform: scale(1.3); filter: drop-shadow(0 0 25px rgba(255, 65, 108, 0.8)); }
+    15% { transform: scale(1.3); filter: drop-shadow(0 0 30px var(--primary-neon)); }
     30% { transform: scale(1); } 
-    45% { transform: scale(1.15); filter: drop-shadow(0 0 20px rgba(255, 65, 108, 0.6)); }
+    45% { transform: scale(1.15); filter: drop-shadow(0 0 25px var(--primary-neon)); }
     60% { transform: scale(1); } 
     100% { transform: scale(1); } 
   }
-  
-  .pulse-box { background: rgba(0, 0, 0, 0.3); border-radius: 15px; padding: 20px; margin: 20px 0; border: 1px solid rgba(255, 65, 108, 0.3); position: relative; }
-  #pulseValue { font-size: 3rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--primary-color); }
-  .unit { font-size: 1.5rem; color: var(--primary-color); }
-  
+
   /* Tap Hint */
   #tapHint {
-      position: absolute; top: -35px; left: 50%; transform: translateX(-50%);
-      background: var(--primary-color); color: white; padding: 5px 15px;
-      border-radius: 20px; font-size: 0.85rem; white-space: nowrap;
-      box-shadow: 0 0 10px var(--primary-color);
-      animation: bounce 1s infinite; pointer-events: none;
+    position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+    background: var(--primary-neon); color: white; padding: 6px 18px;
+    border-radius: 25px; font-size: 0.85rem; white-space: nowrap;
+    box-shadow: 0 0 15px var(--primary-neon);
+    animation: bounce 1.2s infinite; pointer-events: none;
+    font-family: 'Orbitron', sans-serif; font-weight: 600;
   }
-  @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-5px); } }
+  @keyframes bounce { 
+    0%, 100% { transform: translateX(-50%) translateY(0); } 
+    50% { transform: translateX(-50%) translateY(-8px); } 
+  }
 
-  .instructions-list { list-style: none; padding: 0; text-align: left; margin-bottom: 30px; }
-  .instructions-list li { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #e0e0e0; }
-  .instructions-list li i { color: var(--primary-color); width: 25px; text-align: center; }
+  /* --- PULSE DISPLAY --- */
+  .pulse-box { 
+    background: rgba(0, 0, 0, 0.5); 
+    border-radius: 18px; padding: 22px; margin: 25px 0; 
+    border: 1px solid rgba(255, 71, 87, 0.2);
+    display: flex; justify-content: center; align-items: center; gap: 10px;
+    box-shadow: 0 0 15px rgba(255, 71, 87, 0.1);
+    position: relative;
+  }
+  #pulseValue { 
+    font-size: 3rem; font-weight: 700; 
+    font-family: 'Orbitron', sans-serif;
+    color: var(--primary-neon); 
+    text-shadow: 0 0 20px var(--primary-neon);
+  }
+  .unit { 
+    font-size: 1.5rem; color: var(--primary-neon); 
+    font-family: 'Orbitron', sans-serif;
+    opacity: 0.8;
+  }
+
+  /* --- INSTRUCTIONS --- */
+  .instructions-list { 
+    list-style: none; padding: 0; 
+    text-align: left; margin: 25px 0;
+  }
+  .instructions-list li { 
+    margin-bottom: 14px; display: flex; 
+    align-items: center; gap: 12px; 
+    font-size: 1rem; color: #ccc;
+  }
+  .instructions-list li i { 
+    color: var(--primary-neon); width: 28px; 
+    text-align: center; font-size: 1.1rem;
+  }
   
-  .actions-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-  .advice-btn, .voice-btn, .save-btn { padding: 12px 20px; border-radius: 50px; border: none; cursor: pointer; font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .advice-btn { flex: 2; background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4); }
-  .save-btn { flex: 2; background: linear-gradient(45deg, #11998e, #38ef7d); color: white; box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4); }
-  .voice-btn { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid var(--primary-color); color: var(--primary-color); }
-  .advice-btn:hover, .voice-btn:hover, .save-btn:hover { transform: translateY(-3px); }
-  .voice-btn:hover { background: var(--primary-color); color: white; }
-  .advice-box { background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 15px; margin-top: 20px; display: none; font-size: 1.1rem; color: #fff; border-left: 4px solid var(--primary-color); animation: slideDown 0.5s ease; }
-  @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-  .confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 5000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
-  .confirm-modal.active { display: flex; opacity: 1; }
-  .confirm-content { background: linear-gradient(145deg, #152229, #1c2e36); border: 2px solid var(--primary-color); border-radius: 25px; width: 90%; max-width: 400px; padding: 30px; text-align: center; box-shadow: 0 0 50px rgba(255, 65, 108, 0.3); transform: scale(0.8); transition: transform 0.3s ease; }
-  .confirm-modal.active .confirm-content { transform: scale(1); }
-  .success-icon { font-size: 4rem; color: var(--primary-color); margin-bottom: 20px; animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
-  @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.2); } 100% { transform: scale(1); } }
-  .confirm-title { font-size: 1.5rem; margin-bottom: 10px; color: #fff; }
-  .confirm-text { color: #ccc; margin-bottom: 25px; font-size: 0.95rem; }
-  .confirm-btn { background: var(--primary-color); color: #fff; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 700; cursor: pointer; font-size: 1rem; transition: 0.3s; }
-  .confirm-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 65, 108, 0.6); }
-
-  /* --- MOBILE RESPONSIVE --- */
-  @media (max-width: 768px) {
-    header { padding: 10px 15px; }
-    header h1 { font-size: 1.1rem; letter-spacing: 0.5px; }
-    .back-btn { left: 10px; padding: 6px 12px; font-size: 13px; }
-    .back-btn span { display: none; }
-    
-    .container { padding: 15px 10px; }
-    .card { padding: 25px 20px; border-radius: 20px; max-width: 100%; }
-    
-    .icon-container { height: 85px; margin-bottom: 16px; }
-    #heartIcon { font-size: 5rem; }
-    
-    .pulse-box { padding: 15px; margin: 18px 0; }
-    #pulseValue { font-size: 2.5rem; }
-    .unit { font-size: 1.2rem; }
-    #tapHint { font-size: 0.75rem; padding: 4px 12px; top: -30px; }
-    
-    .sos-banner { font-size: 0.9rem; padding: 8px; margin-bottom: 12px; }
-    
-    h3 { font-size: 1.1rem; margin-bottom: 12px; }
-    
-    .instructions-list { margin-bottom: 20px; }
-    .instructions-list li { font-size: 0.85rem; margin-bottom: 10px; gap: 8px; }
-    .instructions-list li i { width: 20px; font-size: 0.9rem; }
-    
-    .actions-row { gap: 8px; }
-    .advice-btn, .save-btn, .voice-btn { padding: 10px 16px; font-size: 14px; border-radius: 40px; }
-    .voice-btn { flex: 0.8; min-width: 45px; }
-    
-    .advice-box { font-size: 0.95rem; padding: 12px; margin-top: 15px; }
-    
-    .confirm-content { padding: 25px 20px; width: 92%; max-width: 350px; }
-    .success-icon { font-size: 3rem; margin-bottom: 15px; }
-    .confirm-title { font-size: 1.3rem; }
-    .confirm-text { font-size: 0.85rem; margin-bottom: 20px; }
-    .confirm-btn { padding: 10px 25px; font-size: 0.95rem; }
+  /* --- ACTION BUTTONS --- */
+  .actions-row { 
+    display: flex; gap: 12px; 
+    justify-content: center; flex-wrap: wrap; 
+    margin-top: 25px;
+  }
+  .action-btn { 
+    padding: 14px 24px; border-radius: 50px; 
+    border: none; cursor: pointer; 
+    font-size: 0.95rem; font-weight: 600; 
+    font-family: 'Rajdhani', sans-serif; 
+    transition: 0.3s; 
+    display: flex; align-items: center; 
+    justify-content: center; gap: 10px;
+  }
+  .save-btn { 
+    flex: 2; 
+    background: linear-gradient(135deg, #11998e, #38ef7d); 
+    color: white; 
+    box-shadow: 0 4px 20px rgba(56, 239, 125, 0.3);
+  }
+  .advice-btn { 
+    flex: 2; 
+    background: linear-gradient(135deg, #ff4757, #ff6348); 
+    color: white; 
+    box-shadow: 0 4px 20px rgba(255, 71, 87, 0.3);
+  }
+  .voice-btn { 
+    flex: 1; 
+    background: rgba(255,255,255,0.08); 
+    border: 1px solid var(--primary-neon); 
+    color: var(--primary-neon);
+  }
+  .action-btn:hover { 
+    transform: translateY(-3px); 
+    filter: brightness(1.2); 
+  }
+  .voice-btn:hover { 
+    background: var(--primary-neon); 
+    color: #000; 
+    box-shadow: 0 0 20px var(--primary-neon);
   }
 
+  .advice-box { 
+    background: rgba(0, 0, 0, 0.6); 
+    padding: 18px; border-radius: 15px; 
+    margin-top: 20px; display: none; 
+    font-size: 1.05rem; color: #fff; 
+    border-left: 4px solid var(--primary-neon); 
+    animation: slideDown 0.5s ease;
+  }
+  @keyframes slideDown { 
+    from { opacity: 0; transform: translateY(-10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+  }
+
+  /* --- MODAL --- */
+  .confirm-modal { 
+    position: fixed; inset: 0; 
+    background: rgba(0,0,0,0.9); 
+    backdrop-filter: blur(10px); 
+    z-index: 5000; display: none; 
+    justify-content: center; align-items: center; 
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .confirm-modal.active { display: flex; opacity: 1; }
+  
+  .confirm-content { 
+    background: linear-gradient(145deg, #0e1621, #1a2332); 
+    border: 2px solid var(--primary-neon); 
+    border-radius: 25px; width: 90%; max-width: 420px; 
+    padding: 35px; text-align: center; 
+    box-shadow: 0 0 60px rgba(255, 71, 87, 0.4); 
+    transform: scale(0.8); transition: transform 0.3s ease;
+  }
+  .confirm-modal.active .confirm-content { transform: scale(1); }
+  
+  .success-icon { 
+    font-size: 4.5rem; color: var(--success); 
+    margin-bottom: 20px; 
+    animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    filter: drop-shadow(0 0 15px var(--success));
+  }
+  @keyframes popIn { 
+    0% { transform: scale(0); } 
+    80% { transform: scale(1.2); } 
+    100% { transform: scale(1); } 
+  }
+  
+  .confirm-title { 
+    font-size: 1.6rem; margin-bottom: 12px; 
+    color: var(--primary-neon); 
+    font-family: 'Orbitron', sans-serif;
+  }
+  .confirm-text { 
+    color: #ccc; margin-bottom: 28px; 
+    font-size: 1rem;
+  }
+  .confirm-btn { 
+    background: var(--primary-neon); 
+    color: #fff; border: none; 
+    padding: 13px 35px; border-radius: 50px; 
+    font-weight: 700; cursor: pointer; 
+    font-size: 1.05rem; transition: 0.3s;
+    font-family: 'Orbitron', sans-serif;
+  }
+  .confirm-btn:hover { 
+    transform: scale(1.08); 
+    box-shadow: 0 0 25px var(--primary-neon); 
+  }
+
+  /* --- RESPONSIVE --- */
   @media (max-width: 600px) {
-    body { padding-top: 75px; }
+    body { padding-top: 70px; }
     
-    header { 
-        height: 60px; 
-        padding: 0 10px;
+    .user-card { 
+      height: 60px; 
+      padding: 0 12px;
     }
     
-    header h1 { 
-        font-size: 0.95rem; 
-        letter-spacing: 0.5px;
+    .header-title h2 { 
+      font-size: 1rem; 
+      letter-spacing: 1px;
     }
     
     .back-btn { 
-        left: 8px;
-        padding: 6px 10px;
-        font-size: 0.85rem;
+      padding: 6px 12px;
+      font-size: 0.8rem;
     }
+    .back-btn span { display: none; }
 
     .container {
-        padding: 20px 15px;
+      padding: 20px 12px;
     }
 
     .measurement-card {
-        width: calc(100% - 20px);
-        max-width: 450px;
-        margin: 0 auto;
-        padding: 25px 18px;
+      width: calc(100% - 20px);
+      max-width: 480px;
+      padding: 25px 18px;
     }
 
-    .card-icon {
-        font-size: 2.8rem;
-        margin-bottom: 12px;
+    .icon-container {
+      height: 120px;
+      margin: 15px auto;
     }
 
-    .measure-title {
-        font-size: 1.15rem;
-        margin-bottom: 8px;
+    #heartIcon {
+      font-size: 5.5rem;
     }
 
-    .measure-value {
-        font-size: 2rem;
-        margin: 12px 0;
+    #tapHint {
+      font-size: 0.75rem;
+      padding: 5px 14px;
+      top: -35px;
     }
 
-    .measure-subtitle {
-        font-size: 0.8rem;
+    .pulse-box {
+      padding: 16px;
+      margin: 18px 0;
     }
 
-    .info-grid {
-        gap: 8px;
-        margin: 15px 0;
+    #pulseValue {
+      font-size: 2.5rem;
     }
 
-    .info-item {
-        padding: 10px 8px;
+    .unit {
+      font-size: 1.2rem;
     }
 
-    .info-label {
-        font-size: 0.7rem;
+    .instructions-list li {
+      font-size: 0.9rem;
     }
 
-    .info-value {
-        font-size: 0.9rem;
-    }
-
-    .status-badge {
-        padding: 8px 15px;
-        font-size: 0.75rem;
-        margin: 12px 0;
-    }
-
-    .card-actions {
-        gap: 8px;
-        margin-top: 15px;
-        flex-direction: column;
+    .actions-row {
+      flex-direction: column;
+      gap: 10px;
     }
 
     .action-btn {
-        width: 100%;
-        padding: 12px 18px;
-        font-size: 0.85rem;
+      width: 100%;
+      padding: 13px 20px;
     }
 
-    .modal-content {
-        width: calc(100% - 30px);
-        max-width: 350px;
-        padding: 25px 18px;
-    }
-
-    #qrcode {
-        width: 170px !important;
-        height: 170px !important;
-    }
-
-    #qrcode canvas,
-    #qrcode img {
-        width: 170px !important;
-        height: 170px !important;
-    }
-
-    .modal-btn {
-        padding: 10px 20px;
-        font-size: 0.85rem;
+    .confirm-content {
+      width: calc(100% - 30px);
+      padding: 28px 20px;
     }
   }
 
   @media (max-width: 400px) {
-    header {
-        height: 55px;
-    }
-
-    header h1 {
-        font-size: 0.85rem;
-    }
-
-    .back-btn {
-        padding: 5px 8px;
-        font-size: 0.8rem;
-    }
-
-    .measurement-card {
-        width: calc(100% - 16px);
-        padding: 20px 15px;
-    }
-
-    .measure-value {
-        font-size: 1.8rem;
-    }
-
-    .card-icon {
-        font-size: 2.5rem;
-    }
+    .user-card { height: 55px; }
+    .header-title h2 { font-size: 0.9rem; }
+    .measurement-card { width: calc(100% - 16px); padding: 20px 15px; }
+    #heartIcon { font-size: 5rem; }
+    #pulseValue { font-size: 2.2rem; }
   }
 </style>
 </head>
-<body onclick="unlockAudio()"> <div id="confirmModal" class="confirm-modal">
+<body onclick="unlockAudio()">
+
+<div id="bio-background"></div>
+
+<audio id="alarmSound" loop>
+  <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+</audio>
+
+<header class="user-card">
+  <button id="backBtn" class="back-btn" onclick="goBack()">
+    <i class="fas fa-arrow-left"></i> <span>Back</span>
+  </button>
+  <div class="header-title">
+    <h2 id="headerTitle">PULSE RATE</h2>
+  </div>
+  <div style="width: 100px;"></div>
+</header>
+
+<div class="container">
+  <div id="sosBanner" class="sos-banner">
+    <i class="fas fa-exclamation-triangle"></i> CRITICAL HEART RATE!
+  </div>
+  
+  <div class="measurement-card" id="mainCard">
+    
+    <div class="icon-container">
+      <div id="tapHint">Tap to enable sound 🔊</div>
+      <i class="fas fa-heartbeat" id="heartIcon" style="animation-duration: 1s;"></i>
+    </div>
+
+    <div class="pulse-box">
+      <span id="pulseValue">--</span> 
+      <span class="unit">BPM</span>
+    </div>
+    
+    <h3 id="instrTitle" style="color: var(--primary-neon); font-weight: 500; margin-bottom: 18px; font-family: 'Orbitron', sans-serif; font-size: 1.1rem;">
+      INSTRUCTIONS
+    </h3>
+    <ul class="instructions-list" id="instructions">
+      <li><i class="fas fa-fingerprint"></i> Place finger steadily</li>
+      <li><i class="fas fa-hand-paper"></i> Do not move</li>
+    </ul>
+    
+    <div class="actions-row">
+      <button class="action-btn save-btn" onclick="saveMeasurement()">
+        <i class="fas fa-save"></i> <span id="saveBtnText">Save Reading</span>
+      </button>
+      <button class="action-btn advice-btn" onclick="showAdvice()">
+        <i class="fas fa-user-md"></i> <span id="btnText">Medical Advice</span>
+      </button>
+      <button class="action-btn voice-btn" onclick="speakResult()">
+        <i class="fas fa-volume-up"></i>
+      </button>
+    </div>
+    <div class="advice-box" id="adviceBox"></div>
+  </div>
+</div>
+
+<div id="confirmModal" class="confirm-modal">
   <div class="confirm-content">
     <div class="success-icon"><i class="fas fa-check-circle"></i></div>
     <h3 class="confirm-title" id="modalTitle">Success!</h3>
@@ -282,51 +483,29 @@
   </div>
 </div>
 
-<audio id="alarmSound" loop>
-  <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
-</audio>
-
-<header>
-  <button id="backBtn" class="back-btn" onclick="goBack()">
-    <i class="fas fa-arrow-left"></i> <span>Back</span>
-  </button>
-  <h1 id="headerTitle">Pulse Rate</h1>
-</header>
-
-<div class="container">
-  <div id="sosBanner" class="sos-banner"><i class="fas fa-exclamation-triangle"></i> CRITICAL HEART RATE!</div>
-  
-  <div class="card" id="mainCard">
-    <div class="icon-container">
-        <i class="fas fa-heartbeat" id="heartIcon" style="animation-duration: 1s;"></i>
-    </div>
-    
-    <div class="pulse-box">
-      <div id="tapHint">Tap anywhere to enable sound 🔊</div>
-      <span id="pulseValue">--</span> <span class="unit">BPM</span>
-    </div>
-    
-    <h3 id="instrTitle" style="color: var(--primary-color); font-weight: 400; margin-bottom: 15px;">Instructions</h3>
-    <ul class="instructions-list" id="instructions">
-      <li><i class="fas fa-fingerprint"></i> Place finger steadily.</li>
-      <li><i class="fas fa-hand-paper"></i> Do not move.</li>
-    </ul>
-    
-    <div class="actions-row">
-      <button class="save-btn" id="saveBtn" onclick="saveMeasurement()">
-        <i class="fas fa-save"></i> <span id="saveBtnText">Save</span>
-      </button>
-      <button class="advice-btn" id="adviceBtn" onclick="showAdvice()">
-        <i class="fas fa-user-md"></i> <span id="btnText">Medical Advice</span>
-      </button>
-      <button class="voice-btn" onclick="speakResult()"><i class="fas fa-volume-up"></i></button>
-    </div>
-    <div class="advice-box" id="adviceBox"></div>
-  </div>
-</div>
-
 <script>
-  // --- 1. Config ---
+  // --- 1. ANIMATED BACKGROUND ---
+  function createBioBackground() {
+    const container = document.getElementById('bio-background');
+    const icons = [
+      'fa-heartbeat', 'fa-heart-pulse', 'fa-heart', 
+      'fa-heart-circle-plus', 'fa-heart-circle-check', 'fa-stethoscope',
+      'fa-hand-holding-heart', 'fa-syringe', 'fa-briefcase-medical',
+      'fa-notes-medical', 'fa-capsules', 'fa-dna'
+    ];
+    for (let i = 0; i < 20; i++) {
+      const el = document.createElement('i');
+      el.classList.add('fas', icons[Math.floor(Math.random() * icons.length)], 'bio-symbol');
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.fontSize = (Math.random() * 2 + 1.2) + 'rem';
+      el.style.animationDuration = (Math.random() * 20 + 25) + 's';
+      el.style.animationDelay = (Math.random() * 8) + 's';
+      container.appendChild(el);
+    }
+  }
+  createBioBackground();
+
+  // --- 2. CONFIG ---
   const firebaseConfig = {
     apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
     authDomain: "smart-a76a0.firebaseapp.com",
@@ -346,10 +525,8 @@
   const mainCard = document.getElementById("mainCard");
   const heartIcon = document.getElementById("heartIcon");
   const tapHint = document.getElementById("tapHint");
-  
   const alarmSound = document.getElementById("alarmSound");
   
-  // Audio Context for Realistic Synthesis
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   let audioCtx = null;
   
@@ -360,177 +537,240 @@
   let audioUnlocked = false; 
   let beepInterval = null;
 
-  // --- 2. ADVANCED MEDICAL BEEP (Dual Oscillator) ---
-  // This mimics a GE Patient Monitor Sound
+  // --- 3. MONITOR BEEP ---
   function playMonitorBeep() {
-      if (!audioCtx || isCritical) return;
+    if (!audioCtx || isCritical) return;
 
-      const t = audioCtx.currentTime;
-      const osc1 = audioCtx.createOscillator();
-      const osc2 = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
+    const t = audioCtx.currentTime;
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
 
-      // Main Tone (High Pitch)
-      osc1.type = 'square'; 
-      osc1.frequency.setValueAtTime(880, t); 
+    osc1.type = 'square'; 
+    osc1.frequency.setValueAtTime(880, t); 
 
-      // Harmonic Tone (To make it richer)
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(1760, t); 
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(1760, t); 
 
-      osc1.connect(gainNode);
-      osc2.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
+    osc1.connect(gainNode);
+    osc2.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
 
-      // Sound Envelope (Sharp Blip)
-      gainNode.gain.setValueAtTime(0, t);
-      gainNode.gain.linearRampToValueAtTime(0.1, t + 0.01);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    gainNode.gain.setValueAtTime(0, t);
+    gainNode.gain.linearRampToValueAtTime(0.1, t + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
 
-      osc1.start(t);
-      osc2.start(t);
-      osc1.stop(t + 0.15);
-      osc2.stop(t + 0.15);
+    osc1.start(t);
+    osc2.start(t);
+    osc1.stop(t + 0.15);
+    osc2.stop(t + 0.15);
   }
 
-  // --- 3. Magic Unlock (Runs on any click) ---
+  // --- 4. UNLOCK AUDIO ---
   function unlockAudio() {
-      if (!audioUnlocked) {
-          audioCtx = new AudioContext();
-          if (audioCtx.state === 'suspended') audioCtx.resume();
-          
-          // Silent buffer to unlock iOS
-          const buffer = audioCtx.createBuffer(1, 1, 22050);
-          const source = audioCtx.createBufferSource();
-          source.buffer = buffer;
-          source.connect(audioCtx.destination);
-          source.start(0);
+    if (!audioUnlocked) {
+      audioCtx = new AudioContext();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      
+      const buffer = audioCtx.createBuffer(1, 1, 22050);
+      const source = audioCtx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioCtx.destination);
+      source.start(0);
 
-          audioUnlocked = true;
-          tapHint.style.display = 'none';
-          
-          const val = parseInt(pulseBox.innerText);
-          if(!isNaN(val)) updatePulseUI(val);
-      }
+      audioUnlocked = true;
+      tapHint.style.display = 'none';
+      
+      const val = parseInt(pulseBox.innerText);
+      if(!isNaN(val)) updatePulseUI(val);
+    }
   }
 
-  // --- 4. Live Reading & Logic ---
+  // --- 5. UPDATE UI ---
   function updatePulseUI(val) {
-      if(isNaN(val)) return;
-      pulseBox.innerText = val;
+    if(isNaN(val)) return;
+    pulseBox.innerText = val;
 
-      // 1. SOS Logic
-      if (val > 120 || val < 50) triggerSOS();
-      else clearSOS();
+    if (val > 120 || val < 50) triggerSOS();
+    else clearSOS();
 
-      // 2. Animation (Restored Original)
-      const duration = 60 / val; 
-      heartIcon.style.animationDuration = `${duration}s`;
+    const duration = 60 / val; 
+    heartIcon.style.animationDuration = `${duration}s`;
 
-      // 3. Sound Loop (Synthesized)
-      clearInterval(beepInterval);
-      if(audioUnlocked && !isCritical) {
-          // Sync sound with animation immediately
-          playMonitorBeep();
-          beepInterval = setInterval(playMonitorBeep, duration * 1000);
-      }
+    clearInterval(beepInterval);
+    if(audioUnlocked && !isCritical) {
+      playMonitorBeep();
+      beepInterval = setInterval(playMonitorBeep, duration * 1000);
+    }
   }
 
-  // --- Firebase ---
   if (userId) {
     db.ref(PATIENT_DATA_PATH + "/" + userId + "/SensorData").on("value", snapshot => {
-       const str = snapshot.val() || "";
-       if(str && (str.includes("HR=") || str.includes("Pulse="))) {
-           const parts = str.split(",");
-           const hrPart = parts.find(p => p.trim().startsWith("HR=") || p.trim().startsWith("Pulse="));
-           if(hrPart) {
-               const val = parseInt(hrPart.split("=")[1]);
-               updatePulseUI(val);
-           }
-       }
+      const str = snapshot.val() || "";
+      if(str && (str.includes("HR=") || str.includes("Pulse="))) {
+        const parts = str.split(",");
+        const hrPart = parts.find(p => p.trim().startsWith("HR=") || p.trim().startsWith("Pulse="));
+        if(hrPart) {
+          const val = parseInt(hrPart.split("=")[1]);
+          updatePulseUI(val);
+        }
+      }
     });
   }
 
-  // --- 5. Save Function ---
+  // --- 6. SAVE ---
   function saveMeasurement() {
     const val = pulseBox.innerText;
-    if (val === "--" || val === "") return;
-    if (!userId) { window.location.href = "index.html"; return; }
+    if (val === "--" || val === "") {
+      alert("No pulse reading available!");
+      return;
+    }
+    
+    if (!userId) { 
+      alert("No user selected!");
+      window.location.href = "index.html"; 
+      return; 
+    }
     
     let sessionId = localStorage.getItem("currentSessionId");
-    if (!sessionId) { sessionId = Date.now().toString(); localStorage.setItem("currentSessionId", sessionId); }
+    if (!sessionId) { 
+      sessionId = Date.now().toString(); 
+      localStorage.setItem("currentSessionId", sessionId); 
+    }
 
     const timestamp = new Date().toLocaleString();
+    
     db.ref(`${PATIENT_DATA_PATH}/${userId}/History/${sessionId}`).update({
-        bpm: val,
-        createdAt: timestamp
+      bpm: val,
+      createdAt: timestamp
     });
     
     db.ref(`${PATIENT_DATA_PATH}/${userId}/SensorData`).once('value').then(snapshot => {
-        let currentStr = snapshot.val() || "";
-        if (currentStr.includes("HR=")) currentStr = currentStr.replace(/HR=[^,]+/, `HR=${val}`);
-        else if (currentStr === "No measurement recorded yet") currentStr = `HR=${val}`;
-        else currentStr = currentStr ? `${currentStr}, HR=${val}` : `HR=${val}`;
-        
-        db.ref(`${PATIENT_DATA_PATH}/${userId}`).update({ SensorData: currentStr, Timestamp: timestamp })
-          .then(() => showConfirmModal());
+      let currentStr = snapshot.val() || "";
+      if (currentStr.includes("HR=")) {
+        currentStr = currentStr.replace(/HR=[^,]+/, `HR=${val}`);
+      } else if (currentStr === "No measurement recorded yet" || !currentStr) {
+        currentStr = `HR=${val}`;
+      } else {
+        currentStr = currentStr ? `${currentStr}, HR=${val}` : `HR=${val}`;
+      }
+      
+      db.ref(`${PATIENT_DATA_PATH}/${userId}`).update({ 
+        SensorData: currentStr, 
+        Timestamp: timestamp 
+      }).then(() => {
+        console.log("Pulse saved successfully!");
+        showConfirmModal();
+      }).catch(err => {
+        console.error("Save error:", err);
+        alert("Failed to save!");
+      });
     });
   }
 
   function showConfirmModal() {
-      const isAr = localStorage.getItem("language") === "ar";
-      document.getElementById("modalTitle").innerText = isAr ? "تم بنجاح!" : "Success!";
-      document.getElementById("modalText").innerText = isAr ? "تم حفظ قياس النبض بنجاح." : "Pulse measurement saved successfully.";
-      document.querySelector(".confirm-btn").innerText = isAr ? "حسناً" : "OK";
-      const modal = document.getElementById("confirmModal");
-      modal.style.display = "flex";
-      setTimeout(() => modal.classList.add("active"), 10);
+    const isAr = localStorage.getItem("language") === "ar";
+    document.getElementById("modalTitle").innerText = isAr ? "تم بنجاح!" : "Success!";
+    document.getElementById("modalText").innerText = isAr ? "تم حفظ قياس النبض بنجاح." : "Pulse rate saved successfully.";
+    document.querySelector(".confirm-btn").innerText = isAr ? "حسناً" : "OK";
+    const modal = document.getElementById("confirmModal");
+    modal.style.display = "flex";
+    setTimeout(() => modal.classList.add("active"), 10);
   }
+  
   function closeConfirmModal() {
-      const modal = document.getElementById("confirmModal");
-      modal.classList.remove("active");
-      setTimeout(() => modal.style.display = "none", 300);
+    const modal = document.getElementById("confirmModal");
+    modal.classList.remove("active");
+    setTimeout(() => modal.style.display = "none", 300);
   }
 
-  function triggerSOS() { if(isCritical) return; isCritical = true; clearInterval(beepInterval); document.body.classList.add("critical-bg"); mainCard.classList.add("critical-state"); sosBanner.style.display = "block"; alarmSound.play().catch(e=>{}); const lang = localStorage.getItem("language") || "en"; sosBanner.innerText = lang === "ar" ? "🚨 خطر: نبض غير طبيعي!" : "🚨 CRITICAL HEART RATE!"; }
-  function clearSOS() { if(!isCritical) return; isCritical = false; document.body.classList.remove("critical-bg"); mainCard.classList.remove("critical-state"); sosBanner.style.display = "none"; alarmSound.pause(); alarmSound.currentTime = 0; if(audioUnlocked && !isNaN(parseInt(pulseBox.innerText))) updatePulseUI(parseInt(pulseBox.innerText)); }
+  // --- 7. SOS ---
+  function triggerSOS() { 
+    if(isCritical) return; 
+    isCritical = true; 
+    clearInterval(beepInterval);
+    mainCard.classList.add("critical-state"); 
+    sosBanner.style.display = "block"; 
+    alarmSound.play().catch(e=>console.log("Audio error:", e)); 
+    const lang = localStorage.getItem("language") || "en"; 
+    sosBanner.innerHTML = lang === "ar" 
+      ? '<i class="fas fa-exclamation-triangle"></i> خطر: نبض غير طبيعي!' 
+      : '<i class="fas fa-exclamation-triangle"></i> CRITICAL HEART RATE!'; 
+  }
+  
+  function clearSOS() { 
+    if(!isCritical) return; 
+    isCritical = false; 
+    mainCard.classList.remove("critical-state"); 
+    sosBanner.style.display = "none"; 
+    alarmSound.pause(); 
+    alarmSound.currentTime = 0; 
+    if(audioUnlocked && !isNaN(parseInt(pulseBox.innerText))) {
+      updatePulseUI(parseInt(pulseBox.innerText));
+    }
+  }
   
   function speakResult() {
     let bpm = parseInt(pulseBox.innerText);
+    if (isNaN(bpm)) {
+      alert("No reading to speak!");
+      return;
+    }
     const lang = localStorage.getItem("language") || "en";
-    let text = (lang === "ar") ? `نبضك ${bpm} دقة في الدقيقة` : `Your heart rate is ${bpm} beats per minute`;
-    if(!isNaN(bpm)) window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+    let text = (lang === "ar") 
+      ? `نبضك ${bpm} دقة في الدقيقة` 
+      : `Your heart rate is ${bpm} beats per minute`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang === "ar" ? "ar-SA" : "en-US";
+    window.speechSynthesis.speak(utterance);
   }
 
   function showAdvice() {
     let bpm = parseInt(pulseBox.innerText);
     const lang = localStorage.getItem("language") || "en";
     let txt = "";
-    if (isNaN(bpm)) txt = lang === "ar" ? "لا توجد بيانات." : "No data.";
-    else if (bpm > 100) { txt = lang === "ar" ? "نبض سريع! استرح." : "High pulse! Relax."; adviceBox.style.borderLeftColor = "#ff9900"; }
-    else { txt = lang === "ar" ? "نبض طبيعي." : "Normal pulse."; adviceBox.style.borderLeftColor = "#00ff88"; }
-    adviceBox.innerText = txt; adviceBox.style.display = "block";
+    if (isNaN(bpm)) {
+      txt = lang === "ar" ? "لا توجد بيانات." : "No data available.";
+    } else if (bpm > 100) { 
+      txt = lang === "ar" ? "نبض سريع! استرح." : "High pulse! Relax and breathe."; 
+      adviceBox.style.borderLeftColor = "#ff9900"; 
+    } else { 
+      txt = lang === "ar" ? "نبض طبيعي." : "Normal pulse rate."; 
+      adviceBox.style.borderLeftColor = "var(--primary-neon)"; 
+    }
+    adviceBox.innerText = txt; 
+    adviceBox.style.display = "block";
   }
 
-  function goBack() { clearSOS(); clearInterval(beepInterval); window.location.href = "measurements.html"; }
+  function goBack() { 
+    clearSOS(); 
+    clearInterval(beepInterval); 
+    window.location.href = "measurements.html"; 
+  }
 
+  // --- 8. RTL SUPPORT ---
   const lang = localStorage.getItem("language") || "en";
   if (lang === "ar") {
-    document.body.style.direction = "rtl";
+    document.body.classList.add("rtl");
     document.getElementById("headerTitle").innerText = "قياس النبض";
-    document.getElementById("backBtn").innerHTML = '<i class="fas fa-arrow-right"></i> <span>عودة</span>';
-    document.getElementById("backBtn").style.left="auto"; document.getElementById("backBtn").style.right="20px";
+    document.getElementById("backBtn").innerHTML = '<span>عودة</span> <i class="fas fa-arrow-right"></i>';
     document.getElementById("instrTitle").innerText = "تعليمات القياس";
     document.getElementById("btnText").innerText = "النصيحة الطبية";
     document.getElementById("saveBtnText").innerText = "حفظ القياس";
-    document.getElementById("instructions").innerHTML = `<li><i class="fas fa-fingerprint"></i> ضع إصبعك بثبات.</li><li><i class="fas fa-hand-paper"></i> لا تتحرك.</li>`;
-    document.getElementById("tapHint").innerText = "اضغط في أي مكان لتفعيل الصوت 🔊";
+    document.getElementById("instructions").innerHTML = `
+      <li><i class="fas fa-fingerprint"></i> ضع إصبعك بثبات</li>
+      <li><i class="fas fa-hand-paper"></i> لا تتحرك</li>
+    `;
+    document.getElementById("tapHint").innerText = "اضغط لتفعيل الصوت 🔊";
   }
+
+  console.log("User ID:", userId);
+  console.log("Firebase initialized");
 </script>
 
 <div style="position: fixed; bottom: 10px; left: 10px; z-index: 9999; display: flex; gap: 5px;">
   <button onclick="updatePulseUI(140)" style="background: red; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">🚨 Fast</button>
-  <button onclick="updatePulseUI(60)" style="background: green; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">✅ Slow</button>
+  <button onclick="updatePulseUI(72)" style="background: green; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer;">✅ Normal</button>
 </div>
 </body>
 </html>
