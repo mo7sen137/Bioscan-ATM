@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bioscan ATM | Secure Access</title>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -29,16 +29,17 @@
             --success: #00ff88;
         }
 
-        * { box-sizing: border-box; outline: none; user-select: none; }
+        * { box-sizing: border-box; outline: none; user-select: none; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0; padding: 0;
             font-family: 'Rajdhani', sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-x: hidden;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative;
         }
 
         /* --- 2. PRELOADER STYLES (FROM ORIGINAL CODE) --- */
@@ -80,6 +81,7 @@
         .header-left { display: flex; align-items: center; gap: 20px; }
         .brand { display: flex; align-items: center; gap: 15px; }
         .brand-logo { width: 45px; height: 45px; border: 2px solid var(--primary-neon); border-radius: 50%; box-shadow: 0 0 15px var(--primary-neon); animation: pulseLogo 3s infinite; }
+        @keyframes pulseLogo { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .brand-text h1 { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin: 0; letter-spacing: 2px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .brand-text p { margin: 0; font-size: 0.7rem; color: var(--primary-neon); opacity: 0.8; letter-spacing: 2px; }
         .live-clock { display: flex; flex-direction: column; align-items: flex-start; border-left: 2px solid rgba(0, 242, 255, 0.3); padding-left: 15px; font-family: 'Orbitron', sans-serif; }
@@ -93,6 +95,7 @@
         .status-badge.offline .status-text { color: var(--error); }
         .icon-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: var(--primary-neon); width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
         .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
+        .icon-btn:active { transform: scale(0.95); }
         select.lang-select { background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon); padding: 5px 12px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer; }
         select.lang-select option { background: #050b14; }
 
@@ -117,8 +120,9 @@
         .remember-me { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 25px; cursor: pointer; color: #aaa; font-size: 0.9rem; }
         .remember-me input { cursor: pointer; accent-color: var(--primary-neon); transform: scale(1.2); }
 
-        .action-btn { width: 100%; padding: 15px; border: none; border-radius: 50px; background: linear-gradient(90deg, rgba(0,242,255,0.05), rgba(0,242,255,0.15)); border: 1px solid var(--primary-neon); color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .action-btn { width: 100%; padding: 15px; border: none; border-radius: 50px; background: linear-gradient(90deg, rgba(0,242,255,0.05), rgba(0,242,255,0.15)); border: 1px solid var(--primary-neon); color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 55px; }
         .action-btn:hover:not(:disabled) { background: var(--primary-neon); color: #000; box-shadow: 0 0 40px var(--primary-neon); }
+        .action-btn:active:not(:disabled) { transform: scale(0.98); }
         .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         #success-view { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
@@ -127,14 +131,14 @@
         @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+        .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; padding: 0 20px; }
 
         /* --- 6. MODALS (Updated) --- */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); opacity: 0; transition: 0.3s; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); opacity: 0; transition: 0.3s; overflow-y: auto; }
         .modal-overlay.active { opacity: 1; display: flex; }
-        .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 750px; padding: 40px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: 0.3s; }
+        .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 750px; padding: 40px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: 0.3s; margin: 20px; }
         .modal-overlay.active .modal-box { transform: scale(1); }
-        .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; z-index: 10; }
+        .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; z-index: 10; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
         .close-modal:hover { color: var(--error); transform: rotate(90deg); }
 
         /* Consent Text Area */
@@ -159,6 +163,255 @@
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
         .shake { animation: shake 0.4s; border-color: var(--error) !important; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+        /* --- 7. MOBILE RESPONSIVE --- */
+        @media (max-width: 768px) {
+            header {
+                padding: 10px 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .header-left {
+                gap: 10px;
+                flex: 1;
+            }
+            
+            .brand {
+                gap: 8px;
+            }
+            
+            .brand-logo {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .brand-text h1 {
+                font-size: 0.9rem;
+                letter-spacing: 1px;
+            }
+            
+            .brand-text p {
+                font-size: 0.55rem;
+            }
+            
+            .live-clock {
+                display: none;
+            }
+            
+            .controls {
+                gap: 8px;
+            }
+            
+            .status-badge {
+                padding: 4px 8px;
+                gap: 6px;
+            }
+            
+            .status-led {
+                width: 6px;
+                height: 6px;
+            }
+            
+            .status-text {
+                font-size: 0.65rem;
+            }
+            
+            .icon-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 0.85rem;
+            }
+            
+            select.lang-select {
+                padding: 4px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .main-container {
+                padding: 15px;
+                max-width: 100%;
+            }
+            
+            .hud-card {
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+            
+            .card-header h2 {
+                font-size: 1.3rem;
+                letter-spacing: 1px;
+            }
+            
+            .energy-divider {
+                margin: 15px auto 30px;
+            }
+            
+            .input-field {
+                font-size: 1.2rem;
+                padding: 12px;
+            }
+            
+            .action-btn {
+                font-size: 1rem;
+                padding: 13px;
+                min-height: 50px;
+                letter-spacing: 1px;
+            }
+            
+            .remember-me {
+                font-size: 0.85rem;
+                margin-bottom: 20px;
+            }
+            
+            .success-icon {
+                font-size: 2.8rem;
+            }
+            
+            .footer {
+                font-size: 0.65rem;
+                bottom: 10px;
+                padding: 0 15px;
+            }
+            
+            /* Modal Responsive */
+            .modal-box {
+                padding: 25px 20px;
+                width: 95%;
+                max-height: 85vh;
+                margin: 10px;
+            }
+            
+            .close-modal {
+                top: 15px;
+                right: 15px;
+                font-size: 1.3rem;
+            }
+            
+            .logos-row {
+                gap: 15px;
+                flex-wrap: wrap;
+            }
+            
+            .logos-row img {
+                height: 45px;
+            }
+            
+            .modal-section h3 {
+                font-size: 1rem;
+            }
+            
+            .modal-section p {
+                font-size: 0.85rem;
+            }
+            
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .team-member {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+            
+            .consent-text {
+                font-size: 0.85rem;
+                padding: 12px;
+                max-height: 300px;
+            }
+            
+            .consent-text b {
+                font-size: 0.95rem;
+            }
+            
+            .consent-check {
+                font-size: 0.85rem;
+            }
+            
+            .toast-container {
+                top: 70px;
+                right: 10px;
+                left: 10px;
+            }
+            
+            .toast {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+            
+            /* Preloader Mobile */
+            .loader-wrapper {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .loader-title {
+                font-size: 1.4rem;
+                letter-spacing: 2px;
+            }
+            
+            .progress-bar {
+                width: 150px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .brand-text h1 {
+                font-size: 0.8rem;
+            }
+            
+            .brand-text p {
+                display: none;
+            }
+            
+            .card-header h2 {
+                font-size: 1.1rem;
+            }
+            
+            .input-field {
+                font-size: 1.1rem;
+            }
+            
+            .action-btn {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Landscape Mode on Mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            header {
+                position: relative;
+                padding: 8px 15px;
+            }
+            
+            .main-container {
+                padding: 10px;
+                margin-top: 10px;
+            }
+            
+            .hud-card {
+                padding: 20px 15px;
+            }
+            
+            .card-header h2 {
+                font-size: 1.1rem;
+            }
+            
+            .energy-divider {
+                margin: 10px auto 20px;
+            }
+            
+            .footer {
+                position: relative;
+                margin-top: 15px;
+            }
+            
+            .modal-box {
+                max-height: 95vh;
+                padding: 20px 15px;
+            }
+        }
     </style>
 </head>
 
