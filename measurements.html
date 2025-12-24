@@ -461,8 +461,22 @@
     const PATIENT_DATA_PATH = 'PatientData';
     const currentUserId = localStorage.getItem("selectedUserId");
     const userSpan = document.getElementById('currentUserName');
-    if(!currentUserId) window.location.href="index.html"; 
-    else userSpan.innerText = currentUserId;
+    
+    if(!currentUserId) {
+        window.location.href="index.html"; 
+    } else {
+        // Fetch fullName from Firebase
+        db.ref(PATIENT_DATA_PATH + '/' + currentUserId + '/fullName').once('value').then(snapshot => {
+            if(snapshot.exists()) {
+                userSpan.innerText = snapshot.val();
+            } else {
+                userSpan.innerText = currentUserId; // Fallback to ID if no name
+            }
+        }).catch(err => {
+            console.error("Error fetching name:", err);
+            userSpan.innerText = currentUserId;
+        });
+    }
 
     // --- 3. VOICE & UI LOGIC ---
     function toggleSidebar(show) {

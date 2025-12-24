@@ -81,27 +81,35 @@
             border-bottom: 1px solid var(--primary-neon); 
             box-shadow: 0 0 25px rgba(0, 242, 255, 0.15); z-index: 100;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 15px; gap: 10px;
         }
-        .header-title { display: flex; flex-direction: column; }
-        .header-title h2 { margin: 0; font-family: 'Orbitron', sans-serif; color: var(--primary-neon); font-size: 1.2rem; letter-spacing: 1px; }
-        .header-title span { 
-            font-size: 0.9rem; color: #fff; font-weight: bold; 
-            text-shadow: 0 0 5px rgba(255,255,255,0.5); letter-spacing: 1px;
+        
+        .header-title { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+        .header-title h2 { margin: 0; font-family: 'Orbitron', sans-serif; color: var(--primary-neon); font-size: 1.1rem; letter-spacing: 1px; white-space: nowrap; }
+        .header-title .user-info { 
+            font-size: 0.85rem; color: #fff; font-weight: 600; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+        .header-title .user-info .user-id {
+            color: #888;
+            font-size: 0.75rem;
+            font-weight: normal;
+            margin-left: 8px;
         }
 
-        .actions { display: flex; gap: 8px; }
+        .actions { display: flex; gap: 6px; flex-shrink: 0; }
         .btn { 
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
-            color: var(--primary-neon); width: 40px; height: 40px; border-radius: 8px;
-            cursor: pointer; transition: 0.3s; font-size: 1.1rem;
+            color: var(--primary-neon); width: 38px; height: 38px; border-radius: 8px;
+            cursor: pointer; transition: 0.3s; font-size: 1rem;
             display: flex; justify-content: center; align-items: center;
         }
         .btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
         .btn-chart { color: var(--c-temp); border-color: var(--c-temp); }
         .btn-print { color: var(--success); border-color: var(--success); }
         .btn-print:hover { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success); }
-        #langBtn { font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.8rem; width: 40px; }
+        #langBtn { font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 0.75rem; width: 38px; }
 
         /* --- 4. TABLE CONTAINER --- */
         .table-container {
@@ -281,8 +289,19 @@
         }
         
         @media (max-width: 600px) {
-            .header-title h2 { font-size: 1rem; }
+            .user-card { padding: 0 10px; }
+            .header-title h2 { font-size: 0.95rem; }
+            .header-title .user-info { font-size: 0.75rem; }
+            .header-title .user-info .user-id { font-size: 0.7rem; margin-left: 5px; }
             .table-container { border-radius: 0; }
+            .btn { width: 34px; height: 34px; font-size: 0.9rem; }
+            #langBtn { width: 34px; font-size: 0.7rem; }
+        }
+
+        @media (max-width: 400px) {
+            .header-title h2 { font-size: 0.85rem; }
+            .header-title .user-info { font-size: 0.7rem; }
+            .btn { width: 32px; height: 32px; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -293,7 +312,10 @@
     <header class="user-card">
         <div class="header-title">
             <h2 id="uiTitle">MEDICAL LOGS</h2>
-            <span id="userIdDisplay">Loading...</span>
+            <div class="user-info">
+                <span id="userNameDisplay">Loading...</span>
+                <span class="user-id" id="userIdDisplay"></span>
+            </div>
         </div>
         <div class="actions">
             <button class="btn" id="langBtn" onclick="toggleLanguage()" title="Language">
@@ -344,6 +366,7 @@
             </div>
             <div class="print-info">
                 <strong>Patient Report</strong><br>
+                Name: <span id="p-name">--</span><br>
                 ID: <span id="p-id">--</span><br>
                 Date: <span id="p-date">--</span>
             </div>
@@ -485,8 +508,29 @@
         const currentUserId = localStorage.getItem("selectedUserId");
         if (!currentUserId) window.location.href = "index.html";
         
-        document.getElementById('userIdDisplay').innerText = "User: " + currentUserId;
-        document.getElementById('p-id').innerText = currentUserId;
+        // Fetch user's fullName and display it
+        const userNameSpan = document.getElementById('userNameDisplay');
+        const userIdSpan = document.getElementById('userIdDisplay');
+        const printNameSpan = document.getElementById('p-name');
+        const printIdSpan = document.getElementById('p-id');
+        
+        db.ref('PatientData/' + currentUserId + '/fullName').once('value').then(snapshot => {
+            if(snapshot.exists()) {
+                const fullName = snapshot.val();
+                userNameSpan.innerText = fullName;
+                printNameSpan.innerText = fullName;
+            } else {
+                userNameSpan.innerText = currentUserId; // Fallback
+                printNameSpan.innerText = currentUserId;
+            }
+        }).catch(err => {
+            console.error("Error fetching name:", err);
+            userNameSpan.innerText = currentUserId;
+            printNameSpan.innerText = currentUserId;
+        });
+        
+        userIdSpan.innerText = "(" + currentUserId + ")";
+        printIdSpan.innerText = currentUserId;
         document.getElementById('p-date').innerText = new Date().toLocaleDateString();
 
         // --- 4. TRANSLATION LOGIC (EN Default) ---
