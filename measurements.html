@@ -219,7 +219,7 @@
     }
     .dock-btn:hover { transform: scale(1.02); }
     .vision-dock { border-bottom: 2px solid var(--vision-color); } .vision-dock i { font-size: 1.5rem; color: var(--vision-color); }
-    .history-dock { border-bottom: 2px solid var(--secondary-neon); } .history-dock i { font-size: 1.5rem; color: var(--secondary-neon); }
+    .history-dock { border-bottom: 2px solid var(--secondary-neon); } .history-dock i { font-size: 1.5rem, color: var(--secondary-neon); }
     .dock-text { margin-top: 5px; }
     .dock-title { display: block; color: #fff; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; }
     .dock-sub { display: none; }
@@ -518,7 +518,7 @@
         recognition.start();
         const btn = document.getElementById('micBtn'); btn.classList.add('listening');
         recognition.onresult = (event) => {
-            const cmd = event.results[0][0].transcript toLowerCase();
+            const cmd = event.results[0][0].transcript.toLowerCase();
             showToast(`Heard: "${cmd}"`, "info");
             if(cmd.includes('temp') || cmd.includes('حرارة')) goToTemperature();
             else if(cmd.includes('pulse') || cmd.includes('نبض')) goToPulse();
@@ -745,7 +745,17 @@
     }
     
     function findHospitals(){window.open("https://www.google.com/maps/search/hospitals+near+me","_blank");}
-    function toggleFullScreen(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else if(document.exitFullscreen)document.exitFullscreen();}
+    function toggleFullScreen(){
+        if(!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log("Fullscreen error:", err);
+            });
+        } else {
+            if(document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
     function closeMeasurements(){localStorage.removeItem("selectedUserId");window.location.href="index.html";}
     
     let idle=0; setInterval(()=>{idle++;if(idle>=120)closeMeasurements();},1000);
