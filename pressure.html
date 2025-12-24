@@ -859,17 +859,38 @@
 
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(err => {
+      document.documentElement.requestFullscreen().then(() => {
+        localStorage.setItem('isFullscreen', 'true');
+      }).catch(err => {
         console.log("Fullscreen error:", err);
       });
     } else {
       if (document.exitFullscreen) {
-        document.exitFullscreen();
+        document.exitFullscreen().then(() => {
+          localStorage.removeItem('isFullscreen');
+        });
       }
     }
   }
 
-  applyLanguage(lang);
+  window.addEventListener('load', () => {
+    if (localStorage.getItem('isFullscreen') === 'true') {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.log("Auto-fullscreen error:", err);
+      });
+    }
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      localStorage.removeItem('isFullscreen');
+    }
+  });
+
+  function goBack() { 
+    clearSOS(); 
+    window.location.href = "measurements.html"; 
+  }
 
   // --- 7. LOG FOR DEBUGGING ---
   console.log("User ID:", userId);

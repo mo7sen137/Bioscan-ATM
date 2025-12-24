@@ -324,10 +324,13 @@
             <button class="btn btn-chart" onclick="showChart()" title="Analysis">
                 <i class="fas fa-chart-line"></i>
             </button>
+            <button class="btn" onclick="toggleFullScreen()" title="Full Screen">
+                <i class="fas fa-expand"></i>
+            </button>
             <button class="btn btn-print" onclick="window.print()" title="Print">
                 <i class="fas fa-print"></i>
             </button>
-            <button class="btn btn-back" onclick="window.location.href='measurements.html'" title="Back">
+            <button class="btn btn-back" onclick="goBack()" title="Back">
                 <i class="fas fa-arrow-left"></i>
             </button>
         </div>
@@ -865,6 +868,44 @@
             setTimeout(() => modal.style.display = 'none', 300);
         }
         
+        // --- FULLSCREEN LOGIC WITH PERSISTENCE ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    localStorage.setItem('isFullscreen', 'true');
+                }).catch(err => {
+                    console.log("Fullscreen error:", err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().then(() => {
+                        localStorage.removeItem('isFullscreen');
+                    });
+                }
+            }
+        }
+
+        // Check and restore fullscreen state on load
+        window.addEventListener('load', () => {
+            if (localStorage.getItem('isFullscreen') === 'true') {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log("Auto-fullscreen error:", err);
+                });
+            }
+        });
+
+        // Clear fullscreen flag when user exits via ESC
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                localStorage.removeItem('isFullscreen');
+            }
+        });
+
+        function goBack() {
+            // Keep fullscreen state when going back
+            window.location.href = 'measurements.html';
+        }
+
         applyLanguage();
     </script>
 </body>

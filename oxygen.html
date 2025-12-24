@@ -301,7 +301,7 @@
   }
   .action-btn { 
     padding: 14px 24px; border-radius: 50px; 
-    border: none; cursor: pointer; 
+    border: none, cursor: pointer; 
     font-size: 0.95rem; font-weight: 600; 
     font-family: 'Rajdhani', sans-serif; 
     transition: 0.3s; 
@@ -830,17 +830,46 @@
 
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(err => {
+      document.documentElement.requestFullscreen().then(() => {
+        localStorage.setItem('isFullscreen', 'true');
+      }).catch(err => {
         console.log("Fullscreen error:", err);
       });
     } else {
       if (document.exitFullscreen) {
-        document.exitFullscreen();
+        document.exitFullscreen().then(() => {
+          localStorage.removeItem('isFullscreen');
+        });
       }
     }
   }
 
-  applyLanguage(lang);
+  window.addEventListener('load', () => {
+    if (localStorage.getItem('isFullscreen') === 'true') {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.log("Auto-fullscreen error:", err);
+      });
+    }
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      localStorage.removeItem('isFullscreen');
+    }
+  });
+
+  function goBack() { 
+    clearSOS(); 
+    window.location.href = "measurements.html"; 
+  }
+
+  // --- 7. DEBUGGING ---
+  const debugMode = false;
+  function debugLog(msg) {
+    if(debugMode) {
+      console.log(msg);
+    }
+  }
 
   console.log("User ID:", userId);
   console.log("Firebase initialized");
