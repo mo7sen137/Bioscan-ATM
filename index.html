@@ -412,6 +412,400 @@
                 padding: 20px 15px;
             }
         }
+
+        /* --- 8. LIVE HEALTH TICKER (NEW) --- */
+        .health-ticker {
+            position: fixed;
+            bottom: 35px;
+            left: 0;
+            width: 100%;
+            height: 35px;
+            background: linear-gradient(90deg, rgba(0, 242, 255, 0.08), rgba(112, 0, 255, 0.08));
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 242, 255, 0.3);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.3);
+            overflow: hidden;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+        
+        .ticker-content {
+            display: flex;
+            white-space: nowrap;
+            animation: scroll-ticker 45s linear infinite;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            letter-spacing: 1px;
+        }
+        
+        .ticker-item {
+            padding: 0 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ticker-item i {
+            color: var(--primary-neon);
+            font-size: 1rem;
+        }
+        
+        @keyframes scroll-ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* --- 9. SYSTEM STATUS TERMINAL (NEW) --- */
+        .system-terminal {
+            position: fixed;
+            bottom: 85px;
+            left: 20px;
+            width: 320px;
+            background: rgba(0, 8, 15, 0.95);
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+            z-index: 99;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            color: var(--primary-neon);
+            letter-spacing: 1px;
+        }
+        
+        .terminal-dots {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .terminal-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            box-shadow: 0 0 5px #00ff88;
+            animation: blink-dot 2s infinite;
+        }
+        
+        .terminal-dot:nth-child(2) { animation-delay: 0.3s; }
+        .terminal-dot:nth-child(3) { animation-delay: 0.6s; }
+        
+        @keyframes blink-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .terminal-line {
+            margin: 3px 0;
+            line-height: 1.6;
+            opacity: 0;
+            animation: fade-in-line 0.3s forwards;
+        }
+        
+        .terminal-line::before {
+            content: '> ';
+            color: var(--primary-neon);
+        }
+        
+        @keyframes fade-in-line {
+            to { opacity: 1; }
+        }
+        
+        .terminal-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 12px;
+            background: #00ff88;
+            margin-left: 3px;
+            animation: blink-cursor 1s infinite;
+        }
+        
+        @keyframes blink-cursor {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        /* --- 7. MOBILE RESPONSIVE --- */
+        @media (max-width: 768px) {
+            header {
+                padding: 10px 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .header-left {
+                gap: 10px;
+                flex: 1;
+            }
+            
+            .brand {
+                gap: 8px;
+            }
+            
+            .brand-logo {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .brand-text h1 {
+                font-size: 0.9rem;
+                letter-spacing: 1px;
+            }
+            
+            .brand-text p {
+                font-size: 0.55rem;
+            }
+            
+            .live-clock {
+                display: none;
+            }
+            
+            .controls {
+                gap: 8px;
+            }
+            
+            .status-badge {
+                padding: 4px 8px;
+                gap: 6px;
+            }
+            
+            .status-led {
+                width: 6px;
+                height: 6px;
+            }
+            
+            .status-text {
+                font-size: 0.65rem;
+            }
+            
+            .icon-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 0.85rem;
+            }
+            
+            select.lang-select {
+                padding: 4px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .main-container {
+                padding: 15px;
+                max-width: 100%;
+            }
+            
+            .hud-card {
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+            
+            .card-header h2 {
+                font-size: 1.3rem;
+                letter-spacing: 1px;
+            }
+            
+            .energy-divider {
+                margin: 15px auto 30px;
+            }
+            
+            .input-field {
+                font-size: 1.2rem;
+                padding: 12px;
+            }
+            
+            .action-btn {
+                font-size: 1rem;
+                padding: 13px;
+                min-height: 50px;
+                letter-spacing: 1px;
+            }
+            
+            .remember-me {
+                font-size: 0.85rem;
+                margin-bottom: 20px;
+            }
+            
+            .success-icon {
+                font-size: 2.8rem;
+            }
+            
+            .footer {
+                font-size: 0.65rem;
+                bottom: 10px;
+                padding: 0 15px;
+            }
+            
+            /* Modal Responsive */
+            .modal-box {
+                padding: 25px 20px;
+                width: 95%;
+                max-height: 85vh;
+                margin: 10px;
+            }
+            
+            .close-modal {
+                top: 15px;
+                right: 15px;
+                font-size: 1.3rem;
+            }
+            
+            .logos-row {
+                gap: 15px;
+                flex-wrap: wrap;
+            }
+            
+            .logos-row img {
+                height: 45px;
+            }
+            
+            .modal-section h3 {
+                font-size: 1rem;
+            }
+            
+            .modal-section p {
+                font-size: 0.85rem;
+            }
+            
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .team-member {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+            
+            .consent-text {
+                font-size: 0.85rem;
+                padding: 12px;
+                max-height: 300px;
+            }
+            
+            .consent-text b {
+                font-size: 0.95rem;
+            }
+            
+            .consent-check {
+                font-size: 0.85rem;
+            }
+            
+            .toast-container {
+                top: 70px;
+                right: 10px;
+                left: 10px;
+            }
+            
+            .toast {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+            
+            /* Preloader Mobile */
+            .loader-wrapper {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .loader-title {
+                font-size: 1.4rem;
+                letter-spacing: 2px;
+            }
+            
+            .progress-bar {
+                width: 150px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .brand-text h1 {
+                font-size: 0.8rem;
+            }
+            
+            .brand-text p {
+                display: none;
+            }
+            
+            .card-header h2 {
+                font-size: 1.1rem;
+            }
+            
+            .input-field {
+                font-size: 1.1rem;
+            }
+            
+            .action-btn {
+                font-size: 0.9rem;
+            }
+            
+            .health-ticker {
+                height: 28px;
+            }
+            
+            .ticker-content {
+                font-size: 0.75rem;
+            }
+        }
+        
+        /* Landscape Mode on Mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            header {
+                position: relative;
+                padding: 8px 15px;
+            }
+            
+            .main-container {
+                padding: 10px;
+                margin-top: 10px;
+            }
+            
+            .hud-card {
+                padding: 20px 15px;
+            }
+            
+            .card-header h2 {
+                font-size: 1.1rem;
+            }
+            
+            .energy-divider {
+                margin: 10px auto 20px;
+            }
+            
+            .footer {
+                position: relative;
+                margin-top: 15px;
+            }
+            
+            .modal-box {
+                max-height: 95vh;
+                padding: 20px 15px;
+            }
+            
+            .system-terminal {
+                display: none;
+            }
+            
+            .health-ticker {
+                bottom: 25px;
+                height: 25px;
+            }
+        }
     </style>
 </head>
 
@@ -490,6 +884,39 @@
     </div>
 
     <div class="footer">Graduation Project 2026 | Zagazig University - Faculty of Engineering</div>
+    
+    <!-- NEW: Live Health Ticker -->
+    <div class="health-ticker">
+        <div class="ticker-content" id="tickerContent">
+            <span class="ticker-item"><i class="fas fa-exclamation-triangle"></i> تنبيه: موجة حارة متوقعة، يرجى الحذر</span>
+            <span class="ticker-item"><i class="fas fa-heart"></i> نصيحة اليوم: المشي لمدة 30 دقيقة يحسن الدورة الدموية</span>
+            <span class="ticker-item"><i class="fas fa-check-circle"></i> System Status: All Sensors Online</span>
+            <span class="ticker-item"><i class="fas fa-chart-line"></i> عدد الفحوصات اليوم: 45 فحص</span>
+            <span class="ticker-item"><i class="fas fa-shield-alt"></i> Security: End-to-End Encrypted</span>
+            <span class="ticker-item"><i class="fas fa-database"></i> Firebase Status: Connected</span>
+            <!-- Duplicate for seamless loop -->
+            <span class="ticker-item"><i class="fas fa-exclamation-triangle"></i> تنبيه: موجة حارة متوقعة، يرجى الحذر</span>
+            <span class="ticker-item"><i class="fas fa-heart"></i> نصيحة اليوم: المشي لمدة 30 دقيقة يحسن الدورة الدموية</span>
+            <span class="ticker-item"><i class="fas fa-check-circle"></i> System Status: All Sensors Online</span>
+            <span class="ticker-item"><i class="fas fa-chart-line"></i> عدد الفحوصات اليوم: 45 فحص</span>
+            <span class="ticker-item"><i class="fas fa-shield-alt"></i> Security: End-to-End Encrypted</span>
+            <span class="ticker-item"><i class="fas fa-database"></i> Firebase Status: Connected</span>
+        </div>
+    </div>
+    
+    <!-- NEW: System Status Terminal -->
+    <div class="system-terminal" id="systemTerminal">
+        <div class="terminal-header">
+            <div class="terminal-dots">
+                <div class="terminal-dot"></div>
+                <div class="terminal-dot"></div>
+                <div class="terminal-dot"></div>
+            </div>
+            <span>SYS.MONITOR</span>
+        </div>
+        <div id="terminalOutput"></div>
+    </div>
+    
     <div class="toast-container" id="toastContainer"></div>
 
     <div class="modal-overlay" id="aboutModal">
@@ -608,6 +1035,9 @@
             const saved = localStorage.getItem("saved_phone");
             if(saved) { iti.setNumber(saved); document.getElementById('remCheck').checked = true; validateLive(); }
             document.addEventListener('click', () => playWelcomeMessage(), { once: true });
+            
+            // NEW: Initialize terminal animation
+            initializeTerminal();
         };
 
         function validateLive() {
@@ -858,6 +1288,37 @@
         function goToDashboard() { window.location.href = "measurements.html"; }
         function resetView() { document.getElementById("success-view").style.display = "none"; document.getElementById("login-view").style.display = "block"; }
         function toggleModal(id, show) { const m = document.getElementById(id); if(show) { m.style.display = 'flex'; setTimeout(()=>m.classList.add('active'), 10); } else { m.classList.remove('active'); setTimeout(()=>m.style.display='none', 300); } }
+
+        // NEW: System Terminal Animation
+        function initializeTerminal() {
+            const terminalOutput = document.getElementById('terminalOutput');
+            const lines = [
+                { text: 'Initializing Bio-Kernel...', delay: 500 },
+                { text: 'Connecting to ESP32 Bridge... OK', delay: 1200 },
+                { text: 'Checking Firebase Latency... 45ms', delay: 1800 },
+                { text: 'Encrypting Stream... Done', delay: 2400 },
+                { text: 'System Ready.', delay: 3000 }
+            ];
+            
+            lines.forEach((line, index) => {
+                setTimeout(() => {
+                    const lineEl = document.createElement('div');
+                    lineEl.className = 'terminal-line';
+                    lineEl.style.animationDelay = '0s';
+                    lineEl.textContent = line.text;
+                    terminalOutput.appendChild(lineEl);
+                    
+                    // Add cursor after last line
+                    if (index === lines.length - 1) {
+                        setTimeout(() => {
+                            const cursor = document.createElement('span');
+                            cursor.className = 'terminal-cursor';
+                            terminalOutput.appendChild(cursor);
+                        }, 300);
+                    }
+                }, line.delay);
+            });
+        }
     </script>
 </body>
 </html>
