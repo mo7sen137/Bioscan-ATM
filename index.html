@@ -384,296 +384,67 @@
             .ticker-content {
                 font-size: 0.75rem;
             }
-        }
-        
-        /* Landscape Mode on Mobile */
-        @media (max-height: 500px) and (orientation: landscape) {
-            header {
-                position: relative;
-                padding: 8px 15px;
-            }
             
-            .main-container {
-                padding: 10px;
-                margin-top: 10px;
-            }
-            
-            .hud-card {
-                padding: 20px 15px;
-            }
-            
-            .card-header h2 {
-                font-size: 1.1rem;
-            }
-            
-            .energy-divider {
-                margin: 10px auto 20px;
-            }
-            
-            .footer {
-                position: relative;
-                margin-top: 15px;
-            }
-            
-            .modal-box {
-                max-height: 95vh;
-                padding: 20px 15px;
-            }
-            
+            /* --- 9. SYSTEM STATUS TERMINAL (UPDATED) --- */
             .system-terminal {
-                display: none;
+                position: fixed;
+                bottom: 85px;
+                left: 20px;
+                width: 320px;
+                background: rgba(2, 8, 15, 0.75);
+                backdrop-filter: blur(15px);
+                border: 1px solid rgba(0, 242, 255, 0.3);
+                border-radius: 8px;
+                padding: 15px;
+                font-family: 'Courier New', monospace;
+                font-size: 0.75rem;
+                color: var(--primary-neon);
+                box-shadow: 0 0 25px rgba(0, 242, 255, 0.15);
+                z-index: 99;
+                height: 200px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .terminal-header {
+                margin-bottom: 6px;
+                padding-bottom: 4px;
+                font-size: 0.55rem;
+                gap: 4px;
+            }
+            
+            .terminal-dots {
+                gap: 2px;
+            }
+            
+            .terminal-dot {
+                width: 5px;
+                height: 5px;
+            }
+            
+            .terminal-line {
+                margin: 2px 0;
+                line-height: 1.4;
+                font-size: 0.6rem;
+            }
+            
+            .terminal-cursor {
+                width: 5px;
+                height: 8px;
             }
             
             .health-ticker {
-                bottom: 25px;
-                height: 25px;
-            }
-        }
-
-        /* --- 8. LIVE HEALTH TICKER (UPDATED) --- */
-        .health-ticker {
-            position: fixed;
-            bottom: 35px;
-            left: 0;
-            width: 100%;
-            height: 35px;
-            background: linear-gradient(90deg, rgba(0, 242, 255, 0.08), rgba(112, 0, 255, 0.08));
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(0, 242, 255, 0.3);
-            border-bottom: 1px solid rgba(0, 242, 255, 0.3);
-            overflow: hidden;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-        }
-        
-        .ticker-content {
-            display: flex;
-            white-space: nowrap;
-            animation: scroll-ticker 80s linear infinite; /* UPDATED: من 45s إلى 80s */
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.9rem;
-            color: var(--text-main);
-            letter-spacing: 1px;
-        }
-        
-        .ticker-item {
-            padding: 0 40px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .ticker-item i {
-            color: var(--primary-neon);
-            font-size: 1rem;
-        }
-        
-        @keyframes scroll-ticker {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        /* --- 9. SYSTEM STATUS TERMINAL (UPDATED) --- */
-        .system-terminal {
-            position: fixed;
-            bottom: 85px;
-            left: 20px;
-            width: 320px;
-            background: rgba(2, 8, 15, 0.75); /* UPDATED: خلفية شفافة أكثر */
-            backdrop-filter: blur(15px); /* NEW: إضافة blur للخلفية */
-            border: 1px solid rgba(0, 242, 255, 0.3); /* UPDATED: لون حدود متناسق مع الثيم */
-            border-radius: 8px;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
-            color: var(--primary-neon); /* UPDATED: لون النص الأساسي من الثيم */
-            box-shadow: 0 0 25px rgba(0, 242, 255, 0.15); /* UPDATED: ظل متناسق */
-            z-index: 99;
-            height: 200px; /* UPDATED: ارتفاع ثابت بدل max-height */
-            overflow: hidden; /* UPDATED: إخفاء السكرول بار */
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .terminal-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(0, 242, 255, 0.2);
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.7rem;
-            color: var(--primary-neon);
-            letter-spacing: 1px;
-            flex-shrink: 0; /* NEW: منع الهيدر من الانكماش */
-        }
-        
-        .terminal-dots {
-            display: flex;
-            gap: 4px;
-        }
-        
-        .terminal-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--primary-neon); /* UPDATED: لون من الثيم */
-            box-shadow: 0 0 5px var(--primary-neon);
-            animation: blink-dot 2s infinite;
-        }
-        
-        .terminal-dot:nth-child(2) { animation-delay: 0.3s; }
-        .terminal-dot:nth-child(3) { animation-delay: 0.6s; }
-        
-        @keyframes blink-dot {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
-        #terminalOutput {
-            flex: 1; /* NEW: ملء المساحة المتبقية */
-            overflow: hidden; /* NEW: إخفاء السكرول */
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end; /* NEW: بداية من الأسفل */
-        }
-        
-        .terminal-line {
-            margin: 3px 0;
-            line-height: 1.6;
-            opacity: 0;
-            animation: fade-in-line 0.3s forwards;
-            color: rgba(224, 247, 250, 0.85); /* UPDATED: لون النص الفاتح قليلاً */
-        }
-        
-        .terminal-line::before {
-            content: '> ';
-            color: var(--primary-neon);
-            font-weight: bold;
-        }
-        
-        @keyframes fade-in-line {
-            to { opacity: 1; }
-        }
-        
-        .terminal-cursor {
-            display: inline-block;
-            width: 8px;
-            height: 12px;
-            background: var(--primary-neon); /* UPDATED: لون من الثيم */
-            margin-left: 3px;
-            animation: blink-cursor 1s infinite;
-        }
-        
-        @keyframes blink-cursor {
-            0%, 49% { opacity: 1; }
-            50%, 100% { opacity: 0; }
-        }
-
-        /* --- 7. MOBILE RESPONSIVE --- */
-        @media (max-width: 768px) {
-            header {
-                padding: 10px 15px;
-                flex-wrap: wrap;
-                gap: 10px;
+                bottom: 30px;
+                height: 30px;
             }
             
-            .header-left {
-                gap: 10px;
-                flex: 1;
-            }
-            
-            .brand {
-                gap: 8px;
-            }
-            
-            .brand-logo {
-                width: 35px;
-                height: 35px;
-            }
-            
-            .brand-text h1 {
-                font-size: 0.9rem;
-                letter-spacing: 1px;
-            }
-            
-            .brand-text p {
-                font-size: 0.55rem;
-            }
-            
-            .live-clock {
-                display: none;
-            }
-            
-            .controls {
-                gap: 8px;
-            }
-            
-            .status-badge {
-                padding: 4px 8px;
-                gap: 6px;
-            }
-            
-            .status-led {
-                width: 6px;
-                height: 6px;
-            }
-            
-            .status-text {
-                font-size: 0.65rem;
-            }
-            
-            .icon-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 0.85rem;
-            }
-            
-            select.lang-select {
-                padding: 4px 8px;
+            .ticker-content {
                 font-size: 0.8rem;
             }
             
-            .main-container {
-                padding: 15px;
-                max-width: 100%;
-            }
-            
-            .hud-card {
-                padding: 30px 20px;
-                border-radius: 15px;
-            }
-            
-            .card-header h2 {
-                font-size: 1.3rem;
-                letter-spacing: 1px;
-            }
-            
-            .energy-divider {
-                margin: 15px auto 30px;
-            }
-            
-            .input-field {
-                font-size: 1.2rem;
-                padding: 12px;
-            }
-            
-            .action-btn {
-                font-size: 1rem;
-                padding: 13px;
-                min-height: 50px;
-                letter-spacing: 1px;
-            }
-            
-            .remember-me {
-                font-size: 0.85rem;
-                margin-bottom: 20px;
-            }
-            
-            .success-icon {
-                font-size: 2.8rem;
+            .ticker-item {
+                padding: 0 25px;
             }
             
             .footer {
@@ -681,117 +452,6 @@
                 bottom: 10px;
                 padding: 0 15px;
             }
-            
-            /* Modal Responsive */
-            .modal-box {
-                padding: 25px 20px;
-                width: 95%;
-                max-height: 85vh;
-                margin: 10px;
-            }
-            
-            .close-modal {
-                top: 15px;
-                right: 15px;
-                font-size: 1.3rem;
-            }
-            
-            .logos-row {
-                gap: 15px;
-                flex-wrap: wrap;
-            }
-            
-            .logos-row img {
-                height: 45px;
-            }
-            
-            .modal-section h3 {
-                font-size: 1rem;
-            }
-            
-            .modal-section p {
-                font-size: 0.85rem;
-            }
-            
-            .team-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-            
-            .team-member {
-                padding: 8px 12px;
-                font-size: 0.85rem;
-            }
-            
-            .consent-text {
-                font-size: 0.85rem;
-                padding: 12px;
-                max-height: 300px;
-            }
-            
-            .consent-text b {
-                font-size: 0.95rem;
-            }
-            
-            .consent-check {
-                font-size: 0.85rem;
-            }
-            
-            .toast-container {
-                top: 70px;
-                right: 10px;
-                left: 10px;
-            }
-            
-            .toast {
-                padding: 12px 15px;
-                font-size: 0.9rem;
-            }
-            
-            /* Preloader Mobile */
-            .loader-wrapper {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .loader-title {
-                font-size: 1.4rem;
-                letter-spacing: 2px;
-            }
-            
-            .progress-bar {
-                width: 150px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .brand-text h1 {
-                font-size: 0.8rem;
-            }
-            
-            .brand-text p {
-                display: none;
-            }
-            
-            .card-header h2 {
-                font-size: 1.1rem;
-            }
-            
-            .input-field {
-                font-size: 1.1rem;
-            }
-            
-            .action-btn {
-                font-size: 0.9rem;
-            }
-            
-            .health-ticker {
-                height: 28px;
-            }
-            
-            .ticker-content {
-                font-size: 0.75rem;
-            }
         }
         
         /* Landscape Mode on Mobile */
@@ -835,6 +495,25 @@
             .health-ticker {
                 bottom: 25px;
                 height: 25px;
+            }
+        }
+        
+        /* UPDATED: إخفاء في الشاشات الصغيرة جداً إذا لزم الأمر */
+        @media (max-width: 360px) {
+            .system-terminal {
+                width: 130px;
+                height: 100px;
+                padding: 5px;
+                font-size: 0.5rem;
+            }
+            
+            .terminal-header {
+                font-size: 0.45rem;
+                margin-bottom: 4px;
+            }
+            
+            .terminal-line {
+                font-size: 0.5rem;
             }
         }
     </style>
