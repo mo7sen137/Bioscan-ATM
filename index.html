@@ -376,6 +376,14 @@
             .action-btn {
                 font-size: 0.9rem;
             }
+            
+            .health-ticker {
+                height: 28px;
+            }
+            
+            .ticker-content {
+                font-size: 0.75rem;
+            }
         }
         
         /* Landscape Mode on Mobile */
@@ -410,6 +418,15 @@
             .modal-box {
                 max-height: 95vh;
                 padding: 20px 15px;
+            }
+            
+            .system-terminal {
+                display: none;
+            }
+            
+            .health-ticker {
+                bottom: 25px;
+                height: 25px;
             }
         }
 
@@ -885,22 +902,30 @@
 
     <div class="footer">Graduation Project 2026 | Zagazig University - Faculty of Engineering</div>
     
-    <!-- NEW: Live Health Ticker -->
+    <!-- UPDATED: Medical News & Health Tips Ticker -->
     <div class="health-ticker">
         <div class="ticker-content" id="tickerContent">
-            <span class="ticker-item"><i class="fas fa-exclamation-triangle"></i> تنبيه: موجة حارة متوقعة، يرجى الحذر</span>
-            <span class="ticker-item"><i class="fas fa-heart"></i> نصيحة اليوم: المشي لمدة 30 دقيقة يحسن الدورة الدموية</span>
-            <span class="ticker-item"><i class="fas fa-check-circle"></i> System Status: All Sensors Online</span>
-            <span class="ticker-item"><i class="fas fa-chart-line"></i> عدد الفحوصات اليوم: 45 فحص</span>
-            <span class="ticker-item"><i class="fas fa-shield-alt"></i> Security: End-to-End Encrypted</span>
-            <span class="ticker-item"><i class="fas fa-database"></i> Firebase Status: Connected</span>
+            <span class="ticker-item"><i class="fas fa-heart-pulse"></i> نصيحة طبية: اشرب 8 أكواب ماء يومياً للحفاظ على صحة الكلى</span>
+            <span class="ticker-item"><i class="fas fa-apple-whole"></i> Medical Tip: Eating fruits rich in Vitamin C boosts immunity</span>
+            <span class="ticker-item"><i class="fas fa-bed"></i> تحذير: قلة النوم تزيد خطر الإصابة بأمراض القلب بنسبة 48%</span>
+            <span class="ticker-item"><i class="fas fa-walking"></i> Health Alert: 30 minutes of daily exercise reduces diabetes risk</span>
+            <span class="ticker-item"><i class="fas fa-brain"></i> نصيحة: القراءة 15 دقيقة يومياً تحسن الذاكرة وتقلل التوتر</span>
+            <span class="ticker-item"><i class="fas fa-sun"></i> Medical News: Vitamin D deficiency linked to chronic fatigue</span>
+            <span class="ticker-item"><i class="fas fa-lungs"></i> تنبيه صحي: التدخين يقلل من كفاءة الرئتين بنسبة 50%</span>
+            <span class="ticker-item"><i class="fas fa-carrot"></i> Nutrition Tip: Dark leafy greens help lower blood pressure</span>
+            <span class="ticker-item"><i class="fas fa-heartbeat"></i> نصيحة: فحص الضغط شهرياً يقي من السكتات الدماغية</span>
+            <span class="ticker-item"><i class="fas fa-mobile-screen"></i> Health Warning: Blue light exposure before sleep disrupts circadian rhythm</span>
             <!-- Duplicate for seamless loop -->
-            <span class="ticker-item"><i class="fas fa-exclamation-triangle"></i> تنبيه: موجة حارة متوقعة، يرجى الحذر</span>
-            <span class="ticker-item"><i class="fas fa-heart"></i> نصيحة اليوم: المشي لمدة 30 دقيقة يحسن الدورة الدموية</span>
-            <span class="ticker-item"><i class="fas fa-check-circle"></i> System Status: All Sensors Online</span>
-            <span class="ticker-item"><i class="fas fa-chart-line"></i> عدد الفحوصات اليوم: 45 فحص</span>
-            <span class="ticker-item"><i class="fas fa-shield-alt"></i> Security: End-to-End Encrypted</span>
-            <span class="ticker-item"><i class="fas fa-database"></i> Firebase Status: Connected</span>
+            <span class="ticker-item"><i class="fas fa-heart-pulse"></i> نصيحة طبية: اشرب 8 أكواب ماء يومياً للحفاظ على صحة الكلى</span>
+            <span class="ticker-item"><i class="fas fa-apple-whole"></i> Medical Tip: Eating fruits rich in Vitamin C boosts immunity</span>
+            <span class="ticker-item"><i class="fas fa-bed"></i> تحذير: قلة النوم تزيد خطر الإصابة بأمراض القلب بنسبة 48%</span>
+            <span class="ticker-item"><i class="fas fa-walking"></i> Health Alert: 30 minutes of daily exercise reduces diabetes risk</span>
+            <span class="ticker-item"><i class="fas fa-brain"></i> نصيحة: القراءة 15 دقيقة يومياً تحسن الذاكرة وتقلل التوتر</span>
+            <span class="ticker-item"><i class="fas fa-sun"></i> Medical News: Vitamin D deficiency linked to chronic fatigue</span>
+            <span class="ticker-item"><i class="fas fa-lungs"></i> تنبيه صحي: التدخين يقلل من كفاءة الرئتين بنسبة 50%</span>
+            <span class="ticker-item"><i class="fas fa-carrot"></i> Nutrition Tip: Dark leafy greens help lower blood pressure</span>
+            <span class="ticker-item"><i class="fas fa-heartbeat"></i> نصيحة: فحص الضغط شهرياً يقي من السكتات الدماغية</span>
+            <span class="ticker-item"><i class="fas fa-mobile-screen"></i> Health Warning: Blue light exposure before sleep disrupts circadian rhythm</span>
         </div>
     </div>
     
@@ -1292,32 +1317,79 @@
         // NEW: System Terminal Animation
         function initializeTerminal() {
             const terminalOutput = document.getElementById('terminalOutput');
-            const lines = [
+            
+            // Initial boot sequence
+            const bootSequence = [
                 { text: 'Initializing Bio-Kernel...', delay: 500 },
-                { text: 'Connecting to ESP32 Bridge... OK', delay: 1200 },
-                { text: 'Checking Firebase Latency... 45ms', delay: 1800 },
-                { text: 'Encrypting Stream... Done', delay: 2400 },
-                { text: 'System Ready.', delay: 3000 }
+                { text: 'Loading Health Modules... OK', delay: 1000 },
+                { text: 'Connecting to Cloud DB... SUCCESS', delay: 1500 },
+                { text: 'Calibrating Sensors... DONE', delay: 2000 },
+                { text: 'System Ready. Monitoring...', delay: 2500 }
             ];
             
-            lines.forEach((line, index) => {
+            // Periodic monitoring commands
+            const monitoringCommands = [
+                'Checking network latency... 42ms',
+                'Scanning for firmware updates... None',
+                'Validating encryption keys... Valid',
+                'Running system diagnostics... PASS',
+                'Checking sensor readings... Normal',
+                'Monitoring database sync... Active',
+                'Verifying security protocols... OK',
+                'Analyzing traffic patterns... Stable',
+                'Testing backup systems... Ready',
+                'Checking power supply... Optimal',
+                'Monitoring CPU load... 23%',
+                'Verifying data integrity... 100%'
+            ];
+            
+            let commandIndex = 0;
+            
+            // Display boot sequence
+            bootSequence.forEach((line, index) => {
                 setTimeout(() => {
                     const lineEl = document.createElement('div');
                     lineEl.className = 'terminal-line';
-                    lineEl.style.animationDelay = '0s';
                     lineEl.textContent = line.text;
                     terminalOutput.appendChild(lineEl);
                     
-                    // Add cursor after last line
-                    if (index === lines.length - 1) {
-                        setTimeout(() => {
-                            const cursor = document.createElement('span');
-                            cursor.className = 'terminal-cursor';
-                            terminalOutput.appendChild(cursor);
-                        }, 300);
+                    // After boot sequence, start periodic monitoring
+                    if (index === bootSequence.length - 1) {
+                        setTimeout(() => startPeriodicMonitoring(), 1000);
                     }
                 }, line.delay);
             });
+            
+            // Function to add periodic monitoring lines
+            function startPeriodicMonitoring() {
+                setInterval(() => {
+                    // Remove cursor if exists
+                    const existingCursor = terminalOutput.querySelector('.terminal-cursor');
+                    if (existingCursor) existingCursor.remove();
+                    
+                    // Limit terminal lines to prevent overflow
+                    if (terminalOutput.children.length > 8) {
+                        terminalOutput.removeChild(terminalOutput.firstChild);
+                    }
+                    
+                    // Add new monitoring command
+                    const lineEl = document.createElement('div');
+                    lineEl.className = 'terminal-line';
+                    lineEl.textContent = monitoringCommands[commandIndex];
+                    terminalOutput.appendChild(lineEl);
+                    
+                    // Add cursor after new line
+                    setTimeout(() => {
+                        const cursor = document.createElement('span');
+                        cursor.className = 'terminal-cursor';
+                        terminalOutput.appendChild(cursor);
+                    }, 300);
+                    
+                    // Cycle through commands
+                    commandIndex = (commandIndex + 1) % monitoringCommands.length;
+                    
+                }, 4000); // New command every 4 seconds
+            }
         }
     </script>
 </body>
