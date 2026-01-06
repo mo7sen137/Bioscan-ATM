@@ -387,70 +387,7 @@
             
             /* --- 9. SYSTEM STATUS TERMINAL (UPDATED) --- */
             .system-terminal {
-                position: fixed;
-                bottom: 85px;
-                left: 20px;
-                width: 320px;
-                background: rgba(2, 8, 15, 0.75);
-                backdrop-filter: blur(15px);
-                border: 1px solid rgba(0, 242, 255, 0.3);
-                border-radius: 8px;
-                padding: 15px;
-                font-family: 'Courier New', monospace;
-                font-size: 0.75rem;
-                color: var(--primary-neon);
-                box-shadow: 0 0 25px rgba(0, 242, 255, 0.15);
-                z-index: 99;
-                height: 200px;
-                overflow: hidden;
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .terminal-header {
-                margin-bottom: 6px;
-                padding-bottom: 4px;
-                font-size: 0.55rem;
-                gap: 4px;
-            }
-            
-            .terminal-dots {
-                gap: 2px;
-            }
-            
-            .terminal-dot {
-                width: 5px;
-                height: 5px;
-            }
-            
-            .terminal-line {
-                margin: 2px 0;
-                line-height: 1.4;
-                font-size: 0.6rem;
-            }
-            
-            .terminal-cursor {
-                width: 5px;
-                height: 8px;
-            }
-            
-            .health-ticker {
-                bottom: 30px;
-                height: 30px;
-            }
-            
-            .ticker-content {
-                font-size: 0.8rem;
-            }
-            
-            .ticker-item {
-                padding: 0 25px;
-            }
-            
-            .footer {
-                font-size: 0.65rem;
-                bottom: 10px;
-                padding: 0 15px;
+                display: none;
             }
         }
         
@@ -515,6 +452,50 @@
             .terminal-line {
                 font-size: 0.5rem;
             }
+        }
+        
+        /* --- 8. LIVE HEALTH TICKER --- */
+        .health-ticker {
+            position: fixed;
+            bottom: 35px;
+            left: 0;
+            width: 100%;
+            height: 35px;
+            background: linear-gradient(90deg, rgba(0, 242, 255, 0.08), rgba(112, 0, 255, 0.08));
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 242, 255, 0.3);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.3);
+            overflow: hidden;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+        
+        .ticker-content {
+            display: flex;
+            white-space: nowrap;
+            animation: scroll-ticker 80s linear infinite;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            letter-spacing: 1px;
+        }
+        
+        .ticker-item {
+            padding: 0 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ticker-item i {
+            color: var(--primary-neon);
+            font-size: 1rem;
+        }
+        
+        @keyframes scroll-ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
     </style>
 </head>
@@ -595,7 +576,7 @@
 
     <div class="footer">Graduation Project 2026 | Zagazig University - Faculty of Engineering</div>
     
-    <!-- UPDATED: Medical News & Health Tips Ticker -->
+    <!-- Medical News & Health Tips Ticker -->
     <div class="health-ticker">
         <div class="ticker-content" id="tickerContent">
             <span class="ticker-item"><i class="fas fa-heart-pulse"></i> نصيحة طبية: اشرب 8 أكواب ماء يومياً للحفاظ على صحة الكلى</span>
@@ -620,19 +601,6 @@
             <span class="ticker-item"><i class="fas fa-heartbeat"></i> نصيحة: فحص الضغط شهرياً يقي من السكتات الدماغية</span>
             <span class="ticker-item"><i class="fas fa-mobile-screen"></i> Health Warning: Blue light exposure before sleep disrupts circadian rhythm</span>
         </div>
-    </div>
-    
-    <!-- NEW: System Status Terminal -->
-    <div class="system-terminal" id="systemTerminal">
-        <div class="terminal-header">
-            <div class="terminal-dots">
-                <div class="terminal-dot"></div>
-                <div class="terminal-dot"></div>
-                <div class="terminal-dot"></div>
-            </div>
-            <span>SYS.MONITOR</span>
-        </div>
-        <div id="terminalOutput"></div>
     </div>
     
     <div class="toast-container" id="toastContainer"></div>
@@ -753,9 +721,6 @@
             const saved = localStorage.getItem("saved_phone");
             if(saved) { iti.setNumber(saved); document.getElementById('remCheck').checked = true; validateLive(); }
             document.addEventListener('click', () => playWelcomeMessage(), { once: true });
-            
-            // NEW: Initialize terminal animation
-            initializeTerminal();
         };
 
         function validateLive() {
@@ -1006,88 +971,6 @@
         function goToDashboard() { window.location.href = "measurements.html"; }
         function resetView() { document.getElementById("success-view").style.display = "none"; document.getElementById("login-view").style.display = "block"; }
         function toggleModal(id, show) { const m = document.getElementById(id); if(show) { m.style.display = 'flex'; setTimeout(()=>m.classList.add('active'), 10); } else { m.classList.remove('active'); setTimeout(()=>m.style.display='none', 300); } }
-
-        // NEW: System Terminal Animation
-        function initializeTerminal() {
-            const terminalOutput = document.getElementById('terminalOutput');
-            
-            // Initial boot sequence
-            const bootSequence = [
-                { text: 'Initializing Bio-Kernel...', delay: 500 },
-                { text: 'Loading Health Modules... OK', delay: 1000 },
-                { text: 'Connecting to Cloud DB... SUCCESS', delay: 1500 },
-                { text: 'Calibrating Sensors... DONE', delay: 2000 },
-                { text: 'System Ready. Monitoring...', delay: 2500 }
-            ];
-            
-            // Periodic monitoring commands
-            const monitoringCommands = [
-                'Checking network latency... 42ms',
-                'Scanning for firmware updates... None',
-                'Validating encryption keys... Valid',
-                'Running system diagnostics... PASS',
-                'Checking sensor readings... Normal',
-                'Monitoring database sync... Active',
-                'Verifying security protocols... OK',
-                'Analyzing traffic patterns... Stable',
-                'Testing backup systems... Ready',
-                'Checking power supply... Optimal',
-                'Monitoring CPU load... 23%',
-                'Verifying data integrity... 100%',
-                'Refreshing cache memory... Done',
-                'Checking SSL certificates... Valid',
-                'Running health check... All systems go'
-            ];
-            
-            let commandIndex = 0;
-            
-            // Display boot sequence
-            bootSequence.forEach((line, index) => {
-                setTimeout(() => {
-                    const lineEl = document.createElement('div');
-                    lineEl.className = 'terminal-line';
-                    lineEl.textContent = line.text;
-                    terminalOutput.appendChild(lineEl);
-                    
-                    // After boot sequence, start periodic monitoring
-                    if (index === bootSequence.length - 1) {
-                        setTimeout(() => startPeriodicMonitoring(), 1000);
-                    }
-                }, line.delay);
-            });
-            
-            // Function to add periodic monitoring lines
-            function startPeriodicMonitoring() {
-                setInterval(() => {
-                    // Remove cursor if exists
-                    const existingCursor = terminalOutput.querySelector('.terminal-cursor');
-                    if (existingCursor) existingCursor.remove();
-                    
-                    // Limit terminal lines to prevent overflow (keep last 6 lines visible)
-                    const lines = terminalOutput.querySelectorAll('.terminal-line');
-                    if (lines.length > 6) {
-                        terminalOutput.removeChild(lines[0]);
-                    }
-                    
-                    // Add new monitoring command
-                    const lineEl = document.createElement('div');
-                    lineEl.className = 'terminal-line';
-                    lineEl.textContent = monitoringCommands[commandIndex];
-                    terminalOutput.appendChild(lineEl);
-                    
-                    // Add cursor after new line
-                    setTimeout(() => {
-                        const cursor = document.createElement('span');
-                        cursor.className = 'terminal-cursor';
-                        terminalOutput.appendChild(cursor);
-                    }, 300);
-                    
-                    // Cycle through commands
-                    commandIndex = (commandIndex + 1) % monitoringCommands.length;
-                    
-                }, 4000); // New command every 4 seconds
-            }
-        }
     </script>
 </body>
 </html>
