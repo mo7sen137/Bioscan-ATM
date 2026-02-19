@@ -679,7 +679,6 @@
 
         // --- GLOBAL VARIABLES ---
         let welcomePlayed = false;
-        let soundMuted = localStorage.getItem("soundMuted") === "true"; // تحميل حالة mute من localStorage
 
         // أرقام التيست في Firebase (ضع أرقامك وكودها هنا)
         // Example:
@@ -723,14 +722,6 @@
             const saved = localStorage.getItem("saved_phone");
             if(saved) { iti.setNumber(saved); document.getElementById('remCheck').checked = true; validateLive(); }
             document.addEventListener('click', () => playWelcomeMessage(), { once: true });
-            
-            // تحديث حالة زر mute عند التحميل
-            const muteBtn = document.getElementById('muteBtn');
-            const icon = muteBtn.querySelector('i');
-            if (soundMuted) {
-                icon.className = 'fas fa-volume-mute';
-                muteBtn.style.color = 'var(--error)';
-            }
         };
 
         function validateLive() {
@@ -865,7 +856,7 @@
 
         // --- 5. UI CORE ---
         function playWelcomeMessage() {
-            if (welcomePlayed || soundMuted) return; // لا تشغّل إذا كانت معطّلة أو تم تشغيلها مسبقاً
+            if (welcomePlayed) return;
             if ('speechSynthesis' in window) {
                 const enMsg = new SpeechSynthesisUtterance("Welcome to Bioscan ATM Station. Please enter your mobile number.");
                 enMsg.lang = 'en-US'; enMsg.rate = 0.9;
@@ -981,22 +972,6 @@
         function goToDashboard() { window.location.href = "measurements.html"; }
         function resetView() { document.getElementById("success-view").style.display = "none"; document.getElementById("login-view").style.display = "block"; }
         function toggleModal(id, show) { const m = document.getElementById(id); if(show) { m.style.display = 'flex'; setTimeout(()=>m.classList.add('active'), 10); } else { m.classList.remove('active'); setTimeout(()=>m.style.display='none', 300); } }
-        
-        function toggleMute() {
-            soundMuted = !soundMuted;
-            localStorage.setItem("soundMuted", soundMuted);
-            const muteBtn = document.getElementById('muteBtn');
-            const icon = muteBtn.querySelector('i');
-            
-            if (soundMuted) {
-                icon.className = 'fas fa-volume-mute';
-                muteBtn.style.color = 'var(--error)';
-                window.speechSynthesis.cancel(); // إيقاف أي صوت قيد التشغيل
-            } else {
-                icon.className = 'fas fa-volume-up';
-                muteBtn.style.color = 'var(--primary-neon)';
-            }
-        }
     </script>
 </body>
 </html>
