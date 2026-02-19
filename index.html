@@ -679,6 +679,7 @@
 
         // --- GLOBAL VARIABLES ---
         let welcomePlayed = false;
+        let soundMuted = false;
 
         // أرقام التيست في Firebase (ضع أرقامك وكودها هنا)
         // Example:
@@ -856,7 +857,7 @@
 
         // --- 5. UI CORE ---
         function playWelcomeMessage() {
-            if (welcomePlayed) return;
+            if (welcomePlayed || soundMuted) return;
             if ('speechSynthesis' in window) {
                 const enMsg = new SpeechSynthesisUtterance("Welcome to Bioscan ATM Station. Please enter your mobile number.");
                 enMsg.lang = 'en-US'; enMsg.rate = 0.9;
@@ -972,6 +973,17 @@
         function goToDashboard() { window.location.href = "measurements.html"; }
         function resetView() { document.getElementById("success-view").style.display = "none"; document.getElementById("login-view").style.display = "block"; }
         function toggleModal(id, show) { const m = document.getElementById(id); if(show) { m.style.display = 'flex'; setTimeout(()=>m.classList.add('active'), 10); } else { m.classList.remove('active'); setTimeout(()=>m.style.display='none', 300); } }
+        
+        function toggleMute() {
+            soundMuted = !soundMuted;
+            const muteBtn = document.getElementById('muteBtn');
+            if (soundMuted) {
+                muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                window.speechSynthesis.cancel();
+            } else {
+                muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            }
+        }
     </script>
 </body>
 </html>
