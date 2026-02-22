@@ -614,15 +614,19 @@
             showToast(currentLang === "ar" ? "لا توجد بيانات للحفظ!" : "No data to save!", "error");
             return;
         }
-        const readableDate = new Date().toLocaleString('en-US'); 
+        
+        // Format timestamp as string
+        const timestamp = new Date().toLocaleString('en-US'); 
+        
+        // Build SensorData string in exact format: "Temp=XX, HR=YY, BP=120/80, SpO2=ZZ"
+        const sensorDataString = `Temp=${currentData.temp}, HR=${currentData.bpm}, BP=${currentData.bp}, SpO2=${currentData.spo2}`;
+        
+        // Save to History node with new structure
         const historyRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId + '/History');
         historyRef.push({
-            timestamp: readableDate,
-            sortKey: firebase.database.ServerValue.TIMESTAMP,
-            temperature: currentData.temp,
-            bpm: currentData.bpm,
-            pressure: currentData.bp,
-            spo2: currentData.spo2
+            DeviceID: "SHR-ZAGUNI-K-01",
+            Timestamp: timestamp,
+            SensorData: sensorDataString
         }).then(() => {
             showToast(currentLang === "ar" ? "تم حفظ الجلسة بنجاح" : "Session Saved Successfully", "success");
         }).catch(err => {
