@@ -105,6 +105,9 @@
         .card-subtitle { font-size: 0.85rem; color: #aaa; margin-top: 8px; letter-spacing: 1px; }
         .energy-divider { height: 2px; width: 80%; margin: 20px auto 30px; background: radial-gradient(circle, var(--primary-neon) 0%, rgba(0,242,255,0) 90%); box-shadow: 0 0 10px var(--primary-neon); opacity: 0.8; }
 
+        /* Step Indicator */
+        .step-indicator { font-size: 0.8rem; color: var(--primary-neon); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+
         /* ITI Library Styling */
         .iti { width: 100%; margin-bottom: 15px; }
         .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 2000; text-align: left; }
@@ -347,17 +350,58 @@
                 <div class="energy-divider"></div>
             </div>
 
-            <div id="register-view">
+            <!-- STEP 1: Phone Number -->
+            <div id="step1-view" class="register-step">
+                <p class="step-indicator" id="step-indicator-1">Step 1 of 3</p>
+                <p style="color: #aaa; margin-bottom: 20px; font-size: 0.9rem;" id="step1-desc">Enter your phone number to verify</p>
+                
+                <div class="input-wrapper">
+                    <input type="tel" id="phoneNumber" class="input-field" placeholder="1xxxxxxxxx" onkeyup="validatePhone()">
+                    <div class="error-msg" id="phone-error"></div>
+                </div>
+
+                <button class="action-btn" id="sendCodeBtn" onclick="sendVerificationCode()">
+                    <i class="fas fa-paper-plane"></i> <span id="send-code-text">SEND VERIFICATION CODE</span>
+                </button>
+
+                <div class="login-link">
+                    <a href="javascript:void(0)" id="loginLink" onclick="goToLogin()">Already have an account? Sign In</a>
+                </div>
+            </div>
+
+            <!-- STEP 2: Verification Code -->
+            <div id="step2-view" class="register-step" style="display: none;">
+                <p class="step-indicator" id="step-indicator-2">Step 2 of 3</p>
+                <p style="color: #aaa; margin-bottom: 20px; font-size: 0.9rem;" id="step2-desc">Enter the verification code sent to your phone</p>
+                
+                <div class="input-wrapper">
+                    <input type="text" id="verificationCode" class="input-field" placeholder="000000" maxlength="6" style="font-size: 1.5rem; letter-spacing: 5px;" onkeyup="validateCode()">
+                    <div class="error-msg" id="code-error"></div>
+                </div>
+
+                <button class="action-btn" id="verifyCodeBtn" onclick="verifyCode()">
+                    <i class="fas fa-check"></i> <span id="verify-code-text">VERIFY CODE</span>
+                </button>
+
+                <button class="action-btn" style="background: transparent; border: 1px solid #aaa; color: #aaa; margin-top: 10px;" id="backToPhoneBtn" onclick="backToStep1()">
+                    <i class="fas fa-arrow-left"></i> <span>BACK</span>
+                </button>
+            </div>
+
+            <!-- STEP 3: Full Registration -->
+            <div id="step3-view" class="register-step" style="display: none;">
+                <p class="step-indicator" id="step-indicator-3">Step 3 of 3</p>
+                <p style="color: #aaa; margin-bottom: 20px; font-size: 0.9rem;" id="step3-desc">Complete your registration</p>
+                
                 <!-- Full Name Field -->
                 <div class="input-wrapper">
                     <input type="text" id="fullName" class="input-field" placeholder="Full Name" onkeyup="validateName()">
                     <div class="error-msg" id="name-error"></div>
                 </div>
 
-                <!-- Phone Number Field -->
+                <!-- Phone Display -->
                 <div class="input-wrapper">
-                    <input type="tel" id="phoneNumber" class="input-field" placeholder="1xxxxxxxxx" onkeyup="validatePhone()">
-                    <div class="error-msg" id="phone-error"></div>
+                    <input type="tel" id="phoneDisplay" class="input-field" placeholder="Phone" disabled style="color: #aaa; cursor: not-allowed;">
                 </div>
 
                 <!-- Password Field -->
@@ -384,13 +428,13 @@
                     <div class="error-msg" id="password-error"></div>
                 </div>
 
-                <button class="action-btn" id="registerBtn" onclick="processRegistration()">
-                    <i class="fas fa-user-plus"></i> <span id="btn-text">CREATE ACCOUNT</span>
+                <button class="action-btn" id="completeRegisterBtn" onclick="completeRegistration()">
+                    <i class="fas fa-user-plus"></i> <span id="complete-register-text">CREATE ACCOUNT</span>
                 </button>
 
-                <div class="login-link">
-                    <a href="javascript:void(0)" id="loginLink" onclick="goToLogin()">Already have an account? Sign In</a>
-                </div>
+                <button class="action-btn" style="background: transparent; border: 1px solid #aaa; color: #aaa; margin-top: 10px;" id="backToCodeBtn" onclick="backToStep2()">
+                    <i class="fas fa-arrow-left"></i> <span>BACK</span>
+                </button>
             </div>
 
             <div id="success-view">
@@ -436,6 +480,11 @@
         let welcomePlayed = false;
         let soundMuted = false;
         let currentLang = localStorage.getItem("language") || "en";
+        
+        // Registration flow variables
+        let registrationPhone = "";
+        let verificationCode = "";
+        let storedVerificationCode = null;
 
         // --- 2. PRELOADER JS ---
         function startPreloader() {
@@ -495,6 +544,20 @@
             }
         }
 
+        function validateCode() {
+            const code = document.getElementById('verificationCode').value.trim();
+            const field = document.getElementById('verificationCode');
+            
+            field.classList.remove('valid', 'invalid');
+            
+            if(code.length === 6 && /^\d+$/.test(code)) {
+                field.classList.add('valid');
+                document.getElementById('code-error').classList.remove('show');
+            } else if(code.length > 0) {
+                field.classList.add('invalid');
+            }
+        }
+
         function validatePasswordField() {
             const pwd = document.getElementById('password').value;
             const field = document.getElementById('password');
@@ -545,6 +608,7 @@
         function clearErrorMessages() {
             document.getElementById('name-error').classList.remove('show');
             document.getElementById('phone-error').classList.remove('show');
+            document.getElementById('code-error').classList.remove('show');
             document.getElementById('password-error').classList.remove('show');
         }
 
@@ -552,6 +616,7 @@
             const errorIds = {
                 'name': 'name-error',
                 'phone': 'phone-error',
+                'code': 'code-error',
                 'password': 'password-error'
             };
             const errorEl = document.getElementById(errorIds[field]);
@@ -561,8 +626,83 @@
             }
         }
 
-        // --- 5. REGISTRATION LOGIC ---
-        function processRegistration() {
+        // --- 5. REGISTRATION FLOW LOGIC ---
+        
+        // Step 1: Send Verification Code
+        function sendVerificationCode() {
+            clearErrorMessages();
+            
+            if(!iti.isValidNumber()) {
+                document.getElementById('phoneNumber').classList.add('shake');
+                displayErrorMessage('phone', currentLang === 'ar' ? "رقم هاتف غير صحيح" : "Invalid phone number");
+                setTimeout(() => document.getElementById('phoneNumber').classList.remove('shake'), 400);
+                return;
+            }
+            
+            registrationPhone = iti.getNumber();
+            const sendCodeBtn = document.getElementById('sendCodeBtn');
+            sendCodeBtn.disabled = true;
+            sendCodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (currentLang === 'ar' ? 'جاري الإرسال...' : 'Sending...');
+            
+            // Check if phone already exists
+            database.ref('PatientData/' + registrationPhone).once('value').then(snapshot => {
+                if(snapshot.exists()) {
+                    // Phone already registered
+                    sendCodeBtn.disabled = false;
+                    sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span id="send-code-text">' + txt[currentLang].sendCode + '</span>';
+                    displayErrorMessage('phone', currentLang === 'ar' ? "هذا الرقم مسجل بالفعل. يرجى تسجيل الدخول." : "This phone number is already registered. Please Login.");
+                    document.getElementById('phoneNumber').classList.add('invalid');
+                    return;
+                }
+                
+                // Phone doesn't exist, generate code
+                verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+                storedVerificationCode = verificationCode;
+                
+                // In real app, send via SMS. For now, show in console
+                console.log('Verification Code: ' + verificationCode);
+                showToast(currentLang === 'ar' ? `رمز التحقق: ${verificationCode}` : `Verification Code: ${verificationCode}`, "success");
+                
+                sendCodeBtn.disabled = false;
+                sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span id="send-code-text">' + txt[currentLang].sendCode + '</span>';
+                
+                // Move to step 2
+                moveToStep(2);
+            }).catch((error) => {
+                sendCodeBtn.disabled = false;
+                sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span id="send-code-text">' + txt[currentLang].sendCode + '</span>';
+                showToast(currentLang === 'ar' ? "خطأ في الاتصال" : "Connection error", "error");
+                console.error(error);
+            });
+        }
+        
+        // Step 2: Verify Code
+        function verifyCode() {
+            clearErrorMessages();
+            
+            const codeInput = document.getElementById('verificationCode').value.trim();
+            
+            if(!codeInput || codeInput.length !== 6) {
+                document.getElementById('verificationCode').classList.add('shake');
+                displayErrorMessage('code', currentLang === 'ar' ? "أدخل رموز صحيحة" : "Enter valid code");
+                setTimeout(() => document.getElementById('verificationCode').classList.remove('shake'), 400);
+                return;
+            }
+            
+            if(codeInput !== storedVerificationCode) {
+                document.getElementById('verificationCode').classList.add('shake');
+                displayErrorMessage('code', currentLang === 'ar' ? "الرمز غير صحيح" : "Invalid code");
+                setTimeout(() => document.getElementById('verificationCode').classList.remove('shake'), 400);
+                return;
+            }
+            
+            // Code is correct
+            document.getElementById('phoneDisplay').value = registrationPhone;
+            moveToStep(3);
+        }
+        
+        // Step 3: Complete Registration
+        function completeRegistration() {
             clearErrorMessages();
             
             // Validate Full Name
@@ -571,14 +711,6 @@
                 document.getElementById('fullName').classList.add('shake');
                 displayErrorMessage('name', currentLang === 'ar' ? "أدخل اسماً صحيحاً" : "Enter a valid name");
                 setTimeout(() => document.getElementById('fullName').classList.remove('shake'), 400);
-                return;
-            }
-            
-            // Validate Phone
-            if(!iti.isValidNumber()) {
-                phoneInput.classList.add('shake');
-                displayErrorMessage('phone', currentLang === 'ar' ? "رقم هاتف غير صحيح" : "Invalid phone number");
-                setTimeout(() => phoneInput.classList.remove('shake'), 400);
                 return;
             }
             
@@ -595,78 +727,84 @@
                 return;
             }
             
-            const phoneNumber = iti.getNumber();
-            const registerBtn = document.getElementById('registerBtn');
-            registerBtn.disabled = true;
-            registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (currentLang === 'ar' ? 'جاري التسجيل...' : 'Registering...');
+            const completeBtn = document.getElementById('completeRegisterBtn');
+            completeBtn.disabled = true;
+            completeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (currentLang === 'ar' ? 'جاري الحفظ...' : 'Saving...');
             
-            // STEP 0: Check if phone number already exists in database FIRST
-            database.ref('PatientData/' + phoneNumber).once('value').then(snapshot => {
-                if(snapshot.exists()) {
-                    // Phone number already registered - ABORT
-                    registerBtn.disabled = false;
-                    registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="btn-text">' + txt[currentLang].btnRegister + '</span>';
-                    displayErrorMessage('phone', currentLang === 'ar' ? "هذا الرقم مسجل بالفعل. يرجى تسجيل الدخول." : "This phone number is already registered. Please Login.");
-                    phoneInput.classList.add('invalid');
-                    return;
-                }
-                
-                // Phone doesn't exist - proceed to create auth account
-                // Step 1: Create Auth User with email {phone}@bioscan.com
-                const virtualEmail = phoneNumber.substring(1) + "@bioscan.com";
-                
-                auth.createUserWithEmailAndPassword(virtualEmail, pwd)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        const uid = user.uid;
+            // Create Auth User
+            const virtualEmail = registrationPhone.substring(1) + "@bioscan.com";
+            
+            auth.createUserWithEmailAndPassword(virtualEmail, pwd)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const uid = user.uid;
+                    
+                    // Save to Database
+                    const registrationDate = new Date().toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US');
+                    
+                    database.ref('PatientData/' + registrationPhone).update({
+                        FullName: fullName,
+                        RegistrationDate: registrationDate,
+                        UID: uid,
+                        Phone: registrationPhone,
+                        Password: pwd
+                    }).then(() => {
+                        showToast(currentLang === 'ar' ? "تم التسجيل بنجاح" : "Registration successful", "success");
+                        completeBtn.disabled = false;
                         
-                        // Step 2: Save to Realtime Database with update (not set) to preserve existing data
-                        const registrationDate = new Date().toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US');
+                        // Show success message
+                        document.getElementById('step3-view').style.display = 'none';
+                        document.getElementById('success-view').style.display = 'flex';
                         
-                        database.ref('PatientData/' + phoneNumber).update({
-                            FullName: fullName,
-                            RegistrationDate: registrationDate,
-                            UID: uid,
-                            Phone: phoneNumber,
-                            Password: pwd
-                        }).then(() => {
-                            // Success
-                            showToast(currentLang === 'ar' ? "تم التسجيل بنجاح" : "Registration successful", "success");
-                            completeRegistration();
-                        }).catch((error) => {
-                            registerBtn.disabled = false;
-                            registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="btn-text">' + txt[currentLang].btnRegister + '</span>';
-                            showToast(currentLang === 'ar' ? "خطأ في حفظ البيانات" : "Database error", "error");
-                            console.error(error);
-                        });
-                    })
-                    .catch((error) => {
-                        registerBtn.disabled = false;
-                        registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="btn-text">' + txt[currentLang].btnRegister + '</span>';
-                        
-                        if(error.code === 'auth/email-already-in-use') {
-                            displayErrorMessage('phone', currentLang === 'ar' ? "الحساب مسجل بالفعل" : "Account already registered");
-                            phoneInput.classList.add('invalid');
-                        } else {
-                            showToast(currentLang === 'ar' ? "خطأ في التسجيل" : "Registration error", "error");
-                        }
+                        setTimeout(() => {
+                            goToLogin();
+                        }, 3000);
+                    }).catch((error) => {
+                        completeBtn.disabled = false;
+                        completeBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="complete-register-text">' + txt[currentLang].btnRegister + '</span>';
+                        showToast(currentLang === 'ar' ? "خطأ في حفظ البيانات" : "Database error", "error");
                         console.error(error);
                     });
-            }).catch((error) => {
-                registerBtn.disabled = false;
-                registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="btn-text">' + txt[currentLang].btnRegister + '</span>';
-                showToast(currentLang === 'ar' ? "خطأ في الاتصال بقاعدة البيانات" : "Database connection error", "error");
-                console.error(error);
-            });
+                })
+                .catch((error) => {
+                    completeBtn.disabled = false;
+                    completeBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="complete-register-text">' + txt[currentLang].btnRegister + '</span>';
+                    showToast(currentLang === 'ar' ? "خطأ في التسجيل" : "Registration error", "error");
+                    console.error(error);
+                });
         }
-
-        function completeRegistration() {
-            document.getElementById("register-view").style.display = "none";
-            document.getElementById("success-view").style.display = "flex";
+        
+        // Navigation between steps
+        function moveToStep(stepNumber) {
+            document.getElementById('step1-view').style.display = 'none';
+            document.getElementById('step2-view').style.display = 'none';
+            document.getElementById('step3-view').style.display = 'none';
             
-            setTimeout(() => {
-                goToLogin();
-            }, 3000);
+            if(stepNumber === 1) {
+                document.getElementById('step1-view').style.display = 'block';
+            } else if(stepNumber === 2) {
+                document.getElementById('step2-view').style.display = 'block';
+            } else if(stepNumber === 3) {
+                document.getElementById('step3-view').style.display = 'block';
+            }
+        }
+        
+        function backToStep1() {
+            document.getElementById('phoneNumber').value = '';
+            document.getElementById('phoneNumber').classList.remove('valid', 'invalid');
+            document.getElementById('verificationCode').value = '';
+            document.getElementById('verificationCode').classList.remove('valid', 'invalid');
+            clearErrorMessages();
+            moveToStep(1);
+        }
+        
+        function backToStep2() {
+            document.getElementById('fullName').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('fullName').classList.remove('valid', 'invalid');
+            document.getElementById('password').classList.remove('valid', 'invalid');
+            clearErrorMessages();
+            moveToStep(2);
         }
 
         function goToLogin() {
@@ -734,6 +872,8 @@
                 phonePlaceholder: "1xxxxxxxxx",
                 passwordPlaceholder: "••••••••",
                 btnRegister: "CREATE ACCOUNT",
+                sendCode: "SEND VERIFICATION CODE",
+                verifyCode: "VERIFY CODE",
                 alreadyHaveAccount: "Already have an account? Sign In",
                 successTitle: "Registration Successful!",
                 successMsg: "Your account has been created",
@@ -748,6 +888,8 @@
                 phonePlaceholder: "1xxxxxxxxx",
                 passwordPlaceholder: "••••••••",
                 btnRegister: "إنشاء حساب",
+                sendCode: "إرسال رمز التحقق",
+                verifyCode: "التحقق من الرمز",
                 alreadyHaveAccount: "هل لديك حساب بالفعل؟ تسجيل الدخول",
                 successTitle: "تم التسجيل بنجاح!",
                 successMsg: "تم إنشاء حسابك",
@@ -763,10 +905,23 @@
             
             document.getElementById("reg-title").innerText = t.regTitle;
             document.getElementById("reg-subtitle").innerText = t.regSubtitle;
+            
+            // Step indicators
+            document.getElementById("step-indicator-1").innerText = currentLang === 'ar' ? "الخطوة 1 من 3" : "Step 1 of 3";
+            document.getElementById("step-indicator-2").innerText = currentLang === 'ar' ? "الخطوة 2 من 3" : "Step 2 of 3";
+            document.getElementById("step-indicator-3").innerText = currentLang === 'ar' ? "الخطوة 3 من 3" : "Step 3 of 3";
+            
+            // Step descriptions
+            document.getElementById("step1-desc").innerText = currentLang === 'ar' ? "أدخل رقم الهاتف للتحقق" : "Enter your phone number to verify";
+            document.getElementById("step2-desc").innerText = currentLang === 'ar' ? "أدخل رمز التحقق المرسل إلى هاتفك" : "Enter the verification code sent to your phone";
+            document.getElementById("step3-desc").innerText = currentLang === 'ar' ? "أكمل التسجيل" : "Complete your registration";
+            
             document.getElementById("fullName").placeholder = t.fullNamePlaceholder;
             document.getElementById("phoneNumber").placeholder = t.phonePlaceholder;
             document.getElementById("password").placeholder = t.passwordPlaceholder;
-            document.getElementById("btn-text").innerText = t.btnRegister;
+            document.getElementById("send-code-text").innerText = t.sendCode;
+            document.getElementById("verify-code-text").innerText = t.verifyCode;
+            document.getElementById("complete-register-text").innerText = t.btnRegister;
             document.getElementById("loginLink").innerText = t.alreadyHaveAccount;
             document.getElementById("success-title").innerText = t.successTitle;
             document.getElementById("success-msg").innerText = t.successMsg;
