@@ -600,46 +600,64 @@
             registerBtn.disabled = true;
             registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (currentLang === 'ar' ? 'جاري التسجيل...' : 'Registering...');
             
-            // Step 1: Create Auth User with email {phone}@bioscan.com
-            const virtualEmail = phoneNumber.substring(1) + "@bioscan.com";
-            
-            auth.createUserWithEmailAndPassword(virtualEmail, pwd)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    const uid = user.uid;
-                    
-                    // Step 2: Save to Realtime Database
-                    const registrationDate = new Date().toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US');
-                    
-                    database.ref('PatientData/' + phoneNumber).set({
-                        FullName: fullName,
-                        RegistrationDate: registrationDate,
-                        UID: uid,
-                        Phone: phoneNumber,
-                        Password: pwd
-                    }).then(() => {
-                        // Success
-                        showToast(currentLang === 'ar' ? "تم التسجيل بنجاح" : "Registration successful", "success");
-                        completeRegistration();
-                    }).catch((error) => {
-                        registerBtn.disabled = false;
-                        registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="btn-text">' + txt[currentLang].btnRegister + '</span>';
-                        showToast(currentLang === 'ar' ? "خطأ في حفظ البيانات" : "Database error", "error");
-                        console.error(error);
-                    });
-                })
-                .catch((error) => {
+            // STEP 0: Check if phone number already exists in database FIRST
+            database.ref('PatientData/' + phoneNumber).once('value').then(snapshot => {
+                if(snapshot.exists()) {
+                    // Phone number already registered - ABORT
                     registerBtn.disabled = false;
                     registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="btn-text">' + txt[currentLang].btnRegister + '</span>';
-                    
-                    if(error.code === 'auth/email-already-in-use') {
-                        displayErrorMessage('phone', currentLang === 'ar' ? "الحساب مسجل بالفعل" : "Account already registered");
-                        phoneInput.classList.add('invalid');
-                    } else {
-                        showToast(currentLang === 'ar' ? "خطأ في التسجيل" : "Registration error", "error");
-                    }
-                    console.error(error);
-                });
+                    displayErrorMessage('phone', currentLang === 'ar' ? "هذا الرقم مسجل بالفعل. يرجى تسجيل الدخول." : "This phone number is already registered. Please Login.");
+                    phoneInput.classList.add('invalid');
+                    return;
+                }
+                
+                // Phone doesn't exist - proceed to create auth account
+                // Step 1: Create Auth User with email {phone}@bioscan.com
+                const virtualEmail = phoneNumber.substring(1) + "@bioscan.com";
+                
+                auth.createUserWithEmailAndPassword(virtualEmail, pwd)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        const uid = user.uid;
+                        
+                        // Step 2: Save to Realtime Database with update (not set) to preserve existing data
+                        const registrationDate = new Date().toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US');
+                        
+                        database.ref('PatientData/' + phoneNumber).update({
+                            FullName: fullName,
+                            RegistrationDate: registrationDate,
+                            UID: uid,
+                            Phone: phoneNumber,
+                            Password: pwd
+                        }).then(() => {
+                            // Success
+                            showToast(currentLang === 'ar' ? "تم التسجيل بنجاح" : "Registration successful", "success");
+                            completeRegistration();
+                        }).catch((error) => {
+                            registerBtn.disabled = false;
+                            registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="btn-text">' + txt[currentLang].btnRegister + '</span>';
+                            showToast(currentLang === 'ar' ? "خطأ في حفظ البيانات" : "Database error", "error");
+                            console.error(error);
+                        });
+                    })
+                    .catch((error) => {
+                        registerBtn.disabled = false;
+                        registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="btn-text">' + txt[currentLang].btnRegister + '</span>';
+                        
+                        if(error.code === 'auth/email-already-in-use') {
+                            displayErrorMessage('phone', currentLang === 'ar' ? "الحساب مسجل بالفعل" : "Account already registered");
+                            phoneInput.classList.add('invalid');
+                        } else {
+                            showToast(currentLang === 'ar' ? "خطأ في التسجيل" : "Registration error", "error");
+                        }
+                        console.error(error);
+                    });
+            }).catch((error) => {
+                registerBtn.disabled = false;
+                registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="btn-text">' + txt[currentLang].btnRegister + '</span>';
+                showToast(currentLang === 'ar' ? "خطأ في الاتصال بقاعدة البيانات" : "Database connection error", "error");
+                console.error(error);
+            });
         }
 
         function completeRegistration() {
