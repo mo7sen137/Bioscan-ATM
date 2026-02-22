@@ -117,8 +117,20 @@
         .input-field.valid { border-color: var(--success); box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
         .input-field.invalid { border-color: var(--error); box-shadow: 0 0 15px rgba(255, 42, 42, 0.3); }
 
-        .remember-me { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 25px; cursor: pointer; color: #aaa; font-size: 0.9rem; }
-        .remember-me input { cursor: pointer; accent-color: var(--primary-neon); transform: scale(1.2); }
+        /* Password field styling */
+        .password-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
+        .password-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--primary-neon); font-size: 1.2rem; pointer-events: none; }
+        .input-field.password-field { padding-left: 45px; }
+
+        /* Error message styling */
+        .error-msg { color: var(--error); font-size: 0.85rem; margin-top: 8px; text-align: center; display: none; animation: fadeIn 0.3s; }
+        .error-msg.show { display: block; }
+        .error-msg.glow-error { text-shadow: 0 0 10px rgba(255, 42, 42, 0.6); }
+
+        /* Sign-up link styling */
+        .signup-link { text-align: center; margin-top: 20px; }
+        .signup-link a { color: var(--primary-neon); text-decoration: none; font-size: 0.9rem; transition: 0.3s; border-bottom: 1px solid rgba(0, 242, 255, 0.3); padding-bottom: 2px; }
+        .signup-link a:hover { color: #fff; border-bottom-color: var(--primary-neon); text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
 
         .action-btn { width: 100%; padding: 15px; border: none; border-radius: 50px; background: linear-gradient(90deg, rgba(0,242,255,0.05), rgba(0,242,255,0.15)); border: 1px solid var(--primary-neon); color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 55px; }
         .action-btn:hover:not(:disabled) { background: var(--primary-neon); color: #000; box-shadow: 0 0 40px var(--primary-neon); }
@@ -552,13 +564,19 @@
                     <div class="error-msg" id="helper-text"></div>
                 </div>
 
-                <label class="remember-me">
-                    <input type="checkbox" id="remCheck"> <span id="lblRem">Remember Me</span>
-                </label>
+                <div class="password-wrapper">
+                    <i class="fas fa-lock password-icon"></i>
+                    <input type="password" id="userPassword" class="input-field password-field" placeholder="••••••••" onkeyup="validatePassword()">
+                    <div class="error-msg" id="password-error"></div>
+                </div>
 
                 <button class="action-btn" id="loginBtn" onclick="processLogin()">
-                    <i class="fas fa-fingerprint"></i> <span id="btn-text">INITIALIZE SCAN</span>
+                    <i class="fas fa-sign-in-alt"></i> <span id="btn-text">LOGIN & START</span>
                 </button>
+
+                <div class="signup-link">
+                    <a href="javascript:void(0)" id="signupLink" onclick="goToSignup()">New patient? Create an account</a>
+                </div>
             </div>
 
             <div id="recaptcha-container"></div>
@@ -720,14 +738,36 @@
         window.onload = () => {
             window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
             createBioBackground(); startPreloader(); startClock(); updateTexts(); checkConnection();
-            const saved = localStorage.getItem("saved_phone");
-            if(saved) { iti.setNumber(saved); document.getElementById('remCheck').checked = true; validateLive(); }
             document.addEventListener('click', () => playWelcomeMessage(), { once: true });
         };
 
         function validateLive() {
-            if (iti.isValidNumber()) { phoneInput.classList.add("valid"); phoneInput.classList.remove("invalid"); } 
+            if (iti.isValidNumber()) { phoneInput.classList.add("valid"); phoneInput.classList.remove("invalid"); document.getElementById('helper-text').classList.remove('show'); } 
             else { phoneInput.classList.remove("valid"); if(phoneInput.value.length > 3) phoneInput.classList.add("invalid"); }
+        }
+
+        function validatePassword() {
+            const pwd = document.getElementById('userPassword');
+            const errMsg = document.getElementById('password-error');
+            if(pwd.value.length >= 4) {
+                pwd.classList.add('valid');
+                pwd.classList.remove('invalid');
+                errMsg.classList.remove('show');
+            } else if(pwd.value.length > 0) {
+                pwd.classList.add('invalid');
+                pwd.classList.remove('valid');
+            }
+        }
+
+        function displayErrorMessage(field, message) {
+            const errorEl = field === 'phone' ? document.getElementById('helper-text') : document.getElementById('password-error');
+            errorEl.innerText = message;
+            errorEl.classList.add('show', 'glow-error');
+        }
+
+        function clearErrorMessages() {
+            document.getElementById('helper-text').classList.remove('show', 'glow-error');
+            document.getElementById('password-error').classList.remove('show', 'glow-error');
         }
 
         // --- 4. MAIN LOGIC ---
@@ -735,31 +775,67 @@
         let confirmationResult = null;
 
         function processLogin() {
-            if (!iti.isValidNumber()) { phoneInput.classList.add("shake"); setTimeout(() => phoneInput.classList.remove("shake"), 400); return; }
+            clearErrorMessages();
+            
+            // Validate phone number
+            if (!iti.isValidNumber()) { 
+                phoneInput.classList.add("shake"); 
+                displayErrorMessage('phone', currentLang === 'ar' ? "رقم الهاتف غير صحيح" : "Invalid phone number");
+                setTimeout(() => phoneInput.classList.remove("shake"), 400); 
+                return; 
+            }
+            
+            // Validate password
+            const pwd = document.getElementById('userPassword').value;
+            if(!pwd || pwd.length < 4) {
+                document.getElementById('userPassword').classList.add("shake");
+                displayErrorMessage('password', currentLang === 'ar' ? "أدخل كلمة المرور" : "Enter a password");
+                setTimeout(() => document.getElementById('userPassword').classList.remove("shake"), 400);
+                return;
+            }
+            
             currentFullNumber = iti.getNumber();
-            isTestPhone = !!testPhones[currentFullNumber];
             const loginBtn = document.getElementById("loginBtn");
             loginBtn.disabled = true;
-            loginBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Checking Database...';
+            loginBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> ' + (currentLang === 'ar' ? 'جاري التحقق...' : 'Verifying...');
             
             auth.signInAnonymously().then(() => {
+                // Step A: Check if phone exists
                 database.ref('PatientData/' + currentFullNumber).once('value').then(snapshot => {
-                    if (snapshot.exists()) { completeLogin(currentFullNumber); } 
-                    else { 
+                    if (!snapshot.exists()) {
+                        // Phone not found
                         loginBtn.disabled = false;
-                        loginBtn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan; 
-                        toggleModal('consentModal', true); 
+                        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span id="btn-text">LOGIN & START</span>';
+                        displayErrorMessage('phone', currentLang === 'ar' ? "الحساب غير موجود. يرجى التسجيل أولاً." : "Account not found. Please register first.");
+                        phoneInput.classList.add('invalid');
+                        return;
                     }
+                    
+                    // Step B: Verify password
+                    const patientData = snapshot.val();
+                    const storedPassword = patientData.Password || null;
+                    
+                    if (!storedPassword || pwd !== storedPassword) {
+                        // Password incorrect
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span id="btn-text">LOGIN & START</span>';
+                        displayErrorMessage('password', currentLang === 'ar' ? "كلمة المرور غير صحيحة. حاول مجدداً." : "Incorrect Password. Please try again.");
+                        document.getElementById('userPassword').classList.add('invalid');
+                        return;
+                    }
+                    
+                    // All verified - login successful
+                    completeLogin(currentFullNumber);
                 }).catch(e => {
                     loginBtn.disabled = false;
-                    loginBtn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan;
-                    showToast("Database Error", "error");
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span id="btn-text">LOGIN & START</span>';
+                    showToast(currentLang === 'ar' ? "خطأ في الاتصال بقاعدة البيانات" : "Database Error", "error");
                     console.error(e);
                 });
             }).catch(e => { 
                 loginBtn.disabled = false;
-                loginBtn.innerHTML = '<i class="fas fa-fingerprint"></i> ' + txt[currentLang].btnScan;
-                toggleModal('consentModal', true);
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span id="btn-text">LOGIN & START</span>';
+                showToast(currentLang === 'ar' ? "خطأ في الاتصال" : "Connection Error", "error");
                 console.error(e);
             });
         }
@@ -839,13 +915,17 @@
         }
 
         function completeLogin(number) {
-            if(document.getElementById('remCheck').checked) localStorage.setItem("saved_phone", number);
-            else localStorage.removeItem("saved_phone");
             localStorage.setItem("selectedUserId", number);
+            localStorage.removeItem("saved_phone");
             document.getElementById("login-view").style.display = "none";
             document.getElementById("success-view").style.display = "flex";
             document.getElementById("welcome-user-msg").innerText = number;
             showToast(txt[currentLang].toastLogin, "success");
+        }
+
+        function goToSignup() {
+            // Redirect to registration/signup page (update URL as needed)
+            window.location.href = "admin/login.html";
         }
 
         function toggleConsentBtn() {
@@ -905,7 +985,7 @@
 
         const txt = {
             en: { 
-                uiTitle: "USER LOGIN", ph: "1xxxxxxxxx", btnScan: "INITIALIZE SCAN", success: "Access Granted", toastLogin: "Verified",
+                uiTitle: "USER LOGIN", ph: "1xxxxxxxxx", btnScan: "LOGIN & START", success: "Access Granted", toastLogin: "Access Verified",
                 conTitle: "Terms of Use & Privacy",
                 conBody: `<b>Terms of Use & Data Privacy Agreement</b><br><br><b>1. Medical Guidance Only:</b> This system is intended for informational and guidance purposes only. It is NOT a substitute for professional medical diagnosis or treatment.<br><br><b>2. Emergency Cases:</b> In case of a medical emergency, please contact your local emergency services or go to the nearest hospital immediately. Do not rely on this system for life-critical decisions.<br><br><b>3. Data Security:</b> Your vital signs and personal data are stored securely on our cloud servers (Firebase). By proceeding, you consent to this data processing.<br><br><b>4. AI Analysis:</b> AI-generated insights are based on statistical trends and should be verified by a certified healthcare professional.`,
                 lblAgree: "I have read and agree to the terms.", lblSend: "AGREE & PROCEED",
@@ -916,7 +996,7 @@
                 dashBtnText: "OPEN DASHBOARD"
             },
             ar: { 
-                uiTitle: "تسجيل الدخول", ph: "1xxxxxxxxx", btnScan: "بدء الفحص", success: "تم بنجاح", toastLogin: "تم التحقق",
+                uiTitle: "تسجيل الدخول", ph: "1xxxxxxxxx", btnScan: "دخول وبدء", success: "تم بنجاح", toastLogin: "تم التحقق",
                 conTitle: "شروط الاستخدام والخصوصية",
                 conBody: `<b>شروط الاستخدام واتفاقية خصوصية البيانات</b><br><br><b>1. غرض إرشادي فقط:</b> هذا النظام مخصص للأغراض الاسترشادية والمعلوماتية فقط، ولا يعتبر بديلاً عن التشخيص الطبي المهني أو العلاج.<br><br><b>2. حالات الطوارئ:</b> في حالة وجود طارئ طبي، يرجى الاتصال بخدمات الطوارئ المحلية أو التوجه لأقرب مستشفى فوراً. لا تعتمد على هذا النظام في اتخاذ قرارات مصيرية.<br><br><b>3. خصوصية البيانات:</b> يتم تخزين علاماتك الحيوية وبياناتك الشخصية بشكل آمن على خوادمنا السحابية (Firebase). باستمرارك في الاستخدام، فأنت توافق على معالجة هذه البيانات.<br><br><b>4. التحليل الذكي:</b> التقارير الصادرة عن الذكاء الاصطناعي هي مجرد تحليل للأنماط الإحصائية ويجب مراجعتها من قبل طبيب مختص.`,
                 lblAgree: "أقر بأنني قرأت الشروط وأوافق عليها.", lblSend: "موافق والمتابعة",
@@ -936,7 +1016,6 @@
             document.getElementById("con-body").innerHTML = t.conBody;
             document.getElementById("lblAgree").innerText = t.lblAgree;
             document.getElementById("lblSend").innerText = t.lblSend;
-            document.getElementById("lblRem").innerText = currentLang === 'ar' ? "تذكرني" : "Remember Me";
             
             // Modals Static - with safe checks
             const modalProjName = document.getElementById("modal-project-name");
@@ -971,7 +1050,15 @@
 
         function showToast(m, t) { const c = document.getElementById("toastContainer"); const el = document.createElement("div"); el.className = "toast"; el.style.borderLeftColor = t==='error'?'var(--error)':'var(--success)'; el.innerHTML = `<i class="fas fa-info-circle"></i> ${m}`; c.appendChild(el); setTimeout(()=>el.remove(), 3500); }
         function goToDashboard() { window.location.href = "measurements.html"; }
-        function resetView() { document.getElementById("success-view").style.display = "none"; document.getElementById("login-view").style.display = "block"; }
+        function resetView() { 
+            document.getElementById("success-view").style.display = "none"; 
+            document.getElementById("login-view").style.display = "block";
+            document.getElementById("userId").value = "";
+            document.getElementById("userPassword").value = "";
+            document.getElementById("userId").classList.remove("valid", "invalid");
+            document.getElementById("userPassword").classList.remove("valid", "invalid");
+            clearErrorMessages();
+        }
         function toggleModal(id, show) { const m = document.getElementById(id); if(show) { m.style.display = 'flex'; setTimeout(()=>m.classList.add('active'), 10); } else { m.classList.remove('active'); setTimeout(()=>m.style.display='none', 300); } }
         
         function toggleMute() {
