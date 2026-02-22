@@ -615,15 +615,27 @@
             return;
         }
         
-        // Format timestamp as string
-        const timestamp = new Date().toLocaleString('en-US'); 
+        // Get current date/time
+        const now = new Date();
+        
+        // Format timestamp as readable string
+        const timestamp = now.toLocaleString('en-US'); 
+        
+        // Generate custom ID: YYYY-MM-DD_HH-mm-ss
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const customID = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
         
         // Build SensorData string in exact format: "Temp=XX, HR=YY, BP=120/80, SpO2=ZZ"
         const sensorDataString = `Temp=${currentData.temp}, HR=${currentData.bpm}, BP=${currentData.bp}, SpO2=${currentData.spo2}`;
         
-        // Save to History node with new structure
-        const historyRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId + '/History');
-        historyRef.push({
+        // Save to History node with custom ID using set()
+        const historyRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId + '/History/' + customID);
+        historyRef.set({
             DeviceID: "SHR-ZAGUNI-K-01",
             Timestamp: timestamp,
             SensorData: sensorDataString
