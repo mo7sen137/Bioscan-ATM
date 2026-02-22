@@ -319,7 +319,7 @@
     <div id="recaptcha-container"></div>
 
     <script>
-        // --- 1. FIREBASE CONFIG ---
+        // --- 1. FIREBASE CONFIG & INITIALIZATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
             authDomain: "smart-a76a0.firebaseapp.com",
@@ -328,16 +328,22 @@
             messagingSenderId: "343693501983",
             appId: "1:343693501983:web:10ea3fce9d990a2455172a"
         };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const auth = firebase.auth();
+        
+        // Initialize Firebase App first
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(app);
+        const database = firebase.database(app);
 
         // --- GLOBAL VARIABLES ---
         let currentLang = localStorage.getItem("language") || "en";
         let registrationPhone = "";
         let confirmationResult = null;
 
-        // Firebase Phone Authentication only - no test codes
+        // ⚠️ IMPORTANT: Add your Codespace URL to Firebase Authorized Domains:
+        // 1. Go to: Firebase Console → Authentication → Settings
+        // 2. Scroll to "Authorized Domains"
+        // 3. Add your Codespace URL (e.g., https://xxxxx-5173-xxx.preview.app.github.dev)
+        // Without this, phone authentication will fail even with correct code
 
         // --- 2. INITIALIZATION ---
         function startPreloader() {
@@ -367,9 +373,17 @@
 
         window.onload = () => {
             try {
-                window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' }, auth);
+                // Initialize RecaptchaVerifier with proper auth instance
+                window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 
+                    'size': 'invisible',
+                    'callback': (token) => {
+                        console.log('✓ reCAPTCHA token generated');
+                    }
+                }, auth);
+                console.log('✓ RecaptchaVerifier initialized successfully');
             } catch(e) {
-                console.error('RecaptchaVerifier init error:', e);
+                console.error('❌ RecaptchaVerifier init error:', e);
+                alert('reCAPTCHA initialization failed. Please refresh the page and ensure you are on an Authorized Domain.');
             }
             createBioBackground(); startPreloader(); startClock(); updateTexts(); checkConnection();
         };
@@ -510,7 +524,18 @@
                         sendCodeBtn.disabled = false;
                         sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>' + (currentLang === 'ar' ? 'إرسال الكود' : 'SEND CODE') + '</span>';
                         console.error('Firebase SMS Error:', error);
-                        showToast(currentLang === 'ar' ? "خطأ: " + error.message : "Error: " + error.message, "error");
+                        
+                        // Better error messages
+                        let errorMsg = error.message;
+                        if(error.code === 'auth/operation-not-allowed') {
+                            errorMsg = currentLang === 'ar' ? "تفعيل SMS غير مفعّل في Firebase" : "Phone authentication is not enabled in Firebase";
+                        } else if(error.code === 'auth/invalid-phone-number') {
+                            errorMsg = currentLang === 'ar' ? "رقم هاتف غير صحيح" : "Invalid phone number format";
+                        } else if(error.message.includes('unauthorized-domain')) {
+                            errorMsg = currentLang === 'ar' ? "النطاق غير مصرّح! أضف Codespace URL إلى Firebase Authorized Domains" : "Unauthorized domain! Add this URL to Firebase Authorized Domains";
+                        }
+                        
+                        showToast(currentLang === 'ar' ? "❌ خطأ: " + errorMsg : "❌ Error: " + errorMsg, "error");
                     });
             }).catch(error => {
                 sendCodeBtn.disabled = false;
