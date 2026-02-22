@@ -329,10 +329,23 @@
             appId: "1:343693501983:web:10ea3fce9d990a2455172a"
         };
         
-        // Initialize Firebase App first
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(app);
-        const database = firebase.database(app);
+        // Initialize Firebase App - ensure it's done before any service initialization
+        let app;
+        let auth;
+        let database;
+        
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            console.log('✓ Firebase App initialized');
+        } catch(e) {
+            console.log('ℹ️ Firebase already initialized:', e.message);
+            app = firebase.app();
+        }
+        
+        // Now initialize auth and database with the app instance
+        auth = firebase.auth(app);
+        database = firebase.database(app);
+        console.log('✓ Auth and Database initialized');
 
         // --- GLOBAL VARIABLES ---
         let currentLang = localStorage.getItem("language") || "en";
@@ -372,8 +385,14 @@
         });
 
         window.onload = () => {
+            console.log('=== Window Load Started ===');
+            console.log('Firebase app instance exists:', !!app);
+            console.log('Auth instance exists:', !!auth);
+            console.log('Database instance exists:', !!database);
+            
             // Give DOM time to fully load
             setTimeout(() => {
+                console.log('Initializing Recaptcha...');
                 initializeRecaptcha();
             }, 100);
             
@@ -397,21 +416,42 @@
                 
                 if (!window.recaptchaVerifier) {
                     console.log('Creating RecaptchaVerifier...');
+                    console.log('  - app:', app ? '✓ exists' : '❌ undefined');
+                    console.log('  - auth:', auth ? '✓ exists' : '❌ undefined');
                     
-                    // Initialize RecaptchaVerifier with proper auth instance
-                    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 
-                        'size': 'invisible',
-                        'callback': (token) => {
-                            console.log('✓ reCAPTCHA token generated:', token.substring(0, 20) + '...');
-                        },
-                        'expired-callback': () => {
-                            console.warn('⚠️ reCAPTCHA token expired');
-                            window.recaptchaVerifier.render();
+                    // Try to create RecaptchaVerifier
+                    try {
+                        // Method 1: Pass app explicitly
+                        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 
+                            'size': 'invisible',
+                            'callback': (token) => {
+                                console.log('✓ reCAPTCHA token generated');
+                            },
+                            'expired-callback': () => {
+                                console.warn('⚠️ reCAPTCHA token expired');
+                            }
+                        }, app);  // Pass app, not auth
+                        
+                        console.log('✓ RecaptchaVerifier created successfully with app instance');
+                    } catch(e1) {
+                        console.warn('Method 1 failed, trying without third argument...');
+                        try {
+                            // Method 2: Without third argument (uses default app)
+                            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 
+                                'size': 'invisible',
+                                'callback': (token) => {
+                                    console.log('✓ reCAPTCHA token generated');
+                                },
+                                'expired-callback': () => {
+                                    console.warn('⚠️ reCAPTCHA token expired');
+                                }
+                            });
+                            
+                            console.log('✓ RecaptchaVerifier created successfully without app argument');
+                        } catch(e2) {
+                            throw e1;  // Throw original error
                         }
-                    }, auth);
-                    
-                    console.log('✓ RecaptchaVerifier created:', window.recaptchaVerifier ? 'Success' : 'Failed');
-                    console.log('✓ RecaptchaVerifier initialized successfully');
+                    }
                 }
             } catch(e) {
                 console.error('❌ RecaptchaVerifier init error:', e);
