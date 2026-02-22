@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bioscan ATM | Register</title>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+
+    <style>
+        /* --- 1. THEME & VARIABLES --- */
+        :root {
+            --primary-neon: #00f2ff;
+            --secondary-neon: #7000ff;
+            --bg-dark: #020408;
+            --glass-panel: rgba(5, 12, 22, 0.95);
+            --border-color: rgba(0, 242, 255, 0.4);
+            --text-main: #e0f7fa;
+            --error: #ff2a2a;
+            --success: #00ff88;
+        }
+
+        * { box-sizing: border-box; outline: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative;
+        }
+
+        /* --- 2. PRELOADER STYLES --- */
+        #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
+        .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
+        .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spin 1.5s linear infinite; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
+        .loader-logo { position: absolute; inset: 15px; border-radius: 50%; background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover; animation: pulseLoader 2s infinite ease-in-out; filter: drop-shadow(0 0 10px var(--primary-neon)); }
+        .loader-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
+        .progress-bar { width: 0%; height: 4px; background: var(--primary-neon); box-shadow: 0 0 10px var(--primary-neon); transition: width 0.3s; border-radius: 2px; width: 200px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
+
+        /* --- 3. BACKGROUND ANIMATION --- */
+        #bio-background {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            overflow: hidden; 
+            background: radial-gradient(circle at center, #0f1c2e 0%, #000000 90%);
+        }
+        .bio-symbol {
+            position: absolute; color: var(--primary-neon); opacity: 0;
+            animation: floatOrganic linear infinite; pointer-events: none;
+            filter: blur(1px);
+        }
+        @keyframes floatOrganic {
+            0% { transform: translate(0, 110vh) rotate(0deg) scale(0.5); opacity: 0; }
+            10% { opacity: 0.15; }
+            50% { transform: translate(20px, 50vh) rotate(180deg) scale(1); opacity: 0.25; }
+            90% { opacity: 0.15; }
+            100% { transform: translate(-20px, -10vh) rotate(360deg) scale(0.5); opacity: 0; }
+        }
+
+        /* --- 4. HEADER --- */
+        header {
+            position: absolute; top: 0; width: 100%; padding: 15px 40px;
+            display: flex; justify-content: space-between; align-items: center; z-index: 10;
+            background: linear-gradient(to bottom, rgba(2, 4, 8, 0.95), transparent);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.1);
+        }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .brand { display: flex; align-items: center; gap: 15px; }
+        .brand-logo { width: 45px; height: 45px; border: 2px solid var(--primary-neon); border-radius: 50%; box-shadow: 0 0 15px var(--primary-neon); animation: pulseLogo 3s infinite; }
+        @keyframes pulseLogo { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .brand-text h1 { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin: 0; letter-spacing: 2px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .brand-text p { margin: 0; font-size: 0.7rem; color: var(--primary-neon); opacity: 0.8; letter-spacing: 2px; }
+        .live-clock { display: flex; flex-direction: column; align-items: flex-start; border-left: 2px solid rgba(0, 242, 255, 0.3); padding-left: 15px; font-family: 'Orbitron', sans-serif; }
+        .clock-time { font-size: 1.1rem; font-weight: bold; color: var(--primary-neon); }
+        .clock-date { font-size: 0.7rem; color: #aaa; letter-spacing: 1px; }
+        .controls { display: flex; gap: 15px; align-items: center; }
+        .status-badge { display: flex; align-items: center; gap: 10px; background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.2); padding: 5px 12px; border-radius: 20px; }
+        .status-led { width: 8px; height: 8px; border-radius: 50%; background-color: var(--success); box-shadow: 0 0 10px var(--success); }
+        .status-text { font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: var(--success); font-weight: bold; }
+        .icon-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: var(--primary-neon); width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
+        .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
+        .icon-btn:active { transform: scale(0.95); }
+        select.lang-select { background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon); padding: 5px 12px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer; }
+        select.lang-select option { background: #050b14; }
+
+        /* --- 5. REGISTRATION FORM --- */
+        .main-container { position: relative; z-index: 5; width: 100%; max-width: 520px; padding: 20px; }
+        .hud-card { background: var(--glass-panel); backdrop-filter: blur(25px); border: 1px solid var(--border-color); border-radius: 20px; padding: 45px 35px; text-align: center; position: relative; box-shadow: 0 0 30px rgba(0, 242, 255, 0.15); animation: cardBreath 4s infinite ease-in-out; }
+        @keyframes cardBreath { 0%, 100% { border-color: rgba(0, 242, 255, 0.3); } 50% { border-color: rgba(0, 242, 255, 0.6); } }
+        .card-header h2 { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; margin: 0; text-shadow: 0 0 15px var(--primary-neon); letter-spacing: 2px; }
+        .card-subtitle { font-size: 0.85rem; color: #aaa; margin-top: 8px; letter-spacing: 1px; }
+        .energy-divider { height: 2px; width: 80%; margin: 20px auto 30px; background: radial-gradient(circle, var(--primary-neon) 0%, rgba(0,242,255,0) 90%); box-shadow: 0 0 10px var(--primary-neon); opacity: 0.8; }
+
+        /* ITI Library Styling */
+        .iti { width: 100%; margin-bottom: 15px; }
+        .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 2000; text-align: left; }
+        .iti__country:hover { background-color: rgba(0, 242, 255, 0.1); }
+        .iti__selected-dial-code { color: #fff; font-family: 'Orbitron'; margin-left: 5px; }
+
+        .input-field { width: 100%; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.1); padding: 15px; font-size: 1.1rem; color: #fff; border-radius: 12px; font-family: 'Rajdhani', sans-serif; transition: 0.3s; text-align: center; margin-bottom: 15px; }
+        .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 25px rgba(0, 242, 255, 0.3); }
+        .input-field.valid { border-color: var(--success); box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
+        .input-field.invalid { border-color: var(--error); box-shadow: 0 0 15px rgba(255, 42, 42, 0.3); }
+
+        /* Password field wrapper */
+        .password-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
+        .password-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--primary-neon); font-size: 1.2rem; pointer-events: none; }
+        .input-field.password-field { padding-left: 45px; }
+
+        /* Password strength indicator */
+        .password-strength { height: 4px; background: rgba(255, 42, 42, 0.2); border-radius: 2px; margin: -10px 0 15px 0; overflow: hidden; }
+        .password-strength-bar { height: 100%; width: 0%; background: var(--error); transition: width 0.3s, background-color 0.3s; box-shadow: 0 0 10px rgba(255, 42, 42, 0.5); }
+        .password-strength-bar.medium { background: #ffa500; width: 50%; box-shadow: 0 0 10px rgba(255, 165, 0, 0.5); }
+        .password-strength-bar.strong { background: var(--success); width: 100%; box-shadow: 0 0 10px rgba(0, 255, 136, 0.5); }
+
+        /* Error message styling */
+        .error-msg { color: var(--error); font-size: 0.85rem; margin-top: 8px; text-align: center; display: none; animation: fadeIn 0.3s; }
+        .error-msg.show { display: block; }
+        .error-msg.glow-error { text-shadow: 0 0 10px rgba(255, 42, 42, 0.6); }
+
+        /* Validation checklist */
+        .password-requirements { font-size: 0.75rem; color: #aaa; text-align: left; margin: 10px 0 15px 0; background: rgba(0, 0, 0, 0.3); padding: 10px 12px; border-radius: 8px; border-left: 2px solid var(--primary-neon); }
+        .req-item { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+        .req-icon { width: 14px; font-size: 0.75rem; }
+        .req-text { flex: 1; }
+
+        .action-btn { width: 100%; padding: 15px; border: none; border-radius: 50px; background: linear-gradient(90deg, rgba(0,242,255,0.05), rgba(0,242,255,0.15)); border: 1px solid var(--primary-neon); color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 55px; margin-top: 10px; }
+        .action-btn:hover:not(:disabled) { background: var(--primary-neon); color: #000; box-shadow: 0 0 40px var(--primary-neon); }
+        .action-btn:active:not(:disabled) { transform: scale(0.98); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Login link */
+        .login-link { text-align: center; margin-top: 20px; }
+        .login-link a { color: var(--primary-neon); text-decoration: none; font-size: 0.9rem; transition: 0.3s; border-bottom: 1px solid rgba(0, 242, 255, 0.3); padding-bottom: 2px; }
+        .login-link a:hover { color: #fff; border-bottom-color: var(--primary-neon); text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
+
+        #success-view { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
+        .success-icon { font-size: 3.5rem; color: var(--success); margin-bottom: 15px; animation: popIn 0.5s; }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; padding: 0 20px; }
+
+        /* Modals */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); opacity: 0; transition: 0.3s; overflow-y: auto; }
+        .modal-overlay.active { opacity: 1; display: flex; }
+        .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 750px; padding: 40px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: 0.3s; margin: 20px; }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+        .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; z-index: 10; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+        .close-modal:hover { color: var(--error); transform: rotate(90deg); }
+
+        .toast-container { position: fixed; top: 100px; right: 20px; z-index: 4000; }
+        .toast { background: rgba(5, 11, 20, 0.95); border-left: 4px solid var(--success); padding: 15px 25px; margin-bottom: 10px; border-radius: 5px; color: #fff; animation: slideIn 0.4s ease; display: flex; align-items: center; gap: 10px; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .shake { animation: shake 0.4s; border-color: var(--error) !important; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+        /* --- 6. MOBILE RESPONSIVE --- */
+        @media (max-width: 768px) {
+            header {
+                padding: 10px 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .header-left {
+                gap: 10px;
+                flex: 1;
+            }
+            
+            .brand {
+                gap: 8px;
+            }
+            
+            .brand-logo {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .brand-text h1 {
+                font-size: 0.9rem;
+                letter-spacing: 1px;
+            }
+            
+            .brand-text p {
+                font-size: 0.55rem;
+            }
+            
+            .live-clock {
+                display: none;
+            }
+            
+            .controls {
+                gap: 8px;
+            }
+            
+            .status-badge {
+                padding: 4px 8px;
+                gap: 6px;
+            }
+            
+            .status-led {
+                width: 6px;
+                height: 6px;
+            }
+            
+            .status-text {
+                font-size: 0.65rem;
+            }
+            
+            .icon-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 0.85rem;
+            }
+            
+            .main-container {
+                padding: 15px;
+                max-width: 100%;
+            }
+            
+            .hud-card {
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+            
+            .card-header h2 {
+                font-size: 1.3rem;
+                letter-spacing: 1px;
+            }
+            
+            .energy-divider {
+                margin: 15px auto 25px;
+            }
+            
+            .input-field {
+                font-size: 1rem;
+                padding: 12px;
+                margin-bottom: 10px;
+            }
+            
+            .action-btn {
+                font-size: 0.95rem;
+                padding: 12px;
+                min-height: 48px;
+                letter-spacing: 1px;
+            }
+            
+            .success-icon {
+                font-size: 2.8rem;
+            }
+            
+            .footer {
+                font-size: 0.65rem;
+                bottom: 10px;
+                padding: 0 15px;
+            }
+            
+            .password-requirements {
+                font-size: 0.7rem;
+                padding: 8px 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .brand-text h1 {
+                font-size: 0.8rem;
+            }
+            
+            .brand-text p {
+                display: none;
+            }
+            
+            .card-header h2 {
+                font-size: 1.1rem;
+            }
+            
+            .input-field {
+                font-size: 1rem;
+            }
+            
+            .action-btn {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="preloader">
+        <div class="loader-wrapper">
+            <div class="loader-ring"></div>
+            <div class="loader-logo"></div>
+        </div>
+        <div class="loader-title">BIOSCAN ATM</div>
+        <div class="loader-status" id="loaderStatus">Initializing System...</div>
+        <div class="progress-bar"></div>
+    </div>
+
+    <div id="bio-background"></div>
+
+    <header>
+        <div class="header-left">
+            <div class="brand">
+                <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" class="brand-logo" alt="Logo">
+                <div class="brand-text">
+                    <h1>Bioscan ATM</h1>
+                    <p>REGISTRATION</p>
+                </div>
+            </div>
+            <div class="live-clock">
+                <div class="clock-time" id="clockTime">00:00:00</div>
+                <div class="clock-date" id="clockDate">--/--/----</div>
+            </div>
+        </div>
+        <div class="controls">
+            <div class="status-badge" id="statusBadge"><div class="status-led" id="connectionLed"></div><div class="status-text" id="connectionText">ONLINE</div></div>
+            <button class="icon-btn" id="muteBtn" onclick="toggleMute()" title="Mute/Unmute"><i class="fas fa-volume-up"></i></button>
+            <button class="icon-btn" onclick="toggleModal('aboutModal', true)" title="Info"><i class="fas fa-info"></i></button>
+            <select class="lang-select" id="language_select" onchange="changeLanguage()">
+                <option value="en">EN</option>
+                <option value="ar">AR</option>
+            </select>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="hud-card">
+            <div class="card-header">
+                <h2 id="reg-title">CREATE ACCOUNT</h2>
+                <p class="card-subtitle" id="reg-subtitle">Join the Future of Health Monitoring</p>
+                <div class="energy-divider"></div>
+            </div>
+
+            <div id="register-view">
+                <!-- Full Name Field -->
+                <div class="input-wrapper">
+                    <input type="text" id="fullName" class="input-field" placeholder="Full Name" onkeyup="validateName()">
+                    <div class="error-msg" id="name-error"></div>
+                </div>
+
+                <!-- Phone Number Field -->
+                <div class="input-wrapper">
+                    <input type="tel" id="phoneNumber" class="input-field" placeholder="1xxxxxxxxx" onkeyup="validatePhone()">
+                    <div class="error-msg" id="phone-error"></div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="password-wrapper">
+                    <i class="fas fa-lock password-icon"></i>
+                    <input type="password" id="password" class="input-field password-field" placeholder="••••••••" onkeyup="validatePasswordField()">
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div class="password-requirements">
+                        <div class="req-item">
+                            <span class="req-icon" id="len-icon">◯</span>
+                            <span class="req-text" id="len-text">At least 8 characters</span>
+                        </div>
+                        <div class="req-item">
+                            <span class="req-icon" id="num-icon">◯</span>
+                            <span class="req-text" id="num-text">Contains numbers</span>
+                        </div>
+                        <div class="req-item">
+                            <span class="req-icon" id="letter-icon">◯</span>
+                            <span class="req-text" id="letter-text">Contains letters</span>
+                        </div>
+                    </div>
+                    <div class="error-msg" id="password-error"></div>
+                </div>
+
+                <button class="action-btn" id="registerBtn" onclick="processRegistration()">
+                    <i class="fas fa-user-plus"></i> <span id="btn-text">CREATE ACCOUNT</span>
+                </button>
+
+                <div class="login-link">
+                    <a href="javascript:void(0)" id="loginLink" onclick="goToLogin()">Already have an account? Sign In</a>
+                </div>
+            </div>
+
+            <div id="success-view">
+                <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+                <h3 id="success-title" style="color: var(--success);">Registration Successful!</h3>
+                <p id="success-msg" style="color: #aaa; margin-bottom: 25px;">Your account has been created</p>
+                <button class="action-btn" style="background: var(--success); color: #000; border: none; font-weight: 700; cursor: pointer;" onclick="goToLogin()">
+                    <i class="fas fa-sign-in-alt"></i> <span id="signin-btn-text">GO TO LOGIN</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">Graduation Project 2026 | Zagazig University - Faculty of Engineering</div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal-box">
+            <button class="close-modal" onclick="toggleModal('aboutModal', false)"><i class="fas fa-times"></i></button>
+            <h2 id="modal-project-name" style="color:#fff; margin-top:0; text-align: center;">Bioscan ATM</h2>
+            <div style="text-align: center; margin: 15px 0;">
+                <p id="about-text" style="color: #aaa; font-size: 0.9rem;">Advanced health monitoring system for instant diagnostics</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. FIREBASE CONFIG ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOwMQhsRM2PdD_FLjW_8Oi1WlFS3EO5pY",
+            authDomain: "smart-a76a0.firebaseapp.com",
+            databaseURL: "https://smart-a76a0-default-rtdb.firebaseio.com",
+            projectId: "smart-a76a0",
+            messagingSenderId: "343693501983",
+            appId: "1:343693501983:web:10ea3fce9d990a2455172a"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        // --- GLOBAL VARIABLES ---
+        let welcomePlayed = false;
+        let soundMuted = false;
+        let currentLang = localStorage.getItem("language") || "en";
+
+        // --- 2. PRELOADER JS ---
+        function startPreloader() {
+            const bar = document.querySelector('.progress-bar');
+            let w = 0;
+            const iv = setInterval(() => {
+                w += Math.random() * 15; if(w > 100) w = 100;
+                bar.style.width = w + '%';
+                if(w===100) {
+                    clearInterval(iv);
+                    setTimeout(() => { 
+                        document.getElementById('preloader').style.opacity = '0'; 
+                        setTimeout(() => { 
+                            document.getElementById('preloader').style.display='none'; 
+                            playWelcomeMessage();
+                        }, 800); 
+                    }, 500);
+                }
+            }, 100);
+        }
+
+        // --- 3. INPUT SETUP ---
+        const phoneInput = document.querySelector("#phoneNumber");
+        const iti = window.intlTelInput(phoneInput, {
+            separateDialCode: true,
+            preferredCountries: ["eg", "sa", "ae"],
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
+        });
+
+        window.onload = () => {
+            createBioBackground(); startPreloader(); startClock(); updateTexts(); checkConnection();
+            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
+        };
+
+        // --- 4. VALIDATION FUNCTIONS ---
+        function validateName() {
+            const name = document.getElementById('fullName').value.trim();
+            const field = document.getElementById('fullName');
+            field.classList.remove('valid', 'invalid');
+            
+            if(name.length >= 3) {
+                field.classList.add('valid');
+                document.getElementById('name-error').classList.remove('show');
+            } else if(name.length > 0) {
+                field.classList.add('invalid');
+            }
+        }
+
+        function validatePhone() {
+            if (iti.isValidNumber()) { 
+                phoneInput.classList.add("valid"); 
+                phoneInput.classList.remove("invalid"); 
+                document.getElementById('phone-error').classList.remove('show'); 
+            } else { 
+                phoneInput.classList.remove("valid"); 
+                if(phoneInput.value.length > 3) phoneInput.classList.add("invalid"); 
+            }
+        }
+
+        function validatePasswordField() {
+            const pwd = document.getElementById('password').value;
+            const field = document.getElementById('password');
+            const strengthBar = document.getElementById('strengthBar');
+            
+            field.classList.remove('valid', 'invalid');
+            strengthBar.className = 'password-strength-bar';
+            
+            const hasLength = pwd.length >= 8;
+            const hasNumbers = /\d/.test(pwd);
+            const hasLetters = /[a-zA-Z]/.test(pwd);
+            
+            // Update requirement indicators
+            updateReqIcon('len-icon', hasLength);
+            updateReqIcon('num-icon', hasNumbers);
+            updateReqIcon('letter-icon', hasLetters);
+            
+            // Update strength bar
+            let strength = 0;
+            if(hasLength) strength++;
+            if(hasNumbers) strength++;
+            if(hasLetters) strength++;
+            
+            if(pwd.length === 0) {
+                strengthBar.style.width = '0%';
+            } else if(strength === 3) {
+                strengthBar.classList.add('strong');
+                field.classList.add('valid');
+            } else if(strength >= 2) {
+                strengthBar.classList.add('medium');
+                field.classList.add('valid');
+            } else {
+                field.classList.add('invalid');
+            }
+        }
+
+        function updateReqIcon(iconId, met) {
+            const icon = document.getElementById(iconId);
+            if(met) {
+                icon.textContent = '✓';
+                icon.style.color = 'var(--success)';
+            } else {
+                icon.textContent = '◯';
+                icon.style.color = '#aaa';
+            }
+        }
+
+        function clearErrorMessages() {
+            document.getElementById('name-error').classList.remove('show');
+            document.getElementById('phone-error').classList.remove('show');
+            document.getElementById('password-error').classList.remove('show');
+        }
+
+        function displayErrorMessage(field, message) {
+            const errorIds = {
+                'name': 'name-error',
+                'phone': 'phone-error',
+                'password': 'password-error'
+            };
+            const errorEl = document.getElementById(errorIds[field]);
+            if(errorEl) {
+                errorEl.innerText = message;
+                errorEl.classList.add('show', 'glow-error');
+            }
+        }
+
+        // --- 5. REGISTRATION LOGIC ---
+        function processRegistration() {
+            clearErrorMessages();
+            
+            // Validate Full Name
+            const fullName = document.getElementById('fullName').value.trim();
+            if(fullName.length < 3) {
+                document.getElementById('fullName').classList.add('shake');
+                displayErrorMessage('name', currentLang === 'ar' ? "أدخل اسماً صحيحاً" : "Enter a valid name");
+                setTimeout(() => document.getElementById('fullName').classList.remove('shake'), 400);
+                return;
+            }
+            
+            // Validate Phone
+            if(!iti.isValidNumber()) {
+                phoneInput.classList.add('shake');
+                displayErrorMessage('phone', currentLang === 'ar' ? "رقم هاتف غير صحيح" : "Invalid phone number");
+                setTimeout(() => phoneInput.classList.remove('shake'), 400);
+                return;
+            }
+            
+            // Validate Password
+            const pwd = document.getElementById('password').value;
+            const hasLength = pwd.length >= 8;
+            const hasNumbers = /\d/.test(pwd);
+            const hasLetters = /[a-zA-Z]/.test(pwd);
+            
+            if(!hasLength || !hasNumbers || !hasLetters) {
+                document.getElementById('password').classList.add('shake');
+                displayErrorMessage('password', currentLang === 'ar' ? "كلمة المرور ضعيفة" : "Password too weak");
+                setTimeout(() => document.getElementById('password').classList.remove('shake'), 400);
+                return;
+            }
+            
+            const phoneNumber = iti.getNumber();
+            const registerBtn = document.getElementById('registerBtn');
+            registerBtn.disabled = true;
+            registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (currentLang === 'ar' ? 'جاري التسجيل...' : 'Registering...');
+            
+            // Step 1: Create Auth User with email {phone}@bioscan.com
+            const virtualEmail = phoneNumber.substring(1) + "@bioscan.com";
+            
+            auth.createUserWithEmailAndPassword(virtualEmail, pwd)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const uid = user.uid;
+                    
+                    // Step 2: Save to Realtime Database
+                    const registrationDate = new Date().toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US');
+                    
+                    database.ref('PatientData/' + phoneNumber).set({
+                        FullName: fullName,
+                        RegistrationDate: registrationDate,
+                        UID: uid,
+                        Phone: phoneNumber,
+                        Password: pwd
+                    }).then(() => {
+                        // Success
+                        showToast(currentLang === 'ar' ? "تم التسجيل بنجاح" : "Registration successful", "success");
+                        completeRegistration();
+                    }).catch((error) => {
+                        registerBtn.disabled = false;
+                        registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="btn-text">' + txt[currentLang].btnRegister + '</span>';
+                        showToast(currentLang === 'ar' ? "خطأ في حفظ البيانات" : "Database error", "error");
+                        console.error(error);
+                    });
+                })
+                .catch((error) => {
+                    registerBtn.disabled = false;
+                    registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="btn-text">' + txt[currentLang].btnRegister + '</span>';
+                    
+                    if(error.code === 'auth/email-already-in-use') {
+                        displayErrorMessage('phone', currentLang === 'ar' ? "الحساب مسجل بالفعل" : "Account already registered");
+                        phoneInput.classList.add('invalid');
+                    } else {
+                        showToast(currentLang === 'ar' ? "خطأ في التسجيل" : "Registration error", "error");
+                    }
+                    console.error(error);
+                });
+        }
+
+        function completeRegistration() {
+            document.getElementById("register-view").style.display = "none";
+            document.getElementById("success-view").style.display = "flex";
+            
+            setTimeout(() => {
+                goToLogin();
+            }, 3000);
+        }
+
+        function goToLogin() {
+            window.location.href = "index.html";
+        }
+
+        // --- 6. UI CORE ---
+        function playWelcomeMessage() {
+            if (welcomePlayed || soundMuted) return;
+            if ('speechSynthesis' in window) {
+                const enMsg = new SpeechSynthesisUtterance("Welcome to Bioscan ATM. Create your account to get started.");
+                enMsg.lang = 'en-US'; enMsg.rate = 0.9;
+                const arMsg = new SpeechSynthesisUtterance("مرحباً بكم في بايوسكان. أنشئ حسابك للبدء.");
+                arMsg.lang = 'ar-SA'; arMsg.rate = 0.85;
+                window.speechSynthesis.speak(enMsg); window.speechSynthesis.speak(arMsg);
+                welcomePlayed = true;
+            }
+        }
+
+        function createBioBackground() {
+            const container = document.getElementById('bio-background');
+            const icons = ['fa-dna', 'fa-heartbeat', 'fa-notes-medical', 'fa-pills', 'fa-virus', 'fa-microscope', 'fa-user-md', 'fa-syringe', 'fa-lungs', 'fa-brain'];
+            for (let i = 0; i < 35; i++) {
+                const el = document.createElement('i');
+                el.classList.add('fas', icons[Math.floor(Math.random() * icons.length)], 'bio-symbol');
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.fontSize = (Math.random() * 2 + 0.5) + 'rem';
+                el.style.animationDuration = (Math.random() * 20 + 15) + 's';
+                el.style.animationDelay = (Math.random() * 10) + 's';
+                container.appendChild(el);
+            }
+        }
+
+        function startClock() {
+            setInterval(() => {
+                const now = new Date(); 
+                const loc = currentLang === 'ar' ? 'ar-EG' : 'en-US';
+                document.getElementById('clockTime').innerText = now.toLocaleTimeString(loc, {hour12: false});
+                document.getElementById('clockDate').innerText = now.toLocaleDateString(loc, {weekday:'short', day:'numeric', month:'short'});
+            }, 1000);
+        }
+
+        function checkConnection() {
+            setInterval(async () => {
+                const badge = document.getElementById('statusBadge');
+                try {
+                    await fetch("https://www.google.com/favicon.ico?" + new Date().getTime(), { mode: "no-cors" });
+                    badge.classList.remove('offline');
+                } catch (e) { badge.classList.add('offline'); }
+            }, 3000);
+        }
+
+        function changeLanguage() { 
+            currentLang = document.getElementById("language_select").value; 
+            localStorage.setItem("language", currentLang); 
+            updateTexts(); 
+            document.body.style.direction = currentLang === 'ar' ? 'rtl' : 'ltr';
+        }
+
+        const txt = {
+            en: { 
+                regTitle: "CREATE ACCOUNT",
+                regSubtitle: "Join the Future of Health Monitoring",
+                fullNamePlaceholder: "Full Name",
+                phonePlaceholder: "1xxxxxxxxx",
+                passwordPlaceholder: "••••••••",
+                btnRegister: "CREATE ACCOUNT",
+                alreadyHaveAccount: "Already have an account? Sign In",
+                successTitle: "Registration Successful!",
+                successMsg: "Your account has been created",
+                signinText: "GO TO LOGIN",
+                aboutTitle: "Bioscan ATM",
+                aboutText: "Advanced health monitoring system for instant diagnostics"
+            },
+            ar: { 
+                regTitle: "إنشاء حساب",
+                regSubtitle: "انضم إلى مستقبل مراقبة الصحة",
+                fullNamePlaceholder: "الاسم الكامل",
+                phonePlaceholder: "1xxxxxxxxx",
+                passwordPlaceholder: "••••••••",
+                btnRegister: "إنشاء حساب",
+                alreadyHaveAccount: "هل لديك حساب بالفعل؟ تسجيل الدخول",
+                successTitle: "تم التسجيل بنجاح!",
+                successMsg: "تم إنشاء حسابك",
+                signinText: "انتقل إلى تسجيل الدخول",
+                aboutTitle: "بايوسكان ATM",
+                aboutText: "نظام مراقبة صحية متقدم للتشخيص الفوري"
+            }
+        };
+
+        function updateTexts() {
+            const t = txt[currentLang]; 
+            document.body.style.direction = currentLang === 'ar' ? 'rtl' : 'ltr';
+            
+            document.getElementById("reg-title").innerText = t.regTitle;
+            document.getElementById("reg-subtitle").innerText = t.regSubtitle;
+            document.getElementById("fullName").placeholder = t.fullNamePlaceholder;
+            document.getElementById("phoneNumber").placeholder = t.phonePlaceholder;
+            document.getElementById("password").placeholder = t.passwordPlaceholder;
+            document.getElementById("btn-text").innerText = t.btnRegister;
+            document.getElementById("loginLink").innerText = t.alreadyHaveAccount;
+            document.getElementById("success-title").innerText = t.successTitle;
+            document.getElementById("success-msg").innerText = t.successMsg;
+            document.getElementById("signin-btn-text").innerText = t.signinText;
+            document.getElementById("modal-project-name").innerText = t.aboutTitle;
+            document.getElementById("about-text").innerText = t.aboutText;
+        }
+
+        function showToast(m, t) { 
+            const c = document.getElementById("toastContainer"); 
+            const el = document.createElement("div"); 
+            el.className = "toast"; 
+            el.style.borderLeftColor = t==='error'?'var(--error)':'var(--success)'; 
+            el.innerHTML = `<i class="fas fa-info-circle"></i> ${m}`; 
+            c.appendChild(el); 
+            setTimeout(()=>el.remove(), 3500); 
+        }
+
+        function toggleModal(id, show) { 
+            const m = document.getElementById(id); 
+            if(show) { 
+                m.style.display = 'flex'; 
+                setTimeout(()=>m.classList.add('active'), 10); 
+            } else { 
+                m.classList.remove('active'); 
+                setTimeout(()=>m.style.display='none', 300); 
+            } 
+        }
+
+        function toggleMute() {
+            soundMuted = !soundMuted;
+            const muteBtn = document.getElementById('muteBtn');
+            if (soundMuted) {
+                muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                window.speechSynthesis.cancel();
+            } else {
+                muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            }
+        }
+    </script>
+</body>
+
+</html>
