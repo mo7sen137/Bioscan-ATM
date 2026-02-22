@@ -142,6 +142,7 @@
         tr:hover { background: rgba(0, 242, 255, 0.05); }
         
         .col-date { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: #fff; font-weight: bold; opacity: 0.9; }
+        .col-device { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #888; font-weight: normal; }
         .col-temp { color: var(--c-temp); font-weight: bold; }
         .col-pulse { color: var(--c-pulse); font-weight: bold; }
         .col-bp { color: var(--c-bp); font-weight: bold; }
@@ -342,6 +343,7 @@
                 <thead>
                     <tr>
                         <th id="thDate">Date / Time</th>
+                        <th id="thDevice">Device ID</th>
                         <th id="thTemp">Temp (°C)</th>
                         <th id="thPulse">Pulse (BPM)</th>
                         <th id="thOx">Oxygen (%)</th>
@@ -350,7 +352,7 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <tr><td colspan="6" class="empty-msg"><i class="fas fa-circle-notch fa-spin"></i> Loading...</td></tr>
+                    <tr><td colspan="7" class="empty-msg"><i class="fas fa-circle-notch fa-spin"></i> Loading...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -378,6 +380,7 @@
             <thead>
                 <tr>
                     <th id="prDate">Date / Time</th>
+                    <th id="prDevice">Device ID</th>
                     <th id="prTemp">Temperature</th>
                     <th id="prPulse">Pulse Rate</th>
                     <th id="prOx">Oxygen (SpO2)</th>
@@ -569,13 +572,13 @@
 
             const txt = {
                 en: {
-                    title: "MEDICAL LOGS", date: "Date / Time", temp: "Temp (°C)", pulse: "Pulse (BPM)", ox: "Oxygen (%)", bp: "Pressure", act: "Action",
+                    title: "MEDICAL LOGS", date: "Date / Time", device: "Device ID", temp: "Temp (°C)", pulse: "Pulse (BPM)", ox: "Oxygen (%)", bp: "Pressure", act: "Action",
                     chartT: "HEALTH ANALYTICS", lTemp: "Temperature", lPulse: "Pulse Rate", lOx: "Oxygen", lSys: "Systolic BP", lDia: "Diastolic BP", lZoom: "Reset Zoom",
                     attach: "ATTACH TO REPORT", delT: "DELETE RECORD?", delM: "This action is permanent.", cancel: "CANCEL", conf: "CONFIRM",
                     sucT: "The chart has been added to the report."
                 },
                 ar: {
-                    title: "سجل البيانات", date: "الوقت والتاريخ", temp: "الحرارة (°C)", pulse: "النبض (BPM)", ox: "الأكسجين (%)", bp: "الضغط", act: "إجراء",
+                    title: "سجل البيانات", date: "الوقت والتاريخ", device: "رقم الجهاز", temp: "الحرارة (°C)", pulse: "النبض (BPM)", ox: "الأكسجين (%)", bp: "الضغط", act: "إجراء",
                     chartT: "التحليل البياني", lTemp: "درجة الحرارة", lPulse: "نبض القلب", lOx: "نسبة الأكسجين", lSys: "ضغط انقباضي", lDia: "ضغط انبساطي", lZoom: "إعادة الزوم",
                     attach: "إرفاق مع التقرير", delT: "حذف السجل؟", delM: "لا يمكن التراجع عن الحذف.", cancel: "إلغاء", conf: "تأكيد",
                     sucT: "تم إرفاق الرسم البياني مع التقرير."
@@ -586,6 +589,7 @@
             // Apply translations
             document.getElementById('uiTitle').innerText = t.title;
             ['thDate','prDate'].forEach(id=>document.getElementById(id).innerText=t.date);
+            ['thDevice','prDevice'].forEach(id=>document.getElementById(id).innerText=t.device);
             ['thTemp','prTemp'].forEach(id=>document.getElementById(id).innerText=t.temp);
             ['thPulse','prPulse'].forEach(id=>document.getElementById(id).innerText=t.pulse);
             ['thOx','prOx'].forEach(id=>document.getElementById(id).innerText=t.ox);
@@ -660,7 +664,7 @@
             allRecords = [];
 
             if (!snapshot.exists()) {
-                tableBody.innerHTML = `<tr><td colspan="6" class="empty-msg">No history records found.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="7" class="empty-msg">No history records found.</td></tr>`;
                 return;
             }
 
@@ -694,6 +698,7 @@
                 const row = `
                     <tr>
                         <td class="col-date">${displayDate}</td>
+                        <td class="col-device">${record.deviceId || '--'}</td>
                         <td class="col-temp">${record.temperature || '--'}</td>
                         <td class="col-pulse">${record.bpm || '--'}</td>
                         <td class="col-ox">${record.spo2 || '--'}</td>
@@ -708,6 +713,7 @@
                 const printRow = `
                     <tr>
                         <td>${displayDate}</td>
+                        <td>${record.deviceId || '--'}</td>
                         <td>${record.temperature || '--'}</td>
                         <td>${record.bpm || '--'}</td>
                         <td>${record.spo2 || '--'}</td>
