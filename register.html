@@ -335,13 +335,9 @@
         // --- GLOBAL VARIABLES ---
         let currentLang = localStorage.getItem("language") || "en";
         let registrationPhone = "";
-        let verificationCode = "";
         let confirmationResult = null;
 
-        // Test phone numbers (for development)
-        const testPhones = {
-            // '+201234567890': '123456',
-        };
+        // Firebase Phone Authentication only - no test codes
 
         // --- 2. INITIALIZATION ---
         function startPreloader() {
@@ -495,45 +491,27 @@
                     return;
                 }
                 
-                // Phone doesn't exist, proceed with 2FA
-                // Check if test phone
-                const isTestPhone = !!testPhones[registrationPhone];
-                
-                if(isTestPhone) {
-                    // For test phones, use predefined code (NO Firebase needed)
-                    verificationCode = testPhones[registrationPhone];
-                    console.log('✓ Test Code: ' + verificationCode);
-                    showToast(currentLang === 'ar' ? "تم إرسال الكود برسالة نصية" : "Code sent via SMS", "success");
-                    sendCodeBtn.disabled = false;
-                    sendCodeBtn.innerHTML = '<i class="fas fa-check"></i> <span>' + (currentLang === 'ar' ? 'تحقق' : 'VERIFY') + '</span>';
-                    sendCodeBtn.onclick = verifyCode;
-                    otpSection.style.display = 'block';
-                    // Clear previous OTP values
-                    document.querySelectorAll('.otp-digit').forEach(input => input.value = '');
-                    document.querySelectorAll('.otp-digit')[0].focus();
-                } else {
-                    // Real Firebase Phone Auth
-                    console.log('Sending real SMS to:', registrationPhone);
-                    auth.signInWithPhoneNumber(registrationPhone, window.recaptchaVerifier)
-                        .then(result => {
-                            confirmationResult = result;
-                            console.log('✓ SMS sent successfully');
-                            showToast(currentLang === 'ar' ? "تم إرسال الكود برسالة نصية" : "Code sent via SMS", "success");
-                            sendCodeBtn.disabled = false;
-                            sendCodeBtn.innerHTML = '<i class="fas fa-check"></i> <span>' + (currentLang === 'ar' ? 'تحقق' : 'VERIFY') + '</span>';
-                            sendCodeBtn.onclick = verifyCode;
-                            otpSection.style.display = 'block';
-                            // Clear previous OTP values
-                            document.querySelectorAll('.otp-digit').forEach(input => input.value = '');
-                            document.querySelectorAll('.otp-digit')[0].focus();
-                        })
-                        .catch(error => {
-                            sendCodeBtn.disabled = false;
-                            sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>' + (currentLang === 'ar' ? 'إرسال الكود' : 'SEND CODE') + '</span>';
-                            console.error('SMS Error:', error);
-                            showToast(currentLang === 'ar' ? "خطأ: " + error.message : "Error: " + error.message, "error");
-                        });
-                }
+                // Send SMS via Firebase Phone Auth
+                console.log('Sending SMS to:', registrationPhone);
+                auth.signInWithPhoneNumber(registrationPhone, window.recaptchaVerifier)
+                    .then(result => {
+                        confirmationResult = result;
+                        console.log('✓ SMS sent successfully to:', registrationPhone);
+                        showToast(currentLang === 'ar' ? "✓ تم إرسال الكود برسالة نصية" : "✓ Code sent via SMS", "success");
+                        sendCodeBtn.disabled = false;
+                        sendCodeBtn.innerHTML = '<i class="fas fa-check"></i> <span>' + (currentLang === 'ar' ? 'تحقق' : 'VERIFY') + '</span>';
+                        sendCodeBtn.onclick = verifyCode;
+                        otpSection.style.display = 'block';
+                        // Clear previous OTP values
+                        document.querySelectorAll('.otp-digit').forEach(input => input.value = '');
+                        document.querySelectorAll('.otp-digit')[0].focus();
+                    })
+                    .catch(error => {
+                        sendCodeBtn.disabled = false;
+                        sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>' + (currentLang === 'ar' ? 'إرسال الكود' : 'SEND CODE') + '</span>';
+                        console.error('Firebase SMS Error:', error);
+                        showToast(currentLang === 'ar' ? "خطأ: " + error.message : "Error: " + error.message, "error");
+                    });
             }).catch(error => {
                 sendCodeBtn.disabled = false;
                 sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>' + (currentLang === 'ar' ? 'إرسال الكود' : 'SEND CODE') + '</span>';
@@ -559,58 +537,31 @@
             verifyBtn.disabled = true;
             verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (currentLang === 'ar' ? 'جاري التحقق...' : 'Verifying...');
             
-            const isTestPhone = !!testPhones[registrationPhone];
-            
-            if(isTestPhone) {
-                // Test phone verification (local)
-                if(code === verificationCode) {
-                    console.log('✓ Code verified successfully');
+            // Verify with Firebase
+            console.log('Verifying code with Firebase...');
+            confirmationResult.confirm(code)
+                .then((result) => {
+                    console.log('✓ Phone verified successfully');
                     verifyBtn.disabled = false;
                     verifyBtn.innerHTML = '<i class="fas fa-check"></i> <span>' + (currentLang === 'ar' ? 'تحقق' : 'VERIFY') + '</span>';
-                    showToast(currentLang === 'ar' ? "تم التحقق بنجاح ✓" : "Verified successfully ✓", "success");
+                    showToast(currentLang === 'ar' ? "✓ تم التحقق بنجاح" : "✓ Verified successfully", "success");
                     // Clear error messages
                     document.getElementById('otp-error').classList.remove('show');
-                    // Reset OTP fields
+                    // Reset OTP fields and move to step 2
                     setTimeout(() => {
                         document.getElementById('phone-error').classList.remove('show');
                         digits.forEach(d => d.value = '');
                         moveToStep(2);
                     }, 500);
-                } else {
+                })
+                .catch(error => {
                     verifyBtn.disabled = false;
                     verifyBtn.innerHTML = '<i class="fas fa-check"></i> <span>' + (currentLang === 'ar' ? 'تحقق' : 'VERIFY') + '</span>';
                     digits.forEach(d => d.classList.add('invalid'));
+                    console.error('Firebase verification error:', error);
                     showError('otp', currentLang === 'ar' ? "رمز غير صحيح" : "Invalid code");
-                    console.log('✗ Wrong code. Expected:', verificationCode, 'Got:', code);
                     setTimeout(() => digits.forEach(d => d.classList.remove('invalid')), 400);
-                }
-            } else {
-                // Real Firebase verification
-                console.log('Verifying with Firebase...');
-                confirmationResult.confirm(code)
-                    .then((result) => {
-                        console.log('✓ Firebase phone auth successful');
-                        verifyBtn.disabled = false;
-                        verifyBtn.innerHTML = '<i class="fas fa-check"></i> <span>' + (currentLang === 'ar' ? 'تحقق' : 'VERIFY') + '</span>';
-                        showToast(currentLang === 'ar' ? "تم التحقق بنجاح ✓" : "Verified successfully ✓", "success");
-                        // Clear error messages
-                        document.getElementById('otp-error').classList.remove('show');
-                        // Reset OTP fields
-                        setTimeout(() => {
-                            document.getElementById('phone-error').classList.remove('show');
-                            digits.forEach(d => d.value = '');
-                            moveToStep(2);
-                        }, 500);
-                    })
-                    .catch(error => {
-                        verifyBtn.disabled = false;
-                        verifyBtn.innerHTML = '<i class="fas fa-check"></i> <span>' + (currentLang === 'ar' ? 'تحقق' : 'VERIFY') + '</span>';
-                        digits.forEach(d => d.classList.add('invalid'));
-                        console.error('Firebase verification error:', error);
-                        showError('otp', currentLang === 'ar' ? "رمز غير صحيح" : "Invalid code");
-                        setTimeout(() => digits.forEach(d => d.classList.remove('invalid')), 400);
-                    });
-            }
+                });
         }
 
         function createAccount() {
