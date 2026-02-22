@@ -614,41 +614,6 @@
         let allRecords = [];
         let recordToDelete = null;
 
-        // Helper function to parse SensorData string
-        function parseSensorData(sensorDataString) {
-            const parsed = {
-                temperature: '--',
-                bpm: '--',
-                spo2: '--',
-                pressure: '--'
-            };
-
-            if (!sensorDataString || typeof sensorDataString !== 'string') {
-                return parsed;
-            }
-
-            try {
-                // Parse format: "Temp=35, HR=60, BP=130/80, SpO2=98"
-                const parts = sensorDataString.split(',').map(p => p.trim());
-                
-                parts.forEach(part => {
-                    if (part.startsWith('Temp=')) {
-                        parsed.temperature = part.split('=')[1].trim();
-                    } else if (part.startsWith('HR=')) {
-                        parsed.bpm = part.split('=')[1].trim();
-                    } else if (part.startsWith('BP=')) {
-                        parsed.pressure = part.split('=')[1].trim();
-                    } else if (part.startsWith('SpO2=')) {
-                        parsed.spo2 = part.split('=')[1].trim();
-                    }
-                });
-            } catch (error) {
-                console.error('Error parsing SensorData:', error);
-            }
-
-            return parsed;
-        }
-
         const historyRef = db.ref('PatientData/' + currentUserId + '/History');
         
         historyRef.on('value', (snapshot) => {
@@ -664,31 +629,20 @@
             }
 
             snapshot.forEach(child => {
-                const rawData = child.val();
-                
-                // Parse SensorData string to extract individual values
-                const parsedData = parseSensorData(rawData.SensorData);
-                
-                // Merge with raw data, using parsed values
-                allRecords.push({ 
-                    key: child.key, 
-                    timestamp: rawData.Timestamp,
-                    deviceId: rawData.DeviceID,
-                    temperature: parsedData.temperature,
-                    bpm: parsedData.bpm,
-                    spo2: parsedData.spo2,
-                    pressure: parsedData.pressure
-                });
+                allRecords.push({ key: child.key, ...child.val() });
             });
 
             allRecords.sort((a, b) => {
-                const timeA = new Date(a.timestamp || 0).getTime();
-                const timeB = new Date(b.timestamp || 0).getTime();
+                const timeA = new Date(a.timestamp || a.createdAt).getTime();
+                const timeB = new Date(b.timestamp || b.createdAt).getTime();
                 return timeB - timeA; 
             });
 
             allRecords.forEach(record => {
-                let displayDate = record.timestamp || '--';
+                let displayDate = record.timestamp || record.createdAt;
+                if (!isNaN(displayDate) && displayDate.toString().length > 10) {
+                    displayDate = new Date(parseInt(displayDate)).toLocaleString();
+                }
 
                 const row = `
                     <tr>
@@ -750,13 +704,8 @@
 
             const chartData = [...allRecords].reverse(); 
             const labels = chartData.map(r => {
-                // Parse timestamp string format "2/13/2026, 9:23:56 PM"
-                try {
-                    const d = new Date(r.timestamp);
-                    return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                } catch {
-                    return r.timestamp || '--';
-                }
+                const d = new Date(r.timestamp || r.createdAt);
+                return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             });
 
             const temps = chartData.map(r => parseFloat(r.temperature) || 0);
@@ -766,7 +715,7 @@
             const dia = [];
 
             chartData.forEach(r => {
-                if(r.pressure && typeof r.pressure === 'string' && r.pressure.includes('/')) {
+                if(r.pressure && r.pressure.includes('/')) {
                     const parts = r.pressure.split('/');
                     sys.push(parseInt(parts[0]));
                     dia.push(parseInt(parts[1]));
