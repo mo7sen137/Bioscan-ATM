@@ -93,7 +93,6 @@
         .status-text { font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: var(--success); font-weight: bold; }
         .icon-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: var(--primary-neon); width: 38px; height: 38px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
         .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
-        .icon-btn:active { transform: scale(0.95); }
         select.lang-select { background: rgba(0,0,0,0.6); color: #fff; border: 1px solid var(--primary-neon); padding: 5px 12px; border-radius: 20px; font-family: 'Rajdhani', sans-serif; cursor: pointer; }
         select.lang-select option { background: #050b14; }
 
@@ -105,48 +104,49 @@
         .card-subtitle { font-size: 0.85rem; color: #aaa; margin-top: 8px; letter-spacing: 1px; }
         .energy-divider { height: 2px; width: 80%; margin: 20px auto 30px; background: radial-gradient(circle, var(--primary-neon) 0%, rgba(0,242,255,0) 90%); box-shadow: 0 0 10px var(--primary-neon); opacity: 0.8; }
 
-        /* Step Indicator */
-        .step-indicator { font-size: 0.8rem; color: var(--primary-neon); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-
         /* ITI Library Styling */
         .iti { width: 100%; margin-bottom: 15px; }
         .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 2000; text-align: left; }
         .iti__country:hover { background-color: rgba(0, 242, 255, 0.1); }
-        .iti__selected-dial-code { color: #fff; font-family: 'Orbitron'; margin-left: 5px; }
 
         .input-field { width: 100%; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.1); padding: 15px; font-size: 1.1rem; color: #fff; border-radius: 12px; font-family: 'Rajdhani', sans-serif; transition: 0.3s; text-align: center; margin-bottom: 15px; }
         .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 25px rgba(0, 242, 255, 0.3); }
         .input-field.valid { border-color: var(--success); box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
         .input-field.invalid { border-color: var(--error); box-shadow: 0 0 15px rgba(255, 42, 42, 0.3); }
+        .input-field:disabled { color: #aaa; cursor: not-allowed; }
 
-        /* Password field wrapper */
+        /* OTP Input */
+        .otp-input-container { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .otp-digit { width: 50px; height: 60px; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: #fff; font-size: 1.5rem; font-weight: bold; text-align: center; transition: 0.3s; font-family: 'Orbitron', sans-serif; }
+        .otp-digit:focus { border-color: var(--primary-neon); box-shadow: 0 0 25px rgba(0, 242, 255, 0.3); }
+        .otp-digit.invalid { border-color: var(--error); box-shadow: 0 0 15px rgba(255, 42, 42, 0.3); }
+
+        /* Password Toggle */
         .password-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
         .password-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--primary-neon); font-size: 1.2rem; pointer-events: none; }
-        .input-field.password-field { padding-left: 45px; }
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--primary-neon); cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
+        .toggle-password:hover { color: #fff; }
+        .input-field.password-field { padding-left: 45px; padding-right: 45px; }
 
-        /* Password strength indicator */
-        .password-strength { height: 4px; background: rgba(255, 42, 42, 0.2); border-radius: 2px; margin: -10px 0 15px 0; overflow: hidden; }
-        .password-strength-bar { height: 100%; width: 0%; background: var(--error); transition: width 0.3s, background-color 0.3s; box-shadow: 0 0 10px rgba(255, 42, 42, 0.5); }
-        .password-strength-bar.medium { background: #ffa500; width: 50%; box-shadow: 0 0 10px rgba(255, 165, 0, 0.5); }
-        .password-strength-bar.strong { background: var(--success); width: 100%; box-shadow: 0 0 10px rgba(0, 255, 136, 0.5); }
+        /* Security Standards */
+        .security-standards { font-size: 0.75rem; color: #aaa; text-align: left; margin: -10px 0 15px 0; background: rgba(0, 0, 0, 0.3); padding: 10px 12px; border-radius: 8px; border-left: 2px solid var(--secondary-neon); line-height: 1.5; }
 
-        /* Error message styling */
-        .error-msg { color: var(--error); font-size: 0.85rem; margin-top: 8px; text-align: center; display: none; animation: fadeIn 0.3s; }
+        /* Error Message */
+        .error-msg { color: var(--error); font-size: 0.85rem; margin: -10px 0 15px 0; text-align: center; display: none; text-shadow: 0 0 10px rgba(255, 42, 42, 0.6); }
         .error-msg.show { display: block; }
-        .error-msg.glow-error { text-shadow: 0 0 10px rgba(255, 42, 42, 0.6); }
 
-        /* Validation checklist */
-        .password-requirements { font-size: 0.75rem; color: #aaa; text-align: left; margin: 10px 0 15px 0; background: rgba(0, 0, 0, 0.3); padding: 10px 12px; border-radius: 8px; border-left: 2px solid var(--primary-neon); }
-        .req-item { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
-        .req-icon { width: 14px; font-size: 0.75rem; }
-        .req-text { flex: 1; }
+        /* Step Indicator */
+        .step-indicator { font-size: 0.8rem; color: var(--primary-neon); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
 
         .action-btn { width: 100%; padding: 15px; border: none; border-radius: 50px; background: linear-gradient(90deg, rgba(0,242,255,0.05), rgba(0,242,255,0.15)); border: 1px solid var(--primary-neon); color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 55px; margin-top: 10px; }
         .action-btn:hover:not(:disabled) { background: var(--primary-neon); color: #000; box-shadow: 0 0 40px var(--primary-neon); }
         .action-btn:active:not(:disabled) { transform: scale(0.98); }
         .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Login link */
+        .btn-group { display: flex; gap: 10px; }
+        .btn-group .action-btn { flex: 1; margin: 0; }
+
+        /* Login Link */
         .login-link { text-align: center; margin-top: 20px; }
         .login-link a { color: var(--primary-neon); text-decoration: none; font-size: 0.9rem; transition: 0.3s; border-bottom: 1px solid rgba(0, 242, 255, 0.3); padding-bottom: 2px; }
         .login-link a:hover { color: #fff; border-bottom-color: var(--primary-neon); text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
@@ -158,147 +158,32 @@
 
         .footer { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); letter-spacing: 1px; padding: 0 20px; }
 
-        /* Modals */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); opacity: 0; transition: 0.3s; overflow-y: auto; }
-        .modal-overlay.active { opacity: 1; display: flex; }
-        .modal-box { background: #080d16; border: 1px solid var(--primary-neon); width: 90%; max-width: 750px; padding: 40px; border-radius: 15px; box-shadow: 0 0 60px rgba(0, 242, 255, 0.15); position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: 0.3s; margin: 20px; }
-        .modal-overlay.active .modal-box { transform: scale(1); }
-        .close-modal { position: absolute; top: 20px; right: 20px; color: #fff; background: none; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; z-index: 10; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
-        .close-modal:hover { color: var(--error); transform: rotate(90deg); }
-
         .toast-container { position: fixed; top: 100px; right: 20px; z-index: 4000; }
         .toast { background: rgba(5, 11, 20, 0.95); border-left: 4px solid var(--success); padding: 15px 25px; margin-bottom: 10px; border-radius: 5px; color: #fff; animation: slideIn 0.4s ease; display: flex; align-items: center; gap: 10px; }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
         .shake { animation: shake 0.4s; border-color: var(--error) !important; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
 
+        /* Hidden Steps */
+        .register-step { display: none; }
+        .register-step.active { display: block; animation: fadeIn 0.3s; }
+
         /* --- 6. MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
-            header {
-                padding: 10px 15px;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            
-            .header-left {
-                gap: 10px;
-                flex: 1;
-            }
-            
-            .brand {
-                gap: 8px;
-            }
-            
-            .brand-logo {
-                width: 35px;
-                height: 35px;
-            }
-            
-            .brand-text h1 {
-                font-size: 0.9rem;
-                letter-spacing: 1px;
-            }
-            
-            .brand-text p {
-                font-size: 0.55rem;
-            }
-            
-            .live-clock {
-                display: none;
-            }
-            
-            .controls {
-                gap: 8px;
-            }
-            
-            .status-badge {
-                padding: 4px 8px;
-                gap: 6px;
-            }
-            
-            .status-led {
-                width: 6px;
-                height: 6px;
-            }
-            
-            .status-text {
-                font-size: 0.65rem;
-            }
-            
-            .icon-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 0.85rem;
-            }
-            
-            .main-container {
-                padding: 15px;
-                max-width: 100%;
-            }
-            
-            .hud-card {
-                padding: 30px 20px;
-                border-radius: 15px;
-            }
-            
-            .card-header h2 {
-                font-size: 1.3rem;
-                letter-spacing: 1px;
-            }
-            
-            .energy-divider {
-                margin: 15px auto 25px;
-            }
-            
-            .input-field {
-                font-size: 1rem;
-                padding: 12px;
-                margin-bottom: 10px;
-            }
-            
-            .action-btn {
-                font-size: 0.95rem;
-                padding: 12px;
-                min-height: 48px;
-                letter-spacing: 1px;
-            }
-            
-            .success-icon {
-                font-size: 2.8rem;
-            }
-            
-            .footer {
-                font-size: 0.65rem;
-                bottom: 10px;
-                padding: 0 15px;
-            }
-            
-            .password-requirements {
-                font-size: 0.7rem;
-                padding: 8px 10px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .brand-text h1 {
-                font-size: 0.8rem;
-            }
-            
-            .brand-text p {
-                display: none;
-            }
-            
-            .card-header h2 {
-                font-size: 1.1rem;
-            }
-            
-            .input-field {
-                font-size: 1rem;
-            }
-            
-            .action-btn {
-                font-size: 0.9rem;
-            }
+            header { padding: 10px 15px; flex-wrap: wrap; gap: 10px; }
+            .header-left { gap: 10px; flex: 1; }
+            .brand { gap: 8px; }
+            .brand-logo { width: 35px; height: 35px; }
+            .brand-text h1 { font-size: 0.9rem; letter-spacing: 1px; }
+            .brand-text p { font-size: 0.55rem; }
+            .live-clock { display: none; }
+            .controls { gap: 8px; }
+            .main-container { padding: 15px; max-width: 100%; }
+            .hud-card { padding: 30px 20px; }
+            .card-header h2 { font-size: 1.3rem; }
+            .input-field { font-size: 1rem; padding: 12px; margin-bottom: 10px; }
+            .action-btn { font-size: 0.95rem; padding: 12px; min-height: 48px; }
+            .otp-digit { width: 45px; height: 55px; font-size: 1.3rem; }
         }
     </style>
 </head>
@@ -311,7 +196,7 @@
             <div class="loader-logo"></div>
         </div>
         <div class="loader-title">BIOSCAN ATM</div>
-        <div class="loader-status" id="loaderStatus">Initializing System...</div>
+        <div class="loader-status">Initializing System...</div>
         <div class="progress-bar"></div>
     </div>
 
@@ -332,9 +217,7 @@
             </div>
         </div>
         <div class="controls">
-            <div class="status-badge" id="statusBadge"><div class="status-led" id="connectionLed"></div><div class="status-text" id="connectionText">ONLINE</div></div>
-            <button class="icon-btn" id="muteBtn" onclick="toggleMute()" title="Mute/Unmute"><i class="fas fa-volume-up"></i></button>
-            <button class="icon-btn" onclick="toggleModal('aboutModal', true)" title="Info"><i class="fas fa-info"></i></button>
+            <div class="status-badge" id="statusBadge"><div class="status-led"></div><div class="status-text">ONLINE</div></div>
             <select class="lang-select" id="language_select" onchange="changeLanguage()">
                 <option value="en">EN</option>
                 <option value="ar">AR</option>
@@ -346,121 +229,93 @@
         <div class="hud-card">
             <div class="card-header">
                 <h2 id="reg-title">CREATE ACCOUNT</h2>
-                <p class="card-subtitle" id="reg-subtitle">Join the Future of Health Monitoring</p>
+                <p class="card-subtitle" id="reg-subtitle">2FA Verification & Secure Registration</p>
                 <div class="energy-divider"></div>
             </div>
 
-            <!-- STEP 1: Phone Number -->
-            <div id="step1-view" class="register-step">
-                <p class="step-indicator" id="step-indicator-1">Step 1 of 3</p>
-                <p style="color: #aaa; margin-bottom: 20px; font-size: 0.9rem;" id="step1-desc">Enter your phone number to verify</p>
+            <!-- STEP 1: Phone Verification via 2FA -->
+            <div id="step1-view" class="register-step active">
+                <p class="step-indicator">STEP 1 OF 2 • PHONE VERIFICATION</p>
                 
                 <div class="input-wrapper">
                     <input type="tel" id="phoneNumber" class="input-field" placeholder="1xxxxxxxxx" onkeyup="validatePhone()">
                     <div class="error-msg" id="phone-error"></div>
                 </div>
 
-                <button class="action-btn" id="sendCodeBtn" onclick="sendVerificationCode()">
-                    <i class="fas fa-paper-plane"></i> <span id="send-code-text">SEND VERIFICATION CODE</span>
-                </button>
+                <div class="btn-group">
+                    <button class="action-btn" id="sendCodeBtn" onclick="sendVerificationCode()">
+                        <i class="fas fa-paper-plane"></i> <span>SEND CODE</span>
+                    </button>
+                </div>
+
+                <div id="otp-section" style="display: none; margin-top: 20px;">
+                    <p style="color: #aaa; margin-bottom: 15px; font-size: 0.9rem;">Enter the 6-digit code sent to your phone</p>
+                    <div class="otp-input-container" id="otpContainer">
+                        <input type="text" class="otp-digit" maxlength="1" oninput="handleOTPInput(this)">
+                        <input type="text" class="otp-digit" maxlength="1" oninput="handleOTPInput(this)">
+                        <input type="text" class="otp-digit" maxlength="1" oninput="handleOTPInput(this)">
+                        <input type="text" class="otp-digit" maxlength="1" oninput="handleOTPInput(this)">
+                        <input type="text" class="otp-digit" maxlength="1" oninput="handleOTPInput(this)">
+                        <input type="text" class="otp-digit" maxlength="1" oninput="handleOTPInput(this)">
+                    </div>
+                    <div class="error-msg" id="otp-error"></div>
+                    <button class="action-btn" id="verifyCodeBtn" onclick="verifyCode()">
+                        <i class="fas fa-check"></i> <span>VERIFY</span>
+                    </button>
+                </div>
 
                 <div class="login-link">
-                    <a href="javascript:void(0)" id="loginLink" onclick="goToLogin()">Already have an account? Sign In</a>
+                    <a href="javascript:void(0)" onclick="goToLogin()">Already have an account? Sign In</a>
                 </div>
             </div>
 
-            <!-- STEP 2: Verification Code -->
-            <div id="step2-view" class="register-step" style="display: none;">
-                <p class="step-indicator" id="step-indicator-2">Step 2 of 3</p>
-                <p style="color: #aaa; margin-bottom: 20px; font-size: 0.9rem;" id="step2-desc">Enter the verification code sent to your phone</p>
+            <!-- STEP 2: Account Creation -->
+            <div id="step2-view" class="register-step">
+                <p class="step-indicator">STEP 2 OF 2 • CREATE ACCOUNT</p>
                 
-                <div class="input-wrapper">
-                    <input type="text" id="verificationCode" class="input-field" placeholder="000000" maxlength="6" style="font-size: 1.5rem; letter-spacing: 5px;" onkeyup="validateCode()">
-                    <div class="error-msg" id="code-error"></div>
-                </div>
-
-                <button class="action-btn" id="verifyCodeBtn" onclick="verifyCode()">
-                    <i class="fas fa-check"></i> <span id="verify-code-text">VERIFY CODE</span>
-                </button>
-
-                <button class="action-btn" style="background: transparent; border: 1px solid #aaa; color: #aaa; margin-top: 10px;" id="backToPhoneBtn" onclick="backToStep1()">
-                    <i class="fas fa-arrow-left"></i> <span>BACK</span>
-                </button>
-            </div>
-
-            <!-- STEP 3: Full Registration -->
-            <div id="step3-view" class="register-step" style="display: none;">
-                <p class="step-indicator" id="step-indicator-3">Step 3 of 3</p>
-                <p style="color: #aaa; margin-bottom: 20px; font-size: 0.9rem;" id="step3-desc">Complete your registration</p>
-                
-                <!-- Full Name Field -->
                 <div class="input-wrapper">
                     <input type="text" id="fullName" class="input-field" placeholder="Full Name" onkeyup="validateName()">
                     <div class="error-msg" id="name-error"></div>
                 </div>
 
-                <!-- Phone Display -->
                 <div class="input-wrapper">
-                    <input type="tel" id="phoneDisplay" class="input-field" placeholder="Phone" disabled style="color: #aaa; cursor: not-allowed;">
+                    <input type="tel" id="phoneDisplay" class="input-field" placeholder="Phone" disabled>
                 </div>
 
-                <!-- Password Field -->
                 <div class="password-wrapper">
                     <i class="fas fa-lock password-icon"></i>
-                    <input type="password" id="password" class="input-field password-field" placeholder="••••••••" onkeyup="validatePasswordField()">
-                    <div class="password-strength">
-                        <div class="password-strength-bar" id="strengthBar"></div>
-                    </div>
-                    <div class="password-requirements">
-                        <div class="req-item">
-                            <span class="req-icon" id="len-icon">◯</span>
-                            <span class="req-text" id="len-text">At least 8 characters</span>
-                        </div>
-                        <div class="req-item">
-                            <span class="req-icon" id="num-icon">◯</span>
-                            <span class="req-text" id="num-text">Contains numbers</span>
-                        </div>
-                        <div class="req-item">
-                            <span class="req-icon" id="letter-icon">◯</span>
-                            <span class="req-text" id="letter-text">Contains letters</span>
-                        </div>
-                    </div>
+                    <input type="password" id="password" class="input-field password-field" placeholder="••••••••" onkeyup="validatePassword()">
+                    <i class="fas fa-eye toggle-password" id="togglePwd" onclick="togglePasswordVisibility()"></i>
                     <div class="error-msg" id="password-error"></div>
                 </div>
 
-                <button class="action-btn" id="completeRegisterBtn" onclick="completeRegistration()">
-                    <i class="fas fa-user-plus"></i> <span id="complete-register-text">CREATE ACCOUNT</span>
+                <div class="security-standards" id="security-msg">
+                    Global Security Standard: Min 8 characters, include uppercase, numbers, and symbols.
+                </div>
+
+                <button class="action-btn" id="createAccountBtn" onclick="createAccount()">
+                    <i class="fas fa-fingerprint"></i> <span>CREATE ACCOUNT & START</span>
                 </button>
 
-                <button class="action-btn" style="background: transparent; border: 1px solid #aaa; color: #aaa; margin-top: 10px;" id="backToCodeBtn" onclick="backToStep2()">
+                <button class="action-btn" style="background: transparent; border: 1px solid #aaa; color: #aaa; margin-top: 10px;" onclick="backToStep1()">
                     <i class="fas fa-arrow-left"></i> <span>BACK</span>
                 </button>
             </div>
 
+            <!-- Success View -->
             <div id="success-view">
                 <div class="success-icon"><i class="fas fa-check-circle"></i></div>
                 <h3 id="success-title" style="color: var(--success);">Registration Successful!</h3>
                 <p id="success-msg" style="color: #aaa; margin-bottom: 25px;">Your account has been created</p>
-                <button class="action-btn" style="background: var(--success); color: #000; border: none; font-weight: 700; cursor: pointer;" onclick="goToLogin()">
-                    <i class="fas fa-sign-in-alt"></i> <span id="signin-btn-text">GO TO LOGIN</span>
+                <button class="action-btn" style="background: var(--success); color: #000; border: none; font-weight: 700;" onclick="goToLogin()">
+                    <i class="fas fa-sign-in-alt"></i> <span>GO TO LOGIN</span>
                 </button>
             </div>
         </div>
     </div>
 
     <div class="footer">Graduation Project 2026 | Zagazig University - Faculty of Engineering</div>
-
     <div class="toast-container" id="toastContainer"></div>
-
-    <div class="modal-overlay" id="aboutModal">
-        <div class="modal-box">
-            <button class="close-modal" onclick="toggleModal('aboutModal', false)"><i class="fas fa-times"></i></button>
-            <h2 id="modal-project-name" style="color:#fff; margin-top:0; text-align: center;">Bioscan ATM</h2>
-            <div style="text-align: center; margin: 15px 0;">
-                <p id="about-text" style="color: #aaa; font-size: 0.9rem;">Advanced health monitoring system for instant diagnostics</p>
-            </div>
-        </div>
-    </div>
 
     <script>
         // --- 1. FIREBASE CONFIG ---
@@ -477,16 +332,17 @@
         const auth = firebase.auth();
 
         // --- GLOBAL VARIABLES ---
-        let welcomePlayed = false;
-        let soundMuted = false;
         let currentLang = localStorage.getItem("language") || "en";
-        
-        // Registration flow variables
         let registrationPhone = "";
         let verificationCode = "";
-        let storedVerificationCode = null;
+        let confirmationResult = null;
 
-        // --- 2. PRELOADER JS ---
+        // Test phone numbers (for development)
+        const testPhones = {
+            // '+201234567890': '123456',
+        };
+
+        // --- 2. INITIALIZATION ---
         function startPreloader() {
             const bar = document.querySelector('.progress-bar');
             let w = 0;
@@ -499,14 +355,12 @@
                         document.getElementById('preloader').style.opacity = '0'; 
                         setTimeout(() => { 
                             document.getElementById('preloader').style.display='none'; 
-                            playWelcomeMessage();
                         }, 800); 
                     }, 500);
                 }
             }, 100);
         }
 
-        // --- 3. INPUT SETUP ---
         const phoneInput = document.querySelector("#phoneNumber");
         const iti = window.intlTelInput(phoneInput, {
             separateDialCode: true,
@@ -515,11 +369,22 @@
         });
 
         window.onload = () => {
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
             createBioBackground(); startPreloader(); startClock(); updateTexts(); checkConnection();
-            document.addEventListener('click', () => playWelcomeMessage(), { once: true });
         };
 
-        // --- 4. VALIDATION FUNCTIONS ---
+        // --- 3. VALIDATION FUNCTIONS ---
+        function validatePhone() {
+            if (iti.isValidNumber()) { 
+                phoneInput.classList.add("valid"); 
+                phoneInput.classList.remove("invalid"); 
+                document.getElementById('phone-error').classList.remove('show'); 
+            } else { 
+                phoneInput.classList.remove("valid"); 
+                if(phoneInput.value.length > 3) phoneInput.classList.add("invalid"); 
+            }
+        }
+
         function validateName() {
             const name = document.getElementById('fullName').value.trim();
             const field = document.getElementById('fullName');
@@ -533,215 +398,222 @@
             }
         }
 
-        function validatePhone() {
-            if (iti.isValidNumber()) { 
-                phoneInput.classList.add("valid"); 
-                phoneInput.classList.remove("invalid"); 
-                document.getElementById('phone-error').classList.remove('show'); 
-            } else { 
-                phoneInput.classList.remove("valid"); 
-                if(phoneInput.value.length > 3) phoneInput.classList.add("invalid"); 
-            }
-        }
-
-        function validateCode() {
-            const code = document.getElementById('verificationCode').value.trim();
-            const field = document.getElementById('verificationCode');
-            
-            field.classList.remove('valid', 'invalid');
-            
-            if(code.length === 6 && /^\d+$/.test(code)) {
-                field.classList.add('valid');
-                document.getElementById('code-error').classList.remove('show');
-            } else if(code.length > 0) {
-                field.classList.add('invalid');
-            }
-        }
-
-        function validatePasswordField() {
+        function validatePassword() {
             const pwd = document.getElementById('password').value;
             const field = document.getElementById('password');
-            const strengthBar = document.getElementById('strengthBar');
             
             field.classList.remove('valid', 'invalid');
-            strengthBar.className = 'password-strength-bar';
             
             const hasLength = pwd.length >= 8;
+            const hasUpper = /[A-Z]/.test(pwd);
+            const hasLower = /[a-z]/.test(pwd);
             const hasNumbers = /\d/.test(pwd);
-            const hasLetters = /[a-zA-Z]/.test(pwd);
+            const hasSymbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd);
             
-            // Update requirement indicators
-            updateReqIcon('len-icon', hasLength);
-            updateReqIcon('num-icon', hasNumbers);
-            updateReqIcon('letter-icon', hasLetters);
-            
-            // Update strength bar
-            let strength = 0;
-            if(hasLength) strength++;
-            if(hasNumbers) strength++;
-            if(hasLetters) strength++;
+            const isStrong = hasLength && hasUpper && hasNumbers && hasSymbols;
             
             if(pwd.length === 0) {
-                strengthBar.style.width = '0%';
-            } else if(strength === 3) {
-                strengthBar.classList.add('strong');
+                return;
+            }
+            
+            if(isStrong) {
                 field.classList.add('valid');
-            } else if(strength >= 2) {
-                strengthBar.classList.add('medium');
-                field.classList.add('valid');
+                document.getElementById('password-error').classList.remove('show');
             } else {
                 field.classList.add('invalid');
             }
         }
 
-        function updateReqIcon(iconId, met) {
-            const icon = document.getElementById(iconId);
-            if(met) {
-                icon.textContent = '✓';
-                icon.style.color = 'var(--success)';
+        function togglePasswordVisibility() {
+            const pwd = document.getElementById('password');
+            const toggle = document.getElementById('togglePwd');
+            
+            if(pwd.type === 'password') {
+                pwd.type = 'text';
+                toggle.classList.remove('fa-eye');
+                toggle.classList.add('fa-eye-slash');
             } else {
-                icon.textContent = '◯';
-                icon.style.color = '#aaa';
+                pwd.type = 'password';
+                toggle.classList.remove('fa-eye-slash');
+                toggle.classList.add('fa-eye');
             }
         }
 
-        function clearErrorMessages() {
-            document.getElementById('name-error').classList.remove('show');
-            document.getElementById('phone-error').classList.remove('show');
-            document.getElementById('code-error').classList.remove('show');
-            document.getElementById('password-error').classList.remove('show');
+        function handleOTPInput(input) {
+            if(!/^\d*$/.test(input.value)) {
+                input.value = '';
+                return;
+            }
+            
+            if(input.value.length === 1) {
+                const next = input.nextElementSibling;
+                if(next) next.focus();
+            }
+            
+            checkOTPComplete();
         }
 
-        function displayErrorMessage(field, message) {
-            const errorIds = {
-                'name': 'name-error',
-                'phone': 'phone-error',
-                'code': 'code-error',
-                'password': 'password-error'
-            };
-            const errorEl = document.getElementById(errorIds[field]);
-            if(errorEl) {
-                errorEl.innerText = message;
-                errorEl.classList.add('show', 'glow-error');
+        function checkOTPComplete() {
+            const digits = document.querySelectorAll('.otp-digit');
+            const allFilled = Array.from(digits).every(d => d.value !== '');
+            const verifyBtn = document.getElementById('verifyCodeBtn');
+            
+            if(allFilled) {
+                verifyBtn.focus();
             }
         }
 
-        // --- 5. REGISTRATION FLOW LOGIC ---
-        
-        // Step 1: Send Verification Code
+        // --- 4. REGISTRATION FLOW ---
         function sendVerificationCode() {
-            clearErrorMessages();
+            document.getElementById('phone-error').classList.remove('show');
             
             if(!iti.isValidNumber()) {
-                document.getElementById('phoneNumber').classList.add('shake');
-                displayErrorMessage('phone', currentLang === 'ar' ? "رقم هاتف غير صحيح" : "Invalid phone number");
-                setTimeout(() => document.getElementById('phoneNumber').classList.remove('shake'), 400);
+                phoneInput.classList.add('shake');
+                showError('phone', currentLang === 'ar' ? "رقم هاتف غير صحيح" : "Invalid phone number");
+                setTimeout(() => phoneInput.classList.remove('shake'), 400);
                 return;
             }
             
             registrationPhone = iti.getNumber();
             const sendCodeBtn = document.getElementById('sendCodeBtn');
             sendCodeBtn.disabled = true;
-            sendCodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (currentLang === 'ar' ? 'جاري الإرسال...' : 'Sending...');
+            sendCodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
             
-            // Check if phone already exists
+            // Check if phone exists in database
             database.ref('PatientData/' + registrationPhone).once('value').then(snapshot => {
                 if(snapshot.exists()) {
-                    // Phone already registered
                     sendCodeBtn.disabled = false;
-                    sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span id="send-code-text">' + txt[currentLang].sendCode + '</span>';
-                    displayErrorMessage('phone', currentLang === 'ar' ? "هذا الرقم مسجل بالفعل. يرجى تسجيل الدخول." : "This phone number is already registered. Please Login.");
-                    document.getElementById('phoneNumber').classList.add('invalid');
+                    sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>SEND CODE</span>';
+                    showError('phone', currentLang === 'ar' ? "الحساب موجود بالفعل" : "Account already registered");
+                    phoneInput.classList.add('invalid');
                     return;
                 }
                 
-                // Phone doesn't exist, generate code
-                verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-                storedVerificationCode = verificationCode;
+                // Check if test phone
+                const isTestPhone = !!testPhones[registrationPhone];
                 
-                // In real app, send via SMS. For now, show in console
-                console.log('Verification Code: ' + verificationCode);
-                showToast(currentLang === 'ar' ? `رمز التحقق: ${verificationCode}` : `Verification Code: ${verificationCode}`, "success");
-                
+                if(isTestPhone) {
+                    // For test phones, use predefined code
+                    verificationCode = testPhones[registrationPhone];
+                    console.log('Test Code: ' + verificationCode);
+                    showToast(currentLang === 'ar' ? `كود التحقق: ${verificationCode}` : `Test Code: ${verificationCode}`, "success");
+                    sendCodeBtn.disabled = false;
+                    sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>SEND CODE</span>';
+                    document.getElementById('otp-section').style.display = 'block';
+                } else {
+                    // Real Firebase Phone Auth
+                    auth.signInWithPhoneNumber(registrationPhone, window.recaptchaVerifier)
+                        .then(result => {
+                            confirmationResult = result;
+                            showToast(currentLang === 'ar' ? "تم إرسال رمز التحقق" : "Code sent successfully", "success");
+                            sendCodeBtn.disabled = false;
+                            sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>SEND CODE</span>';
+                            document.getElementById('otp-section').style.display = 'block';
+                        })
+                        .catch(error => {
+                            sendCodeBtn.disabled = false;
+                            sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>SEND CODE</span>';
+                            showToast("Error sending code: " + error.message, "error");
+                            console.error(error);
+                        });
+                }
+            }).catch(error => {
                 sendCodeBtn.disabled = false;
-                sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span id="send-code-text">' + txt[currentLang].sendCode + '</span>';
-                
-                // Move to step 2
-                moveToStep(2);
-            }).catch((error) => {
-                sendCodeBtn.disabled = false;
-                sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span id="send-code-text">' + txt[currentLang].sendCode + '</span>';
+                sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>SEND CODE</span>';
                 showToast(currentLang === 'ar' ? "خطأ في الاتصال" : "Connection error", "error");
                 console.error(error);
             });
         }
-        
-        // Step 2: Verify Code
+
         function verifyCode() {
-            clearErrorMessages();
+            const digits = document.querySelectorAll('.otp-digit');
+            const code = Array.from(digits).map(d => d.value).join('');
             
-            const codeInput = document.getElementById('verificationCode').value.trim();
+            document.getElementById('otp-error').classList.remove('show');
             
-            if(!codeInput || codeInput.length !== 6) {
-                document.getElementById('verificationCode').classList.add('shake');
-                displayErrorMessage('code', currentLang === 'ar' ? "أدخل رموز صحيحة" : "Enter valid code");
-                setTimeout(() => document.getElementById('verificationCode').classList.remove('shake'), 400);
+            if(code.length !== 6) {
+                digits.forEach(d => d.classList.add('invalid'));
+                showError('otp', currentLang === 'ar' ? "أدخل الرمز كاملاً" : "Enter complete code");
+                setTimeout(() => digits.forEach(d => d.classList.remove('invalid')), 400);
                 return;
             }
             
-            if(codeInput !== storedVerificationCode) {
-                document.getElementById('verificationCode').classList.add('shake');
-                displayErrorMessage('code', currentLang === 'ar' ? "الرمز غير صحيح" : "Invalid code");
-                setTimeout(() => document.getElementById('verificationCode').classList.remove('shake'), 400);
-                return;
-            }
+            const verifyBtn = document.getElementById('verifyCodeBtn');
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
             
-            // Code is correct
-            document.getElementById('phoneDisplay').value = registrationPhone;
-            moveToStep(3);
+            const isTestPhone = !!testPhones[registrationPhone];
+            
+            if(isTestPhone) {
+                // Test phone verification
+                if(code === verificationCode) {
+                    moveToStep(2);
+                    verifyBtn.disabled = false;
+                    verifyBtn.innerHTML = '<i class="fas fa-check"></i> <span>VERIFY</span>';
+                } else {
+                    verifyBtn.disabled = false;
+                    verifyBtn.innerHTML = '<i class="fas fa-check"></i> <span>VERIFY</span>';
+                    digits.forEach(d => d.classList.add('invalid'));
+                    showError('otp', currentLang === 'ar' ? "رمز التحقق غير صحيح" : "Invalid verification code. Please try again.");
+                    setTimeout(() => digits.forEach(d => d.classList.remove('invalid')), 400);
+                }
+            } else {
+                // Real Firebase verification
+                confirmationResult.confirm(code)
+                    .then(() => {
+                        moveToStep(2);
+                        verifyBtn.disabled = false;
+                        verifyBtn.innerHTML = '<i class="fas fa-check"></i> <span>VERIFY</span>';
+                    })
+                    .catch(error => {
+                        verifyBtn.disabled = false;
+                        verifyBtn.innerHTML = '<i class="fas fa-check"></i> <span>VERIFY</span>';
+                        digits.forEach(d => d.classList.add('invalid'));
+                        showError('otp', currentLang === 'ar' ? "رمز التحقق غير صحيح" : "Invalid verification code. Please try again.");
+                        console.error(error);
+                        setTimeout(() => digits.forEach(d => d.classList.remove('invalid')), 400);
+                    });
+            }
         }
-        
-        // Step 3: Complete Registration
-        function completeRegistration() {
-            clearErrorMessages();
+
+        function createAccount() {
+            document.getElementById('name-error').classList.remove('show');
+            document.getElementById('password-error').classList.remove('show');
             
-            // Validate Full Name
             const fullName = document.getElementById('fullName').value.trim();
+            const pwd = document.getElementById('password').value;
+            
             if(fullName.length < 3) {
                 document.getElementById('fullName').classList.add('shake');
-                displayErrorMessage('name', currentLang === 'ar' ? "أدخل اسماً صحيحاً" : "Enter a valid name");
+                showError('name', currentLang === 'ar' ? "أدخل اسماً صحيحاً" : "Enter a valid name");
                 setTimeout(() => document.getElementById('fullName').classList.remove('shake'), 400);
                 return;
             }
             
-            // Validate Password
-            const pwd = document.getElementById('password').value;
-            const hasLength = pwd.length >= 8;
+            const hasUpper = /[A-Z]/.test(pwd);
+            const hasLower = /[a-z]/.test(pwd);
             const hasNumbers = /\d/.test(pwd);
-            const hasLetters = /[a-zA-Z]/.test(pwd);
+            const hasSymbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd);
             
-            if(!hasLength || !hasNumbers || !hasLetters) {
+            if(pwd.length < 8 || !hasUpper || !hasLower || !hasNumbers || !hasSymbols) {
                 document.getElementById('password').classList.add('shake');
-                displayErrorMessage('password', currentLang === 'ar' ? "كلمة المرور ضعيفة" : "Password too weak");
+                showError('password', currentLang === 'ar' ? "كلمة المرور ضعيفة" : "Password doesn't meet security standards");
                 setTimeout(() => document.getElementById('password').classList.remove('shake'), 400);
                 return;
             }
             
-            const completeBtn = document.getElementById('completeRegisterBtn');
-            completeBtn.disabled = true;
-            completeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (currentLang === 'ar' ? 'جاري الحفظ...' : 'Saving...');
+            const createBtn = document.getElementById('createAccountBtn');
+            createBtn.disabled = true;
+            createBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
             
-            // Create Auth User
             const virtualEmail = registrationPhone.substring(1) + "@bioscan.com";
             
             auth.createUserWithEmailAndPassword(virtualEmail, pwd)
                 .then((userCredential) => {
-                    const user = userCredential.user;
-                    const uid = user.uid;
-                    
-                    // Save to Database
+                    const uid = userCredential.user.uid;
                     const registrationDate = new Date().toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US');
                     
+                    // Save to database using update (not set) to preserve History
                     database.ref('PatientData/' + registrationPhone).update({
                         FullName: fullName,
                         RegistrationDate: registrationDate,
@@ -749,79 +621,78 @@
                         Phone: registrationPhone,
                         Password: pwd
                     }).then(() => {
-                        showToast(currentLang === 'ar' ? "تم التسجيل بنجاح" : "Registration successful", "success");
-                        completeBtn.disabled = false;
+                        showToast(currentLang === 'ar' ? "تم إنشاء الحساب بنجاح" : "Account created successfully", "success");
                         
-                        // Show success message
-                        document.getElementById('step3-view').style.display = 'none';
+                        document.getElementById('step2-view').classList.remove('active');
                         document.getElementById('success-view').style.display = 'flex';
                         
-                        setTimeout(() => {
-                            goToLogin();
-                        }, 3000);
-                    }).catch((error) => {
-                        completeBtn.disabled = false;
-                        completeBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="complete-register-text">' + txt[currentLang].btnRegister + '</span>';
+                        setTimeout(() => goToLogin(), 3000);
+                    }).catch(error => {
+                        createBtn.disabled = false;
+                        createBtn.innerHTML = '<i class="fas fa-fingerprint"></i> <span>CREATE ACCOUNT & START</span>';
                         showToast(currentLang === 'ar' ? "خطأ في حفظ البيانات" : "Database error", "error");
                         console.error(error);
                     });
                 })
-                .catch((error) => {
-                    completeBtn.disabled = false;
-                    completeBtn.innerHTML = '<i class="fas fa-user-plus"></i> <span id="complete-register-text">' + txt[currentLang].btnRegister + '</span>';
-                    showToast(currentLang === 'ar' ? "خطأ في التسجيل" : "Registration error", "error");
+                .catch(error => {
+                    createBtn.disabled = false;
+                    createBtn.innerHTML = '<i class="fas fa-fingerprint"></i> <span>CREATE ACCOUNT & START</span>';
+                    if(error.code === 'auth/email-already-in-use') {
+                        showError('phone', currentLang === 'ar' ? "الحساب موجود بالفعل" : "Account already exists");
+                    } else {
+                        showToast(error.message, "error");
+                    }
                     console.error(error);
                 });
         }
-        
-        // Navigation between steps
-        function moveToStep(stepNumber) {
-            document.getElementById('step1-view').style.display = 'none';
-            document.getElementById('step2-view').style.display = 'none';
-            document.getElementById('step3-view').style.display = 'none';
+
+        function moveToStep(step) {
+            const step1 = document.getElementById('step1-view');
+            const step2 = document.getElementById('step2-view');
             
-            if(stepNumber === 1) {
-                document.getElementById('step1-view').style.display = 'block';
-            } else if(stepNumber === 2) {
-                document.getElementById('step2-view').style.display = 'block';
-            } else if(stepNumber === 3) {
-                document.getElementById('step3-view').style.display = 'block';
+            step1.classList.remove('active');
+            step2.classList.remove('active');
+            
+            if(step === 2) {
+                step2.classList.add('active');
+                document.getElementById('phoneDisplay').value = registrationPhone;
+            } else {
+                step1.classList.add('active');
             }
         }
-        
+
         function backToStep1() {
-            document.getElementById('phoneNumber').value = '';
-            document.getElementById('phoneNumber').classList.remove('valid', 'invalid');
-            document.getElementById('verificationCode').value = '';
-            document.getElementById('verificationCode').classList.remove('valid', 'invalid');
-            clearErrorMessages();
-            moveToStep(1);
-        }
-        
-        function backToStep2() {
             document.getElementById('fullName').value = '';
             document.getElementById('password').value = '';
-            document.getElementById('fullName').classList.remove('valid', 'invalid');
-            document.getElementById('password').classList.remove('valid', 'invalid');
-            clearErrorMessages();
-            moveToStep(2);
+            document.getElementById('password').type = 'password';
+            document.getElementById('togglePwd').classList.remove('fa-eye-slash');
+            document.getElementById('togglePwd').classList.add('fa-eye');
+            moveToStep(1);
         }
 
-        function goToLogin() {
-            window.location.href = "index.html";
-        }
-
-        // --- 6. UI CORE ---
-        function playWelcomeMessage() {
-            if (welcomePlayed || soundMuted) return;
-            if ('speechSynthesis' in window) {
-                const enMsg = new SpeechSynthesisUtterance("Welcome to Bioscan ATM. Create your account to get started.");
-                enMsg.lang = 'en-US'; enMsg.rate = 0.9;
-                const arMsg = new SpeechSynthesisUtterance("مرحباً بكم في بايوسكان. أنشئ حسابك للبدء.");
-                arMsg.lang = 'ar-SA'; arMsg.rate = 0.85;
-                window.speechSynthesis.speak(enMsg); window.speechSynthesis.speak(arMsg);
-                welcomePlayed = true;
+        // --- 5. UI FUNCTIONS ---
+        function showError(field, message) {
+            const errorIds = {
+                'phone': 'phone-error',
+                'otp': 'otp-error',
+                'name': 'name-error',
+                'password': 'password-error'
+            };
+            const el = document.getElementById(errorIds[field]);
+            if(el) {
+                el.innerText = message;
+                el.classList.add('show');
             }
+        }
+
+        function showToast(m, t) { 
+            const c = document.getElementById("toastContainer"); 
+            const el = document.createElement("div"); 
+            el.className = "toast"; 
+            el.style.borderLeftColor = t==='error'?'var(--error)':'var(--success)'; 
+            el.innerHTML = `<i class="fas fa-info-circle"></i> ${m}`; 
+            c.appendChild(el); 
+            setTimeout(()=>el.remove(), 3500); 
         }
 
         function createBioBackground() {
@@ -864,102 +735,16 @@
             document.body.style.direction = currentLang === 'ar' ? 'rtl' : 'ltr';
         }
 
-        const txt = {
-            en: { 
-                regTitle: "CREATE ACCOUNT",
-                regSubtitle: "Join the Future of Health Monitoring",
-                fullNamePlaceholder: "Full Name",
-                phonePlaceholder: "1xxxxxxxxx",
-                passwordPlaceholder: "••••••••",
-                btnRegister: "CREATE ACCOUNT",
-                sendCode: "SEND VERIFICATION CODE",
-                verifyCode: "VERIFY CODE",
-                alreadyHaveAccount: "Already have an account? Sign In",
-                successTitle: "Registration Successful!",
-                successMsg: "Your account has been created",
-                signinText: "GO TO LOGIN",
-                aboutTitle: "Bioscan ATM",
-                aboutText: "Advanced health monitoring system for instant diagnostics"
-            },
-            ar: { 
-                regTitle: "إنشاء حساب",
-                regSubtitle: "انضم إلى مستقبل مراقبة الصحة",
-                fullNamePlaceholder: "الاسم الكامل",
-                phonePlaceholder: "1xxxxxxxxx",
-                passwordPlaceholder: "••••••••",
-                btnRegister: "إنشاء حساب",
-                sendCode: "إرسال رمز التحقق",
-                verifyCode: "التحقق من الرمز",
-                alreadyHaveAccount: "هل لديك حساب بالفعل؟ تسجيل الدخول",
-                successTitle: "تم التسجيل بنجاح!",
-                successMsg: "تم إنشاء حسابك",
-                signinText: "انتقل إلى تسجيل الدخول",
-                aboutTitle: "بايوسكان ATM",
-                aboutText: "نظام مراقبة صحية متقدم للتشخيص الفوري"
-            }
-        };
-
         function updateTexts() {
-            const t = txt[currentLang]; 
             document.body.style.direction = currentLang === 'ar' ? 'rtl' : 'ltr';
             
-            document.getElementById("reg-title").innerText = t.regTitle;
-            document.getElementById("reg-subtitle").innerText = t.regSubtitle;
-            
-            // Step indicators
-            document.getElementById("step-indicator-1").innerText = currentLang === 'ar' ? "الخطوة 1 من 3" : "Step 1 of 3";
-            document.getElementById("step-indicator-2").innerText = currentLang === 'ar' ? "الخطوة 2 من 3" : "Step 2 of 3";
-            document.getElementById("step-indicator-3").innerText = currentLang === 'ar' ? "الخطوة 3 من 3" : "Step 3 of 3";
-            
-            // Step descriptions
-            document.getElementById("step1-desc").innerText = currentLang === 'ar' ? "أدخل رقم الهاتف للتحقق" : "Enter your phone number to verify";
-            document.getElementById("step2-desc").innerText = currentLang === 'ar' ? "أدخل رمز التحقق المرسل إلى هاتفك" : "Enter the verification code sent to your phone";
-            document.getElementById("step3-desc").innerText = currentLang === 'ar' ? "أكمل التسجيل" : "Complete your registration";
-            
-            document.getElementById("fullName").placeholder = t.fullNamePlaceholder;
-            document.getElementById("phoneNumber").placeholder = t.phonePlaceholder;
-            document.getElementById("password").placeholder = t.passwordPlaceholder;
-            document.getElementById("send-code-text").innerText = t.sendCode;
-            document.getElementById("verify-code-text").innerText = t.verifyCode;
-            document.getElementById("complete-register-text").innerText = t.btnRegister;
-            document.getElementById("loginLink").innerText = t.alreadyHaveAccount;
-            document.getElementById("success-title").innerText = t.successTitle;
-            document.getElementById("success-msg").innerText = t.successMsg;
-            document.getElementById("signin-btn-text").innerText = t.signinText;
-            document.getElementById("modal-project-name").innerText = t.aboutTitle;
-            document.getElementById("about-text").innerText = t.aboutText;
+            document.getElementById("reg-title").innerText = currentLang === 'ar' ? "إنشاء حساب" : "CREATE ACCOUNT";
+            document.getElementById("reg-subtitle").innerText = currentLang === 'ar' ? "التحقق الثنائي والتسجيل الآمن" : "2FA Verification & Secure Registration";
+            document.getElementById("security-msg").innerText = currentLang === 'ar' ? "معيار الأمان العالمي: حد أدنى 8 أحرف، تضمين أحرف كبيرة وأرقام ورموز." : "Global Security Standard: Min 8 characters, include uppercase, numbers, and symbols.";
         }
 
-        function showToast(m, t) { 
-            const c = document.getElementById("toastContainer"); 
-            const el = document.createElement("div"); 
-            el.className = "toast"; 
-            el.style.borderLeftColor = t==='error'?'var(--error)':'var(--success)'; 
-            el.innerHTML = `<i class="fas fa-info-circle"></i> ${m}`; 
-            c.appendChild(el); 
-            setTimeout(()=>el.remove(), 3500); 
-        }
-
-        function toggleModal(id, show) { 
-            const m = document.getElementById(id); 
-            if(show) { 
-                m.style.display = 'flex'; 
-                setTimeout(()=>m.classList.add('active'), 10); 
-            } else { 
-                m.classList.remove('active'); 
-                setTimeout(()=>m.style.display='none', 300); 
-            } 
-        }
-
-        function toggleMute() {
-            soundMuted = !soundMuted;
-            const muteBtn = document.getElementById('muteBtn');
-            if (soundMuted) {
-                muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                window.speechSynthesis.cancel();
-            } else {
-                muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-            }
+        function goToLogin() {
+            window.location.href = "index.html";
         }
     </script>
 </body>
