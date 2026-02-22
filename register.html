@@ -372,21 +372,68 @@
         });
 
         window.onload = () => {
-            try {
-                // Initialize RecaptchaVerifier with proper auth instance
-                window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 
-                    'size': 'invisible',
-                    'callback': (token) => {
-                        console.log('✓ reCAPTCHA token generated');
-                    }
-                }, auth);
-                console.log('✓ RecaptchaVerifier initialized successfully');
-            } catch(e) {
-                console.error('❌ RecaptchaVerifier init error:', e);
-                alert('reCAPTCHA initialization failed. Please refresh the page and ensure you are on an Authorized Domain.');
-            }
+            // Give DOM time to fully load
+            setTimeout(() => {
+                initializeRecaptcha();
+            }, 100);
+            
             createBioBackground(); startPreloader(); startClock(); updateTexts(); checkConnection();
         };
+        
+        function initializeRecaptcha() {
+            try {
+                // Check if recaptcha container exists
+                const recaptchaContainer = document.getElementById('recaptcha-container');
+                console.log('Checking recaptcha-container...', recaptchaContainer ? '✓ Found' : '❌ Not found');
+                
+                if (!recaptchaContainer) {
+                    console.error('❌ recaptcha-container div not found in DOM');
+                    return;
+                }
+                
+                console.log('Checking Firebase services...');
+                console.log('  - auth:', auth ? '✓' : '❌');
+                console.log('  - firebase.auth:', typeof firebase.auth);
+                
+                if (!window.recaptchaVerifier) {
+                    console.log('Creating RecaptchaVerifier...');
+                    
+                    // Initialize RecaptchaVerifier with proper auth instance
+                    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 
+                        'size': 'invisible',
+                        'callback': (token) => {
+                            console.log('✓ reCAPTCHA token generated:', token.substring(0, 20) + '...');
+                        },
+                        'expired-callback': () => {
+                            console.warn('⚠️ reCAPTCHA token expired');
+                            window.recaptchaVerifier.render();
+                        }
+                    }, auth);
+                    
+                    console.log('✓ RecaptchaVerifier created:', window.recaptchaVerifier ? 'Success' : 'Failed');
+                    console.log('✓ RecaptchaVerifier initialized successfully');
+                }
+            } catch(e) {
+                console.error('❌ RecaptchaVerifier init error:', e);
+                console.error('  Error Code:', e.code);
+                console.error('  Error Message:', e.message);
+                console.error('  Stack:', e.stack);
+                
+                // Suggest solutions
+                if (e.message.includes('unauthorized-domain')) {
+                    console.error('  → Add your Codespace URL to Firebase Authorized Domains');
+                    alert('❌ Unauthorized Domain!\n\nAdd your Codespace URL to Firebase Authorized Domains and try again.');
+                } else if (e.message.includes('invalid-api-key')) {
+                    console.error('  → Check your Firebase API Key');
+                    alert('❌ Invalid Firebase API Key!\n\nCheck your Firebase configuration.');
+                } else if (e.message.includes('applicationVerifier')) {
+                    console.error('  → applicationVerifier parameter issue');
+                    alert('❌ reCAPTCHA verification failed.\n\n' + e.message);
+                } else {
+                    alert('❌ reCAPTCHA initialization failed.\n\n' + e.message);
+                }
+            }
+        }
 
         // --- 3. VALIDATION FUNCTIONS ---
         function validatePhone() {
@@ -482,6 +529,18 @@
         function sendVerificationCode() {
             document.getElementById('phone-error').classList.remove('show');
             
+            // Check if RecaptchaVerifier is initialized
+            if (!window.recaptchaVerifier) {
+                console.log('RecaptchaVerifier not initialized, attempting to initialize...');
+                initializeRecaptcha();
+                
+                // If still not initialized, show error
+                if (!window.recaptchaVerifier) {
+                    showError('phone', currentLang === 'ar' ? "مشكلة في تحميل reCAPTCHA. حاول تحديث الصفحة." : "reCAPTCHA failed to load. Try refreshing.");
+                    return;
+                }
+            }
+            
             if(!iti.isValidNumber()) {
                 phoneInput.classList.add('shake');
                 showError('phone', currentLang === 'ar' ? "رقم هاتف غير صحيح" : "Invalid phone number");
@@ -524,15 +583,25 @@
                         sendCodeBtn.disabled = false;
                         sendCodeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>' + (currentLang === 'ar' ? 'إرسال الكود' : 'SEND CODE') + '</span>';
                         console.error('Firebase SMS Error:', error);
+                        console.error('Error Code:', error.code);
+                        console.error('Error Message:', error.message);
                         
                         // Better error messages
                         let errorMsg = error.message;
-                        if(error.code === 'auth/operation-not-allowed') {
+                        if(error.code === 'auth/argument-error') {
+                            if(error.message.includes('applicationVerifier')) {
+                                errorMsg = currentLang === 'ar' ? "خطأ في reCAPTCHA. حاول تحديث الصفحة." : "reCAPTCHA verification failed. Try refreshing.";
+                            } else {
+                                errorMsg = currentLang === 'ar' ? "خطأ في المدخلات. تأكد من صحة رقم الهاتف." : "Invalid input. Check your phone number.";
+                            }
+                        } else if(error.code === 'auth/operation-not-allowed') {
                             errorMsg = currentLang === 'ar' ? "تفعيل SMS غير مفعّل في Firebase" : "Phone authentication is not enabled in Firebase";
                         } else if(error.code === 'auth/invalid-phone-number') {
                             errorMsg = currentLang === 'ar' ? "رقم هاتف غير صحيح" : "Invalid phone number format";
                         } else if(error.message.includes('unauthorized-domain')) {
                             errorMsg = currentLang === 'ar' ? "النطاق غير مصرّح! أضف Codespace URL إلى Firebase Authorized Domains" : "Unauthorized domain! Add this URL to Firebase Authorized Domains";
+                        } else if(error.message.includes('INVALID_MESSAGE')) {
+                            errorMsg = currentLang === 'ar' ? "خطأ في رسالة Firebase. حقق من الإعدادات." : "Firebase messaging error. Check settings.";
                         }
                         
                         showToast(currentLang === 'ar' ? "❌ خطأ: " + errorMsg : "❌ Error: " + errorMsg, "error");
