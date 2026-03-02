@@ -88,9 +88,9 @@
     }
     .user-avatar { font-size: 1.6rem; color: var(--primary-neon); filter: drop-shadow(0 0 8px var(--primary-neon)); flex-shrink: 0; }
     .user-info { display: flex; flex-direction: column; overflow: hidden; }
-    .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.65rem; color: #888; letter-spacing: 1px; white-space: nowrap; text-transform: uppercase; }
+    .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: #ddd; letter-spacing: 1px; white-space: nowrap; text-transform: uppercase; }
     .user-info .user-name { font-size: 1.05rem; color: #fff; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-bottom: 2px; }
-    .user-info .user-id { font-size: 0.75rem; color: #888; font-weight: 400; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .user-info .user-id { font-size: 0.85rem; color: #ddd; font-weight: 400; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
 
     .top-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
     
@@ -134,7 +134,7 @@
       border: 1px solid var(--primary-neon); animation: pulseAI 2s infinite;
     }
     .ai-title h3 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 1rem; color: var(--primary-neon); letter-spacing: 1px; }
-    .ai-title p { margin: 2px 0 0; font-size: 0.7rem; color: #888; }
+    .ai-title p { margin: 2px 0 0; font-size: 0.8rem; color: #ddd; }
 
     #lastReadingTime {
         font-size: 0.65rem; color: var(--primary-neon); font-family: 'Orbitron', sans-serif;
@@ -292,7 +292,7 @@
     .profile-overlay.active { opacity: 1; visibility: visible; }
 
     .profile-panel {
-        position: fixed; top: 0; left: -400px; width: 90%; max-width: 380px; height: 100vh;
+        position: fixed; top: 0; left: -400px; width: 90%; max-width: 420px; height: 100vh;
         background: linear-gradient(135deg, rgba(8, 15, 25, 0.98), rgba(2, 4, 8, 0.98));
         backdrop-filter: blur(20px); border-right: 2px solid var(--primary-neon);
         box-shadow: 0 0 50px rgba(0, 242, 255, 0.3); z-index: 9999;
@@ -320,6 +320,18 @@
 
     .hexagon-avatar {
         position: relative; width: 120px; height: 120px; margin-bottom: 20px;
+        cursor: pointer;
+    }
+    .avatar-upload-overlay {
+        position: absolute; bottom: 0; right: 0; width: 35px; height: 35px;
+        background: var(--primary-neon); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: #000; font-size: 1rem; cursor: pointer;
+        border: 2px solid rgba(2, 4, 8, 0.98);
+        transition: 0.3s; z-index: 10;
+    }
+    .avatar-upload-overlay:hover {
+        transform: scale(1.1); box-shadow: 0 0 15px var(--primary-neon);
     }
     .hex-wrapper {
         width: 100%; height: 100%;
@@ -396,11 +408,11 @@
         flex: 1;
     }
     .field-label {
-        font-size: 0.7rem; color: #888; margin-bottom: 3px;
+        font-size: 0.8rem; color: #ddd; margin-bottom: 3px;
         font-family: 'Rajdhani', sans-serif;
     }
     .field-value {
-        font-size: 1rem; color: #fff; font-weight: 600;
+        font-size: 1.1rem; color: #fff; font-weight: 600;
         font-family: 'Orbitron', sans-serif;
     }
     .field-value input {
@@ -461,7 +473,7 @@
 
   <div class="user-card">
     <div class="user-left">
-        <div class="user-avatar"><i class="fas fa-user"></i></div>
+        <div class="user-avatar"><i class="fas fa-user" id="headerAvatarIcon"></i></div>
         <div class="user-info" style="cursor: pointer;" onclick="openProfilePanel()">
             <span class="user-name" id="currentUserName">Loading...</span>
             <span class="user-id" id="currentUserId">ID: --</span>
@@ -563,7 +575,7 @@
       <div class="custom-modal-box">
           <div class="modal-icon"><i class="fas fa-address-book"></i></div>
           <h3 class="modal-title" id="contactTitle">Emergency Contact</h3>
-          <p id="contactText" class="modal-text" style="color:#aaa;">Enter phone number</p>
+          <p id="contactText" class="modal-text" style="color:#ddd;">Enter phone number</p>
           <input type="number" id="emergencyInput" class="modal-input" placeholder="010xxxxxxxx">
           <div class="modal-actions"><button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button><button class="modal-btn btn-confirm" onclick="saveEmergencyContact()">Save</button></div>
       </div>
@@ -573,7 +585,7 @@
       <div class="custom-modal-box">
           <div class="modal-icon warning" style="color:var(--error);"><i class="fas fa-exclamation-triangle"></i></div>
           <h3 class="modal-title" id="confirmTitle">Emergency Alert</h3>
-          <p id="confirmText" class="modal-text" style="color:#aaa;">Confirm SOS?</p>
+          <p id="confirmText" class="modal-text" style="color:#ddd;">Confirm SOS?</p>
           <div class="modal-actions"><button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button><button class="modal-btn btn-danger" onclick="executeSOS()">YES, SEND HELP</button></div>
       </div>
   </div>
@@ -582,8 +594,8 @@
   <div class="sidebar" id="smartSidebar">
     <div class="sidebar-header"><h3 id="sidebarTitle"><i class="fas fa-brain"></i> SMART CHECK</h3><button class="close-sidebar" onclick="toggleSidebar(false)">×</button></div>
     <div class="sidebar-content">
-      <label id="lblWeight" style="color:#aaa; display:block; margin-bottom:5px;">Weight (kg)</label><input type="number" id="inputWeight" class="sidebar-input" placeholder="e.g. 75">
-      <label id="lblHeight" style="color:#aaa; display:block; margin-bottom:5px;">Height (cm)</label><input type="number" id="inputHeight" class="sidebar-input" placeholder="e.g. 175">
+      <label id="lblWeight" style="color:#ddd; display:block; margin-bottom:5px; font-size:0.9rem;">Weight (kg)</label><input type="number" id="inputWeight" class="sidebar-input" placeholder="e.g. 75">
+      <label id="lblHeight" style="color:#ddd; display:block; margin-bottom:5px; font-size:0.9rem;">Height (cm)</label><input type="number" id="inputHeight" class="sidebar-input" placeholder="e.g. 175">
       <button class="calc-btn" onclick="calculateHealthRisk()" id="btnAnalyze">ANALYZE DATA</button>
       <div id="analysisResult" class="result-box"></div>
     </div>
@@ -595,13 +607,17 @@
     <button class="profile-close" onclick="closeProfilePanel()">×</button>
     
     <div class="profile-header">
-      <div class="hexagon-avatar">
+      <div class="hexagon-avatar" onclick="document.getElementById('avatarFileInput').click()">
         <div class="hex-wrapper">
           <div class="hex-inner">
-            <i class="fas fa-user"></i>
+            <i class="fas fa-user" id="avatarIcon"></i>
           </div>
         </div>
+        <div class="avatar-upload-overlay" title="تغيير الصورة">
+          <i class="fas fa-camera"></i>
+        </div>
       </div>
+      <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(this)">
       
       <div class="profile-name-section">
         <h2 class="profile-main-name" id="profileFullName">Loading...</h2>
@@ -1229,6 +1245,7 @@
     // Init Logic
     window.onload = () => { 
         updateAIAnalysis(); 
+        loadSavedAvatar();
         if ('speechSynthesis' in window) {
             window.speechSynthesis.onvoiceschanged = () => { setupHoverVoice(); };
             setTimeout(setupHoverVoice, 500);
@@ -1255,6 +1272,9 @@
         const userId = currentUserId;
         if (!userId) return;
 
+        // Load saved avatar first
+        loadSavedAvatar();
+
         // Fetch user data from Firebase
         db.ref(PATIENT_DATA_PATH + '/' + userId).once('value').then(snapshot => {
             if (snapshot.exists()) {
@@ -1270,6 +1290,7 @@
                 // Gender
                 const gender = userData.gender || userData.Gender || "";
                 document.getElementById('genderSelect').value = gender;
+                updateAvatarIcon(gender);
 
                 // Phone Number (userId is the phone)
                 document.getElementById('phoneNumber').innerText = userId;
@@ -1375,11 +1396,77 @@
         db.ref(PATIENT_DATA_PATH + '/' + userId).update({
             gender: gender
         }).then(() => {
+            updateAvatarIcon(gender);
             showToast("تم حفظ النوع بنجاح", "success");
         }).catch(err => {
             console.error("Error saving gender:", err);
             showToast("خطأ في الحفظ", "error");
         });
+    }
+
+    function updateAvatarIcon(gender) {
+        const headerIcon = document.getElementById('headerAvatarIcon');
+        const avatarIcon = document.getElementById('avatarIcon');
+        
+        let iconClass = 'fa-user'; // default
+        
+        if (gender === 'male') {
+            iconClass = 'fa-male';
+        } else if (gender === 'female') {
+            iconClass = 'fa-female';
+        }
+        
+        // Update both header and profile icons
+        if (headerIcon) {
+            headerIcon.className = 'fas ' + iconClass;
+        }
+        if (avatarIcon) {
+            avatarIcon.className = 'fas ' + iconClass;
+        }
+    }
+
+    function handleAvatarUpload(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                // Store the image data URL in localStorage
+                localStorage.setItem('userAvatar_' + currentUserId, e.target.result);
+                
+                // Update the avatar display with the image
+                const hexInner = document.querySelector('.hex-inner');
+                if (hexInner) {
+                    hexInner.innerHTML = '<img src="' + e.target.result + '" style="width: 100%; height: 100%; object-fit: cover; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);">';
+                }
+                
+                // Also update header avatar
+                const headerAvatar = document.querySelector('.user-avatar');
+                if (headerAvatar) {
+                    headerAvatar.innerHTML = '<img src="' + e.target.result + '" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-neon);">';
+                }
+                
+                showToast("تم تحديث الصورة بنجاح", "success");
+            };
+            
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Load saved avatar on page load
+    function loadSavedAvatar() {
+        const savedAvatar = localStorage.getItem('userAvatar_' + currentUserId);
+        if (savedAvatar) {
+            const hexInner = document.querySelector('.hex-inner');
+            if (hexInner) {
+                hexInner.innerHTML = '<img src="' + savedAvatar + '" style="width: 100%; height: 100%; object-fit: cover; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);">';
+            }
+            
+            const headerAvatar = document.querySelector('.user-avatar');
+            if (headerAvatar) {
+                headerAvatar.innerHTML = '<img src="' + savedAvatar + '" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-neon);">';
+            }
+        }
     }
   </script>
 </body>
