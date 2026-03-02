@@ -283,6 +283,175 @@
         .ai-advice-container { flex-wrap: wrap; justify-content: flex-start; overflow-x: visible; }
         .advice-box { flex: 1; min-width: 200px; }
     }
+
+    /* --- PROFILE SIDE PANEL --- */
+    .profile-overlay {
+        position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
+        z-index: 9998; opacity: 0; visibility: hidden; transition: all 0.3s ease;
+    }
+    .profile-overlay.active { opacity: 1; visibility: visible; }
+
+    .profile-panel {
+        position: fixed; top: 0; left: -400px; width: 90%; max-width: 380px; height: 100vh;
+        background: linear-gradient(135deg, rgba(8, 15, 25, 0.98), rgba(2, 4, 8, 0.98));
+        backdrop-filter: blur(20px); border-right: 2px solid var(--primary-neon);
+        box-shadow: 0 0 50px rgba(0, 242, 255, 0.3); z-index: 9999;
+        transition: left 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        overflow-y: auto; padding: 20px;
+    }
+    .profile-panel.active { left: 0; }
+
+    .profile-close {
+        position: absolute; top: 15px; right: 15px; width: 35px; height: 35px;
+        background: rgba(255, 42, 42, 0.1); border: 1px solid var(--error);
+        color: var(--error); border-radius: 50%; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; transition: 0.3s;
+    }
+    .profile-close:hover {
+        background: var(--error); color: #fff; box-shadow: 0 0 20px var(--error);
+        transform: rotate(90deg);
+    }
+
+    .profile-header {
+        display: flex; flex-direction: column; align-items: center;
+        padding: 30px 0; border-bottom: 1px solid rgba(0, 242, 255, 0.2);
+    }
+
+    .hexagon-avatar {
+        position: relative; width: 120px; height: 120px; margin-bottom: 20px;
+    }
+    .hex-wrapper {
+        width: 100%; height: 100%;
+        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        background: linear-gradient(135deg, var(--primary-neon), var(--secondary-neon));
+        padding: 3px; animation: hexPulse 3s infinite;
+    }
+    @keyframes hexPulse {
+        0%, 100% { filter: drop-shadow(0 0 10px var(--primary-neon)); transform: scale(1); }
+        50% { filter: drop-shadow(0 0 25px var(--primary-neon)); transform: scale(1.05); }
+    }
+    .hex-inner {
+        width: 100%; height: 100%;
+        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        background: rgba(0, 242, 255, 0.1); display: flex; align-items: center; justify-content: center;
+    }
+    .hex-inner i { font-size: 3rem; color: var(--primary-neon); }
+
+    .profile-name-section {
+        text-align: center; width: 100%;
+    }
+    .profile-main-name {
+        font-family: 'Orbitron', sans-serif; font-size: 1.5rem; color: #fff;
+        font-weight: 700; margin: 0 0 8px 0; letter-spacing: 1px;
+    }
+    .edit-name-btn {
+        background: rgba(0, 242, 255, 0.1); border: 1px solid var(--primary-neon);
+        color: var(--primary-neon); padding: 5px 15px; border-radius: 20px;
+        font-size: 0.75rem; cursor: pointer; transition: 0.3s;
+        font-family: 'Rajdhani', sans-serif; font-weight: 600;
+    }
+    .edit-name-btn:hover {
+        background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon);
+    }
+
+    .profile-body {
+        padding: 25px 0;
+    }
+
+    .info-section {
+        margin-bottom: 20px;
+    }
+    .section-title {
+        font-family: 'Orbitron', sans-serif; font-size: 0.85rem;
+        color: var(--primary-neon); margin-bottom: 15px; letter-spacing: 1px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .section-title i { font-size: 1rem; }
+
+    .info-field {
+        background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px; padding: 15px; margin-bottom: 12px;
+        display: flex; align-items: center; justify-content: space-between;
+        transition: 0.3s;
+    }
+    .info-field:hover {
+        background: rgba(0, 242, 255, 0.05); border-color: rgba(0, 242, 255, 0.3);
+    }
+
+    .field-left {
+        display: flex; align-items: center; gap: 12px; flex: 1;
+    }
+    .field-icon {
+        width: 35px; height: 35px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem;
+    }
+    .field-icon.temp-gradient { background: linear-gradient(135deg, #ff9f43, #ee5a24); color: #fff; }
+    .field-icon.pulse-gradient { background: linear-gradient(135deg, #ff4757, #ff6348); color: #fff; }
+    .field-icon.bp-gradient { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: #fff; }
+    .field-icon.ox-gradient { background: linear-gradient(135deg, #48dbfb, #0abde3); color: #fff; }
+
+    .field-content {
+        flex: 1;
+    }
+    .field-label {
+        font-size: 0.7rem; color: #888; margin-bottom: 3px;
+        font-family: 'Rajdhani', sans-serif;
+    }
+    .field-value {
+        font-size: 1rem; color: #fff; font-weight: 600;
+        font-family: 'Orbitron', sans-serif;
+    }
+    .field-value input {
+        background: transparent; border: none; color: #fff;
+        font-size: 1rem; font-weight: 600; font-family: 'Orbitron', sans-serif;
+        width: 100%; outline: none;
+    }
+
+    .field-action {
+        display: flex; gap: 5px;
+    }
+    .field-btn {
+        width: 30px; height: 30px; border-radius: 8px;
+        border: 1px solid; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: 0.3s; font-size: 0.85rem;
+    }
+    .edit-btn {
+        background: rgba(0, 242, 255, 0.1); border-color: var(--primary-neon);
+        color: var(--primary-neon);
+    }
+    .edit-btn:hover {
+        background: var(--primary-neon); color: #000; box-shadow: 0 0 10px var(--primary-neon);
+    }
+    .save-btn {
+        background: rgba(0, 255, 136, 0.1); border-color: var(--success);
+        color: var(--success);
+    }
+    .save-btn:hover {
+        background: var(--success); color: #000; box-shadow: 0 0 10px var(--success);
+    }
+    .locked-icon {
+        color: var(--error); font-size: 0.9rem;
+    }
+
+    .gender-select {
+        background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.3);
+        color: #fff; padding: 8px 12px; border-radius: 8px;
+        font-family: 'Orbitron', sans-serif; font-size: 0.9rem;
+        cursor: pointer; width: 100%; outline: none;
+    }
+    .gender-select option {
+        background: #050b14; color: #fff;
+    }
+
+    .short-id-badge {
+        background: linear-gradient(135deg, rgba(112, 0, 255, 0.2), rgba(0, 242, 255, 0.2));
+        border: 1px solid var(--primary-neon); padding: 8px 15px; border-radius: 20px;
+        display: inline-block; font-family: 'Orbitron', sans-serif;
+        font-size: 0.95rem; color: var(--primary-neon); letter-spacing: 1px;
+        font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -293,7 +462,7 @@
   <div class="user-card">
     <div class="user-left">
         <div class="user-avatar"><i class="fas fa-user"></i></div>
-        <div class="user-info">
+        <div class="user-info" style="cursor: pointer;" onclick="openProfilePanel()">
             <span class="user-name" id="currentUserName">Loading...</span>
             <span class="user-id" id="currentUserId">ID: --</span>
         </div>
@@ -417,6 +586,138 @@
       <label id="lblHeight" style="color:#aaa; display:block; margin-bottom:5px;">Height (cm)</label><input type="number" id="inputHeight" class="sidebar-input" placeholder="e.g. 175">
       <button class="calc-btn" onclick="calculateHealthRisk()" id="btnAnalyze">ANALYZE DATA</button>
       <div id="analysisResult" class="result-box"></div>
+    </div>
+  </div>
+
+  <!-- Profile Side Panel -->
+  <div class="profile-overlay" id="profileOverlay" onclick="closeProfilePanel()"></div>
+  <div class="profile-panel" id="profilePanel">
+    <button class="profile-close" onclick="closeProfilePanel()">×</button>
+    
+    <div class="profile-header">
+      <div class="hexagon-avatar">
+        <div class="hex-wrapper">
+          <div class="hex-inner">
+            <i class="fas fa-user"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="profile-name-section">
+        <h2 class="profile-main-name" id="profileFullName">Loading...</h2>
+        <button class="edit-name-btn" onclick="toggleNameEdit()">
+          <i class="fas fa-edit"></i> تعديل
+        </button>
+      </div>
+    </div>
+
+    <div class="profile-body">
+      <!-- Editable Information -->
+      <div class="info-section">
+        <div class="section-title">
+          <i class="fas fa-edit"></i> معلومات قابلة للتعديل
+        </div>
+
+        <div class="info-field">
+          <div class="field-left">
+            <div class="field-icon temp-gradient">
+              <i class="fas fa-user-edit"></i>
+            </div>
+            <div class="field-content">
+              <div class="field-label">الاسم الكامل</div>
+              <div class="field-value">
+                <span id="displayFullName">Loading...</span>
+                <input type="text" id="editFullName" style="display:none;">
+              </div>
+            </div>
+          </div>
+          <div class="field-action">
+            <button class="field-btn edit-btn" id="nameEditBtn" onclick="enableNameEdit()">
+              <i class="fas fa-pen"></i>
+            </button>
+            <button class="field-btn save-btn" id="nameSaveBtn" style="display:none;" onclick="saveFullName()">
+              <i class="fas fa-check"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="info-field">
+          <div class="field-left">
+            <div class="field-icon pulse-gradient">
+              <i class="fas fa-venus-mars"></i>
+            </div>
+            <div class="field-content">
+              <div class="field-label">النوع</div>
+              <div class="field-value">
+                <select class="gender-select" id="genderSelect" onchange="saveGender()">
+                  <option value="">اختر...</option>
+                  <option value="male">ذكر</option>
+                  <option value="female">أنثى</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="field-action">
+            <button class="field-btn edit-btn">
+              <i class="fas fa-pen"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Static Information -->
+      <div class="info-section">
+        <div class="section-title">
+          <i class="fas fa-lock"></i> معلومات ثابتة
+        </div>
+
+        <div class="info-field">
+          <div class="field-left">
+            <div class="field-icon bp-gradient">
+              <i class="fas fa-phone"></i>
+            </div>
+            <div class="field-content">
+              <div class="field-label">رقم الموبايل</div>
+              <div class="field-value" id="phoneNumber">--</div>
+            </div>
+          </div>
+          <div class="field-action">
+            <i class="fas fa-lock locked-icon"></i>
+          </div>
+        </div>
+
+        <div class="info-field">
+          <div class="field-left">
+            <div class="field-icon ox-gradient">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="field-content">
+              <div class="field-label">تاريخ التسجيل</div>
+              <div class="field-value" id="memberSince">--</div>
+            </div>
+          </div>
+          <div class="field-action">
+            <i class="fas fa-lock locked-icon"></i>
+          </div>
+        </div>
+
+        <div class="info-field">
+          <div class="field-left">
+            <div class="field-icon temp-gradient">
+              <i class="fas fa-fingerprint"></i>
+            </div>
+            <div class="field-content">
+              <div class="field-label">المعرف الرقمي</div>
+              <div class="field-value">
+                <span class="short-id-badge" id="shortId">#------</span>
+              </div>
+            </div>
+          </div>
+          <div class="field-action">
+            <i class="fas fa-lock locked-icon"></i>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -933,6 +1234,153 @@
             setTimeout(setupHoverVoice, 500);
         }
     };
+
+    // --- PROFILE PANEL FUNCTIONS ---
+    function openProfilePanel() {
+        const overlay = document.getElementById('profileOverlay');
+        const panel = document.getElementById('profilePanel');
+        overlay.classList.add('active');
+        panel.classList.add('active');
+        loadProfileData();
+    }
+
+    function closeProfilePanel() {
+        const overlay = document.getElementById('profileOverlay');
+        const panel = document.getElementById('profilePanel');
+        overlay.classList.remove('active');
+        panel.classList.remove('active');
+    }
+
+    function loadProfileData() {
+        const userId = currentUserId;
+        if (!userId) return;
+
+        // Fetch user data from Firebase
+        db.ref(PATIENT_DATA_PATH + '/' + userId).once('value').then(snapshot => {
+            if (snapshot.exists()) {
+                const userData = snapshot.val();
+                console.log("Profile Data:", userData);
+
+                // Full Name
+                const fullName = userData.fullName || userData.FullName || userData.name || userData.Name || "مستخدم جديد";
+                document.getElementById('profileFullName').innerText = fullName;
+                document.getElementById('displayFullName').innerText = fullName;
+                document.getElementById('editFullName').value = fullName;
+
+                // Gender
+                const gender = userData.gender || userData.Gender || "";
+                document.getElementById('genderSelect').value = gender;
+
+                // Phone Number (userId is the phone)
+                document.getElementById('phoneNumber').innerText = userId;
+
+                // Member Since (Registration Date)
+                if (userData.registrationDate) {
+                    const regDate = new Date(userData.registrationDate);
+                    const formattedDate = regDate.toLocaleDateString('ar-EG', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    document.getElementById('memberSince').innerText = formattedDate;
+                } else {
+                    document.getElementById('memberSince').innerText = "غير متوفر";
+                }
+
+                // Short ID (first 6 chars from Firebase UID if available, otherwise from phone)
+                // We need to get the actual Firebase UID or generate a short code
+                db.ref(PATIENT_DATA_PATH + '/' + userId).once('value').then(snap => {
+                    const key = snap.key; // This is the userId (phone number)
+                    // Generate a short hash from the userId
+                    const shortId = generateShortId(userId);
+                    document.getElementById('shortId').innerText = '#' + shortId;
+                });
+
+            } else {
+                console.log("No user data found");
+                document.getElementById('profileFullName').innerText = "مستخدم جديد";
+                document.getElementById('displayFullName').innerText = "مستخدم جديد";
+                document.getElementById('phoneNumber').innerText = userId;
+                document.getElementById('memberSince').innerText = "اليوم";
+                document.getElementById('shortId').innerText = '#' + generateShortId(userId);
+            }
+        }).catch(err => {
+            console.error("Error loading profile:", err);
+            showToast("خطأ في تحميل البيانات", "error");
+        });
+    }
+
+    function generateShortId(userId) {
+        // Generate a 6-character hash from userId
+        let hash = 0;
+        for (let i = 0; i < userId.length; i++) {
+            hash = ((hash << 5) - hash) + userId.charCodeAt(i);
+            hash = hash & hash;
+        }
+        const shortHash = Math.abs(hash).toString(36).substring(0, 6).toUpperCase();
+        return shortHash.padEnd(6, '0');
+    }
+
+    function enableNameEdit() {
+        document.getElementById('displayFullName').style.display = 'none';
+        document.getElementById('editFullName').style.display = 'block';
+        document.getElementById('editFullName').focus();
+        document.getElementById('nameEditBtn').style.display = 'none';
+        document.getElementById('nameSaveBtn').style.display = 'flex';
+    }
+
+    function saveFullName() {
+        const userId = currentUserId;
+        const newName = document.getElementById('editFullName').value.trim();
+        
+        if (!newName) {
+            showToast("الرجاء إدخال اسم صحيح", "error");
+            return;
+        }
+
+        // Update in Firebase
+        db.ref(PATIENT_DATA_PATH + '/' + userId).update({
+            fullName: newName
+        }).then(() => {
+            // Update UI
+            document.getElementById('profileFullName').innerText = newName;
+            document.getElementById('displayFullName').innerText = newName;
+            document.getElementById('displayFullName').style.display = 'block';
+            document.getElementById('editFullName').style.display = 'none';
+            document.getElementById('nameEditBtn').style.display = 'flex';
+            document.getElementById('nameSaveBtn').style.display = 'none';
+            
+            // Update header name
+            const firstName = newName.split(' ')[0];
+            userNameSpan.innerText = firstName;
+            
+            showToast("تم حفظ الاسم بنجاح", "success");
+        }).catch(err => {
+            console.error("Error saving name:", err);
+            showToast("خطأ في الحفظ", "error");
+        });
+    }
+
+    function toggleNameEdit() {
+        enableNameEdit();
+    }
+
+    function saveGender() {
+        const userId = currentUserId;
+        const gender = document.getElementById('genderSelect').value;
+        
+        if (!gender) return;
+
+        // Update in Firebase
+        db.ref(PATIENT_DATA_PATH + '/' + userId).update({
+            gender: gender
+        }).then(() => {
+            showToast("تم حفظ النوع بنجاح", "success");
+        }).catch(err => {
+            console.error("Error saving gender:", err);
+            showToast("خطأ في الحفظ", "error");
+        });
+    }
   </script>
 </body>
 </html>
