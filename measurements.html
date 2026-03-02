@@ -639,14 +639,26 @@
       <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(this)">
       
       <!-- Image Cropper Modal -->
-      <div id="cropperModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:10000; overflow:auto; backdrop-filter:blur(10px);">
-        <div style="position:relative; max-width:600px; margin:30px auto; background:rgba(5,12,22,0.98); border:1px solid rgba(0,242,255,0.3); border-radius:20px; padding:20px;">
-          <button style="position:absolute; top:10px; right:10px; background:var(--error); border:none; color:#fff; width:35px; height:35px; border-radius:50%; cursor:pointer; font-size:1.2rem;" onclick="closeCropperModal()">×</button>
-          <h3 style="color:#fff; text-align:center; margin-top:0; font-family:'Orbitron',sans-serif; margin-bottom:20px;">اختر جزء الصورة</h3>
-          <img id="cropperImage" src="" style="max-width:100%; display:block; margin:0 auto;">
-          <div style="display:flex; gap:10px; margin-top:20px; justify-content:center;">
-            <button onclick="cropAndSaveAvatar()" style="padding:10px 30px; background:var(--success); border:none; color:#000; border-radius:10px; cursor:pointer; font-weight:bold;">حفظ الصورة</button>
-            <button onclick="closeCropperModal()" style="padding:10px 30px; background:var(--error); border:none; color:#fff; border-radius:10px; cursor:pointer; font-weight:bold;">إلغاء</button>
+      <div id="cropperModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:10000; backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center;">
+        <div style="width:95%; max-width:500px; background:rgba(5,12,22,0.98); border:1px solid rgba(0,242,255,0.3); border-radius:20px; padding:25px; box-shadow:0 0 40px rgba(0,242,255,0.2);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="color:#fff; margin:0; font-family:'Orbitron',sans-serif; font-size:1.1rem;">تحديد الصورة</h3>
+            <button style="background:var(--error); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center;" onclick="closeCropperModal()">×</button>
+          </div>
+          <div style="position:relative; width:100%; aspect-ratio:1; background:#000; border-radius:15px; overflow:hidden; margin-bottom:20px; border:2px solid rgba(0,242,255,0.2);">
+            <img id="cropperImage" src="" style="position:absolute; top:0; left:0; cursor:move; user-select:none; touch-action:none; width:100%; height:100%;">
+            <div style="position:absolute; inset:0; border-radius:50%; border:3px solid var(--primary-neon); box-shadow:inset 0 0 0 9999px rgba(0,0,0,0.6); pointer-events:none;"></div>
+          </div>
+          <div style="margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <label style="color:#ddd; font-size:0.85rem; font-family:'Rajdhani',sans-serif;">حجم الصورة</label>
+              <span style="color:var(--primary-neon); font-family:'Orbitron',sans-serif; font-size:0.9rem;" id="zoomPercent">100%</span>
+            </div>
+            <input type="range" id="zoomSlider" min="50" max="200" value="100" style="width:100%; cursor:pointer; height:6px; border-radius:3px; background:linear-gradient(90deg, rgba(0,242,255,0.2), var(--primary-neon)); outline:none;" oninput="updateZoom(this.value)">
+          </div>
+          <div style="display:flex; gap:12px;">
+            <button onclick="cropAndSaveAvatar()" style="flex:1; padding:12px; background:var(--success); border:none; color:#000; border-radius:10px; cursor:pointer; font-weight:bold; font-family:'Rajdhani',sans-serif; font-size:0.95rem; transition:0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">حفظ الصورة</button>
+            <button onclick="closeCropperModal()" style="flex:1; padding:12px; background:rgba(255,42,42,0.1); border:1px solid var(--error); color:var(--error); border-radius:10px; cursor:pointer; font-weight:bold; font-family:'Rajdhani',sans-serif; font-size:0.95rem; transition:0.3s;" onmouseover="this.style.background='rgba(255,42,42,0.2)'" onmouseout="this.style.background='rgba(255,42,42,0.1)'">إلغاء</button>
           </div>
         </div>
       </div>
@@ -677,7 +689,7 @@
             </div>
           </div>
           <div class="field-action">
-            <button class="field-btn edit-btn" id="nameEditBtn" onclick="enableNameEdit()" style="display:none;">
+            <button class="field-btn edit-btn" id="nameEditBtn" onclick="enableNameEdit()">
               <i class="fas fa-pen"></i>
             </button>
             <button class="field-btn save-btn" id="nameSaveBtn" style="display:none;" onclick="saveFullName()">
@@ -702,8 +714,8 @@
               </div>
             </div>
           </div>
-          <div class="field-action">
-            <button class="field-btn edit-btn">
+          <div class="field-action" style="visibility:hidden;">
+            <button class="field-btn edit-btn" style="visibility:hidden;">
               <i class="fas fa-pen"></i>
             </button>
           </div>
@@ -769,9 +781,6 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <!-- Cropper.js for image cropping -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
   <script>
     // --- 1. SETUP BACKGROUND ---
@@ -1307,11 +1316,6 @@
         // Load saved avatar first
         loadSavedAvatar();
 
-        // Get the actual key from Firebase (which is the userId)
-        // Set the short ID immediately (last 5 chars)
-        const shortId = generateShortId(userId);
-        document.getElementById('shortId').innerText = '#' + shortId;
-
         // Fetch user data from Firebase
         db.ref(PATIENT_DATA_PATH + '/' + userId).once('value').then(snapshot => {
             if (snapshot.exists()) {
@@ -1332,25 +1336,20 @@
                 // Phone Number (userId is the phone)
                 document.getElementById('phoneNumber').innerText = userId;
 
-                // Member Since (Registration Date)
+                // Set the short ID from UID (last 5 chars)
+                const uid = userData.UID || userData.uid || "";
+                if (uid) {
+                    const shortId = uid.substring(uid.length - 5).toUpperCase();
+                    document.getElementById('shortId').innerText = '#' + shortId;
+                } else {
+                    document.getElementById('shortId').innerText = '#------';
+                }
+
+                // Member Since (Registration Date) - show as-is from Firebase (English)
                 if (userData.RegistrationDate || userData.registrationDate) {
-                    let regDate;
-                    const dateField = userData.RegistrationDate || userData.registrationDate;
-                    
-                    // Handle different date formats
-                    if (typeof dateField === 'string') {
-                        regDate = new Date(dateField);
-                    } else if (typeof dateField === 'number') {
-                        // If it's a timestamp
-                        regDate = new Date(dateField);
-                    } else {
-                        regDate = new Date();
-                    }
-                    
-                    // Format date in Arabic
-                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                    const formattedDate = regDate.toLocaleDateString('ar-EG', options);
-                    document.getElementById('memberSince').innerText = formattedDate;
+                    const regDateField = userData.RegistrationDate || userData.registrationDate;
+                    // Display exactly as stored in Firebase (no formatting)
+                    document.getElementById('memberSince').innerText = regDateField;
                 } else {
                     document.getElementById('memberSince').innerText = "غير متوفر";
                 }
@@ -1361,6 +1360,7 @@
                 document.getElementById('displayFullName').innerText = "مستخدم جديد";
                 document.getElementById('phoneNumber').innerText = userId;
                 document.getElementById('memberSince').innerText = "اليوم";
+                document.getElementById('shortId').innerText = '#------';
             }
         }).catch(err => {
             console.error("Error loading profile:", err);
@@ -1394,11 +1394,29 @@
             const firstName = newName.split(' ')[0];
             userNameSpan.innerText = firstName;
             
+            // Hide edit mode
+            disableNameEdit();
+            
             showToast("تم حفظ الاسم بنجاح", "success");
         }).catch(err => {
             console.error("Error saving name:", err);
             showToast("خطأ في الحفظ", "error");
         });
+    }
+
+    function enableNameEdit() {
+        document.getElementById('displayFullName').style.display = 'none';
+        document.getElementById('editFullName').style.display = 'block';
+        document.getElementById('nameEditBtn').style.display = 'none';
+        document.getElementById('nameSaveBtn').style.display = 'block';
+        document.getElementById('editFullName').focus();
+    }
+
+    function disableNameEdit() {
+        document.getElementById('displayFullName').style.display = 'block';
+        document.getElementById('editFullName').style.display = 'none';
+        document.getElementById('nameEditBtn').style.display = 'block';
+        document.getElementById('nameSaveBtn').style.display = 'none';
     }
 
     function saveGender() {
@@ -1428,7 +1446,7 @@
         if (gender === 'male') {
             iconClass = 'fa-user-tie'; // ذكر بربطة عنق
         } else if (gender === 'female') {
-            iconClass = 'fa-user-long-hair'; // أنثى بشعر طويل
+            iconClass = 'fa-venus'; // أنثى ♀
         }
         
         // Update both header and profile icons
@@ -1440,7 +1458,13 @@
         }
     }
 
-    let cropperInstance = null;
+    let cropperImage = null;
+    let imageZoom = 1;
+    let imagePosX = 0;
+    let imagePosY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
 
     function handleAvatarUpload(input) {
         if (input.files && input.files[0]) {
@@ -1448,76 +1472,121 @@
             const reader = new FileReader();
             
             reader.onload = function(e) {
-                // Show cropper modal
-                const cropperImg = document.getElementById('cropperImage');
-                cropperImg.src = e.target.result;
-                document.getElementById('cropperModal').style.display = 'block';
-                
-                // Initialize cropper with face focus
-                setTimeout(() => {
-                    if (cropperInstance) {
-                        cropperInstance.destroy();
-                    }
-                    cropperInstance = new Cropper(cropperImg, {
-                        aspectRatio: 1,
-                        viewMode: 1,
-                        autoCropArea: 0.8,
-                        responsive: true,
-                        restore: true,
-                        guides: true,
-                        center: true,
-                        highlight: true,
-                        cropBoxMovable: true,
-                        cropBoxResizable: true,
-                        toggleDragModeOnDblclick: true,
-                        // Set initial position to focus on top (face area)
-                        data: {
-                            x: 0,
-                            y: 0,
-                            width: cropperImg.width,
-                            height: cropperImg.width
-                        }
-                    });
-                }, 100);
+                cropperImage = new Image();
+                cropperImage.onload = function() {
+                    const img = document.getElementById('cropperImage');
+                    img.src = e.target.result;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'contain';
+                    
+                    document.getElementById('cropperModal').style.display = 'flex';
+                    document.getElementById('zoomSlider').value = 100;
+                    document.getElementById('zoomPercent').innerText = '100%';
+                    imageZoom = 1;
+                    imagePosX = 0;
+                    imagePosY = 0;
+                    
+                    setupImageDrag();
+                };
+                cropperImage.src = e.target.result;
             };
             
             reader.readAsDataURL(file);
         }
     }
 
+    function updateZoom(value) {
+        imageZoom = value / 100;
+        const img = document.getElementById('cropperImage');
+        img.style.transform = `scale(${imageZoom}) translate(${imagePosX}px, ${imagePosY}px)`;
+        document.getElementById('zoomPercent').innerText = value + '%';
+    }
+
+    function setupImageDrag() {
+        const img = document.getElementById('cropperImage');
+        const container = img.parentElement;
+        
+        img.addEventListener('mousedown', startDrag);
+        img.addEventListener('touchstart', startDrag, { passive: false });
+    }
+
+    function startDrag(e) {
+        isDragging = true;
+        startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        
+        document.addEventListener('mousemove', dragImage);
+        document.addEventListener('touchmove', dragImage, { passive: false });
+        document.addEventListener('mouseup', stopDrag);
+        document.addEventListener('touchend', stopDrag);
+    }
+
+    function dragImage(e) {
+        if (!isDragging) return;
+        const img = document.getElementById('cropperImage');
+        
+        const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        
+        imagePosX += (currentX - startX) / (imageZoom * 100);
+        imagePosY += (currentY - startY) / (imageZoom * 100);
+        
+        startX = currentX;
+        startY = currentY;
+        
+        img.style.transform = `scale(${imageZoom}) translate(${imagePosX}px, ${imagePosY}px)`;
+    }
+
+    function stopDrag() {
+        isDragging = false;
+        document.removeEventListener('mousemove', dragImage);
+        document.removeEventListener('touchmove', dragImage);
+        document.removeEventListener('mouseup', stopDrag);
+        document.removeEventListener('touchend', stopDrag);
+    }
+
     function closeCropperModal() {
         document.getElementById('cropperModal').style.display = 'none';
-        if (cropperInstance) {
-            cropperInstance.destroy();
-            cropperInstance = null;
-        }
-        // Reset file input
         document.getElementById('avatarFileInput').value = '';
+        isDragging = false;
     }
 
     function cropAndSaveAvatar() {
-        if (!cropperInstance) return;
+        const img = document.getElementById('cropperImage');
+        const container = img.parentElement;
         
-        const canvas = cropperInstance.getCroppedCanvas({
-            maxWidth: 300,
-            maxHeight: 300,
-            fillColor: '#fff',
-            imageSmoothingEnabled: true,
-            imageSmoothingQuality: 'high',
-        });
+        // Create canvas for the cropped result
+        const canvas = document.createElement('canvas');
+        const size = 300;
+        canvas.width = size;
+        canvas.height = size;
+        
+        const ctx = canvas.getContext('2d');
+        
+        // Draw image centered and scaled
+        const scaledWidth = cropperImage.width * imageZoom;
+        const scaledHeight = cropperImage.height * imageZoom;
+        
+        const x = (size - scaledWidth) / 2 + imagePosX * imageZoom;
+        const y = (size - scaledHeight) / 2 + imagePosY * imageZoom;
+        
+        ctx.drawImage(cropperImage, x, y, scaledWidth, scaledHeight);
         
         const compressedImage = canvas.toDataURL('image/jpeg', 0.85);
         
-        // Store the compressed image
+        // Store in both localStorage and Firebase
         localStorage.setItem('userAvatar_' + currentUserId, compressedImage);
+        db.ref(PATIENT_DATA_PATH + '/' + currentUserId).update({
+            avatar: compressedImage
+        }).catch(err => console.error("Error saving avatar:", err));
         
-        // Update the avatar display with the image
+        // Update display
         const hexInner = document.querySelector('.hex-inner');
         if (hexInner) {
             hexInner.innerHTML = '<img src="' + compressedImage + '" style="width: 100%; height: 100%; object-fit: cover; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);">';
         }
         
-        // Also update header avatar
         const headerAvatar = document.querySelector('.user-avatar');
         if (headerAvatar) {
             headerAvatar.innerHTML = '<img src="' + compressedImage + '" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-neon);">';
@@ -1529,17 +1598,41 @@
 
     // Load saved avatar on page load
     function loadSavedAvatar() {
-        const savedAvatar = localStorage.getItem('userAvatar_' + currentUserId);
-        if (savedAvatar) {
-            const hexInner = document.querySelector('.hex-inner');
-            if (hexInner) {
-                hexInner.innerHTML = '<img src="' + savedAvatar + '" style="width: 100%; height: 100%; object-fit: cover; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);">';
+        // First try to load from Firebase
+        const userId = currentUserId;
+        db.ref(PATIENT_DATA_PATH + '/' + userId).once('value').then(snapshot => {
+            if (snapshot.exists()) {
+                const userData = snapshot.val();
+                if (userData.avatar) {
+                    displayAvatar(userData.avatar);
+                    // Also save to localStorage for faster loading next time
+                    localStorage.setItem('userAvatar_' + userId, userData.avatar);
+                    return;
+                }
             }
-            
-            const headerAvatar = document.querySelector('.user-avatar');
-            if (headerAvatar) {
-                headerAvatar.innerHTML = '<img src="' + savedAvatar + '" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-neon);">';
+            // If not in Firebase, try localStorage
+            const savedAvatar = localStorage.getItem('userAvatar_' + userId);
+            if (savedAvatar) {
+                displayAvatar(savedAvatar);
             }
+        }).catch(err => {
+            // Fallback to localStorage if Firebase fails
+            const savedAvatar = localStorage.getItem('userAvatar_' + userId);
+            if (savedAvatar) {
+                displayAvatar(savedAvatar);
+            }
+        });
+    }
+
+    function displayAvatar(avatarData) {
+        const hexInner = document.querySelector('.hex-inner');
+        if (hexInner) {
+            hexInner.innerHTML = '<img src="' + avatarData + '" style="width: 100%; height: 100%; object-fit: cover; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);">';
+        }
+        
+        const headerAvatar = document.querySelector('.user-avatar');
+        if (headerAvatar) {
+            headerAvatar.innerHTML = '<img src="' + avatarData + '" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-neon);">';
         }
     }
   </script>
