@@ -639,16 +639,15 @@
       <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(this)">
       
       <!-- Image Cropper Modal -->
-      <div id="cropperModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:10000; backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center;">
+    <div id="cropperModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:10000; backdrop-filter:blur(10px); align-items:center; justify-content:center;">
         <div style="width:95%; max-width:500px; background:rgba(5,12,22,0.98); border:1px solid rgba(0,242,255,0.3); border-radius:20px; padding:25px; box-shadow:0 0 40px rgba(0,242,255,0.2);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <h3 style="color:#fff; margin:0; font-family:'Orbitron',sans-serif; font-size:1.1rem;">تحديد الصورة</h3>
             <button style="background:var(--error); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center;" onclick="closeCropperModal()">×</button>
           </div>
-          <div style="position:relative; width:100%; aspect-ratio:1; background:#000; border-radius:15px; overflow:hidden; margin-bottom:20px; border:2px solid rgba(0,242,255,0.2);">
-            <img id="cropperImage" src="" style="position:absolute; top:0; left:0; cursor:move; user-select:none; touch-action:none; width:100%; height:100%;">
-            <div style="position:absolute; inset:0; border-radius:50%; border:3px solid var(--primary-neon); box-shadow:inset 0 0 0 9999px rgba(0,0,0,0.6); pointer-events:none;"></div>
-          </div>
+                    <div style="position:relative; width:100%; aspect-ratio:1; background:#000; border-radius:15px; overflow:hidden; margin-bottom:20px; border:2px solid rgba(0,242,255,0.2);">
+                        <img id="cropperImage" src="" style="max-width:100%; display:block;">
+                    </div>
           <div style="margin-bottom:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
               <label style="color:#ddd; font-size:0.85rem; font-family:'Rajdhani',sans-serif;">حجم الصورة</label>
@@ -781,6 +780,8 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
   <script>
     // --- 1. SETUP BACKGROUND ---
@@ -1458,120 +1459,79 @@
         }
     }
 
-    let cropperImage = null;
-    let imageZoom = 1;
-    let imagePosX = 0;
-    let imagePosY = 0;
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
+    let avatarCropper = null;
 
     function handleAvatarUpload(input) {
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                cropperImage = new Image();
-                cropperImage.onload = function() {
-                    const img = document.getElementById('cropperImage');
-                    img.src = e.target.result;
-                    img.style.width = '100%';
-                    img.style.height = '100%';
-                    img.style.objectFit = 'contain';
-                    
-                    document.getElementById('cropperModal').style.display = 'flex';
-                    document.getElementById('zoomSlider').value = 100;
-                    document.getElementById('zoomPercent').innerText = '100%';
-                    imageZoom = 1;
-                    imagePosX = 0;
-                    imagePosY = 0;
-                    
-                    setupImageDrag();
-                };
-                cropperImage.src = e.target.result;
-            };
-            
-            reader.readAsDataURL(file);
-        }
+        if (!input.files || !input.files[0]) return;
+
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const img = document.getElementById('cropperImage');
+            const modal = document.getElementById('cropperModal');
+
+            img.src = e.target.result;
+            modal.style.display = 'flex';
+
+            setTimeout(() => {
+                if (avatarCropper) {
+                    avatarCropper.destroy();
+                }
+
+                avatarCropper = new Cropper(img, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 1,
+                    responsive: true,
+                    guides: false,
+                    center: false,
+                    highlight: false,
+                    background: false,
+                    cropBoxMovable: false,
+                    cropBoxResizable: false,
+                    toggleDragModeOnDblclick: false,
+                    ready() {
+                        document.getElementById('zoomSlider').value = 100;
+                        document.getElementById('zoomPercent').innerText = '100%';
+                        avatarCropper.zoomTo(1);
+                    }
+                });
+            }, 50);
+        };
+
+        reader.readAsDataURL(file);
     }
 
     function updateZoom(value) {
-        imageZoom = value / 100;
-        const img = document.getElementById('cropperImage');
-        img.style.transform = `scale(${imageZoom}) translate(${imagePosX}px, ${imagePosY}px)`;
         document.getElementById('zoomPercent').innerText = value + '%';
-    }
-
-    function setupImageDrag() {
-        const img = document.getElementById('cropperImage');
-        const container = img.parentElement;
-        
-        img.addEventListener('mousedown', startDrag);
-        img.addEventListener('touchstart', startDrag, { passive: false });
-    }
-
-    function startDrag(e) {
-        isDragging = true;
-        startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        
-        document.addEventListener('mousemove', dragImage);
-        document.addEventListener('touchmove', dragImage, { passive: false });
-        document.addEventListener('mouseup', stopDrag);
-        document.addEventListener('touchend', stopDrag);
-    }
-
-    function dragImage(e) {
-        if (!isDragging) return;
-        const img = document.getElementById('cropperImage');
-        
-        const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        
-        imagePosX += (currentX - startX) / (imageZoom * 100);
-        imagePosY += (currentY - startY) / (imageZoom * 100);
-        
-        startX = currentX;
-        startY = currentY;
-        
-        img.style.transform = `scale(${imageZoom}) translate(${imagePosX}px, ${imagePosY}px)`;
-    }
-
-    function stopDrag() {
-        isDragging = false;
-        document.removeEventListener('mousemove', dragImage);
-        document.removeEventListener('touchmove', dragImage);
-        document.removeEventListener('mouseup', stopDrag);
-        document.removeEventListener('touchend', stopDrag);
+        if (avatarCropper) {
+            avatarCropper.zoomTo(value / 100);
+        }
     }
 
     function closeCropperModal() {
         document.getElementById('cropperModal').style.display = 'none';
         document.getElementById('avatarFileInput').value = '';
-        isDragging = false;
+        if (avatarCropper) {
+            avatarCropper.destroy();
+            avatarCropper = null;
+        }
     }
 
     function cropAndSaveAvatar() {
-        const img = document.getElementById('cropperImage');
-        const container = img.parentElement;
-        
-        // Create canvas for the cropped result
-        const canvas = document.createElement('canvas');
-        const size = 300;
-        canvas.width = size;
-        canvas.height = size;
-        
-        const ctx = canvas.getContext('2d');
-        
-        // Draw image centered and scaled
-        const scaledWidth = cropperImage.width * imageZoom;
-        const scaledHeight = cropperImage.height * imageZoom;
-        
-        const x = (size - scaledWidth) / 2 + imagePosX * imageZoom;
-        const y = (size - scaledHeight) / 2 + imagePosY * imageZoom;
-        
-        ctx.drawImage(cropperImage, x, y, scaledWidth, scaledHeight);
+        if (!avatarCropper) return;
+
+        const canvas = avatarCropper.getCroppedCanvas({
+            width: 300,
+            height: 300,
+            fillColor: '#ffffff',
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high'
+        });
+
+        if (!canvas) return;
         
         const compressedImage = canvas.toDataURL('image/jpeg', 0.85);
         
