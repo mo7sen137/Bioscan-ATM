@@ -44,11 +44,24 @@
 ---
 
 ## 🔌 Hardware Setup
-الجهاز يعتمد على تناغم مجموعة من الحساسات الطبية المتقدمة:
-1. **Processing Units:** ESP32 (للربط السحابي) + Arduino Uno (لإدارة الحساسات).
-2. **Medical Sensors:** Max30102 (SPO2 & Pulse) + MLX90614 (Body Temperature).
-3. **Identification:** R307 Optical Fingerprint Sensor.
+الجهاز يعتمد على نظام هاردوير متقدم لضمان دقة القياسات وتفاعلية المستخدم:
+### 1. وحدات المعالجة (Processing Units)
 
+* **ESP32:** للربط السحابي ومزامنة البيانات مع Firebase.
+* **Arduino Uno:** لإدارة الحساسات وتنسيق القراءات.
+
+### 2. الحساسات الطبية والقياس (Sensors)
+* **MLX90614:** لقياس درجة حرارة الجسم عن بعد.
+* **Max30102:** لقياس نسبة الأكسجين (SPO2) ونبضات القلب.
+* **Blood Pressure Sensor:** لقياس ضغط الدم الانقباضي والانبساطي.
+* **Ultrasonic Sensor:** لحساب طول المستخدم بدقة.
+* **Load Cells & HX711 Amplifier:** لقياس وزن المستخدم وتحويل الإشارات التماثلية لبيانات رقمية.
+* **R307 Fingerprint Sensor:** للتعرف الحيوي على هوية المرضى.
+
+### 3. واجهة التفاعل والتنبيه (HMI & Feedback)
+* **Keypad:** لإدخال البيانات يدوياً عند الحاجة.
+* **LCD Displays:** لعرض القراءات والتعليمات مباشرة للمستخدم.
+* **LEDs & Buzzers:** لتوفير تنبيهات بصرية وصوتية أثناء عملية الفحص وحالات الطوارئ.
 ---
 
 ## 🖼️ UI Gallery
@@ -62,12 +75,12 @@
 
 | Avatar | Member Name | Role |
 | :---: | :--- | :--- |
-| 👩‍💻 | **Eng/ Lamiaa Ibrahim Muhammed** | Engineering Team |
-| 👩‍💻 | **Eng/ Fatema Muhammed Saad** | Engineering Team |
-| 👨‍💻 | **Eng/ Kariem Hisham Mansour** | Engineering Team |
-| 👨‍💻 | **Eng/ Mohsen Muhammed Elsaid** | Lead Developer & Embedded Systems |
-| 👨‍💻 | **Eng/ Mohammed Abdel Monem Rashad** | Engineering Team |
-| 👨‍💻 | **Eng/ Hossam Hassan Abdelaziz** | Engineering Team |
-| 👨‍💻 | **Eng/ Mohammed Alaa Eldin Karam** | Engineering Team |
+| 👩‍💻 | **Eng/ Lamiaa Ibrahim Muhammed** | Web Developer |
+| 👩‍💻 | **Eng/ Fatema Muhammed Saad** | Web Developer |
+| 👨‍💻 | **Eng/ Kariem Hisham Mansour** | Web Developer |
+| 👨‍💻 | **Eng/ Mohsen Muhammed Elsaid** | IOT & Embedded system |
+| 👨‍💻 | **Eng/ Mohammed Abdel Monem Rashad** | IOT & Embedded system |
+| 👨‍💻 | **Eng/ Hossam Hassan Abdelaziz** | IOT & Embedded system |
+| 👨‍💻 | **Eng/ Mohammed Alaa Eldin Karam** | IOT & Embedded system |
 
 ---
