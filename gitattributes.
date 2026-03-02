@@ -1,10 +1,6 @@
-# اخفاء الـ HTML من الحسبة عشان ما تسيطرش على الشريط
-*.html linguist-documentation=true
+# تجاهل الـ HTML تماماً من الحسبة البرمجية
+*.html linguist-vendored=true
 
-# التأكد من أن جيت هاب يتعرف على أكواد الهاردوير كـ C++
-*.ino linguist-language=cpp
-*.cpp linguist-language=cpp
-*.h linguist-language=cpp
-
-# لو عندك ملفات جافا سكريبت منفصلة تأكد من تفعيلها
+# إجبار جيت هاب على رؤية الـ JS والـ C++
 *.js linguist-detectable=true
+*.ino linguist-detectable=true
