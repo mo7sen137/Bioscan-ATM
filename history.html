@@ -358,6 +358,31 @@
         </div>
     </div>
 
+    <!-- Vision Test Results Section -->
+    <div class="table-container" style="margin-top: 20px;">
+        <div style="padding: 15px; background: rgba(0, 242, 255, 0.05); border-bottom: 1px solid var(--border-color);">
+            <h3 style="margin: 0; font-family: 'Orbitron', sans-serif; color: var(--vision-color); font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-eye"></i> <span id="visionTitle">VISION TEST RESULTS</span>
+            </h3>
+        </div>
+        <div class="table-scroll">
+            <table id="visionTable">
+                <thead>
+                    <tr>
+                        <th id="thVisionDate">Date/Time</th>
+                        <th id="thVisionDevice">Device</th>
+                        <th id="thRightEye">Right Eye</th>
+                        <th id="thLeftEye">Left Eye</th>
+                        <th id="thVisionAct">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="visionTableBody">
+                    <tr><td colspan="5" class="empty-msg"><i class="fas fa-circle-notch fa-spin"></i> Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <div id="print-view">
         <div class="print-header">
             <div class="print-logo">
@@ -388,6 +413,20 @@
                 </tr>
             </thead>
             <tbody id="printTableBody"></tbody>
+        </table>
+        
+        <!-- Vision Test Results for Print -->
+        <h3 style="margin-top: 30px; font-family: 'Arial', sans-serif; color: #000; font-size: 14pt; border-bottom: 2px solid #000; padding-bottom: 5px;">Vision Test Results</h3>
+        <table class="print-table" style="margin-top: 15px;">
+            <thead>
+                <tr>
+                    <th id="prVisionDate">Date / Time</th>
+                    <th id="prVisionDevice">Device ID</th>
+                    <th id="prRightEye">Right Eye</th>
+                    <th id="prLeftEye">Left Eye</th>
+                </tr>
+            </thead>
+            <tbody id="printVisionTableBody"></tbody>
         </table>
         
         <div id="print-chart-container"></div>
@@ -575,13 +614,15 @@
                     title: "MEDICAL LOGS", date: "Date / Time", device: "Device ID", temp: "Temp (°C)", pulse: "Pulse (BPM)", ox: "Oxygen (%)", bp: "Pressure", act: "Action",
                     chartT: "HEALTH ANALYTICS", lTemp: "Temperature", lPulse: "Pulse Rate", lOx: "Oxygen", lSys: "Systolic BP", lDia: "Diastolic BP", lZoom: "Reset Zoom",
                     attach: "ATTACH TO REPORT", delT: "DELETE RECORD?", delM: "This action is permanent.", cancel: "CANCEL", conf: "CONFIRM",
-                    sucT: "The chart has been added to the report."
+                    sucT: "The chart has been added to the report.",
+                    visionTitle: "VISION TEST RESULTS", visionDate: "Date / Time", visionDevice: "Device ID", rightEye: "Right Eye", leftEye: "Left Eye", visionAct: "Action"
                 },
                 ar: {
                     title: "سجل البيانات", date: "الوقت والتاريخ", device: "رقم الجهاز", temp: "الحرارة (°C)", pulse: "النبض (BPM)", ox: "الأكسجين (%)", bp: "الضغط", act: "إجراء",
                     chartT: "التحليل البياني", lTemp: "درجة الحرارة", lPulse: "نبض القلب", lOx: "نسبة الأكسجين", lSys: "ضغط انقباضي", lDia: "ضغط انبساطي", lZoom: "إعادة الزوم",
                     attach: "إرفاق مع التقرير", delT: "حذف السجل؟", delM: "لا يمكن التراجع عن الحذف.", cancel: "إلغاء", conf: "تأكيد",
-                    sucT: "تم إرفاق الرسم البياني مع التقرير."
+                    sucT: "تم إرفاق الرسم البياني مع التقرير.",
+                    visionTitle: "نتائج فحص النظر", visionDate: "الوقت والتاريخ", visionDevice: "رقم الجهاز", rightEye: "العين اليمنى", leftEye: "العين اليسرى", visionAct: "إجراء"
                 }
             };
             const t = isAr ? txt.ar : txt.en;
@@ -610,6 +651,14 @@
             document.querySelectorAll('.btn-cancel').forEach(b => b.innerText = t.cancel);
             document.querySelector('.btn-danger').innerText = t.conf;
             document.getElementById('successText').innerText = t.sucT;
+
+            // Vision Test translations
+            document.getElementById('visionTitle').innerText = t.visionTitle;
+            ['thVisionDate','prVisionDate'].forEach(id=>document.getElementById(id).innerText=t.visionDate);
+            ['thVisionDevice','prVisionDevice'].forEach(id=>document.getElementById(id).innerText=t.visionDevice);
+            ['thRightEye','prRightEye'].forEach(id=>document.getElementById(id).innerText=t.rightEye);
+            ['thLeftEye','prLeftEye'].forEach(id=>document.getElementById(id).innerText=t.leftEye);
+            document.getElementById('thVisionAct').innerText = t.visionAct;
 
             if(myChart) showChart(); // Re-render chart for labels
         }
@@ -724,19 +773,94 @@
             });
         });
 
+        // --- VISION TEST RESULTS ---
+        let allVisionRecords = [];
+        let visionRecordToDelete = null;
+
+        const visionHistoryRef = db.ref('PatientData/' + currentUserId + '/VisionHistory');
+        
+        visionHistoryRef.on('value', (snapshot) => {
+            const visionTableBody = document.getElementById('visionTableBody');
+            const printVisionBody = document.getElementById('printVisionTableBody');
+            visionTableBody.innerHTML = "";
+            printVisionBody.innerHTML = "";
+            allVisionRecords = [];
+
+            if (!snapshot.exists()) {
+                visionTableBody.innerHTML = `<tr><td colspan="5" class="empty-msg">No vision test records found.</td></tr>`;
+                return;
+            }
+
+            snapshot.forEach(child => {
+                const data = child.val();
+                allVisionRecords.push({ 
+                    key: child.key, 
+                    timestamp: data.timestamp,
+                    date: data.date,
+                    deviceId: data.deviceId,
+                    rightEye: data.rightEye,
+                    leftEye: data.leftEye
+                });
+            });
+
+            allVisionRecords.sort((a, b) => b.timestamp - a.timestamp);
+
+            allVisionRecords.forEach(record => {
+                const displayDate = record.date || '--';
+                const rightEyeScore = `${record.rightEye}/12`;
+                const leftEyeScore = `${record.leftEye}/12`;
+
+                const row = `
+                    <tr>
+                        <td class="col-date">${displayDate}</td>
+                        <td class="col-device">${record.deviceId || '--'}</td>
+                        <td style="color: var(--vision-color); font-weight: bold;">${rightEyeScore}</td>
+                        <td style="color: var(--vision-color); font-weight: bold;">${leftEyeScore}</td>
+                        <td>
+                            <button class="delete-btn" onclick="openVisionDeleteModal('${record.key}')"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `;
+                visionTableBody.innerHTML += row;
+
+                const printRow = `
+                    <tr>
+                        <td>${displayDate}</td>
+                        <td>${record.deviceId || '--'}</td>
+                        <td>${rightEyeScore}</td>
+                        <td>${leftEyeScore}</td>
+                    </tr>
+                `;
+                printVisionBody.innerHTML += printRow;
+            });
+        });
+
         // --- 6. ACTIONS ---
+        let deleteType = 'medical'; // 'medical' or 'vision'
+        
         function openDeleteModal(key) {
             recordToDelete = key;
+            deleteType = 'medical';
             const modal = document.getElementById('deleteModal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('active'), 10);
         }
 
         function confirmDelete() {
-            if(recordToDelete) {
+            if(deleteType === 'medical' && recordToDelete) {
                 db.ref('PatientData/' + currentUserId + '/History/' + recordToDelete).remove();
+            } else if(deleteType === 'vision' && visionRecordToDelete) {
+                db.ref('PatientData/' + currentUserId + '/VisionHistory/' + visionRecordToDelete).remove();
             }
             closeModal('deleteModal');
+        }
+
+        function openVisionDeleteModal(key) {
+            visionRecordToDelete = key;
+            deleteType = 'vision';
+            const modal = document.getElementById('deleteModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
         }
 
         // --- 7. CHART & AI (Advanced) ---
