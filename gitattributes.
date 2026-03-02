@@ -1,6 +1,0 @@
-# تجاهل الـ HTML تماماً من الحسبة البرمجية
-*.html linguist-vendored=true
-
-# إجبار جيت هاب على رؤية الـ JS والـ C++
-*.js linguist-detectable=true
-*.ino linguist-detectable=true
