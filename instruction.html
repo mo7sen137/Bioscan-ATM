@@ -1,242 +1,280 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BioScan Vision | Instructions</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BioScan | Vision Test</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
+    /* --- THEME VARIABLES --- */
     :root {
-      --primary-color: #00d2ff;
-      --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      --glass-bg: rgba(255, 255, 255, 0.1);
-      --glass-border: rgba(255, 255, 255, 0.2);
-      --text-color: #ffffff;
+      --primary-neon: #00f2ff;
+      --secondary-neon: #7000ff;
+      --bg-dark: #020408;
+      --glass-panel: rgba(8, 15, 25, 0.92);
+      --border-color: rgba(0, 242, 255, 0.4);
+      --text-main: #e0f7fa;
+      --error: #ff2a2a;
+      --success: #00ff88;
+      --warning: #f39c12;
+      --vision-color: #1dd1a1;
     }
+
+    * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 
     body {
-      font-family: 'Poppins', sans-serif;
-      background: var(--bg-gradient);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      margin: 0; padding: 0;
+      font-family: 'Rajdhani', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
       min-height: 100vh;
-      margin: 0;
-      color: var(--text-color);
       overflow-x: hidden;
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: 85px;
+      padding-bottom: 40px;
     }
 
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    /* BACKGROUND */
+    #bio-background {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+        overflow: hidden; background: radial-gradient(circle at center, #0f1c2e 0%, #000000 100%);
+    }
+    .bio-symbol {
+        position: absolute; color: var(--primary-neon); opacity: 0.15;
+        animation: floatBio 20s linear infinite; pointer-events: none;
+    }
+    @keyframes floatBio {
+        0% { transform: translateY(110vh) rotate(0deg) scale(0.8); opacity: 0; }
+        50% { opacity: 0.2; }
+        100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
     }
 
-    /* Header Design */
-    header {
-      width: 100%;
-      background: rgba(15, 32, 39, 0.9);
-      backdrop-filter: blur(10px);
-      padding: 15px 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-      z-index: 10;
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #050b14; }
+    ::-webkit-scrollbar-thumb { background: var(--primary-neon); border-radius: 10px; }
+
+    /* HEADER */
+    .user-card { 
+      position: fixed; top: 0; left: 0; width: 100%; height: 75px;
+      background: rgba(5, 10, 18, 0.98); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--primary-neon); 
+      box-shadow: 0 0 25px rgba(0, 242, 255, 0.15); z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 15px; margin: 0; border-radius: 0;
+      gap: 15px; 
+    }
+    
+    .user-left { 
+        display: flex; align-items: center; gap: 10px; 
+        flex: 1; min-width: 0; 
+    }
+    .user-avatar { font-size: 1.6rem; color: var(--primary-neon); filter: drop-shadow(0 0 8px var(--primary-neon)); flex-shrink: 0; }
+    .user-info { display: flex; flex-direction: column; overflow: hidden; }
+    .user-info h2 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 0.65rem; color: #ddd; letter-spacing: 1px; white-space: nowrap; text-transform: uppercase; }
+    .user-info .user-name { font-size: 1.05rem; color: #fff; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-bottom: 2px; }
+    .user-info .user-id { font-size: 0.75rem; color: #ddd; font-weight: 400; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+
+    .top-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    
+    .icon-btn { 
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
+      color: var(--primary-neon); width: 34px; height: 34px; border-radius: 8px;
+      cursor: pointer; transition: 0.3s; font-size: 0.9rem;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .icon-btn:hover { background: var(--primary-neon); color: #000; box-shadow: 0 0 15px var(--primary-neon); }
+
+    /* MAIN CARD */
+    .instruction-card {
+      width: 95%; max-width: 700px; 
+      background: linear-gradient(135deg, rgba(10, 20, 35, 0.95), rgba(5, 10, 20, 0.95));
+      border: 1px solid var(--primary-neon); border-radius: 20px; 
+      padding: 30px; margin-bottom: 20px; 
+      display: flex; flex-direction: column; gap: 20px; 
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.1); 
+      position: relative; overflow: hidden; transition: all 0.5s ease;
+      animation: slideIn 0.6s ease-out;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 1.5rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      background: linear-gradient(to right, #fff, #00d2ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* Exit Button Style */
-    .exit-btn {
-      position: absolute;
-      right: 30px;
-      padding: 8px 20px;
-      font-size: 14px;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      background: linear-gradient(45deg, #cb2d3e, #ef473a);
-      color: white;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none; /* In case it's used as an anchor */
-    }
-
-    .exit-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px rgba(239, 71, 58, 0.4);
-    }
-
-    /* Main Container */
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      flex-grow: 1;
-      width: 100%;
-      padding: 20px;
-    }
-
-    /* Glass Card */
-    .card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      padding: 40px;
-      max-width: 600px;
-      width: 90%;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-      animation: fadeIn 0.8s ease-out;
-    }
-
-    @keyframes fadeIn {
+    @keyframes slideIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .card h2 {
-      color: var(--primary-color);
-      margin-top: 0;
-      margin-bottom: 25px;
-      text-align: center;
-      font-weight: 300;
-      font-size: 2rem;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      padding-bottom: 15px;
+    .card-header {
+      display: flex; align-items: center; gap: 15px;
+      padding-bottom: 15px; border-bottom: 1px solid rgba(0, 242, 255, 0.2);
     }
 
-    /* Instructions List */
-    .instructions {
-      list-style: none;
-      padding: 0;
-      margin: 0;
+    .card-icon {
+      font-size: 2.5rem; color: var(--vision-color);
+      filter: drop-shadow(0 0 10px var(--vision-color));
     }
 
-    .instructions li {
-      display: flex;
-      align-items: center;
-      margin: 15px 0;
-      font-size: 1.1rem;
-      color: #e0e0e0;
-      transition: 0.3s ease;
-      border-radius: 12px;
-      padding: 12px 15px;
-      background: rgba(0, 0, 0, 0.2);
-      border-left: 4px solid transparent;
-    }
-
-    .instructions li:hover {
-      background: rgba(0, 210, 255, 0.1);
-      border-left: 4px solid var(--primary-color);
-      transform: translateX(5px);
-    }
-
-    .icon-box {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255,255,255,0.1);
-      border-radius: 50%;
-      margin-right: 15px;
-      color: var(--primary-color);
-      flex-shrink: 0;
-    }
-
-    .instructions li span.text {
+    .card-title {
       flex: 1;
     }
 
-    /* Start Button */
-    .start-btn {
-      margin-top: 30px;
-      padding: 15px 40px;
-      border: none;
-      border-radius: 50px;
-      background: linear-gradient(45deg, #11998e, #38ef7d);
-      color: white;
-      font-size: 18px;
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    .card-title h1 {
+      margin: 0; font-family: 'Orbitron', sans-serif;
+      font-size: 1.6rem; color: var(--primary-neon);
+      letter-spacing: 1px; font-weight: 700;
+    }
+
+    .card-title p {
+      margin: 5px 0 0 0; font-size: 0.85rem;
+      color: #aaa; font-family: 'Rajdhani', sans-serif;
+    }
+
+    .close-btn-header {
+      background: rgba(255, 42, 42, 0.1); color: var(--error);
+      border: 1px solid var(--error);
+      padding: 8px 12px; border-radius: 8px; font-size: 0.85rem;
+      cursor: pointer; transition: 0.3s;
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'Orbitron', sans-serif; font-weight: 600;
+    }
+    .close-btn-header:hover {
+      background: var(--error); color: #fff;
+      box-shadow: 0 0 15px var(--error);
+    }
+
+    /* INSTRUCTIONS LIST */
+    .instructions-section {
+      display: flex; flex-direction: column; gap: 12px;
+    }
+
+    .instruction-item {
+      display: flex; gap: 15px; 
+      background: rgba(0, 242, 255, 0.05);
+      border: 1px solid rgba(0, 242, 255, 0.2);
+      border-radius: 12px; padding: 15px;
       transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .instruction-item:hover {
+      background: rgba(0, 242, 255, 0.1);
+      border-color: var(--primary-neon);
+      transform: translateX(5px);
+    }
+
+    .instr-icon {
+      min-width: 40px; height: 40px;
+      background: rgba(0, 242, 255, 0.15);
+      border: 1px solid var(--primary-neon);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--vision-color);
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+
+    .instr-content {
+      flex: 1;
+    }
+
+    .instr-content p {
+      margin: 0; font-size: 0.95rem;
+      color: #e0f7fa; line-height: 1.5;
+      font-weight: 500;
+    }
+
+    .instr-number {
+      display: inline-block;
+      background: var(--primary-neon);
+      color: #000;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
+      margin-right: 8px;
+    }
+
+    /* START BUTTON */
+    .btn-container {
+      display: flex; justify-content: center; gap: 15px;
+      padding-top: 10px;
+    }
+
+    .start-btn {
+      padding: 14px 30px; border: none; border-radius: 12px;
+      background: linear-gradient(90deg, #11998e, #38ef7d);
+      color: #fff; font-family: 'Orbitron', sans-serif;
+      font-size: 0.95rem; letter-spacing: 1px; font-weight: bold;
+      cursor: pointer; transition: 0.3s; 
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 0 0 20px rgba(56, 239, 125, 0.3);
+      animation: glowGreen 3s infinite ease-in-out;
+    }
+
+    @keyframes glowGreen {
+      0%, 100% { box-shadow: 0 0 20px rgba(56, 239, 125, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(56, 239, 125, 0.6); }
     }
 
     .start-btn:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 0 20px rgba(56, 239, 125, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(56, 239, 125, 0.8);
     }
 
-    .start-btn:active {
-      transform: scale(0.98);
+    .start-btn i { font-size: 1.1rem; }
+
+    .back-btn {
+      padding: 14px 30px; border: 1px solid var(--primary-neon);
+      background: transparent; color: var(--primary-neon);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.95rem; letter-spacing: 1px; font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer; transition: 0.3s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
     }
 
-    /* --- MOBILE RESPONSIVE --- */
+    .back-btn:hover {
+      background: var(--primary-neon);
+      color: #000;
+      box-shadow: 0 0 20px var(--primary-neon);
+    }
+
+    /* MOBILE RESPONSIVE */
     @media (max-width: 768px) {
-      header { padding: 10px 15px; }
-      header h1 { font-size: 1.2rem; letter-spacing: 0.5px; }
-      .exit-btn { right: 15px; padding: 6px 15px; font-size: 13px; gap: 5px; }
-      .exit-btn span { display: none; }
+      body { padding-top: 75px; padding-bottom: 30px; }
+      .instruction-card { padding: 20px; max-width: 95%; }
       
-      .container { padding: 15px 10px; }
-      .card { padding: 25px 20px; border-radius: 18px; max-width: 100%; width: 95%; }
-      
-      .card h2 { font-size: 1.4rem; margin-bottom: 15px; }
-      .intro-text { font-size: 0.95rem; margin-bottom: 25px; }
-      
-      .steps-grid { gap: 15px; }
-      .step { padding: 18px; }
-      .step-icon { width: 50px; height: 50px; font-size: 1.2rem; }
-      .step h3 { font-size: 1rem; margin: 10px 0 8px; }
-      .step p { font-size: 0.85rem; }
-      
-      .start-btn { padding: 12px 25px; font-size: 1rem; }
+      .card-header { flex-direction: column; gap: 12px; text-align: center; }
+      .card-icon { font-size: 2rem; }
+      .card-title h1 { font-size: 1.3rem; }
+      .card-title p { font-size: 0.8rem; }
+      .close-btn-header { width: 100%; justify-content: center; }
+
+      .instruction-item { padding: 12px; gap: 12px; }
+      .instr-icon { width: 35px; height: 35px; font-size: 0.95rem; }
+      .instr-content p { font-size: 0.9rem; }
+
+      .btn-container { flex-direction: column; gap: 12px; }
+      .start-btn, .back-btn { width: 100%; padding: 12px 20px; font-size: 0.9rem; }
     }
 
     @media (max-width: 480px) {
-      header h1 { font-size: 1.1rem; }
-      .exit-btn { padding: 5px 12px; font-size: 12px; }
-      
-      .card { padding: 20px 15px; }
-      .card h2 { font-size: 1.3rem; }
-      .intro-text { font-size: 0.9rem; margin-bottom: 20px; }
-      
-      .steps-grid { grid-template-columns: 1fr; gap: 12px; }
-      .step { padding: 15px; }
-      .step-icon { width: 45px; height: 45px; font-size: 1.1rem; }
-      .step h3 { font-size: 0.95rem; }
-      .step p { font-size: 0.8rem; }
-      
-      .start-btn { padding: 11px 22px; font-size: 0.95rem; }
+      .user-info h2 { font-size: 0.6rem; }
+      .user-name { font-size: 0.9rem; }
+      .icon-btn { width: 30px; height: 30px; font-size: 0.8rem; }
+
+      .instruction-card { padding: 18px; margin-bottom: 15px; }
+      .card-header { gap: 10px; }
+      .card-icon { font-size: 1.8rem; }
+      .card-title h1 { font-size: 1.2rem; }
+      .close-btn-header { padding: 6px 10px; font-size: 0.75rem; }
+
+      .instruction-item { padding: 10px; gap: 10px; }
+      .instr-icon { width: 32px; height: 32px; font-size: 0.85rem; }
+      .instr-content p { font-size: 0.85rem; }
+      .instr-number { width: 20px; height: 20px; font-size: 0.7rem; }
+
+      .start-btn, .back-btn { padding: 11px 18px; font-size: 0.85rem; }
     }
 
   </style>
@@ -245,93 +283,148 @@
 
 <body>
 
-<header>
-  <h1 id="headerTitle">BioScan Vision <i class="fas fa-eye"></i></h1>
-  <button id="exitBtn" class="exit-btn" onclick="location.href='measurements.html'">
-    <i class="fas fa-sign-out-alt"></i> <span>Exit</span>
-  </button>
-</header>
+  <div id="bio-background"></div>
 
-<div class="container">
-  <div class="card">
-    <h2 id="instrTitle">Instructions</h2>
-    <ul class="instructions" id="instrList">
-      <li>
-        <div class="icon-box"><i class="fas fa-lightbulb"></i></div>
-        <span class="text">Make sure you are in good lighting.</span>
-      </li>
-      <li>
-        <div class="icon-box"><i class="fas fa-desktop"></i></div>
-        <span class="text">Keep your screen at a comfortable distance.</span>
-      </li>
-      <li>
-        <div class="icon-box"><i class="fas fa-glasses"></i></div>
-        <span class="text">Wear your glasses if you usually use them.</span>
-      </li>
-      <li>
-        <div class="icon-box"><i class="fas fa-chair"></i></div>
-        <span class="text">Sit straight and look directly at the screen.</span>
-      </li>
-      <li>
-        <div class="icon-box"><i class="fas fa-play-circle"></i></div>
-        <span class="text">Press the (Start) button to begin the test.</span>
-      </li>
-      <li>
-        <div class="icon-box"><i class="fas fa-tasks"></i></div>
-        <span class="text">Follow the steps that will appear on the screen.</span>
-      </li>
-    </ul>
-
-    <div style="display: flex; justify-content: center;">
-      <button class="start-btn" id="startBtn" onclick="location.href='test.html'">
-        Start Test <i class="fas fa-arrow-right"></i>
+  <div class="user-card">
+    <div class="user-left">
+        <div class="user-avatar"><i class="fas fa-eye"></i></div>
+        <div class="user-info">
+            <span class="user-name" id="headerTitle">Vision Test</span>
+            <span class="user-id" id="headerSubtitle">Follow Instructions</span>
+        </div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="langBtn" onclick="toggleLanguage()" title="Switch Language">
+        AR
+      </button>
+      <button class="icon-btn" onclick="goBack()" title="Back">
+        <i class="fas fa-arrow-left"></i>
       </button>
     </div>
   </div>
-</div>
 
-<script>
-  const lang = localStorage.getItem("language") || "en";
+  <div class="instruction-card">
+    <div class="card-header">
+      <div class="card-icon"><i class="fas fa-eye"></i></div>
+      <div class="card-title">
+        <h1 id="cardTitle">Vision Test Instructions</h1>
+        <p id="cardSubtitle">Follow these steps carefully</p>
+      </div>
+      <button class="close-btn-header" onclick="goBack()">
+        <i class="fas fa-times"></i> Exit
+      </button>
+    </div>
 
-  // دالة لتوليد عنصر القائمة بنفس التنسيق الجديد
-  function createListItem(iconClass, text) {
-    return `
-      <li>
-        <div class="icon-box"><i class="${iconClass}"></i></div>
-        <span class="text">${text}</span>
-      </li>
-    `;
-  }
+    <div class="instructions-section" id="instrList">
+      <!-- Instructions will be generated by script -->
+    </div>
 
-  if(lang === "ar") {
-    // تعديل الاتجاه
-    document.body.style.direction = "rtl";
-    document.querySelector('.icon-box').style.marginLeft = "0";
-    document.querySelector('.icon-box').style.marginRight = "15px"; // عكس الهوامش عشان الأيقونة
+    <div class="btn-container">
+      <button class="back-btn" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i> <span>Back</span>
+      </button>
+      <button class="start-btn" onclick="startTest()">
+        <span>Start Test</span> <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const currentLang = localStorage.getItem("language") || "en";
     
-    // تعديل زر الخروج ليكون يسار
-    const exitBtn = document.getElementById("exitBtn");
-    exitBtn.style.right = "auto";
-    exitBtn.style.left = "30px";
-    exitBtn.innerHTML = '<i class="fas fa-sign-out-alt" style="transform: rotate(180deg);"></i> <span>خروج</span>';
+    // Create background animations
+    function createBioBackground() {
+        const container = document.getElementById('bio-background');
+        const icons = ['fa-dna', 'fa-heartbeat', 'fa-eye', 'fa-glasses', 'fa-stethoscope', 'fa-microscope', 'fa-user-md', 'fa-syringe', 'fa-lungs', 'fa-brain'];
+        const count = 30;
+        for (let i = 0; i < count; i++) {
+            const el = document.createElement('i');
+            el.classList.add('fas', icons[Math.floor(Math.random() * icons.length)], 'bio-symbol');
+            el.style.left = Math.random() * 100 + 'vw';
+            const size = Math.random() * 2 + 0.5;
+            el.style.fontSize = size + 'rem';
+            el.style.opacity = Math.random() * 0.2;
+            el.style.animationDuration = (Math.random() * 20 + 15) + 's';
+            el.style.animationDelay = (Math.random() * 10) + 's';
+            container.appendChild(el);
+        }
+    }
+    createBioBackground();
 
-    // العناوين
-    document.getElementById("headerTitle").innerHTML = 'فحص الرؤية <i class="fas fa-eye"></i>';
-    document.getElementById("instrTitle").innerText = "تعليمات الاختبار";
-    
-    // القائمة (بنفس تنسيق الأيقونات الجديد)
-    document.getElementById("instrList").innerHTML =
-      createListItem("fas fa-lightbulb", "تأكد من وجود إضاءة جيدة في الغرفة.") +
-      createListItem("fas fa-desktop", "ضع الشاشة على مسافة مريحة من عينك.") +
-      createListItem("fas fa-glasses", "ارتدِ نظارتك الطبية إذا كنت تستخدمها.") +
-      createListItem("fas fa-chair", "اجلس بظهر مستقيم وانظر مباشرة للشاشة.") +
-      createListItem("fas fa-play-circle", "اضغط على زر (ابدأ الاختبار) في الأسفل.") +
-      createListItem("fas fa-tasks", "اتبع الخطوات التي ستظهر لك بدقة.");
+    // Instructions data
+    const instructionsEN = [
+      { icon: 'fas fa-lightbulb', text: 'Make sure you are in a well-lit room.' },
+      { icon: 'fas fa-desktop', text: 'Keep your screen at a comfortable distance (about 50cm).' },
+      { icon: 'fas fa-glasses', text: 'Wear your glasses or contact lenses if you usually use them.' },
+      { icon: 'fas fa-chair', text: 'Sit straight and keep your head steady.' },
+      { icon: 'fas fa-eye', text: 'Look directly at the center of the screen.' },
+      { icon: 'fas fa-play-circle', text: 'Press the Start button to begin the test.' }
+    ];
 
-    // زر البداية
-    document.getElementById("startBtn").innerHTML = 'ابدأ الاختبار <i class="fas fa-arrow-left"></i>';
-  }
-</script>
+    const instructionsAR = [
+      { icon: 'fas fa-lightbulb', text: 'تأكد من وجود إضاءة جيدة في الغرفة.' },
+      { icon: 'fas fa-desktop', text: 'ضع الشاشة على مسافة مريحة (حوالي 50 سم).' },
+      { icon: 'fas fa-glasses', text: 'ارتدِ نظارتك أو عدساتك اللاصقة إذا كنت تستخدمها.' },
+      { icon: 'fas fa-chair', text: 'اجلس بظهر مستقيم وأبقِ رأسك ثابتاً.' },
+      { icon: 'fas fa-eye', text: 'انظر مباشرة إلى مركز الشاشة.' },
+      { icon: 'fas fa-play-circle', text: 'اضغط على زر البدء لبدء الاختبار.' }
+    ];
+
+    function renderInstructions(lang) {
+      const instrList = document.getElementById('instrList');
+      const instructions = lang === 'ar' ? instructionsAR : instructionsEN;
+      
+      instrList.innerHTML = instructions.map((item, index) => `
+        <div class="instruction-item">
+          <div class="instr-icon">
+            <i class="${item.icon}"></i>
+          </div>
+          <div class="instr-content">
+            <p>
+              <span class="instr-number">${index + 1}</span>
+              ${item.text}
+            </p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Language toggle
+    function toggleLanguage() {
+      const newLang = currentLang === 'ar' ? 'en' : 'ar';
+      localStorage.setItem('language', newLang);
+      location.reload();
+    }
+
+    // Navigation
+    function goBack() {
+      window.location.href = 'measurements.html';
+    }
+
+    function startTest() {
+      window.location.href = 'test.html';
+    }
+
+    // Initialize
+    if (currentLang === 'ar') {
+      document.body.dir = 'rtl';
+      document.documentElement.lang = 'ar';
+      
+      // Update texts
+      document.getElementById('headerTitle').textContent = 'اختبار الرؤية';
+      document.getElementById('headerSubtitle').textContent = 'اتبع التعليمات';
+      document.getElementById('cardTitle').textContent = 'تعليمات الاختبار';
+      document.getElementById('cardSubtitle').textContent = 'اتبع هذه الخطوات بعناية';
+      
+      // Update buttons
+      document.getElementById('langBtn').textContent = 'EN';
+      document.querySelector('.close-btn-header').innerHTML = '<i class="fas fa-times"></i> خروج';
+      document.querySelector('.back-btn').innerHTML = '<i class="fas fa-arrow-right"></i> <span>رجوع</span>';
+      document.querySelector('.start-btn').innerHTML = '<span>ابدأ الاختبار</span> <i class="fas fa-arrow-left"></i>';
+    }
+
+    renderInstructions(currentLang);
+  </script>
 
 </body>
 </html>
