@@ -310,9 +310,6 @@
         <h1 id="cardTitle">Vision Test Instructions</h1>
         <p id="cardSubtitle">Follow these steps carefully</p>
       </div>
-      <button class="close-btn-header" onclick="goBack()">
-        <i class="fas fa-times"></i> Exit
-      </button>
     </div>
 
     <div class="instructions-section" id="instrList">
@@ -418,7 +415,6 @@
       
       // Update buttons
       document.getElementById('langBtn').textContent = 'EN';
-      document.querySelector('.close-btn-header').innerHTML = '<i class="fas fa-times"></i> خروج';
       document.querySelector('.back-btn').innerHTML = '<i class="fas fa-arrow-right"></i> <span>رجوع</span>';
       document.querySelector('.start-btn').innerHTML = '<span>ابدأ الاختبار</span> <i class="fas fa-arrow-left"></i>';
     }
