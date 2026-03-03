@@ -353,6 +353,41 @@ canvas {
   color: #000; 
   box-shadow: 0 0 15px var(--primary-neon);
 }
+
+.save-feedback {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.save-feedback.show {
+  display: flex;
+}
+
+.save-feedback.success {
+  background: rgba(0, 255, 136, 0.12);
+  border-color: rgba(0, 255, 136, 0.45);
+  color: var(--success);
+}
+
+.save-feedback.error {
+  background: rgba(255, 42, 42, 0.12);
+  border-color: rgba(255, 42, 42, 0.45);
+  color: var(--error);
+}
+
+.save-feedback.warning {
+  background: rgba(243, 156, 18, 0.12);
+  border-color: rgba(243, 156, 18, 0.45);
+  color: var(--warning);
+}
 </style>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -409,6 +444,8 @@ canvas {
       <button id="retryBtn" class="btn-retry"><i class="fas fa-redo"></i> Retry Test</button>
       <button id="closeBtn" class="btn-close">Close</button>
     </div>
+
+    <div id="saveFeedback" class="save-feedback" role="status" aria-live="polite"></div>
   </div>
 </div>
 
@@ -456,6 +493,7 @@ const overlay = document.getElementById('overlay');
 const popupScore = document.getElementById('popupScore');
 const popupAdvice = document.getElementById('popupAdvice');
 const pbar = document.getElementById('pbar');
+const saveFeedback = document.getElementById('saveFeedback');
 
 const viewingDistanceCm = 40;
 const visualAngleArcMin = 5;
@@ -557,16 +595,23 @@ function finishTest(){
   }
   // عرض النتيجة بعد انتهاء كلتا العينين
   overlay.style.display='flex';
+  saveFeedback.className = 'save-feedback';
+  saveFeedback.innerHTML = '';
   popupScore.textContent = `Right Eye: ${results.right.correct}/${totalLevels} | Left Eye: ${results.left.correct}/${totalLevels}`;
   let adviceRight = results.right.correct >= 10 ? "Good vision" : "Check right eye";
   let adviceLeft = results.left.correct >= 10 ? "Good vision" : "Check left eye";
   popupAdvice.textContent = `${adviceRight} — ${adviceLeft}`;
 }
 
+function showSaveFeedback(type, message, icon) {
+  saveFeedback.className = `save-feedback ${type} show`;
+  saveFeedback.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
+}
+
 // --- SAVE TO HISTORY ---
 document.getElementById('saveBtn').onclick = function() {
   if (!currentUserId) {
-    alert('Please login first!');
+    showSaveFeedback('warning', 'Please login first!', 'fa-triangle-exclamation');
     return;
   }
 
@@ -583,20 +628,22 @@ document.getElementById('saveBtn').onclick = function() {
 
   db.ref('PatientData/' + currentUserId + '/VisionHistory').push(visionData)
     .then(() => {
-      alert('✅ Results saved successfully!');
+      showSaveFeedback('success', 'Results saved successfully!', 'fa-circle-check');
       document.getElementById('saveBtn').innerHTML = '<i class="fas fa-check"></i> Saved';
       document.getElementById('saveBtn').disabled = true;
       document.getElementById('saveBtn').style.opacity = '0.6';
     })
     .catch(err => {
       console.error('Save error:', err);
-      alert('❌ Failed to save results');
+      showSaveFeedback('error', 'Failed to save results', 'fa-circle-xmark');
     });
 };
 
 document.getElementById('retryBtn').onclick = ()=>{
   overlay.style.display='none';
   radius=baseRadius;
+  saveFeedback.className = 'save-feedback';
+  saveFeedback.innerHTML = '';
   document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Save to History';
   document.getElementById('saveBtn').disabled = false;
   document.getElementById('saveBtn').style.opacity = '1';
