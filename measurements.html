@@ -422,6 +422,7 @@
     .field-icon.pulse-gradient { background: linear-gradient(135deg, #ff4757, #ff6348); color: #fff; }
     .field-icon.bp-gradient { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: #fff; }
     .field-icon.ox-gradient { background: linear-gradient(135deg, #48dbfb, #0abde3); color: #fff; }
+    .field-icon.med-gradient { background: linear-gradient(135deg, #00c9a7, #00a8ff); color: #fff; }
 
     .field-content {
         flex: 1;
@@ -483,12 +484,139 @@
         font-size: 0.95rem; color: var(--primary-neon); letter-spacing: 1px;
         font-weight: 600;
     }
+
+    .time-greeting {
+        width: min(1200px, calc(100% - 24px));
+        margin: 12px auto 8px;
+        padding: 12px 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(0, 242, 255, 0.35);
+        background: linear-gradient(135deg, rgba(0, 242, 255, 0.1), rgba(112, 0, 255, 0.12));
+        color: #fff;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        box-shadow: 0 0 25px rgba(0, 242, 255, 0.12);
+    }
+
+    .multi-select-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .multi-select-input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 242, 255, 0.3);
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.95rem;
+        outline: none;
+    }
+
+    .multi-select-input option {
+        background: #050b14;
+        color: #fff;
+    }
+
+    .multi-add-btn {
+        min-width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        border: 1px solid var(--primary-neon);
+        background: rgba(0, 242, 255, 0.1);
+        color: var(--primary-neon);
+        cursor: pointer;
+        transition: 0.25s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .multi-add-btn:hover {
+        background: var(--primary-neon);
+        color: #000;
+        box-shadow: 0 0 10px var(--primary-neon);
+    }
+
+    .custom-add-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .custom-add-row input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        border-radius: 8px;
+        padding: 7px 10px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.9rem;
+        outline: none;
+    }
+
+    .multi-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        min-height: 24px;
+    }
+
+    .multi-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(0, 242, 255, 0.12);
+        border: 1px solid rgba(0, 242, 255, 0.4);
+        color: #e8faff;
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 0.82rem;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+    }
+
+    .multi-tag button {
+        width: 18px;
+        height: 18px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255, 42, 42, 0.2);
+        color: #ff8f8f;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        transition: 0.2s;
+    }
+
+    .multi-tag button:hover {
+        background: var(--error);
+        color: #fff;
+    }
+
+    .multi-empty {
+        color: #a6b5c6;
+        font-size: 0.82rem;
+        font-style: italic;
+        font-family: 'Rajdhani', sans-serif;
+    }
   </style>
 </head>
 <body>
 
   <div id="bio-background"></div>
   <div class="toast-container" id="toastContainer"></div>
+
+  <div id="timeGreeting" class="time-greeting">صباح الخير 👋</div>
 
   <div class="user-card">
     <div class="user-left">
@@ -719,6 +847,155 @@
             </button>
           </div>
         </div>
+
+        <div class="info-field">
+          <div class="field-left">
+            <div class="field-icon bp-gradient">
+              <i class="fas fa-tint"></i>
+            </div>
+            <div class="field-content">
+              <div class="field-label">فصيلة الدم</div>
+              <div class="field-value">
+                <select class="gender-select" id="bloodTypeSelect" onchange="saveBloodType()">
+                  <option value="">اختر فصيلة الدم...</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="field-action" style="visibility:hidden;"></div>
+        </div>
+
+        <div class="info-field">
+          <div class="field-left">
+            <div class="field-icon ox-gradient">
+              <i class="fas fa-allergies"></i>
+            </div>
+            <div class="field-content">
+              <div class="field-label">الحساسية</div>
+              <div class="multi-select-wrap">
+                <select class="multi-select-input" id="allergiesSelect">
+                  <option value="">اختر نوع حساسية...</option>
+                  <option value="حساسية الغبار">حساسية الغبار</option>
+                  <option value="حساسية حبوب اللقاح">حساسية حبوب اللقاح</option>
+                  <option value="حساسية الطعام">حساسية الطعام</option>
+                  <option value="حساسية اللبن">حساسية اللبن</option>
+                  <option value="حساسية البيض">حساسية البيض</option>
+                  <option value="حساسية المكسرات">حساسية المكسرات</option>
+                  <option value="حساسية الأسماك">حساسية الأسماك</option>
+                  <option value="حساسية الأدوية">حساسية الأدوية</option>
+                  <option value="حساسية الجلد">حساسية الجلد</option>
+                  <option value="حساسية الحيوانات الأليفة">حساسية الحيوانات الأليفة</option>
+                </select>
+                <button class="multi-add-btn" onclick="addFromSelect('allergies')" title="إضافة"><i class="fas fa-plus"></i></button>
+              </div>
+              <div class="custom-add-row">
+                <input type="text" id="allergiesCustomInput" placeholder="أضف حساسية أخرى...">
+                <button class="multi-add-btn" onclick="addCustomItem('allergies')" title="إضافة مخصص"><i class="fas fa-plus"></i></button>
+              </div>
+              <div class="multi-tags" id="allergiesTags"><span class="multi-empty">لا توجد عناصر مضافة</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-field">
+          <div class="field-left">
+            <div class="field-icon temp-gradient">
+              <i class="fas fa-notes-medical"></i>
+            </div>
+            <div class="field-content">
+              <div class="field-label">الأمراض الحالية</div>
+              <div class="multi-select-wrap">
+                <select class="multi-select-input" id="diseasesSelect">
+                  <option value="">اختر مرض...</option>
+                  <option value="نزلات البرد المتكررة">نزلات البرد المتكررة</option>
+                  <option value="التهاب الجيوب الأنفية">التهاب الجيوب الأنفية</option>
+                  <option value="التهاب الشعب الهوائية">التهاب الشعب الهوائية</option>
+                  <option value="مشكلات المعدة والقولون">مشكلات المعدة والقولون</option>
+                  <option value="فقر الدم">فقر الدم</option>
+                  <option value="الصداع النصفي">الصداع النصفي</option>
+                  <option value="التهابات المسالك البولية">التهابات المسالك البولية</option>
+                  <option value="التهاب المفاصل">التهاب المفاصل</option>
+                </select>
+                <button class="multi-add-btn" onclick="addFromSelect('diseases')" title="إضافة"><i class="fas fa-plus"></i></button>
+              </div>
+              <div class="custom-add-row">
+                <input type="text" id="diseasesCustomInput" placeholder="أضف مرضًا آخر...">
+                <button class="multi-add-btn" onclick="addCustomItem('diseases')" title="إضافة مخصص"><i class="fas fa-plus"></i></button>
+              </div>
+              <div class="multi-tags" id="diseasesTags"><span class="multi-empty">لا توجد عناصر مضافة</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-field">
+          <div class="field-left">
+            <div class="field-icon med-gradient">
+              <i class="fas fa-pills"></i>
+            </div>
+            <div class="field-content">
+              <div class="field-label">الأدوية الحالية</div>
+              <div class="multi-select-wrap">
+                <select class="multi-select-input" id="medicationsSelect">
+                  <option value="">اختر دواء...</option>
+                  <option value="باراسيتامول">باراسيتامول</option>
+                  <option value="إيبوبروفين">إيبوبروفين</option>
+                  <option value="أموكسيسيلين">أموكسيسيلين</option>
+                  <option value="أوميبرازول">أوميبرازول</option>
+                  <option value="ميتفورمين">ميتفورمين</option>
+                  <option value="أتورفاستاتين">أتورفاستاتين</option>
+                  <option value="إنسولين">إنسولين</option>
+                  <option value="سيتريزين">سيتريزين</option>
+                </select>
+                <button class="multi-add-btn" onclick="addFromSelect('medications')" title="إضافة"><i class="fas fa-plus"></i></button>
+              </div>
+              <div class="custom-add-row">
+                <input type="text" id="medicationsCustomInput" placeholder="أضف دواء آخر...">
+                <button class="multi-add-btn" onclick="addCustomItem('medications')" title="إضافة مخصص"><i class="fas fa-plus"></i></button>
+              </div>
+              <div class="multi-tags" id="medicationsTags"><span class="multi-empty">لا توجد عناصر مضافة</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-field">
+          <div class="field-left">
+            <div class="field-icon pulse-gradient">
+              <i class="fas fa-heartbeat"></i>
+            </div>
+            <div class="field-content">
+              <div class="field-label">الأمراض المزمنة</div>
+              <div class="multi-select-wrap">
+                <select class="multi-select-input" id="chronicDiseasesSelect">
+                  <option value="">اختر مرضًا مزمنًا...</option>
+                  <option value="ارتفاع ضغط الدم">ارتفاع ضغط الدم</option>
+                  <option value="السكري">السكري</option>
+                  <option value="أمراض القلب">أمراض القلب</option>
+                  <option value="الربو">الربو</option>
+                  <option value="مرض الانسداد الرئوي المزمن">مرض الانسداد الرئوي المزمن</option>
+                  <option value="أمراض الكلى المزمنة">أمراض الكلى المزمنة</option>
+                  <option value="أمراض الكبد المزمنة">أمراض الكبد المزمنة</option>
+                  <option value="السرطان">السرطان</option>
+                  <option value="السمنة">السمنة</option>
+                  <option value="اضطرابات الغدة الدرقية">اضطرابات الغدة الدرقية</option>
+                </select>
+                <button class="multi-add-btn" onclick="addFromSelect('chronicDiseases')" title="إضافة"><i class="fas fa-plus"></i></button>
+              </div>
+              <div class="custom-add-row">
+                <input type="text" id="chronicDiseasesCustomInput" placeholder="أضف مرضًا مزمنًا آخر...">
+                <button class="multi-add-btn" onclick="addCustomItem('chronicDiseases')" title="إضافة مخصص"><i class="fas fa-plus"></i></button>
+              </div>
+              <div class="multi-tags" id="chronicDiseasesTags"><span class="multi-empty">لا توجد عناصر مضافة</span></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Static Information -->
@@ -822,6 +1099,13 @@
     const currentUserId = localStorage.getItem("selectedUserId");
     const userNameSpan = document.getElementById('currentUserName');
     const userIdSpan = document.getElementById('currentUserId');
+
+    const medicalProfileData = {
+        allergies: [],
+        diseases: [],
+        medications: [],
+        chronicDiseases: []
+    };
     
     if(!currentUserId) {
         window.location.href="index.html"; 
@@ -854,6 +1138,145 @@
         }).catch(err => {
             console.error("Error fetching user data:", err);
             userNameSpan.innerText = currentUserId.substring(0, 8);
+        });
+    }
+
+    function updateTimeGreeting() {
+        const now = new Date();
+        const hour = now.getHours();
+        const isAr = currentLang === 'ar';
+        let greeting = '';
+
+        if (hour >= 5 && hour < 12) {
+            greeting = isAr ? 'صباح الخير 👋 نتمنى لك يومًا صحيًا رائعًا' : 'Good morning 👋 Wishing you a healthy day';
+        } else if (hour >= 12 && hour < 17) {
+            greeting = isAr ? 'مساء الخير ☀️ تابع قياساتك وابقَ مطمئنًا' : 'Good afternoon ☀️ Keep tracking your readings';
+        } else if (hour >= 17 && hour < 22) {
+            greeting = isAr ? 'مساء الخير 🌙 نتمنى لك مساءً هادئًا' : 'Good evening 🌙 Have a calm evening';
+        } else {
+            greeting = isAr ? 'مساء الخير 🌌 راحة جيدة وصحة أفضل' : 'Good night 🌌 Rest well and stay healthy';
+        }
+
+        const greetingEl = document.getElementById('timeGreeting');
+        if (greetingEl) greetingEl.innerText = greeting;
+    }
+
+    function normalizeArrayField(value) {
+        if (Array.isArray(value)) {
+            return value.filter(Boolean).map(item => String(item).trim()).filter(Boolean);
+        }
+        if (typeof value === 'string' && value.trim()) {
+            return [value.trim()];
+        }
+        return [];
+    }
+
+    function renderMultiTags(type) {
+        const container = document.getElementById(type + 'Tags');
+        if (!container) return;
+
+        const items = medicalProfileData[type] || [];
+        if (!items.length) {
+            container.innerHTML = '<span class="multi-empty">لا توجد عناصر مضافة</span>';
+            return;
+        }
+
+        container.innerHTML = items.map(item =>
+            `<span class="multi-tag">${item}<button type="button" onclick="removeMedicalItem('${type}', '${item.replace(/'/g, "\\'")}')"><i class="fas fa-times"></i></button></span>`
+        ).join('');
+    }
+
+    function persistMedicalProfile() {
+        if (!currentUserId) return Promise.resolve();
+
+        const payload = {
+            bloodType: document.getElementById('bloodTypeSelect').value || '',
+            medicalProfile: {
+                allergies: medicalProfileData.allergies,
+                diseases: medicalProfileData.diseases,
+                medications: medicalProfileData.medications,
+                chronicDiseases: medicalProfileData.chronicDiseases
+            }
+        };
+
+        return db.ref(PATIENT_DATA_PATH + '/' + currentUserId).update(payload);
+    }
+
+    function addMedicalItem(type, item) {
+        const cleanItem = (item || '').trim();
+        if (!cleanItem) return;
+
+        const alreadyExists = medicalProfileData[type].some(existing => existing.toLowerCase() === cleanItem.toLowerCase());
+        if (alreadyExists) {
+            showToast('العنصر موجود بالفعل', 'info');
+            return;
+        }
+
+        medicalProfileData[type].push(cleanItem);
+        renderMultiTags(type);
+        persistMedicalProfile()
+            .then(() => showToast('تمت الإضافة بنجاح', 'success'))
+            .catch(() => showToast('تعذر حفظ البيانات', 'error'));
+    }
+
+    function addFromSelect(type) {
+        const selectEl = document.getElementById(type + 'Select');
+        if (!selectEl || !selectEl.value) return;
+        addMedicalItem(type, selectEl.value);
+        selectEl.value = '';
+    }
+
+    function addCustomItem(type) {
+        const inputEl = document.getElementById(type + 'CustomInput');
+        if (!inputEl) return;
+        addMedicalItem(type, inputEl.value);
+        inputEl.value = '';
+    }
+
+    function removeMedicalItem(type, item) {
+        medicalProfileData[type] = (medicalProfileData[type] || []).filter(entry => entry !== item);
+        renderMultiTags(type);
+        persistMedicalProfile()
+            .then(() => showToast('تم حذف العنصر', 'success'))
+            .catch(() => showToast('تعذر حفظ البيانات', 'error'));
+    }
+
+    function loadMedicalProfileData(userData) {
+        const nestedProfile = userData.medicalProfile || {};
+
+        medicalProfileData.allergies = normalizeArrayField(nestedProfile.allergies || userData.allergies);
+        medicalProfileData.diseases = normalizeArrayField(nestedProfile.diseases || userData.diseases);
+        medicalProfileData.medications = normalizeArrayField(nestedProfile.medications || userData.medications);
+        medicalProfileData.chronicDiseases = normalizeArrayField(nestedProfile.chronicDiseases || userData.chronicDiseases);
+
+        renderMultiTags('allergies');
+        renderMultiTags('diseases');
+        renderMultiTags('medications');
+        renderMultiTags('chronicDiseases');
+
+        const bloodType = userData.bloodType || nestedProfile.bloodType || '';
+        const bloodTypeSelect = document.getElementById('bloodTypeSelect');
+        if (bloodTypeSelect) bloodTypeSelect.value = bloodType;
+    }
+
+    function saveBloodType() {
+        const bloodType = document.getElementById('bloodTypeSelect').value;
+        db.ref(PATIENT_DATA_PATH + '/' + currentUserId).update({ bloodType: bloodType || '' })
+            .then(() => showToast('تم حفظ فصيلة الدم', 'success'))
+            .catch(() => showToast('تعذر حفظ فصيلة الدم', 'error'));
+    }
+
+    function setupMedicalProfileInputs() {
+        ['allergies', 'diseases', 'medications', 'chronicDiseases'].forEach(type => {
+            const inputEl = document.getElementById(type + 'CustomInput');
+            if (inputEl) {
+                inputEl.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        addCustomItem(type);
+                    }
+                });
+            }
         });
     }
 
@@ -961,6 +1384,7 @@
         document.querySelector("#confirmModal .btn-danger").innerText = t.yes;
         document.querySelector("#confirmModal .btn-cancel").innerText = t.cancel;
 
+        updateTimeGreeting();
         updateAIAnalysis();
     }
 
@@ -1285,9 +1709,14 @@
     function goToHistory(){window.location.href="history.html";}
 
     // Init Logic
-    window.onload = () => { 
-        updateAIAnalysis(); 
+    window.onload = () => {
+        currentLang = localStorage.getItem("language") || 'en';
+        applyLanguage();
+        updateTimeGreeting();
+        setInterval(updateTimeGreeting, 60000);
+        updateAIAnalysis();
         loadSavedAvatar();
+        setupMedicalProfileInputs();
         if ('speechSynthesis' in window) {
             window.speechSynthesis.onvoiceschanged = () => { setupHoverVoice(); };
             setTimeout(setupHoverVoice, 500);
@@ -1334,6 +1763,9 @@
                 document.getElementById('genderSelect').value = gender;
                 updateAvatarIcon(gender);
 
+                // Medical Profile
+                loadMedicalProfileData(userData);
+
                 // Phone Number (userId is the phone)
                 document.getElementById('phoneNumber').innerText = userId;
 
@@ -1362,6 +1794,15 @@
                 document.getElementById('phoneNumber').innerText = userId;
                 document.getElementById('memberSince').innerText = "اليوم";
                 document.getElementById('shortId').innerText = '#------';
+                document.getElementById('bloodTypeSelect').value = '';
+                medicalProfileData.allergies = [];
+                medicalProfileData.diseases = [];
+                medicalProfileData.medications = [];
+                medicalProfileData.chronicDiseases = [];
+                renderMultiTags('allergies');
+                renderMultiTags('diseases');
+                renderMultiTags('medications');
+                renderMultiTags('chronicDiseases');
             }
         }).catch(err => {
             console.error("Error loading profile:", err);
