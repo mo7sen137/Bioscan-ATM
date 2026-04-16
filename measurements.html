@@ -1430,103 +1430,266 @@
     }
 
     // --- 6. AI LOGIC ---
-    function updateAIAnalysis() {
-      if(!currentUserId) return;
-      const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
-      userRef.on("value", (snapshot) => {
-        if(snapshot.exists()) {
-            const data = snapshot.val();
-            const sensorDataString = data.SensorData || "No measurement recorded yet";
-            const sensorValues = extractSensorValues(sensorDataString);
-            
-            currentData = {
-                temp: sensorValues.temp || "--",
-                bpm: sensorValues.bpm || "--",
-                bp: sensorValues.bp || "--",
-                spo2: sensorValues.spo2 || "--"
-            };
-            lastTimestamp = data.Timestamp || "--";
+    let latestAIUserData = null;
+    let aiListenerBound = false;
 
-            ['bpValue', 'spo2Value', 'tempValue', 'pulseValue'].forEach((id, i) => {
-                const vals = [currentData.bp, currentData.spo2, currentData.temp, currentData.bpm];
-                const units = ['', '%', '°C', ' bpm'];
-                if(vals[i] !== "--") {
-                    const el = document.getElementById(id);
-                    el.classList.remove('skeleton'); el.innerText = vals[i] + units[i];
-                }
-            });
+    function normalizeProfileItems(value) {
+      if (Array.isArray(value)) return value.filter(Boolean).map(v => String(v).trim()).filter(Boolean);
+      if (typeof value === 'string' && value.trim()) return [value.trim()];
+      return [];
+    }
 
-            document.getElementById('lastReadingTime').innerText = (currentLang === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + lastTimestamp;
-            
-            const temp = parseFloat(currentData.temp) || 0;
-            const bpm = parseInt(currentData.bpm) || 0;
-            const spo2 = parseFloat(currentData.spo2) || 0;
-            let sys = 0; if(currentData.bp && currentData.bp.includes('/')) sys = parseInt(currentData.bp.split('/')[0]);
+    function hasAnyKeyword(items, keywords) {
+      const joined = (items || []).join(' ').toLowerCase();
+      return keywords.some(k => joined.includes(k));
+    }
 
-            let statusColor = "#00ff88"; 
-            let adviceList = [];
-            let headerMsg = currentLang === "ar" ? "✅ الحالة العامة مستقرة." : "✅ General condition is stable.";
+    function pushAdvice(adviceList, advice) {
+      if (!advice || !advice.key) return;
+      if (adviceList.some(item => item.key === advice.key)) return;
+      adviceList.push(advice);
+    }
 
-            if (sensorDataString === "No measurement recorded yet") {
-                headerMsg = currentLang === "ar" ? "⏳ بانتظار بدء القياسات..." : "⏳ Waiting for measurements...";
-            } else {
-                const isAr = currentLang === "ar";
-                
-                if(sys > 140) {
-                    statusColor = "#ff416c";
-                    headerMsg = isAr ? "⚠️ ضغط الدم مرتفع" : "⚠️ High Blood Pressure";
-                    adviceList.push({icon: "fa-carrot", title: isAr?"غذاء":"Diet", text: isAr?"قلل الصوديوم، تناول الموز والسبانخ":"Cut Sodium, eat Bananas/Spinach"});
-                    adviceList.push({icon: "fa-mug-hot", title: isAr?"مشروب":"Drink", text: isAr?"كركديه بارد أو عصير بنجر":"Cold Hibiscus or Beet Juice"});
-                    adviceList.push({icon: "fa-bed", title: isAr?"راحة":"Rest", text: isAr?"استرخِ وتجنب التوتر فوراً":"Relax immediately, avoid stress"});
-                } 
-                else if (sys > 0 && sys < 90) {
-                     statusColor = "#f1c40f";
-                     headerMsg = isAr ? "⚠️ ضغط الدم منخفض" : "⚠️ Low Blood Pressure";
-                     adviceList.push({icon: "fa-cookie", title: isAr?"غذاء":"Diet", text: isAr?"تناول وجبة خفيفة مالحة (جبن/مكسرات)":"Eat salty snacks (cheese/nuts)"});
-                     adviceList.push({icon: "fa-coffee", title: isAr?"مشروب":"Drink", text: isAr?"اشرب قهوة أو سوائل كثيرة":"Drink Coffee or fluids"});
-                }
+    function renderAIAnalysis(data) {
+      const sensorDataString = (data && data.SensorData) || "No measurement recorded yet";
+      const sensorValues = extractSensorValues(sensorDataString);
 
-                if(temp > 37.5) {
-                    statusColor = "#ff416c";
-                    headerMsg = isAr ? "🌡️ حرارة مرتفعة (حمى)" : "🌡️ High Fever";
-                    adviceList.push({icon: "fa-snowflake", title: isAr?"إجراء":"Action", text: isAr?"استخدم كمادات باردة على الجبين":"Apply cold compresses"});
-                    adviceList.push({icon: "fa-glass-water", title: isAr?"مشروب":"Drink", text: isAr?"اشرب ماء وعصائر لتعويض السوائل":"Hydrate with water & juices"});
-                }
+      currentData = {
+        temp: sensorValues.temp || "--",
+        bpm: sensorValues.bpm || "--",
+        bp: sensorValues.bp || "--",
+        spo2: sensorValues.spo2 || "--"
+      };
+      lastTimestamp = (data && data.Timestamp) || "--";
 
-                if(spo2 > 0 && spo2 < 95) {
-                    statusColor = "#ff416c";
-                    headerMsg = isAr ? "🫁 نقص في الأكسجين" : "🫁 Low Oxygen Level";
-                    adviceList.push({icon: "fa-wind", title: isAr?"بيئة":"Env", text: isAr?"افتح النوافذ لتجديد الهواء":"Open windows for fresh air"});
-                    adviceList.push({icon: "fa-lungs", title: isAr?"تمرين":"Exercise", text: isAr?"خذ شهيقاً عميقاً وزفيراً ببطء":"Take deep breaths slowly"});
-                }
-                
-                if(adviceList.length === 0 && sensorDataString !== "No measurement recorded yet") {
-                    adviceList.push({icon: "fa-glass-water", title: isAr?"نصيحة":"Tip", text: isAr?"اشرب 8 أكواب ماء يومياً":"Drink 8 cups of water"});
-                    adviceList.push({icon: "fa-person-walking", title: isAr?"نشاط":"Active", text: isAr?"امشِ لمدة 30 دقيقة":"Walk for 30 mins"});
-                    adviceList.push({icon: "fa-apple-whole", title: isAr?"غذاء":"Diet", text: isAr?"تناول المزيد من الفواكه":"Eat more fruits"});
-                }
-            }
-
-            let finalHtml = `<strong style="color:${statusColor}; font-size:1.1rem; display:block; margin-bottom:10px;">${headerMsg}</strong>`;
-            if(adviceList.length > 0) {
-                finalHtml += `<div class="ai-advice-container">`;
-                adviceList.forEach(tip => {
-                    finalHtml += `
-                    <div class="advice-box">
-                        <div class="advice-icon" style="color:${statusColor}"><i class="fas ${tip.icon}"></i></div>
-                        <div class="advice-content">
-                            <h4>${tip.title}</h4>
-                            <p>${tip.text}</p>
-                        </div>
-                    </div>`;
-                });
-                finalHtml += `</div>`;
-            }
-
-            document.getElementById("aiText").innerHTML = finalHtml;
-            document.querySelector(".ai-card").style.borderColor = statusColor;
-            document.querySelector(".ai-card").style.boxShadow = `0 0 40px ${statusColor}30`;
+      ['bpValue', 'spo2Value', 'tempValue', 'pulseValue'].forEach((id, i) => {
+        const vals = [currentData.bp, currentData.spo2, currentData.temp, currentData.bpm];
+        const units = ['', '%', '°C', ' bpm'];
+        if (vals[i] !== "--") {
+          const el = document.getElementById(id);
+          el.classList.remove('skeleton');
+          el.innerText = vals[i] + units[i];
         }
+      });
+
+      document.getElementById('lastReadingTime').innerText = (currentLang === 'ar' ? 'آخر تحديث: ' : 'Last updated: ') + lastTimestamp;
+
+      const temp = parseFloat(currentData.temp) || 0;
+      const bpm = parseInt(currentData.bpm) || 0;
+      const spo2 = parseFloat(currentData.spo2) || 0;
+      let sys = 0;
+      if (currentData.bp && currentData.bp.includes('/')) sys = parseInt(currentData.bp.split('/')[0]) || 0;
+
+      const isAr = currentLang === "ar";
+      const nestedProfile = (data && data.medicalProfile) || {};
+      const profile = {
+        allergies: normalizeProfileItems(nestedProfile.allergies || (data && data.allergies)),
+        diseases: normalizeProfileItems(nestedProfile.diseases || (data && data.diseases)),
+        medications: normalizeProfileItems(nestedProfile.medications || (data && data.medications)),
+        chronicDiseases: normalizeProfileItems(nestedProfile.chronicDiseases || (data && data.chronicDiseases))
+      };
+
+      const allConditions = [...profile.diseases, ...profile.chronicDiseases];
+      const hasHypertension = hasAnyKeyword(allConditions, ['ضغط', 'hypertension']);
+      const hasDiabetes = hasAnyKeyword(allConditions, ['سكري', 'diabet']);
+      const hasHeartDisease = hasAnyKeyword(allConditions, ['قلب', 'heart']);
+      const hasRespIssue = hasAnyKeyword(allConditions, ['ربو', 'انسداد', 'رئة', 'تنفس', 'asthma', 'copd', 'lung', 'respir']);
+
+      let statusColor = "#00ff88";
+      let adviceList = [];
+      let headerMsg = isAr ? "✅ الحالة العامة مستقرة." : "✅ General condition is stable.";
+
+      if (sensorDataString === "No measurement recorded yet") {
+        headerMsg = isAr ? "⏳ بانتظار بدء القياسات..." : "⏳ Waiting for measurements...";
+      } else {
+        if (sys >= 160 || spo2 < 92 || temp >= 39 || bpm >= 130) {
+          statusColor = "#ff2a2a";
+          headerMsg = isAr ? "🚨 مؤشرات حرجة تستلزم تواصلًا طبيًا سريعًا" : "🚨 Critical indicators detected, seek urgent medical advice";
+        } else if (sys > 140 || temp > 37.5 || spo2 < 95 || bpm > 110) {
+          statusColor = "#ff416c";
+          headerMsg = isAr ? "⚠️ توجد مؤشرات تحتاج متابعة قريبة" : "⚠️ There are indicators that require close follow-up";
+        } else if ((sys > 0 && sys < 90) || (bpm > 0 && bpm < 55)) {
+          statusColor = "#f1c40f";
+          headerMsg = isAr ? "⚠️ بعض المؤشرات منخفضة عن الطبيعي" : "⚠️ Some indicators are below normal";
+        }
+
+        if (sys > 140) {
+          pushAdvice(adviceList, {
+            key: 'bp-high-diet',
+            icon: 'fa-carrot',
+            title: isAr ? 'الضغط المرتفع' : 'High BP',
+            text: isAr ? 'قلل الملح والوجبات السريعة، وراقب الضغط كل 4-6 ساعات حتى يستقر.' : 'Reduce sodium and processed food, then recheck BP every 4-6 hours.'
+          });
+          pushAdvice(adviceList, {
+            key: 'bp-high-rest',
+            icon: 'fa-bed',
+            title: isAr ? 'تنظيم النشاط' : 'Activity',
+            text: isAr ? 'تجنب المجهود العالي الآن وخذ 10 دقائق تنفس بطيء مع الجلوس.' : 'Avoid heavy effort now and do 10 minutes of slow breathing while seated.'
+          });
+        } else if (sys > 0 && sys < 90) {
+          pushAdvice(adviceList, {
+            key: 'bp-low',
+            icon: 'fa-cookie',
+            title: isAr ? 'الضغط المنخفض' : 'Low BP',
+            text: isAr ? 'ارفع السوائل وتناول وجبة خفيفة، وانهض تدريجيًا لتجنب الدوخة.' : 'Increase fluids, take a light snack, and stand up gradually to avoid dizziness.'
+          });
+        }
+
+        if (temp > 37.5) {
+          pushAdvice(adviceList, {
+            key: 'fever-action',
+            icon: 'fa-snowflake',
+            title: isAr ? 'ارتفاع الحرارة' : 'Fever Care',
+            text: isAr ? 'كمادات فاترة + سوائل كثيرة، وإذا استمرت الحمى أكثر من 24 ساعة راجع الطبيب.' : 'Use lukewarm compresses and hydrate well; if fever lasts >24h consult a doctor.'
+          });
+        }
+
+        if (spo2 > 0 && spo2 < 95) {
+          pushAdvice(adviceList, {
+            key: 'oxygen-low',
+            icon: 'fa-lungs',
+            title: isAr ? 'الأكسجين منخفض' : 'Low Oxygen',
+            text: isAr ? 'خذ أنفاسًا عميقة بطيئة في وضع جلوس، وكرر القياس بعد 10 دقائق.' : 'Practice slow deep breathing while seated and repeat reading after 10 minutes.'
+          });
+        }
+
+        if (bpm > 110) {
+          pushAdvice(adviceList, {
+            key: 'pulse-high',
+            icon: 'fa-heartbeat',
+            title: isAr ? 'نبض مرتفع' : 'High Pulse',
+            text: isAr ? 'ابتعد عن الكافيين مؤقتًا، وخذ راحة قصيرة ثم أعد القياس.' : 'Avoid caffeine temporarily, take a short rest, then recheck pulse.'
+          });
+        } else if (bpm > 0 && bpm < 55) {
+          pushAdvice(adviceList, {
+            key: 'pulse-low',
+            icon: 'fa-wave-square',
+            title: isAr ? 'نبض منخفض' : 'Low Pulse',
+            text: isAr ? 'إذا صاحبه دوخة/إغماء تواصل طبيًا فورًا، وإلا راقب القياس دوريًا.' : 'If associated with dizziness/fainting, seek urgent care; otherwise monitor regularly.'
+          });
+        }
+
+        if (hasHypertension && sys > 130) {
+          pushAdvice(adviceList, {
+            key: 'profile-hypertension',
+            icon: 'fa-notes-medical',
+            title: isAr ? 'ربط بالبروفايل: ضغط' : 'Profile Link: BP',
+            text: isAr ? 'لديك تاريخ مرضي مرتبط بالضغط، فالمتابعة اليومية والالتزام بالعلاج مهمان جدًا.' : 'Your profile indicates BP-related history; daily tracking and treatment adherence are important.'
+          });
+        }
+
+        if (hasDiabetes && (temp > 37.5 || sys > 140)) {
+          pushAdvice(adviceList, {
+            key: 'profile-diabetes',
+            icon: 'fa-syringe',
+            title: isAr ? 'ربط بالبروفايل: سكر' : 'Profile Link: Diabetes',
+            text: isAr ? 'مع وجود سكري، ارتفاع الحرارة/الضغط يحتاج متابعة أقرب لسكر الدم والسوائل.' : 'With diabetes history, fever/BP spikes require closer glucose and hydration monitoring.'
+          });
+        }
+
+        if (hasRespIssue && spo2 > 0 && spo2 < 95) {
+          pushAdvice(adviceList, {
+            key: 'profile-respiratory',
+            icon: 'fa-wind',
+            title: isAr ? 'ربط بالبروفايل: تنفسي' : 'Profile Link: Respiratory',
+            text: isAr ? 'نظرًا لوجود حالة تنفسية مسجلة، يفضّل تجنب المجهود ومراقبة الأكسجين باستمرار.' : 'Given your respiratory history, avoid exertion and monitor oxygen saturation closely.'
+          });
+        }
+
+        if (hasHeartDisease && (bpm > 100 || sys > 140)) {
+          pushAdvice(adviceList, {
+            key: 'profile-heart',
+            icon: 'fa-heart-circle-exclamation',
+            title: isAr ? 'ربط بالبروفايل: القلب' : 'Profile Link: Cardiac',
+            text: isAr ? 'مع أمراض القلب المسجلة، أي ارتفاع واضح في النبض/الضغط يحتاج متابعة طبية أسرع.' : 'With cardiac history, notable pulse/BP elevation warrants faster medical follow-up.'
+          });
+        }
+
+        if (profile.medications.length) {
+          const medsPreview = profile.medications.slice(0, 3).join(isAr ? '، ' : ', ');
+          pushAdvice(adviceList, {
+            key: 'profile-meds',
+            icon: 'fa-pills',
+            title: isAr ? 'الأدوية المسجلة' : 'Medication Context',
+            text: isAr
+              ? `تم رصد أدوية في البروفايل (${medsPreview}${profile.medications.length > 3 ? '...' : ''}). التزم بالمواعيد ولا تعدل الجرعات دون استشارة.`
+              : `Medications found in profile (${medsPreview}${profile.medications.length > 3 ? '...' : ''}). Keep schedule and avoid dose changes without advice.`
+          });
+        }
+
+        if (profile.allergies.length) {
+          pushAdvice(adviceList, {
+            key: 'profile-allergy',
+            icon: 'fa-allergies',
+            title: isAr ? 'الحساسية المسجلة' : 'Allergy Context',
+            text: isAr ? 'راجع أي علاج جديد مقابل الحساسية المسجلة لتجنب تفاعلات غير مرغوبة.' : 'Cross-check any new treatment with documented allergies to avoid adverse reactions.'
+          });
+        }
+
+        if (adviceList.length === 0) {
+          pushAdvice(adviceList, {
+            key: 'stable-water',
+            icon: 'fa-glass-water',
+            title: isAr ? 'ترطيب يومي' : 'Hydration',
+            text: isAr ? 'اشرب الماء على مدار اليوم وقلل المشروبات المنبهة.' : 'Hydrate consistently through the day and reduce stimulants.'
+          });
+          pushAdvice(adviceList, {
+            key: 'stable-activity',
+            icon: 'fa-person-walking',
+            title: isAr ? 'نشاط صحي' : 'Healthy Activity',
+            text: isAr ? 'حافظ على 20-30 دقيقة مشي يوميًا مع نوم منتظم.' : 'Keep 20-30 minutes of daily walking with regular sleep.'
+          });
+        }
+
+        const profileCount = profile.allergies.length + profile.diseases.length + profile.medications.length + profile.chronicDiseases.length;
+        if (profileCount > 0) {
+          pushAdvice(adviceList, {
+            key: 'profile-summary',
+            icon: 'fa-link',
+            title: isAr ? 'العوامل المحتسبة' : 'Factors Considered',
+            text: isAr
+              ? `تم ربط التحليل بـ ${profile.diseases.length + profile.chronicDiseases.length} حالة مرضية، ${profile.medications.length} دواء، و${profile.allergies.length} نوع حساسية.`
+              : `Analysis linked to ${profile.diseases.length + profile.chronicDiseases.length} conditions, ${profile.medications.length} medications, and ${profile.allergies.length} allergies.`
+          });
+        }
+      }
+
+      let finalHtml = `<strong style="color:${statusColor}; font-size:1.1rem; display:block; margin-bottom:10px;">${headerMsg}</strong>`;
+      if (adviceList.length > 0) {
+        finalHtml += `<div class="ai-advice-container">`;
+        adviceList.forEach(tip => {
+          finalHtml += `
+          <div class="advice-box">
+            <div class="advice-icon" style="color:${statusColor}"><i class="fas ${tip.icon}"></i></div>
+            <div class="advice-content">
+              <h4>${tip.title}</h4>
+              <p>${tip.text}</p>
+            </div>
+          </div>`;
+        });
+        finalHtml += `</div>`;
+      }
+
+      document.getElementById("aiText").innerHTML = finalHtml;
+      document.querySelector(".ai-card").style.borderColor = statusColor;
+      document.querySelector(".ai-card").style.boxShadow = `0 0 40px ${statusColor}30`;
+    }
+
+    function updateAIAnalysis() {
+      if (!currentUserId) return;
+
+      if (aiListenerBound) {
+      if (latestAIUserData) renderAIAnalysis(latestAIUserData);
+      return;
+      }
+
+      const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
+      aiListenerBound = true;
+      userRef.on("value", (snapshot) => {
+      if (snapshot.exists()) {
+        latestAIUserData = snapshot.val();
+        renderAIAnalysis(latestAIUserData);
+      }
       });
     }
 
