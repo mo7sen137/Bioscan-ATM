@@ -263,6 +263,8 @@
             .print-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
             .print-table th { background: #eee !important; border: 1px solid #000; padding: 8px; text-align: center; font-weight: bold; }
             .print-table td { border: 1px solid #000; padding: 8px; text-align: center; }
+            #print-profile-table th { width: 35%; text-align: left; }
+            #print-profile-table td { text-align: left; white-space: normal; line-height: 1.5; }
             
             /* FORCE BLACK COLOR FOR DATA */
             .print-table td, .print-table .col-temp, .print-table .col-pulse, .print-table .col-bp, .print-table .col-ox { 
@@ -414,6 +416,36 @@
             </thead>
             <tbody id="printTableBody"></tbody>
         </table>
+
+        <h3 id="prProfileTitle" style="margin-top: 30px; font-family: 'Arial', sans-serif; color: #000; font-size: 14pt; border-bottom: 2px solid #000; padding-bottom: 5px;">Patient Medical Profile</h3>
+        <table class="print-table" id="print-profile-table" style="margin-top: 15px;">
+            <tbody>
+                <tr>
+                    <th id="prLblGender">Gender</th>
+                    <td id="prGender">--</td>
+                </tr>
+                <tr>
+                    <th id="prLblBloodType">Blood Type</th>
+                    <td id="prBloodType">--</td>
+                </tr>
+                <tr>
+                    <th id="prLblAllergies">Allergies</th>
+                    <td id="prAllergies">--</td>
+                </tr>
+                <tr>
+                    <th id="prLblDiseases">Current Diseases</th>
+                    <td id="prDiseases">--</td>
+                </tr>
+                <tr>
+                    <th id="prLblMedications">Current Medications / Treatment</th>
+                    <td id="prMedications">--</td>
+                </tr>
+                <tr>
+                    <th id="prLblChronicDiseases">Chronic Diseases</th>
+                    <td id="prChronicDiseases">--</td>
+                </tr>
+            </tbody>
+        </table>
         
         <!-- Vision Test Results for Print -->
         <h3 style="margin-top: 30px; font-family: 'Arial', sans-serif; color: #000; font-size: 14pt; border-bottom: 2px solid #000; padding-bottom: 5px;">Vision Test Results</h3>
@@ -556,6 +588,7 @@
         const userIdSpan = document.getElementById('userIdDisplay');
         const printNameSpan = document.getElementById('p-name');
         const printIdSpan = document.getElementById('p-id');
+        let printProfileSource = null;
         
         if (!currentUserId) {
             window.location.href = "index.html";
@@ -569,6 +602,8 @@
                 if(snapshot.exists()) {
                     const userData = snapshot.val();
                     console.log("User Data:", userData);
+                    printProfileSource = userData;
+                    populatePrintProfile(userData);
                     
                     let fullName = userData.fullName || userData.FullName || userData.name || userData.Name;
                     
@@ -583,11 +618,15 @@
                         printNameSpan.innerText = currentUserId;
                     }
                 } else {
+                    printProfileSource = null;
+                    populatePrintProfile(null);
                     userNameSpan.innerText = currentUserId.substring(0, 8);
                     printNameSpan.innerText = currentUserId;
                 }
             }).catch(err => {
                 console.error("Error fetching user data:", err);
+                printProfileSource = null;
+                populatePrintProfile(null);
                 userNameSpan.innerText = currentUserId.substring(0, 8);
                 printNameSpan.innerText = currentUserId;
             });
@@ -615,14 +654,18 @@
                     chartT: "HEALTH ANALYTICS", lTemp: "Temperature", lPulse: "Pulse Rate", lOx: "Oxygen", lSys: "Systolic BP", lDia: "Diastolic BP", lZoom: "Reset Zoom",
                     attach: "ATTACH TO REPORT", delT: "DELETE RECORD?", delM: "This action is permanent.", cancel: "CANCEL", conf: "CONFIRM",
                     sucT: "The chart has been added to the report.",
-                    visionTitle: "VISION TEST RESULTS", visionDate: "Date / Time", visionDevice: "Device ID", rightEye: "Right Eye", leftEye: "Left Eye", visionAct: "Action"
+                    visionTitle: "VISION TEST RESULTS", visionDate: "Date / Time", visionDevice: "Device ID", rightEye: "Right Eye", leftEye: "Left Eye", visionAct: "Action",
+                    profileTitle: "Patient Medical Profile", gender: "Gender", bloodType: "Blood Type", allergies: "Allergies",
+                    diseases: "Current Diseases", medications: "Current Medications / Treatment", chronicDiseases: "Chronic Diseases"
                 },
                 ar: {
                     title: "سجل البيانات", date: "الوقت والتاريخ", device: "رقم الجهاز", temp: "الحرارة (°C)", pulse: "النبض (BPM)", ox: "الأكسجين (%)", bp: "الضغط", act: "إجراء",
                     chartT: "التحليل البياني", lTemp: "درجة الحرارة", lPulse: "نبض القلب", lOx: "نسبة الأكسجين", lSys: "ضغط انقباضي", lDia: "ضغط انبساطي", lZoom: "إعادة الزوم",
                     attach: "إرفاق مع التقرير", delT: "حذف السجل؟", delM: "لا يمكن التراجع عن الحذف.", cancel: "إلغاء", conf: "تأكيد",
                     sucT: "تم إرفاق الرسم البياني مع التقرير.",
-                    visionTitle: "نتائج فحص النظر", visionDate: "الوقت والتاريخ", visionDevice: "رقم الجهاز", rightEye: "العين اليمنى", leftEye: "العين اليسرى", visionAct: "إجراء"
+                    visionTitle: "نتائج فحص النظر", visionDate: "الوقت والتاريخ", visionDevice: "رقم الجهاز", rightEye: "العين اليمنى", leftEye: "العين اليسرى", visionAct: "إجراء",
+                    profileTitle: "الملف الطبي للمريض", gender: "النوع", bloodType: "فصيلة الدم", allergies: "الحساسية",
+                    diseases: "الأمراض الحالية", medications: "الأدوية الحالية / العلاج", chronicDiseases: "الأمراض المزمنة"
                 }
             };
             const t = isAr ? txt.ar : txt.en;
@@ -659,6 +702,16 @@
             ['thRightEye','prRightEye'].forEach(id=>document.getElementById(id).innerText=t.rightEye);
             ['thLeftEye','prLeftEye'].forEach(id=>document.getElementById(id).innerText=t.leftEye);
             document.getElementById('thVisionAct').innerText = t.visionAct;
+
+            document.getElementById('prProfileTitle').innerText = t.profileTitle;
+            document.getElementById('prLblGender').innerText = t.gender;
+            document.getElementById('prLblBloodType').innerText = t.bloodType;
+            document.getElementById('prLblAllergies').innerText = t.allergies;
+            document.getElementById('prLblDiseases').innerText = t.diseases;
+            document.getElementById('prLblMedications').innerText = t.medications;
+            document.getElementById('prLblChronicDiseases').innerText = t.chronicDiseases;
+
+            populatePrintProfile(printProfileSource);
 
             if(myChart) showChart(); // Re-render chart for labels
         }
@@ -701,6 +754,49 @@
             }
 
             return parsed;
+        }
+
+        function normalizeProfileArray(value) {
+            if (Array.isArray(value)) {
+                return value.filter(Boolean).map(item => String(item).trim()).filter(Boolean);
+            }
+            if (typeof value === 'string' && value.trim()) {
+                return [value.trim()];
+            }
+            return [];
+        }
+
+        function toDisplayList(value) {
+            return value && value.length ? value.join(' - ') : '--';
+        }
+
+        function setTextById(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = value;
+        }
+
+        function populatePrintProfile(userData) {
+            const data = userData || {};
+            const nestedProfile = data.medicalProfile || {};
+            const genderRaw = (data.gender || data.Gender || '').toString().toLowerCase();
+            const genderLabel = genderRaw === 'male'
+                ? (currentLang === 'ar' ? 'ذكر' : 'Male')
+                : genderRaw === 'female'
+                    ? (currentLang === 'ar' ? 'أنثى' : 'Female')
+                    : '--';
+
+            const bloodType = data.bloodType || nestedProfile.bloodType || '--';
+            const allergies = normalizeProfileArray(nestedProfile.allergies || data.allergies);
+            const diseases = normalizeProfileArray(nestedProfile.diseases || data.diseases);
+            const medications = normalizeProfileArray(nestedProfile.medications || data.medications);
+            const chronicDiseases = normalizeProfileArray(nestedProfile.chronicDiseases || data.chronicDiseases);
+
+            setTextById('prGender', genderLabel);
+            setTextById('prBloodType', bloodType || '--');
+            setTextById('prAllergies', toDisplayList(allergies));
+            setTextById('prDiseases', toDisplayList(diseases));
+            setTextById('prMedications', toDisplayList(medications));
+            setTextById('prChronicDiseases', toDisplayList(chronicDiseases));
         }
 
         const historyRef = db.ref('PatientData/' + currentUserId + '/History');
