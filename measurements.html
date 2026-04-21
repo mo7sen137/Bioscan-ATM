@@ -515,13 +515,6 @@
       opacity: 0.65;
       cursor: not-allowed;
     }
-    .danger-note {
-      margin: 10px 0 0;
-      color: #ff9ea5;
-      font-size: 0.82rem;
-      line-height: 1.45;
-      font-family: 'Rajdhani', sans-serif;
-    }
 
     .time-greeting {
         width: min(1200px, calc(100% - 24px));
@@ -774,6 +767,18 @@
           <div class="modal-actions"><button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button><button class="modal-btn btn-danger" onclick="executeSOS()">YES, SEND HELP</button></div>
       </div>
   </div>
+
+    <div class="custom-modal-overlay" id="deleteAccountModal">
+      <div class="custom-modal-box">
+        <div class="modal-icon warning" style="color:var(--error);"><i class="fas fa-user-slash"></i></div>
+        <h3 class="modal-title">Delete Account</h3>
+        <p class="modal-text" style="color:#ddd;">Are you sure you want to delete your account permanently?</p>
+        <div class="modal-actions">
+        <button class="modal-btn btn-cancel" onclick="closeDeleteAccountModal()">Cancel</button>
+        <button class="modal-btn btn-danger" onclick="executeDeleteAccount()">Delete</button>
+        </div>
+      </div>
+    </div>
 
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
   <div class="sidebar" id="smartSidebar">
@@ -1094,7 +1099,6 @@
         <button class="delete-account-btn" id="deleteAccountBtn" onclick="deleteAccount()">
           <i class="fas fa-user-slash"></i> Delete account
         </button>
-        <p class="danger-note">حذف الحساب يمسح بياناتك نهائيا من Firebase وبعدها تقدر تسجل بنفس الرقم من جديد.</p>
       </div>
     </div>
   </div>
@@ -2087,11 +2091,20 @@
         });
     }
 
-      async function deleteAccount() {
-        if (!currentUserId) return;
+      function deleteAccount() {
+        openDeleteAccountModal();
+      }
 
-        const confirmed = confirm('هل أنت متأكد؟ سيتم حذف الحساب نهائيا ولا يمكن التراجع.');
-        if (!confirmed) return;
+      function openDeleteAccountModal() {
+        document.getElementById('deleteAccountModal').classList.add('active');
+      }
+
+      function closeDeleteAccountModal() {
+        document.getElementById('deleteAccountModal').classList.remove('active');
+      }
+
+      async function executeDeleteAccount() {
+        if (!currentUserId) return;
 
         const deleteBtn = document.getElementById('deleteAccountBtn');
         if (deleteBtn) {
@@ -2100,6 +2113,7 @@
         }
 
         try {
+          closeDeleteAccountModal();
           const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
           const snapshot = await userRef.once('value');
           const userData = snapshot.exists() ? snapshot.val() : null;
@@ -2136,6 +2150,7 @@
         } catch (err) {
           console.error('Delete account error:', err);
           showToast('تعذر حذف الحساب. حاول مرة أخرى.', 'error');
+          openDeleteAccountModal();
           if (deleteBtn) {
             deleteBtn.disabled = false;
             deleteBtn.innerHTML = '<i class="fas fa-user-slash"></i> Delete account';
