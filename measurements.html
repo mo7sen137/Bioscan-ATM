@@ -485,6 +485,44 @@
         font-weight: 600;
     }
 
+    .profile-danger-zone {
+      margin-top: 26px;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 71, 87, 0.45);
+      background: rgba(255, 71, 87, 0.08);
+    }
+    .delete-account-btn {
+      width: 100%;
+      border: 1px solid var(--error);
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: rgba(255, 71, 87, 0.14);
+      color: #ff8993;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+    .delete-account-btn:hover:not(:disabled) {
+      background: var(--error);
+      color: #fff;
+      box-shadow: 0 0 16px rgba(255, 71, 87, 0.45);
+    }
+    .delete-account-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+    .danger-note {
+      margin: 10px 0 0;
+      color: #ff9ea5;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
     .time-greeting {
         width: min(1200px, calc(100% - 24px));
         margin: 12px auto 8px;
@@ -1050,6 +1088,13 @@
             <i class="fas fa-lock locked-icon"></i>
           </div>
         </div>
+      </div>
+
+      <div class="profile-danger-zone">
+        <button class="delete-account-btn" id="deleteAccountBtn" onclick="deleteAccount()">
+          <i class="fas fa-user-slash"></i> Delete account
+        </button>
+        <p class="danger-note">حذف الحساب يمسح بياناتك نهائيا من Firebase وبعدها تقدر تسجل بنفس الرقم من جديد.</p>
       </div>
     </div>
   </div>
@@ -2041,6 +2086,62 @@
             showToast("خطأ في الحفظ", "error");
         });
     }
+
+      async function deleteAccount() {
+        if (!currentUserId) return;
+
+        const confirmed = confirm('هل أنت متأكد؟ سيتم حذف الحساب نهائيا ولا يمكن التراجع.');
+        if (!confirmed) return;
+
+        const deleteBtn = document.getElementById('deleteAccountBtn');
+        if (deleteBtn) {
+          deleteBtn.disabled = true;
+          deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+        }
+
+        try {
+          const userRef = db.ref(PATIENT_DATA_PATH + '/' + currentUserId);
+          const snapshot = await userRef.once('value');
+          const userData = snapshot.exists() ? snapshot.val() : null;
+          const savedPassword = userData ? (userData.Password || userData.password || '') : '';
+          const virtualEmail = (currentUserId.startsWith('+') ? currentUserId.substring(1) : currentUserId) + '@bioscan.com';
+
+          if (savedPassword) {
+            try {
+              await auth.signOut();
+              await auth.signInWithEmailAndPassword(virtualEmail, savedPassword);
+              if (auth.currentUser) {
+                await auth.currentUser.delete();
+              }
+            } catch (authErr) {
+              console.warn('Auth delete skipped or failed:', authErr);
+            } finally {
+              try {
+                await auth.signOut();
+              } catch (signOutErr) {
+                console.warn('Auth signOut failed:', signOutErr);
+              }
+            }
+          }
+
+          await userRef.remove();
+          localStorage.removeItem('selectedUserId');
+          localStorage.removeItem('userAvatar_' + currentUserId);
+          sessionStorage.removeItem('wantsFullscreen');
+
+          showToast('تم حذف الحساب بنجاح', 'success');
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 900);
+        } catch (err) {
+          console.error('Delete account error:', err);
+          showToast('تعذر حذف الحساب. حاول مرة أخرى.', 'error');
+          if (deleteBtn) {
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = '<i class="fas fa-user-slash"></i> Delete account';
+          }
+        }
+      }
 
     function updateAvatarIcon(gender) {
         const headerIcon = document.getElementById('headerAvatarIcon');
