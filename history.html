@@ -635,7 +635,7 @@
         }
 
         // --- 4. TRANSLATION LOGIC (EN Default) ---
-        let currentLang = 'en';
+        let currentLang = localStorage.getItem("language") || 'en';
 
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'ar' : 'en';
@@ -656,7 +656,10 @@
                     sucT: "The chart has been added to the report.",
                     visionTitle: "VISION TEST RESULTS", visionDate: "Date / Time", visionDevice: "Device ID", rightEye: "Right Eye", leftEye: "Left Eye", visionAct: "Action",
                     profileTitle: "Patient Medical Profile", gender: "Gender", bloodType: "Blood Type", allergies: "Allergies",
-                    diseases: "Current Diseases", medications: "Current Medications / Treatment", chronicDiseases: "Chronic Diseases"
+                    diseases: "Current Diseases", medications: "Current Medications / Treatment", chronicDiseases: "Chronic Diseases",
+                    chartAttachedTitle: "CHART ATTACHED", chartNeedData: "Need at least 2 records for analysis.",
+                    btnLanguage: "Language", btnAnalysis: "Analysis", btnFullscreen: "Full Screen", btnPrint: "Print", btnBack: "Back",
+                    aiInsight: "AI Insight"
                 },
                 ar: {
                     title: "سجل البيانات", date: "الوقت والتاريخ", device: "رقم الجهاز", temp: "الحرارة (°C)", pulse: "النبض (BPM)", ox: "الأكسجين (%)", bp: "الضغط", act: "إجراء",
@@ -665,7 +668,10 @@
                     sucT: "تم إرفاق الرسم البياني مع التقرير.",
                     visionTitle: "نتائج فحص النظر", visionDate: "الوقت والتاريخ", visionDevice: "رقم الجهاز", rightEye: "العين اليمنى", leftEye: "العين اليسرى", visionAct: "إجراء",
                     profileTitle: "الملف الطبي للمريض", gender: "النوع", bloodType: "فصيلة الدم", allergies: "الحساسية",
-                    diseases: "الأمراض الحالية", medications: "الأدوية الحالية / العلاج", chronicDiseases: "الأمراض المزمنة"
+                    diseases: "الأمراض الحالية", medications: "الأدوية الحالية / العلاج", chronicDiseases: "الأمراض المزمنة",
+                    chartAttachedTitle: "تم إرفاق الرسم", chartNeedData: "يلزم سجلان على الأقل للتحليل.",
+                    btnLanguage: "اللغة", btnAnalysis: "تحليل", btnFullscreen: "ملء الشاشة", btnPrint: "طباعة", btnBack: "رجوع",
+                    aiInsight: "ملخص ذكي"
                 }
             };
             const t = isAr ? txt.ar : txt.en;
@@ -694,6 +700,14 @@
             document.querySelectorAll('.btn-cancel').forEach(b => b.innerText = t.cancel);
             document.querySelector('.btn-danger').innerText = t.conf;
             document.getElementById('successText').innerText = t.sucT;
+            document.querySelector('#successModal .modal-title').innerText = t.chartAttachedTitle;
+
+            const topBtns = document.querySelectorAll('.header-actions .btn');
+            if (topBtns[0]) topBtns[0].title = t.btnLanguage;
+            if (topBtns[1]) topBtns[1].title = t.btnAnalysis;
+            if (topBtns[2]) topBtns[2].title = t.btnFullscreen;
+            if (topBtns[3]) topBtns[3].title = t.btnPrint;
+            if (topBtns[4]) topBtns[4].title = t.btnBack;
 
             // Vision Test translations
             document.getElementById('visionTitle').innerText = t.visionTitle;
@@ -967,7 +981,8 @@
 
         function showChart() {
             if(allRecords.length < 2) {
-                alert("Need at least 2 records for analysis.");
+                const isAr = currentLang === 'ar';
+                alert(isAr ? "يلزم سجلان على الأقل للتحليل." : "Need at least 2 records for analysis.");
                 return;
             }
 
@@ -1079,7 +1094,8 @@
                 color = "#ff4757"; 
             }
             
-            document.getElementById("aiAnalysisText").innerHTML = `<i class="fas fa-robot"></i> <strong style="color:${color}">AI Insight:</strong> ${msg}`;
+            const aiLabel = currentLang === 'ar' ? 'ملخص ذكي' : 'AI Insight';
+            document.getElementById("aiAnalysisText").innerHTML = `<i class="fas fa-robot"></i> <strong style="color:${color}">${aiLabel}:</strong> ${msg}`;
         }
 
         // *** SMART PRINT LOGIC (Colors + Values + Legend) ***

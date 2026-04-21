@@ -484,7 +484,7 @@
   </div>
   <div class="header-actions">
     <button class="header-btn" id="langBtn" onclick="toggleLanguage()">EN</button>
-    <button class="header-btn" onclick="toggleFullscreen()">
+    <button class="header-btn" id="fullscreenBtn" onclick="toggleFullscreen()">
       <i class="fas fa-expand"></i>
     </button>
   </div>
@@ -678,12 +678,12 @@
   function saveMeasurement() {
     const val = pulseBox.innerText;
     if (val === "--" || val === "") {
-      alert("No pulse reading available!");
+      alert(localStorage.getItem("language") === "ar" ? "لا توجد قراءة نبض متاحة!" : "No pulse reading available!");
       return;
     }
     
     if (!userId) { 
-      alert("No user selected!");
+      alert(localStorage.getItem("language") === "ar" ? "لم يتم اختيار مستخدم!" : "No user selected!");
       window.location.href = "index.html"; 
       return; 
     }
@@ -719,7 +719,7 @@
         showConfirmModal();
       }).catch(err => {
         console.error("Save error:", err);
-        alert("Failed to save!");
+        alert(localStorage.getItem("language") === "ar" ? "فشل الحفظ!" : "Failed to save!");
       });
     });
   }
@@ -769,7 +769,7 @@
   function speakResult() {
     let bpm = parseInt(pulseBox.innerText);
     if (isNaN(bpm)) {
-      alert("No reading to speak!");
+      alert(localStorage.getItem("language") === "ar" ? "لا توجد قراءة للنطق!" : "No reading to speak!");
       return;
     }
     const lang = localStorage.getItem("language") || "en";
@@ -807,37 +807,52 @@
 
   // --- 8. RTL SUPPORT ---
   const lang = localStorage.getItem("language") || "en";
+  const I18N = {
+    en: {
+      title: "PULSE RATE", back: "Back", instructions: "INSTRUCTIONS", medicalAdvice: "Medical Advice", saveReading: "Save Reading",
+      instrList: '<li><i class="fas fa-fingerprint"></i> Place finger steadily</li><li><i class="fas fa-hand-paper"></i> Do not move</li>',
+      tapHint: "Tap to enable sound 🔊", switchLanguage: "Switch Language", fullScreen: "Full Screen"
+    },
+    ar: {
+      title: "قياس النبض", back: "عودة", instructions: "تعليمات القياس", medicalAdvice: "النصيحة الطبية", saveReading: "حفظ القياس",
+      instrList: '<li><i class="fas fa-fingerprint"></i> ضع إصبعك بثبات</li><li><i class="fas fa-hand-paper"></i> لا تتحرك</li>',
+      tapHint: "اضغط لتفعيل الصوت 🔊", switchLanguage: "تبديل اللغة", fullScreen: "ملء الشاشة"
+    }
+  };
+
+  function tr(key) {
+    const current = localStorage.getItem("language") || "en";
+    return (I18N[current] && I18N[current][key]) || I18N.en[key] || key;
+  }
   
   function applyLanguage(language) {
     const isAr = language === "ar";
     
     if (isAr) {
       document.body.classList.add("rtl");
-      document.getElementById("headerTitle").innerText = "قياس النبض";
-      document.getElementById("backBtn").innerHTML = '<span>عودة</span> <i class="fas fa-arrow-right"></i>';
-      document.getElementById("instrTitle").innerText = "تعليمات القياس";
-      document.getElementById("btnText").innerText = "النصيحة الطبية";
-      document.getElementById("saveBtnText").innerText = "حفظ القياس";
-      document.getElementById("instructions").innerHTML = `
-        <li><i class="fas fa-fingerprint"></i> ضع إصبعك بثبات</li>
-        <li><i class="fas fa-hand-paper"></i> لا تتحرك</li>
-      `;
-      document.getElementById("tapHint").innerText = "اضغط لتفعيل الصوت 🔊";
+      document.getElementById("headerTitle").innerText = tr("title");
+      document.getElementById("backBtn").innerHTML = '<span>' + tr("back") + '</span> <i class="fas fa-arrow-right"></i>';
+      document.getElementById("instrTitle").innerText = tr("instructions");
+      document.getElementById("btnText").innerText = tr("medicalAdvice");
+      document.getElementById("saveBtnText").innerText = tr("saveReading");
+      document.getElementById("instructions").innerHTML = tr("instrList");
+      document.getElementById("tapHint").innerText = tr("tapHint");
       document.getElementById("langBtn").innerText = "ع";
     } else {
       document.body.classList.remove("rtl");
-      document.getElementById("headerTitle").innerText = "PULSE RATE";
-      document.getElementById("backBtn").innerHTML = '<i class="fas fa-arrow-left"></i> <span>Back</span>';
-      document.getElementById("instrTitle").innerText = "INSTRUCTIONS";
-      document.getElementById("btnText").innerText = "Medical Advice";
-      document.getElementById("saveBtnText").innerText = "Save Reading";
-      document.getElementById("instructions").innerHTML = `
-        <li><i class="fas fa-fingerprint"></i> Place finger steadily</li>
-        <li><i class="fas fa-hand-paper"></i> Do not move</li>
-      `;
-      document.getElementById("tapHint").innerText = "Tap to enable sound 🔊";
+      document.getElementById("headerTitle").innerText = tr("title");
+      document.getElementById("backBtn").innerHTML = '<i class="fas fa-arrow-left"></i> <span>' + tr("back") + '</span>';
+      document.getElementById("instrTitle").innerText = tr("instructions");
+      document.getElementById("btnText").innerText = tr("medicalAdvice");
+      document.getElementById("saveBtnText").innerText = tr("saveReading");
+      document.getElementById("instructions").innerHTML = tr("instrList");
+      document.getElementById("tapHint").innerText = tr("tapHint");
       document.getElementById("langBtn").innerText = "EN";
     }
+
+    document.getElementById("langBtn").title = tr("switchLanguage");
+    const fsBtn = document.getElementById("fullscreenBtn");
+    if (fsBtn) fsBtn.title = tr("fullScreen");
   }
 
   function toggleLanguage() {

@@ -488,7 +488,7 @@
   </div>
   <div class="header-actions">
     <button class="header-btn" id="langBtn" onclick="toggleLanguage()">EN</button>
-    <button class="header-btn" onclick="toggleFullscreen()">
+    <button class="header-btn" id="fullscreenBtn" onclick="toggleFullscreen()">
       <i class="fas fa-expand"></i>
     </button>
   </div>
@@ -638,12 +638,12 @@
   function saveMeasurement() {
     const val = tempBox.innerText;
     if (val === "--" || val === "") {
-      alert("No temperature reading available!");
+      alert(tr("noTempReading"));
       return;
     }
     
     if (!userId) { 
-      alert("No user selected!");
+      alert(tr("noUser"));
       window.location.href = "index.html"; 
       return; 
     }
@@ -679,16 +679,15 @@
         showConfirmModal();
       }).catch(err => {
         console.error("Save error:", err);
-        alert("Failed to save!");
+        alert(tr("failedSave"));
       });
     });
   }
 
   function showConfirmModal() {
-    const isAr = localStorage.getItem("language") === "ar";
-    document.getElementById("modalTitle").innerText = isAr ? "تم بنجاح!" : "Success!";
-    document.getElementById("modalText").innerText = isAr ? "تم حفظ قياس الحرارة بنجاح." : "Temperature saved successfully.";
-    document.querySelector(".confirm-btn").innerText = isAr ? "حسناً" : "OK";
+    document.getElementById("modalTitle").innerText = tr("modalTitle");
+    document.getElementById("modalText").innerText = tr("modalText");
+    document.querySelector(".confirm-btn").innerText = tr("ok");
     const modal = document.getElementById("confirmModal");
     modal.style.display = "flex";
     setTimeout(() => modal.classList.add("active"), 10);
@@ -707,10 +706,7 @@
     mainCard.classList.add("critical-state"); 
     sosBanner.style.display = "block"; 
     alarmSound.play().catch(e=>console.log("Audio error:", e)); 
-    const lang = localStorage.getItem("language") || "en"; 
-    sosBanner.innerHTML = lang === "ar" 
-      ? '<i class="fas fa-exclamation-triangle"></i> تنبيه: حرارة حرجة!' 
-      : '<i class="fas fa-exclamation-triangle"></i> CRITICAL FEVER ALERT!'; 
+    sosBanner.innerHTML = tr("criticalBanner");
   }
   
   function clearSOS() { 
@@ -725,13 +721,11 @@
   function speakResult() {
     let temp = parseFloat(tempBox.innerText);
     if (isNaN(temp)) {
-      alert("No reading to speak!");
+      alert(tr("noSpeak"));
       return;
     }
     const lang = localStorage.getItem("language") || "en";
-    let text = (lang === "ar") 
-      ? `درجة حرارتك ${temp} درجة مئوية` 
-      : `Your temperature is ${temp} degrees celsius`;
+    let text = lang === "ar" ? `درجة حرارتك ${temp} درجة مئوية` : `Your temperature is ${temp} degrees celsius`;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang === "ar" ? "ar-SA" : "en-US";
     window.speechSynthesis.speak(utterance);
@@ -739,15 +733,14 @@
 
   function showAdvice() {
     let temp = parseFloat(tempBox.innerText);
-    const lang = localStorage.getItem("language") || "en";
     let txt = "";
     if (isNaN(temp)) {
-      txt = lang === "ar" ? "لا توجد بيانات." : "No data available.";
+      txt = tr("noData");
     } else if (temp > 38) { 
-      txt = lang === "ar" ? "حرارة عالية! استشر طبيب." : "High fever! Consult a doctor."; 
+      txt = tr("highAdvice");
       adviceBox.style.borderLeftColor = "#ff0000"; 
     } else { 
-      txt = lang === "ar" ? "حرارة طبيعية." : "Normal temperature."; 
+      txt = tr("normalAdvice");
       adviceBox.style.borderLeftColor = "var(--primary-neon)"; 
     }
     adviceBox.innerText = txt; 
@@ -761,37 +754,82 @@
 
   // --- 6. RTL SUPPORT ---
   const lang = localStorage.getItem("language") || "en";
+  const I18N = {
+    en: {
+      noTempReading: "No temperature reading available!",
+      noUser: "No user selected!",
+      failedSave: "Failed to save!",
+      modalTitle: "Success!",
+      modalText: "Temperature saved successfully.",
+      ok: "OK",
+      criticalBanner: '<i class="fas fa-exclamation-triangle"></i> CRITICAL FEVER ALERT!',
+      noSpeak: "No reading to speak!",
+      noData: "No data available.",
+      highAdvice: "High fever! Consult a doctor.",
+      normalAdvice: "Normal temperature.",
+      title: "TEMPERATURE",
+      back: "Back",
+      instructions: "INSTRUCTIONS",
+      medicalAdvice: "Medical Advice",
+      saveReading: "Save Reading",
+      instrList: '<li><i class="fas fa-bullseye"></i> Place sensor close to skin</li><li><i class="fas fa-user-clock"></i> Keep still for 3-5 seconds</li><li><i class="fas fa-wind"></i> Avoid direct sunlight</li>',
+      switchLanguage: "Switch Language",
+      fullScreen: "Full Screen"
+    },
+    ar: {
+      noTempReading: "لا توجد قراءة حرارة متاحة!",
+      noUser: "لم يتم اختيار مستخدم!",
+      failedSave: "فشل الحفظ!",
+      modalTitle: "تم بنجاح!",
+      modalText: "تم حفظ قياس الحرارة بنجاح.",
+      ok: "حسناً",
+      criticalBanner: '<i class="fas fa-exclamation-triangle"></i> تنبيه: حرارة حرجة!',
+      noSpeak: "لا توجد قراءة للنطق!",
+      noData: "لا توجد بيانات.",
+      highAdvice: "حرارة عالية! استشر طبيب.",
+      normalAdvice: "حرارة طبيعية.",
+      title: "قياس الحرارة",
+      back: "عودة",
+      instructions: "تعليمات القياس",
+      medicalAdvice: "النصيحة الطبية",
+      saveReading: "حفظ القياس",
+      instrList: '<li><i class="fas fa-bullseye"></i> ضع المستشعر قريباً من الجلد</li><li><i class="fas fa-user-clock"></i> اثبت لمدة 3-5 ثوان</li><li><i class="fas fa-wind"></i> تجنب أشعة الشمس المباشرة</li>',
+      switchLanguage: "تبديل اللغة",
+      fullScreen: "ملء الشاشة"
+    }
+  };
+
+  function tr(key) {
+    const current = localStorage.getItem("language") || "en";
+    return (I18N[current] && I18N[current][key]) || I18N.en[key] || key;
+  }
   
   function applyLanguage(language) {
     const isAr = language === "ar";
     
     if (isAr) {
       document.body.classList.add("rtl");
-      document.getElementById("headerTitle").innerText = "قياس الحرارة";
-      document.getElementById("backBtn").innerHTML = '<span>عودة</span> <i class="fas fa-arrow-right"></i>';
-      document.getElementById("instrTitle").innerText = "تعليمات القياس";
-      document.getElementById("btnText").innerText = "النصيحة الطبية";
-      document.getElementById("saveBtnText").innerText = "حفظ القياس";
-      document.getElementById("instructions").innerHTML = `
-        <li><i class="fas fa-bullseye"></i> ضع المستشعر قريباً من الجلد</li>
-        <li><i class="fas fa-user-clock"></i> اثبت لمدة 3-5 ثوان</li>
-        <li><i class="fas fa-wind"></i> تجنب أشعة الشمس المباشرة</li>
-      `;
+      document.getElementById("headerTitle").innerText = tr("title");
+      document.getElementById("backBtn").innerHTML = '<span>' + tr("back") + '</span> <i class="fas fa-arrow-right"></i>';
+      document.getElementById("instrTitle").innerText = tr("instructions");
+      document.getElementById("btnText").innerText = tr("medicalAdvice");
+      document.getElementById("saveBtnText").innerText = tr("saveReading");
+      document.getElementById("instructions").innerHTML = tr("instrList");
       document.getElementById("langBtn").innerText = "ع";
     } else {
       document.body.classList.remove("rtl");
-      document.getElementById("headerTitle").innerText = "TEMPERATURE";
-      document.getElementById("backBtn").innerHTML = '<i class="fas fa-arrow-left"></i> <span>Back</span>';
-      document.getElementById("instrTitle").innerText = "INSTRUCTIONS";
-      document.getElementById("btnText").innerText = "Medical Advice";
-      document.getElementById("saveBtnText").innerText = "Save Reading";
-      document.getElementById("instructions").innerHTML = `
-        <li><i class="fas fa-bullseye"></i> Place sensor close to skin</li>
-        <li><i class="fas fa-user-clock"></i> Keep still for 3-5 seconds</li>
-        <li><i class="fas fa-wind"></i> Avoid direct sunlight</li>
-      `;
+      document.getElementById("headerTitle").innerText = tr("title");
+      document.getElementById("backBtn").innerHTML = '<i class="fas fa-arrow-left"></i> <span>' + tr("back") + '</span>';
+      document.getElementById("instrTitle").innerText = tr("instructions");
+      document.getElementById("btnText").innerText = tr("medicalAdvice");
+      document.getElementById("saveBtnText").innerText = tr("saveReading");
+      document.getElementById("instructions").innerHTML = tr("instrList");
       document.getElementById("langBtn").innerText = "EN";
     }
+
+    document.getElementById("langBtn").title = tr("switchLanguage");
+    const fs = document.getElementById("fullscreenBtn");
+    if (fs) fs.title = tr("fullScreen");
   }
 
   function toggleLanguage() {

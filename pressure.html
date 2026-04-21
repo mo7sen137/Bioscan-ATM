@@ -522,7 +522,7 @@
   </div>
   <div class="header-actions">
     <button class="header-btn" id="langBtn" onclick="toggleLanguage()">EN</button>
-    <button class="header-btn" onclick="toggleFullscreen()">
+    <button class="header-btn" id="fullscreenBtn" onclick="toggleFullscreen()">
       <i class="fas fa-expand"></i>
     </button>
   </div>
@@ -700,7 +700,7 @@
     const fullVal = `${s}/${d}`;
     
     if (!userId) { 
-      alert("No user selected!");
+      alert(localStorage.getItem("language") === "ar" ? "لم يتم اختيار مستخدم!" : "No user selected!");
       window.location.href = "index.html"; 
       return; 
     }
@@ -736,7 +736,7 @@
         showConfirmModal();
       }).catch(err => {
         console.error("Save error:", err);
-        alert("Failed to save!");
+        alert(localStorage.getItem("language") === "ar" ? "فشل الحفظ!" : "Failed to save!");
       });
     });
   }
@@ -783,7 +783,7 @@
     let s = sysValBox.innerText;
     let d = diaValBox.innerText;
     if (s === "--" || d === "--") {
-      alert("No reading to speak!");
+      alert(localStorage.getItem("language") === "ar" ? "لا توجد قراءة للنطق!" : "No reading to speak!");
       return;
     }
     const lang = localStorage.getItem("language") || "en";
@@ -822,6 +822,8 @@
   
   function applyLanguage(language) {
     const isAr = language === "ar";
+    const langBtn = document.getElementById("langBtn");
+    const fsBtn = document.getElementById("fullscreenBtn");
     
     if (isAr) {
       document.body.classList.add("rtl");
@@ -835,6 +837,8 @@
         <li><i class="fas fa-hand-holding-heart"></i> ارح ذراعك بشكل مريح</li>
       `;
       document.getElementById("langBtn").innerText = "ع";
+      if (langBtn) langBtn.title = "تبديل اللغة";
+      if (fsBtn) fsBtn.title = "ملء الشاشة";
     } else {
       document.body.classList.remove("rtl");
       document.getElementById("headerTitle").innerText = "BLOOD PRESSURE";
@@ -847,6 +851,8 @@
         <li><i class="fas fa-hand-holding-heart"></i> Rest your arm comfortably</li>
       `;
       document.getElementById("langBtn").innerText = "EN";
+      if (langBtn) langBtn.title = "Switch Language";
+      if (fsBtn) fsBtn.title = "Full Screen";
     }
   }
 

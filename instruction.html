@@ -327,7 +327,30 @@
   </div>
 
   <script>
-    const currentLang = localStorage.getItem("language") || "en";
+    let currentLang = localStorage.getItem("language") || "en";
+
+    const ui = {
+      en: {
+        title: 'Vision Test',
+        subtitle: 'Follow Instructions',
+        cardTitle: 'Vision Test Instructions',
+        cardSubtitle: 'Follow these steps carefully',
+        back: 'Back',
+        start: 'Start Test',
+        switchLanguage: 'Switch Language',
+        backTitle: 'Back'
+      },
+      ar: {
+        title: 'اختبار الرؤية',
+        subtitle: 'اتبع التعليمات',
+        cardTitle: 'تعليمات الاختبار',
+        cardSubtitle: 'اتبع هذه الخطوات بعناية',
+        back: 'رجوع',
+        start: 'ابدأ الاختبار',
+        switchLanguage: 'تبديل اللغة',
+        backTitle: 'رجوع'
+      }
+    };
     
     // Create background animations
     function createBioBackground() {
@@ -388,9 +411,33 @@
 
     // Language toggle
     function toggleLanguage() {
-      const newLang = currentLang === 'ar' ? 'en' : 'ar';
-      localStorage.setItem('language', newLang);
-      location.reload();
+      currentLang = currentLang === 'ar' ? 'en' : 'ar';
+      localStorage.setItem('language', currentLang);
+      applyLanguage();
+    }
+
+    function applyLanguage() {
+      const isAr = currentLang === 'ar';
+      const t = isAr ? ui.ar : ui.en;
+
+      document.body.dir = isAr ? 'rtl' : 'ltr';
+      document.documentElement.lang = isAr ? 'ar' : 'en';
+
+      document.getElementById('headerTitle').textContent = t.title;
+      document.getElementById('headerSubtitle').textContent = t.subtitle;
+      document.getElementById('cardTitle').textContent = t.cardTitle;
+      document.getElementById('cardSubtitle').textContent = t.cardSubtitle;
+      document.getElementById('langBtn').textContent = isAr ? 'EN' : 'AR';
+      document.getElementById('langBtn').title = t.switchLanguage;
+      document.querySelector('.top-actions .icon-btn:last-child').title = t.backTitle;
+      document.querySelector('.back-btn').innerHTML = isAr
+        ? '<span>' + t.back + '</span> <i class="fas fa-arrow-right"></i>'
+        : '<i class="fas fa-arrow-left"></i> <span>' + t.back + '</span>';
+      document.querySelector('.start-btn').innerHTML = isAr
+        ? '<span>' + t.start + '</span> <i class="fas fa-arrow-left"></i>'
+        : '<span>' + t.start + '</span> <i class="fas fa-arrow-right"></i>';
+
+      renderInstructions(currentLang);
     }
 
     // Navigation
@@ -403,23 +450,7 @@
     }
 
     // Initialize
-    if (currentLang === 'ar') {
-      document.body.dir = 'rtl';
-      document.documentElement.lang = 'ar';
-      
-      // Update texts
-      document.getElementById('headerTitle').textContent = 'اختبار الرؤية';
-      document.getElementById('headerSubtitle').textContent = 'اتبع التعليمات';
-      document.getElementById('cardTitle').textContent = 'تعليمات الاختبار';
-      document.getElementById('cardSubtitle').textContent = 'اتبع هذه الخطوات بعناية';
-      
-      // Update buttons
-      document.getElementById('langBtn').textContent = 'EN';
-      document.querySelector('.back-btn').innerHTML = '<i class="fas fa-arrow-right"></i> <span>رجوع</span>';
-      document.querySelector('.start-btn').innerHTML = '<span>ابدأ الاختبار</span> <i class="fas fa-arrow-left"></i>';
-    }
-
-    renderInstructions(currentLang);
+    applyLanguage();
   </script>
 
 </body>
