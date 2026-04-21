@@ -247,7 +247,7 @@
     .analyze-fab { background: linear-gradient(135deg, #6c5ce7, #a29bfe); box-shadow: 0 0 10px rgba(108, 92, 231, 0.5); }
 
     /* Modals & Sidebar */
-    .sidebar-overlay, .custom-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 4000; display: none; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
+    .sidebar-overlay, .custom-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 12000; display: none; justify-content: center; align-items: center; opacity: 0; transition: 0.3s; }
     .sidebar-overlay.active, .custom-modal-overlay.active { display: flex; opacity: 1; }
     
     .sidebar { position: fixed; top: 0; left: -360px; width: 85%; max-width: 320px; height: 100%; background: #0b101a; border-right: 1px solid var(--primary-neon); box-shadow: 10px 0 50px rgba(0,0,0,0.8); z-index: 4001; transition: left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 30px 20px; }
@@ -259,7 +259,7 @@
     .calc-btn { width: 100%; padding: 12px; background: var(--primary-neon); color: #000; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; }
     .result-box { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid var(--primary-neon); display: none; }
 
-    .custom-modal-box { background: #0b101a; border: 1px solid var(--primary-neon); padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 60px rgba(0, 242, 255, 0.2); transform: scale(0.9); transition: 0.3s; z-index: 4002; }
+    .custom-modal-box { background: #0b101a; border: 1px solid var(--primary-neon); padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 60px rgba(0, 242, 255, 0.2); transform: scale(0.9); transition: 0.3s; z-index: 12001; }
     .custom-modal-overlay.active .custom-modal-box { transform: scale(1); }
     .modal-icon { font-size: 2.5rem; margin-bottom: 15px; color: var(--primary-neon); }
     .modal-input { width: 100%; padding: 12px; margin-bottom: 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.3); border-radius: 10px; color: #fff; text-align: center; font-size: 1.2rem; }
@@ -670,7 +670,7 @@
       <button class="icon-btn active" id="voiceToggle" onclick="toggleHoverVoice()" title="Voice Guide">
         <i class="fas fa-volume-up"></i>
       </button>
-      <button class="icon-btn" onclick="toggleFullScreen()" title="Full Screen">
+      <button class="icon-btn" id="fullscreenBtn" onclick="toggleFullScreen()" title="Full Screen">
         <i class="fas fa-expand"></i>
       </button>
       <div id="connectionStatus" class="status-dot" title="Online"></div>
@@ -740,7 +740,7 @@
   <div class="fab-container fab-right">
     <button class="hospital-fab" id="hospitalBtn" onclick="findHospitals()" title="Nearest Hospitals"><i class="fas fa-hospital"></i></button>
     <div class="sos-wrapper">
-        <button class="sos-settings-btn" onclick="openContactModal()" title="Settings"><i class="fas fa-cog"></i></button>
+        <button class="sos-settings-btn" id="sosSettingsBtn" onclick="openContactModal()" title="Settings"><i class="fas fa-cog"></i></button>
         <button class="sos-fab" id="sosBtn" onclick="triggerSOS()">SOS</button>
     </div>
   </div>
@@ -755,7 +755,7 @@
           <h3 class="modal-title" id="contactTitle">Emergency Contact</h3>
           <p id="contactText" class="modal-text" style="color:#ddd;">Enter phone number</p>
           <input type="number" id="emergencyInput" class="modal-input" placeholder="010xxxxxxxx">
-          <div class="modal-actions"><button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button><button class="modal-btn btn-confirm" onclick="saveEmergencyContact()">Save</button></div>
+          <div class="modal-actions"><button class="modal-btn btn-cancel" id="contactCancelBtn" onclick="closeModals()">Cancel</button><button class="modal-btn btn-confirm" id="contactSaveBtn" onclick="saveEmergencyContact()">Save</button></div>
       </div>
   </div>
 
@@ -764,18 +764,18 @@
           <div class="modal-icon warning" style="color:var(--error);"><i class="fas fa-exclamation-triangle"></i></div>
           <h3 class="modal-title" id="confirmTitle">Emergency Alert</h3>
           <p id="confirmText" class="modal-text" style="color:#ddd;">Confirm SOS?</p>
-          <div class="modal-actions"><button class="modal-btn btn-cancel" onclick="closeModals()">Cancel</button><button class="modal-btn btn-danger" onclick="executeSOS()">YES, SEND HELP</button></div>
+          <div class="modal-actions"><button class="modal-btn btn-cancel" id="confirmCancelBtn" onclick="closeModals()">Cancel</button><button class="modal-btn btn-danger" id="confirmSosBtn" onclick="executeSOS()">YES, SEND HELP</button></div>
       </div>
   </div>
 
     <div class="custom-modal-overlay" id="deleteAccountModal">
       <div class="custom-modal-box">
         <div class="modal-icon warning" style="color:var(--error);"><i class="fas fa-user-slash"></i></div>
-        <h3 class="modal-title">Delete Account</h3>
-        <p class="modal-text" style="color:#ddd;">Are you sure you want to delete your account permanently?</p>
+        <h3 class="modal-title" id="deleteAccountTitle">Delete Account</h3>
+        <p class="modal-text" id="deleteAccountText" style="color:#ddd;">Are you sure you want to delete your account permanently?</p>
         <div class="modal-actions">
-        <button class="modal-btn btn-cancel" onclick="closeDeleteAccountModal()">Cancel</button>
-        <button class="modal-btn btn-danger" onclick="executeDeleteAccount()">Delete</button>
+        <button class="modal-btn btn-cancel" id="deleteAccountCancelBtn" onclick="closeDeleteAccountModal()">Cancel</button>
+        <button class="modal-btn btn-danger" id="deleteAccountConfirmBtn" onclick="executeDeleteAccount()">Delete</button>
         </div>
       </div>
     </div>
@@ -803,7 +803,7 @@
             <i class="fas fa-user" id="avatarIcon"></i>
           </div>
         </div>
-        <div class="avatar-upload-overlay" title="تغيير الصورة">
+        <div class="avatar-upload-overlay" id="avatarUploadOverlay" title="Change photo">
           <i class="fas fa-camera"></i>
         </div>
       </div>
@@ -813,7 +813,7 @@
     <div id="cropperModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:10000; backdrop-filter:blur(10px); align-items:center; justify-content:center;">
         <div style="width:95%; max-width:500px; background:rgba(5,12,22,0.98); border:1px solid rgba(0,242,255,0.3); border-radius:20px; padding:25px; box-shadow:0 0 40px rgba(0,242,255,0.2);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h3 style="color:#fff; margin:0; font-family:'Orbitron',sans-serif; font-size:1.1rem;">تحديد الصورة</h3>
+            <h3 style="color:#fff; margin:0; font-family:'Orbitron',sans-serif; font-size:1.1rem;" id="cropperTitle">Crop image</h3>
             <button style="background:var(--error); border:none; color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center;" onclick="closeCropperModal()">×</button>
           </div>
                     <div style="position:relative; width:100%; aspect-ratio:1; background:#000; border-radius:15px; overflow:hidden; margin-bottom:20px; border:2px solid rgba(0,242,255,0.2);">
@@ -821,14 +821,14 @@
                     </div>
           <div style="margin-bottom:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <label style="color:#ddd; font-size:0.85rem; font-family:'Rajdhani',sans-serif;">حجم الصورة</label>
+              <label style="color:#ddd; font-size:0.85rem; font-family:'Rajdhani',sans-serif;" id="cropperSizeLabel">Image size</label>
               <span style="color:var(--primary-neon); font-family:'Orbitron',sans-serif; font-size:0.9rem;" id="zoomPercent">100%</span>
             </div>
             <input type="range" id="zoomSlider" min="50" max="200" value="100" style="width:100%; cursor:pointer; height:6px; border-radius:3px; background:linear-gradient(90deg, rgba(0,242,255,0.2), var(--primary-neon)); outline:none;" oninput="updateZoom(this.value)">
           </div>
           <div style="display:flex; gap:12px;">
-            <button onclick="cropAndSaveAvatar()" style="flex:1; padding:12px; background:var(--success); border:none; color:#000; border-radius:10px; cursor:pointer; font-weight:bold; font-family:'Rajdhani',sans-serif; font-size:0.95rem; transition:0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">حفظ الصورة</button>
-            <button onclick="closeCropperModal()" style="flex:1; padding:12px; background:rgba(255,42,42,0.1); border:1px solid var(--error); color:var(--error); border-radius:10px; cursor:pointer; font-weight:bold; font-family:'Rajdhani',sans-serif; font-size:0.95rem; transition:0.3s;" onmouseover="this.style.background='rgba(255,42,42,0.2)'" onmouseout="this.style.background='rgba(255,42,42,0.1)'">إلغاء</button>
+            <button id="cropperSaveBtn" onclick="cropAndSaveAvatar()" style="flex:1; padding:12px; background:var(--success); border:none; color:#000; border-radius:10px; cursor:pointer; font-weight:bold; font-family:'Rajdhani',sans-serif; font-size:0.95rem; transition:0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Save image</button>
+            <button id="cropperCancelBtn" onclick="closeCropperModal()" style="flex:1; padding:12px; background:rgba(255,42,42,0.1); border:1px solid var(--error); color:var(--error); border-radius:10px; cursor:pointer; font-weight:bold; font-family:'Rajdhani',sans-serif; font-size:0.95rem; transition:0.3s;" onmouseover="this.style.background='rgba(255,42,42,0.2)'" onmouseout="this.style.background='rgba(255,42,42,0.1)'">Cancel</button>
           </div>
         </div>
       </div>
@@ -841,8 +841,8 @@
     <div class="profile-body">
       <!-- Editable Information -->
       <div class="info-section">
-        <div class="section-title">
-          <i class="fas fa-edit"></i> معلومات قابلة للتعديل
+        <div class="section-title" id="editableInfoTitle">
+          <i class="fas fa-edit"></i> Editable Information
         </div>
 
         <div class="info-field">
@@ -851,7 +851,7 @@
               <i class="fas fa-user-edit"></i>
             </div>
             <div class="field-content">
-              <div class="field-label">الاسم الكامل</div>
+              <div class="field-label" id="fullNameLabel">Full Name</div>
               <div class="field-value">
                 <span id="displayFullName">Loading...</span>
                 <input type="text" id="editFullName" style="display:none;">
@@ -874,12 +874,12 @@
               <i class="fas fa-venus-mars"></i>
             </div>
             <div class="field-content">
-              <div class="field-label">النوع</div>
+              <div class="field-label" id="genderLabel">Gender</div>
               <div class="field-value">
                 <select class="gender-select" id="genderSelect" onchange="saveGender()">
-                  <option value="">اختر...</option>
-                  <option value="male">ذكر</option>
-                  <option value="female">أنثى</option>
+                  <option value="" id="genderPlaceholderOption">Select...</option>
+                  <option value="male" id="genderMaleOption">Male</option>
+                  <option value="female" id="genderFemaleOption">Female</option>
                 </select>
               </div>
             </div>
@@ -897,10 +897,10 @@
               <i class="fas fa-tint"></i>
             </div>
             <div class="field-content">
-              <div class="field-label">فصيلة الدم</div>
+              <div class="field-label" id="bloodTypeLabel">Blood Type</div>
               <div class="field-value">
                 <select class="gender-select" id="bloodTypeSelect" onchange="saveBloodType()">
-                  <option value="">اختر فصيلة الدم...</option>
+                  <option value="" id="bloodTypePlaceholderOption">Select blood type...</option>
                   <option value="A+">A+</option>
                   <option value="A-">A-</option>
                   <option value="B+">B+</option>
@@ -922,10 +922,10 @@
               <i class="fas fa-allergies"></i>
             </div>
             <div class="field-content">
-              <div class="field-label">الحساسية</div>
+              <div class="field-label" id="allergiesLabel">Allergies</div>
               <div class="multi-select-wrap">
                 <select class="multi-select-input" id="allergiesSelect">
-                  <option value="">اختر نوع حساسية...</option>
+                  <option value="" id="allergiesPlaceholderOption">Select allergy type...</option>
                   <option value="حساسية الغبار">حساسية الغبار</option>
                   <option value="حساسية حبوب اللقاح">حساسية حبوب اللقاح</option>
                   <option value="حساسية الطعام">حساسية الطعام</option>
@@ -937,13 +937,13 @@
                   <option value="حساسية الجلد">حساسية الجلد</option>
                   <option value="حساسية الحيوانات الأليفة">حساسية الحيوانات الأليفة</option>
                 </select>
-                <button class="multi-add-btn" onclick="addFromSelect('allergies')" title="إضافة"><i class="fas fa-plus"></i></button>
+                <button class="multi-add-btn" id="allergiesAddBtn" onclick="addFromSelect('allergies')" title="Add"><i class="fas fa-plus"></i></button>
               </div>
               <div class="custom-add-row">
-                <input type="text" id="allergiesCustomInput" placeholder="أضف حساسية أخرى...">
-                <button class="multi-add-btn" onclick="addCustomItem('allergies')" title="إضافة مخصص"><i class="fas fa-plus"></i></button>
+                <input type="text" id="allergiesCustomInput" placeholder="Add custom allergy...">
+                <button class="multi-add-btn" id="allergiesCustomAddBtn" onclick="addCustomItem('allergies')" title="Add custom"><i class="fas fa-plus"></i></button>
               </div>
-              <div class="multi-tags" id="allergiesTags"><span class="multi-empty">لا توجد عناصر مضافة</span></div>
+              <div class="multi-tags" id="allergiesTags"><span class="multi-empty">No items added</span></div>
             </div>
           </div>
         </div>
@@ -954,10 +954,10 @@
               <i class="fas fa-notes-medical"></i>
             </div>
             <div class="field-content">
-              <div class="field-label">الأمراض الحالية</div>
+              <div class="field-label" id="diseasesLabel">Current Diseases</div>
               <div class="multi-select-wrap">
                 <select class="multi-select-input" id="diseasesSelect">
-                  <option value="">اختر مرض...</option>
+                  <option value="" id="diseasesPlaceholderOption">Select disease...</option>
                   <option value="نزلات البرد المتكررة">نزلات البرد المتكررة</option>
                   <option value="التهاب الجيوب الأنفية">التهاب الجيوب الأنفية</option>
                   <option value="التهاب الشعب الهوائية">التهاب الشعب الهوائية</option>
@@ -967,13 +967,13 @@
                   <option value="التهابات المسالك البولية">التهابات المسالك البولية</option>
                   <option value="التهاب المفاصل">التهاب المفاصل</option>
                 </select>
-                <button class="multi-add-btn" onclick="addFromSelect('diseases')" title="إضافة"><i class="fas fa-plus"></i></button>
+                <button class="multi-add-btn" id="diseasesAddBtn" onclick="addFromSelect('diseases')" title="Add"><i class="fas fa-plus"></i></button>
               </div>
               <div class="custom-add-row">
-                <input type="text" id="diseasesCustomInput" placeholder="أضف مرضًا آخر...">
-                <button class="multi-add-btn" onclick="addCustomItem('diseases')" title="إضافة مخصص"><i class="fas fa-plus"></i></button>
+                <input type="text" id="diseasesCustomInput" placeholder="Add custom disease...">
+                <button class="multi-add-btn" id="diseasesCustomAddBtn" onclick="addCustomItem('diseases')" title="Add custom"><i class="fas fa-plus"></i></button>
               </div>
-              <div class="multi-tags" id="diseasesTags"><span class="multi-empty">لا توجد عناصر مضافة</span></div>
+              <div class="multi-tags" id="diseasesTags"><span class="multi-empty">No items added</span></div>
             </div>
           </div>
         </div>
@@ -984,10 +984,10 @@
               <i class="fas fa-pills"></i>
             </div>
             <div class="field-content">
-              <div class="field-label">الأدوية الحالية</div>
+              <div class="field-label" id="medicationsLabel">Current Medications</div>
               <div class="multi-select-wrap">
                 <select class="multi-select-input" id="medicationsSelect">
-                  <option value="">اختر دواء...</option>
+                  <option value="" id="medicationsPlaceholderOption">Select medication...</option>
                   <option value="باراسيتامول">باراسيتامول</option>
                   <option value="إيبوبروفين">إيبوبروفين</option>
                   <option value="أموكسيسيلين">أموكسيسيلين</option>
@@ -997,13 +997,13 @@
                   <option value="إنسولين">إنسولين</option>
                   <option value="سيتريزين">سيتريزين</option>
                 </select>
-                <button class="multi-add-btn" onclick="addFromSelect('medications')" title="إضافة"><i class="fas fa-plus"></i></button>
+                <button class="multi-add-btn" id="medicationsAddBtn" onclick="addFromSelect('medications')" title="Add"><i class="fas fa-plus"></i></button>
               </div>
               <div class="custom-add-row">
-                <input type="text" id="medicationsCustomInput" placeholder="أضف دواء آخر...">
-                <button class="multi-add-btn" onclick="addCustomItem('medications')" title="إضافة مخصص"><i class="fas fa-plus"></i></button>
+                <input type="text" id="medicationsCustomInput" placeholder="Add custom medication...">
+                <button class="multi-add-btn" id="medicationsCustomAddBtn" onclick="addCustomItem('medications')" title="Add custom"><i class="fas fa-plus"></i></button>
               </div>
-              <div class="multi-tags" id="medicationsTags"><span class="multi-empty">لا توجد عناصر مضافة</span></div>
+              <div class="multi-tags" id="medicationsTags"><span class="multi-empty">No items added</span></div>
             </div>
           </div>
         </div>
@@ -1014,10 +1014,10 @@
               <i class="fas fa-heartbeat"></i>
             </div>
             <div class="field-content">
-              <div class="field-label">الأمراض المزمنة</div>
+              <div class="field-label" id="chronicDiseasesLabel">Chronic Diseases</div>
               <div class="multi-select-wrap">
                 <select class="multi-select-input" id="chronicDiseasesSelect">
-                  <option value="">اختر مرضًا مزمنًا...</option>
+                  <option value="" id="chronicDiseasesPlaceholderOption">Select chronic disease...</option>
                   <option value="ارتفاع ضغط الدم">ارتفاع ضغط الدم</option>
                   <option value="السكري">السكري</option>
                   <option value="أمراض القلب">أمراض القلب</option>
@@ -1029,13 +1029,13 @@
                   <option value="السمنة">السمنة</option>
                   <option value="اضطرابات الغدة الدرقية">اضطرابات الغدة الدرقية</option>
                 </select>
-                <button class="multi-add-btn" onclick="addFromSelect('chronicDiseases')" title="إضافة"><i class="fas fa-plus"></i></button>
+                <button class="multi-add-btn" id="chronicDiseasesAddBtn" onclick="addFromSelect('chronicDiseases')" title="Add"><i class="fas fa-plus"></i></button>
               </div>
               <div class="custom-add-row">
-                <input type="text" id="chronicDiseasesCustomInput" placeholder="أضف مرضًا مزمنًا آخر...">
-                <button class="multi-add-btn" onclick="addCustomItem('chronicDiseases')" title="إضافة مخصص"><i class="fas fa-plus"></i></button>
+                <input type="text" id="chronicDiseasesCustomInput" placeholder="Add custom chronic disease...">
+                <button class="multi-add-btn" id="chronicDiseasesCustomAddBtn" onclick="addCustomItem('chronicDiseases')" title="Add custom"><i class="fas fa-plus"></i></button>
               </div>
-              <div class="multi-tags" id="chronicDiseasesTags"><span class="multi-empty">لا توجد عناصر مضافة</span></div>
+              <div class="multi-tags" id="chronicDiseasesTags"><span class="multi-empty">No items added</span></div>
             </div>
           </div>
         </div>
@@ -1043,8 +1043,8 @@
 
       <!-- Static Information -->
       <div class="info-section">
-        <div class="section-title">
-          <i class="fas fa-lock"></i> معلومات ثابتة
+        <div class="section-title" id="staticInfoTitle">
+          <i class="fas fa-lock"></i> Static Information
         </div>
 
         <div class="info-field">
@@ -1053,7 +1053,7 @@
               <i class="fas fa-phone"></i>
             </div>
             <div class="field-content">
-              <div class="field-label">رقم الموبايل</div>
+              <div class="field-label" id="phoneLabel">Mobile Number</div>
               <div class="field-value" id="phoneNumber">--</div>
             </div>
           </div>
@@ -1068,7 +1068,7 @@
               <i class="fas fa-calendar-alt"></i>
             </div>
             <div class="field-content">
-              <div class="field-label">تاريخ التسجيل</div>
+              <div class="field-label" id="registrationDateLabel">Registration Date</div>
               <div class="field-value" id="memberSince">--</div>
             </div>
           </div>
@@ -1083,7 +1083,7 @@
               <i class="fas fa-fingerprint"></i>
             </div>
             <div class="field-content">
-              <div class="field-label">المعرف الرقمي</div>
+              <div class="field-label" id="digitalIdLabel">Digital ID</div>
               <div class="field-value">
                 <span class="short-id-badge" id="shortId">#------</span>
               </div>
@@ -1226,7 +1226,7 @@
 
         const items = medicalProfileData[type] || [];
         if (!items.length) {
-            container.innerHTML = '<span class="multi-empty">لا توجد عناصر مضافة</span>';
+          container.innerHTML = `<span class="multi-empty">${tr('noItems')}</span>`;
             return;
         }
 
@@ -1257,15 +1257,15 @@
 
         const alreadyExists = medicalProfileData[type].some(existing => existing.toLowerCase() === cleanItem.toLowerCase());
         if (alreadyExists) {
-            showToast('العنصر موجود بالفعل', 'info');
+          showToast(tr('itemExists'), 'info');
             return;
         }
 
         medicalProfileData[type].push(cleanItem);
         renderMultiTags(type);
         persistMedicalProfile()
-            .then(() => showToast('تمت الإضافة بنجاح', 'success'))
-            .catch(() => showToast('تعذر حفظ البيانات', 'error'));
+          .then(() => showToast(tr('itemAdded'), 'success'))
+          .catch(() => showToast(tr('dataSaveFail'), 'error'));
     }
 
     function addFromSelect(type) {
@@ -1286,8 +1286,8 @@
         medicalProfileData[type] = (medicalProfileData[type] || []).filter(entry => entry !== item);
         renderMultiTags(type);
         persistMedicalProfile()
-            .then(() => showToast('تم حذف العنصر', 'success'))
-            .catch(() => showToast('تعذر حفظ البيانات', 'error'));
+          .then(() => showToast(tr('itemRemoved'), 'success'))
+          .catch(() => showToast(tr('dataSaveFail'), 'error'));
     }
 
     function loadMedicalProfileData(userData) {
@@ -1311,8 +1311,8 @@
     function saveBloodType() {
         const bloodType = document.getElementById('bloodTypeSelect').value;
         db.ref(PATIENT_DATA_PATH + '/' + currentUserId).update({ bloodType: bloodType || '' })
-            .then(() => showToast('تم حفظ فصيلة الدم', 'success'))
-            .catch(() => showToast('تعذر حفظ فصيلة الدم', 'error'));
+        .then(() => showToast(tr('bloodSaved'), 'success'))
+        .catch(() => showToast(tr('bloodSaveFail'), 'error'));
     }
 
     function setupMedicalProfileInputs() {
@@ -1343,14 +1343,14 @@
     }
 
     function startListening() {
-        if (!('webkitSpeechRecognition' in window)) { showToast("Voice not supported", "error"); return; }
+      if (!('webkitSpeechRecognition' in window)) { showToast(tr('voiceNotSupported'), "error"); return; }
         const recognition = new webkitSpeechRecognition();
         recognition.lang = currentLang === "ar" ? "ar-SA" : "en-US";
         recognition.start();
         const btn = document.getElementById('micBtn'); btn.classList.add('listening');
         recognition.onresult = (event) => {
             const cmd = event.results[0][0].transcript.toLowerCase();
-            showToast(`Heard: "${cmd}"`, "info");
+        showToast(`${tr('heardPrefix')}: "${cmd}"`, "info");
             if(cmd.includes('temp') || cmd.includes('حرارة')) goToTemperature();
             else if(cmd.includes('pulse') || cmd.includes('نبض')) goToPulse();
             else if(cmd.includes('pressure') || cmd.includes('ضغط')) goToPressure();
@@ -1364,7 +1364,82 @@
     }
 
     // --- 4. LANGUAGE LOGIC ---
-    let currentLang = 'en'; 
+    let currentLang = 'en';
+
+    const UI_TEXTS = {
+      en: {
+        aiT: "AI DIAGNOSTICS", aiSub: "Real-time Health Analysis",
+        temp: "Temperature", pulse: "Pulse Rate", bp: "Blood Pressure", ox: "Oxygen (SpO2)",
+        vision: "VISION TEST", vSub: "Start eye exam", hist: "HISTORY LOGS", hSub: "View previous data",
+        save: "SAVE ALL READINGS", exit: "TERMINATE SESSION",
+        sbTitle: "SMART CHECK", w: "Weight (kg)", h: "Height (cm)", calc: "ANALYZE DATA",
+        conTitle: "Emergency Contact", conTxt: "Enter phone number",
+        sosTitle: "Emergency Alert", sosTxt: "Confirm SOS?",
+        saveBtn: "Save", cancel: "Cancel", yes: "YES, SEND HELP",
+        deleteAccount: "Delete account", deleteTitle: "Delete Account", deleteText: "Are you sure you want to delete your account permanently?", deleteConfirm: "Delete", deleting: "Deleting...",
+        cropTitle: "Crop image", cropSize: "Image size", cropSave: "Save image", cropCancel: "Cancel", avatarTitle: "Change photo",
+        editableInfo: "Editable Information", staticInfo: "Static Information",
+        fullNameLabel: "Full Name", genderLabel: "Gender", bloodTypeLabel: "Blood Type", allergiesLabel: "Allergies", diseasesLabel: "Current Diseases", medicationsLabel: "Current Medications", chronicDiseasesLabel: "Chronic Diseases",
+        phoneLabel: "Mobile Number", registrationDateLabel: "Registration Date", digitalIdLabel: "Digital ID",
+        selectGeneric: "Select...", selectBlood: "Select blood type...", selectAllergy: "Select allergy type...", selectDisease: "Select disease...", selectMedication: "Select medication...", selectChronic: "Select chronic disease...",
+        male: "Male", female: "Female",
+        add: "Add", addCustom: "Add custom",
+        placeholderAllergy: "Add custom allergy...", placeholderDisease: "Add custom disease...", placeholderMedication: "Add custom medication...", placeholderChronic: "Add custom chronic disease...",
+        noItems: "No items added",
+        voiceNotSupported: "Voice not supported", heardPrefix: "Heard", noDataToSave: "No data to save!", sessionSaved: "Session Saved Successfully", saveError: "Save Error",
+        itemExists: "Item already exists", itemAdded: "Item added successfully", dataSaveFail: "Unable to save data", itemRemoved: "Item removed", bloodSaved: "Blood type saved", bloodSaveFail: "Unable to save blood type",
+        locating: "Locating...", gpsErrorPrefix: "GPS Error: ", gpsNotSupported: "GPS not supported", saved: "Saved",
+        profileLoadError: "Error loading data", enterValidName: "Please enter a valid name", nameSaved: "Name saved successfully", genderSaved: "Gender saved successfully", updateSaveError: "Save failed",
+        accountDeleted: "Account deleted successfully", accountDeleteFail: "Unable to delete account. Please try again.", avatarUpdated: "Avatar updated successfully",
+        unavailable: "Not available", today: "Today", newUser: "New User",
+        emergencyInputPlaceholder: "010xxxxxxxx"
+        ,switchLanguageTitle: "Switch Language", voiceCommandsTitle: "Voice Commands", sendReportTitle: "Send Report", voiceGuideTitle: "Voice Guide", fullScreenTitle: "Full Screen", nearestHospitalsTitle: "Nearest Hospitals", settingsTitle: "Settings", online: "Online", offline: "Offline"
+      },
+      ar: {
+        aiT: "التحليل الذكي", aiSub: "تحليل صحي فوري",
+        temp: "درجة الحرارة", pulse: "نبض القلب", bp: "ضغط الدم", ox: "نسبة الأكسجين",
+        vision: "فحص النظر", vSub: "بدء الفحص", hist: "سجل البيانات", hSub: "عرض القراءات السابقة",
+        save: "حفظ جميع القراءات", exit: "إنهاء الجلسة",
+        sbTitle: "الفحص الذكي", w: "الوزن (كجم)", h: "الطول (سم)", calc: "تحليل النتائج",
+        conTitle: "جهة اتصال الطوارئ", conTxt: "أدخل رقم الهاتف",
+        sosTitle: "تنبيه طوارئ", sosTxt: "هل تود إرسال استغاثة؟",
+        saveBtn: "حفظ", cancel: "إلغاء", yes: "نعم، أرسل المساعدة",
+        deleteAccount: "حذف الحساب", deleteTitle: "حذف الحساب", deleteText: "هل أنت متأكد أنك تريد حذف الحساب نهائيا؟", deleteConfirm: "حذف", deleting: "جاري الحذف...",
+        cropTitle: "تحديد الصورة", cropSize: "حجم الصورة", cropSave: "حفظ الصورة", cropCancel: "إلغاء", avatarTitle: "تغيير الصورة",
+        editableInfo: "معلومات قابلة للتعديل", staticInfo: "معلومات ثابتة",
+        fullNameLabel: "الاسم الكامل", genderLabel: "النوع", bloodTypeLabel: "فصيلة الدم", allergiesLabel: "الحساسية", diseasesLabel: "الأمراض الحالية", medicationsLabel: "الأدوية الحالية", chronicDiseasesLabel: "الأمراض المزمنة",
+        phoneLabel: "رقم الموبايل", registrationDateLabel: "تاريخ التسجيل", digitalIdLabel: "المعرف الرقمي",
+        selectGeneric: "اختر...", selectBlood: "اختر فصيلة الدم...", selectAllergy: "اختر نوع حساسية...", selectDisease: "اختر مرض...", selectMedication: "اختر دواء...", selectChronic: "اختر مرضًا مزمنًا...",
+        male: "ذكر", female: "أنثى",
+        add: "إضافة", addCustom: "إضافة مخصص",
+        placeholderAllergy: "أضف حساسية أخرى...", placeholderDisease: "أضف مرضًا آخر...", placeholderMedication: "أضف دواء آخر...", placeholderChronic: "أضف مرضًا مزمنًا آخر...",
+        noItems: "لا توجد عناصر مضافة",
+        voiceNotSupported: "الأوامر الصوتية غير مدعومة", heardPrefix: "تم سماع", noDataToSave: "لا توجد بيانات للحفظ!", sessionSaved: "تم حفظ الجلسة بنجاح", saveError: "خطأ في الحفظ",
+        itemExists: "العنصر موجود بالفعل", itemAdded: "تمت الإضافة بنجاح", dataSaveFail: "تعذر حفظ البيانات", itemRemoved: "تم حذف العنصر", bloodSaved: "تم حفظ فصيلة الدم", bloodSaveFail: "تعذر حفظ فصيلة الدم",
+        locating: "جاري تحديد الموقع...", gpsErrorPrefix: "خطأ GPS: ", gpsNotSupported: "GPS غير مدعوم", saved: "تم الحفظ",
+        profileLoadError: "خطأ في تحميل البيانات", enterValidName: "الرجاء إدخال اسم صحيح", nameSaved: "تم حفظ الاسم بنجاح", genderSaved: "تم حفظ النوع بنجاح", updateSaveError: "خطأ في الحفظ",
+        accountDeleted: "تم حذف الحساب بنجاح", accountDeleteFail: "تعذر حذف الحساب. حاول مرة أخرى.", avatarUpdated: "تم تحديث الصورة بنجاح",
+        unavailable: "غير متوفر", today: "اليوم", newUser: "مستخدم جديد",
+        emergencyInputPlaceholder: "010xxxxxxxx"
+        ,switchLanguageTitle: "تبديل اللغة", voiceCommandsTitle: "أوامر صوتية", sendReportTitle: "إرسال التقرير", voiceGuideTitle: "الدليل الصوتي", fullScreenTitle: "ملء الشاشة", nearestHospitalsTitle: "أقرب مستشفى", settingsTitle: "الإعدادات", online: "متصل", offline: "غير متصل"
+      }
+    };
+
+    function tr(key) {
+      const fallback = UI_TEXTS.en[key];
+      const langPack = UI_TEXTS[currentLang] || UI_TEXTS.en;
+      return langPack[key] || fallback || key;
+    }
+
+    function setSelectOptionLabels(selectId, labels) {
+      const select = document.getElementById(selectId);
+      if (!select || !Array.isArray(labels)) return;
+      labels.forEach((label, index) => {
+        if (select.options[index]) {
+          select.options[index].text = label;
+        }
+      });
+    }
 
     function toggleLanguage() {
         currentLang = currentLang === 'en' ? 'ar' : 'en';
@@ -1375,32 +1450,11 @@
     function applyLanguage() {
         const isAr = currentLang === 'ar';
         document.body.classList.toggle('rtl', isAr);
-        document.getElementById('langBtn').innerText = isAr ? 'EN' : 'AR'; 
+      document.documentElement.lang = isAr ? 'ar' : 'en';
+      document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+      document.getElementById('langBtn').innerText = isAr ? 'EN' : 'AR';
 
-        const texts = {
-            en: {
-                aiT: "AI DIAGNOSTICS", aiSub: "Real-time Health Analysis",
-                temp: "Temperature", pulse: "Pulse Rate", bp: "Blood Pressure", ox: "Oxygen (SpO2)",
-                vision: "VISION TEST", vSub: "Start eye exam", hist: "HISTORY LOGS", hSub: "View previous data",
-                save: "SAVE ALL READINGS", exit: "TERMINATE SESSION",
-                sbTitle: "SMART CHECK", w: "Weight (kg)", h: "Height (cm)", calc: "ANALYZE DATA",
-                conTitle: "Emergency Contact", conTxt: "Enter phone number",
-                sosTitle: "Emergency Alert", sosTxt: "Confirm SOS?",
-                saveBtn: "Save", cancel: "Cancel", yes: "YES, SEND HELP"
-            },
-            ar: {
-                aiT: "التحليل الذكي", aiSub: "تحليل صحي فوري",
-                temp: "درجة الحرارة", pulse: "نبض القلب", bp: "ضغط الدم", ox: "نسبة الأكسجين",
-                vision: "فحص النظر", vSub: "بدء الفحص", hist: "سجل البيانات", hSub: "عرض القراءات السابقة",
-                save: "حفظ جميع القراءات", exit: "إنهاء الجلسة",
-                sbTitle: "الفحص الذكي", w: "الوزن (كجم)", h: "الطول (سم)", calc: "تحليل النتائج",
-                conTitle: "جهة اتصال الطوارئ", conTxt: "أدخل رقم الهاتف",
-                sosTitle: "تنبيه طوارئ", sosTxt: "هل تود إرسال استغاثة؟",
-                saveBtn: "حفظ", cancel: "إلغاء", yes: "نعم، أرسل المساعدة"
-            }
-        };
-
-        const t = isAr ? texts.ar : texts.en;
+      const t = UI_TEXTS[currentLang] || UI_TEXTS.en;
 
         document.getElementById("aiTitle").innerText = t.aiT;
         document.querySelector(".ai-title p").innerText = t.aiSub;
@@ -1425,13 +1479,92 @@
         
         document.getElementById("contactTitle").innerText = t.conTitle;
         document.getElementById("contactText").innerText = t.conTxt;
-        document.querySelector("#contactModal .btn-confirm").innerText = t.saveBtn;
-        document.querySelector("#contactModal .btn-cancel").innerText = t.cancel;
+        document.getElementById("contactSaveBtn").innerText = t.saveBtn;
+        document.getElementById("contactCancelBtn").innerText = t.cancel;
+        document.getElementById("emergencyInput").placeholder = t.emergencyInputPlaceholder;
         
         document.getElementById("confirmTitle").innerText = t.sosTitle;
         document.getElementById("confirmText").innerText = t.sosTxt;
-        document.querySelector("#confirmModal .btn-danger").innerText = t.yes;
-        document.querySelector("#confirmModal .btn-cancel").innerText = t.cancel;
+        document.getElementById("confirmSosBtn").innerText = t.yes;
+        document.getElementById("confirmCancelBtn").innerText = t.cancel;
+
+        document.getElementById('langBtn').title = t.switchLanguageTitle;
+        document.getElementById('micBtn').title = t.voiceCommandsTitle;
+        document.getElementById('whatsappBtn').title = t.sendReportTitle;
+        document.getElementById('voiceToggle').title = t.voiceGuideTitle;
+        document.getElementById('fullscreenBtn').title = t.fullScreenTitle;
+        document.getElementById('hospitalBtn').title = t.nearestHospitalsTitle;
+        document.getElementById('sosSettingsBtn').title = t.settingsTitle;
+
+        document.getElementById('deleteAccountTitle').innerText = t.deleteTitle;
+        document.getElementById('deleteAccountText').innerText = t.deleteText;
+        document.getElementById('deleteAccountCancelBtn').innerText = t.cancel;
+        document.getElementById('deleteAccountConfirmBtn').innerText = t.deleteConfirm;
+        document.getElementById('deleteAccountBtn').innerHTML = `<i class="fas fa-user-slash"></i> ${t.deleteAccount}`;
+
+        document.getElementById('avatarUploadOverlay').title = t.avatarTitle;
+        document.getElementById('cropperTitle').innerText = t.cropTitle;
+        document.getElementById('cropperSizeLabel').innerText = t.cropSize;
+        document.getElementById('cropperSaveBtn').innerText = t.cropSave;
+        document.getElementById('cropperCancelBtn').innerText = t.cropCancel;
+
+        document.getElementById('editableInfoTitle').innerHTML = `<i class="fas fa-edit"></i> ${t.editableInfo}`;
+        document.getElementById('staticInfoTitle').innerHTML = `<i class="fas fa-lock"></i> ${t.staticInfo}`;
+        document.getElementById('fullNameLabel').innerText = t.fullNameLabel;
+        document.getElementById('genderLabel').innerText = t.genderLabel;
+        document.getElementById('bloodTypeLabel').innerText = t.bloodTypeLabel;
+        document.getElementById('allergiesLabel').innerText = t.allergiesLabel;
+        document.getElementById('diseasesLabel').innerText = t.diseasesLabel;
+        document.getElementById('medicationsLabel').innerText = t.medicationsLabel;
+        document.getElementById('chronicDiseasesLabel').innerText = t.chronicDiseasesLabel;
+        document.getElementById('phoneLabel').innerText = t.phoneLabel;
+        document.getElementById('registrationDateLabel').innerText = t.registrationDateLabel;
+        document.getElementById('digitalIdLabel').innerText = t.digitalIdLabel;
+
+        document.getElementById('genderPlaceholderOption').innerText = t.selectGeneric;
+        document.getElementById('genderMaleOption').innerText = t.male;
+        document.getElementById('genderFemaleOption').innerText = t.female;
+        document.getElementById('bloodTypePlaceholderOption').innerText = t.selectBlood;
+        document.getElementById('allergiesPlaceholderOption').innerText = t.selectAllergy;
+        document.getElementById('diseasesPlaceholderOption').innerText = t.selectDisease;
+        document.getElementById('medicationsPlaceholderOption').innerText = t.selectMedication;
+        document.getElementById('chronicDiseasesPlaceholderOption').innerText = t.selectChronic;
+
+        document.getElementById('allergiesAddBtn').title = t.add;
+        document.getElementById('allergiesCustomAddBtn').title = t.addCustom;
+        document.getElementById('diseasesAddBtn').title = t.add;
+        document.getElementById('diseasesCustomAddBtn').title = t.addCustom;
+        document.getElementById('medicationsAddBtn').title = t.add;
+        document.getElementById('medicationsCustomAddBtn').title = t.addCustom;
+        document.getElementById('chronicDiseasesAddBtn').title = t.add;
+        document.getElementById('chronicDiseasesCustomAddBtn').title = t.addCustom;
+
+        document.getElementById('allergiesCustomInput').placeholder = t.placeholderAllergy;
+        document.getElementById('diseasesCustomInput').placeholder = t.placeholderDisease;
+        document.getElementById('medicationsCustomInput').placeholder = t.placeholderMedication;
+        document.getElementById('chronicDiseasesCustomInput').placeholder = t.placeholderChronic;
+
+        setSelectOptionLabels('allergiesSelect', isAr
+          ? ['اختر نوع حساسية...','حساسية الغبار','حساسية حبوب اللقاح','حساسية الطعام','حساسية اللبن','حساسية البيض','حساسية المكسرات','حساسية الأسماك','حساسية الأدوية','حساسية الجلد','حساسية الحيوانات الأليفة']
+          : ['Select allergy type...','Dust allergy','Pollen allergy','Food allergy','Milk allergy','Egg allergy','Nut allergy','Fish allergy','Drug allergy','Skin allergy','Pet allergy']);
+        setSelectOptionLabels('diseasesSelect', isAr
+          ? ['اختر مرض...','نزلات البرد المتكررة','التهاب الجيوب الأنفية','التهاب الشعب الهوائية','مشكلات المعدة والقولون','فقر الدم','الصداع النصفي','التهابات المسالك البولية','التهاب المفاصل']
+          : ['Select disease...','Frequent colds','Sinusitis','Bronchitis','Stomach and colon problems','Anemia','Migraine','Urinary tract infections','Arthritis']);
+        setSelectOptionLabels('medicationsSelect', isAr
+          ? ['اختر دواء...','باراسيتامول','إيبوبروفين','أموكسيسيلين','أوميبرازول','ميتفورمين','أتورفاستاتين','إنسولين','سيتريزين']
+          : ['Select medication...','Paracetamol','Ibuprofen','Amoxicillin','Omeprazole','Metformin','Atorvastatin','Insulin','Cetirizine']);
+        setSelectOptionLabels('chronicDiseasesSelect', isAr
+          ? ['اختر مرضًا مزمنًا...','ارتفاع ضغط الدم','السكري','أمراض القلب','الربو','مرض الانسداد الرئوي المزمن','أمراض الكلى المزمنة','أمراض الكبد المزمنة','السرطان','السمنة','اضطرابات الغدة الدرقية']
+          : ['Select chronic disease...','Hypertension','Diabetes','Heart diseases','Asthma','COPD','Chronic kidney disease','Chronic liver disease','Cancer','Obesity','Thyroid disorders']);
+
+        document.querySelectorAll('.multi-empty').forEach(el => {
+          el.innerText = t.noItems;
+        });
+
+        const statusDot = document.getElementById('connectionStatus');
+        if (statusDot) {
+          statusDot.title = statusDot.classList.contains('offline') ? t.offline : t.online;
+        }
 
         updateTimeGreeting();
         updateAIAnalysis();
@@ -1443,7 +1576,7 @@
 
     function saveCurrentSession() {
         if (currentData.temp === "--" && currentData.bpm === "--") {
-            showToast(currentLang === "ar" ? "لا توجد بيانات للحفظ!" : "No data to save!", "error");
+        showToast(tr('noDataToSave'), "error");
             return;
         }
         
@@ -1472,9 +1605,9 @@
             Timestamp: timestamp,
             SensorData: sensorDataString
         }).then(() => {
-            showToast(currentLang === "ar" ? "تم حفظ الجلسة بنجاح" : "Session Saved Successfully", "success");
+          showToast(tr('sessionSaved'), "success");
         }).catch(err => {
-            showToast("Save Error", "error");
+          showToast(tr('saveError'), "error");
         });
     }
 
@@ -1744,7 +1877,7 @@
 
     // --- UTILS ---
     async function checkInternetConnection() { try { await fetch("https://www.google.com/favicon.ico?"+new Date().getTime(),{mode:"no-cors"});return true;}catch(e){return false;}}
-    async function updateStatus(){const d=document.getElementById('connectionStatus');if(await checkInternetConnection()){d.classList.remove('offline');d.title="Online";}else{d.classList.add('offline');d.title="Offline";}}
+    async function updateStatus(){const d=document.getElementById('connectionStatus');if(await checkInternetConnection()){d.classList.remove('offline');d.title=tr('online');}else{d.classList.add('offline');d.title=tr('offline');}}
     setInterval(updateStatus,3000);
 
     function showToast(msg,type="info"){const c=document.getElementById("toastContainer");const t=document.createElement("div");t.className=`toast toast-${type}`;t.innerHTML=`<i class="fas fa-info-circle"></i><span>${msg}</span>`;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
@@ -1865,30 +1998,29 @@
     function triggerSOS(){const s=localStorage.getItem("sosContactNumber"); if(!s) openContactModal(); else openConfirmModal();}
     
     function openContactModal() {
-        const lang = currentLang;
-        document.getElementById('contactTitle').innerText = lang === "ar" ? "جهة اتصال الطوارئ" : "Emergency Contact";
-        document.getElementById('contactText').innerText = lang === "ar" ? "أدخل رقم الهاتف" : "Enter phone number";
+      document.getElementById('contactTitle').innerText = tr('conTitle');
+      document.getElementById('contactText').innerText = tr('conTxt');
         const saved = localStorage.getItem("sosContactNumber"); 
         if(saved) document.getElementById('emergencyInput').value = saved; // Pre-fill
         else document.getElementById('emergencyInput').value = ""; // Clear if new
         document.getElementById('contactModal').classList.add('active');
     }
 
-    function saveEmergencyContact(){const n=document.getElementById('emergencyInput').value; if(n.length<5) return; localStorage.setItem("sosContactNumber",n); closeModals(); showToast(currentLang==="ar"?"تم الحفظ":"Saved", "success");}
+    function saveEmergencyContact(){const n=document.getElementById('emergencyInput').value; if(n.length<5) return; localStorage.setItem("sosContactNumber",n); closeModals(); showToast(tr('saved'), "success");}
     function openConfirmModal(){document.getElementById('confirmModal').classList.add('active');}
     function closeModals(){document.getElementById('contactModal').classList.remove('active'); document.getElementById('confirmModal').classList.remove('active');}
     
     function executeSOS(){
         closeModals(); 
         const lang = currentLang;
-        showToast(lang==="ar"?"جاري تحديد الموقع...":"Locating...", "info");
+        showToast(tr('locating'), "info");
         
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(sendPosition, (err) => {
-                showToast("GPS Error: " + err.message, "error");
+            showToast(tr('gpsErrorPrefix') + err.message, "error");
             });
         } else {
-            showToast("GPS not supported", "error");
+          showToast(tr('gpsNotSupported'), "error");
         }
     }
 
@@ -1965,7 +2097,7 @@
                 console.log("Profile Data:", userData);
 
                 // Full Name
-                const fullName = userData.fullName || userData.FullName || userData.name || userData.Name || "مستخدم جديد";
+                const fullName = userData.fullName || userData.FullName || userData.name || userData.Name || tr('newUser');
                 document.getElementById('profileFullName').innerText = fullName;
                 document.getElementById('displayFullName').innerText = fullName;
                 document.getElementById('editFullName').value = fullName;
@@ -1996,15 +2128,15 @@
                     // Display exactly as stored in Firebase (no formatting)
                     document.getElementById('memberSince').innerText = regDateField;
                 } else {
-                    document.getElementById('memberSince').innerText = "غير متوفر";
+                    document.getElementById('memberSince').innerText = tr('unavailable');
                 }
 
             } else {
                 console.log("No user data found");
-                document.getElementById('profileFullName').innerText = "مستخدم جديد";
-                document.getElementById('displayFullName').innerText = "مستخدم جديد";
+                document.getElementById('profileFullName').innerText = tr('newUser');
+                document.getElementById('displayFullName').innerText = tr('newUser');
                 document.getElementById('phoneNumber').innerText = userId;
-                document.getElementById('memberSince').innerText = "اليوم";
+                document.getElementById('memberSince').innerText = tr('today');
                 document.getElementById('shortId').innerText = '#------';
                 document.getElementById('bloodTypeSelect').value = '';
                 medicalProfileData.allergies = [];
@@ -2018,7 +2150,7 @@
             }
         }).catch(err => {
             console.error("Error loading profile:", err);
-            showToast("خطأ في تحميل البيانات", "error");
+          showToast(tr('profileLoadError'), "error");
         });
     }
 
@@ -2032,7 +2164,7 @@
         const newName = document.getElementById('editFullName').value.trim();
         
         if (!newName) {
-            showToast("الرجاء إدخال اسم صحيح", "error");
+          showToast(tr('enterValidName'), "error");
             return;
         }
 
@@ -2051,10 +2183,10 @@
             // Hide edit mode
             disableNameEdit();
             
-            showToast("تم حفظ الاسم بنجاح", "success");
+            showToast(tr('nameSaved'), "success");
         }).catch(err => {
             console.error("Error saving name:", err);
-            showToast("خطأ في الحفظ", "error");
+            showToast(tr('updateSaveError'), "error");
         });
     }
 
@@ -2084,10 +2216,10 @@
             gender: gender
         }).then(() => {
             updateAvatarIcon(gender);
-            showToast("تم حفظ النوع بنجاح", "success");
+          showToast(tr('genderSaved'), "success");
         }).catch(err => {
             console.error("Error saving gender:", err);
-            showToast("خطأ في الحفظ", "error");
+          showToast(tr('updateSaveError'), "error");
         });
     }
 
@@ -2109,7 +2241,7 @@
         const deleteBtn = document.getElementById('deleteAccountBtn');
         if (deleteBtn) {
           deleteBtn.disabled = true;
-          deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+          deleteBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${tr('deleting')}`;
         }
 
         try {
@@ -2143,17 +2275,17 @@
           localStorage.removeItem('userAvatar_' + currentUserId);
           sessionStorage.removeItem('wantsFullscreen');
 
-          showToast('تم حذف الحساب بنجاح', 'success');
+          showToast(tr('accountDeleted'), 'success');
           setTimeout(() => {
             window.location.href = 'index.html';
           }, 900);
         } catch (err) {
           console.error('Delete account error:', err);
-          showToast('تعذر حذف الحساب. حاول مرة أخرى.', 'error');
+          showToast(tr('accountDeleteFail'), 'error');
           openDeleteAccountModal();
           if (deleteBtn) {
             deleteBtn.disabled = false;
-            deleteBtn.innerHTML = '<i class="fas fa-user-slash"></i> Delete account';
+            deleteBtn.innerHTML = `<i class="fas fa-user-slash"></i> ${tr('deleteAccount')}`;
           }
         }
       }
@@ -2272,7 +2404,7 @@
             headerAvatar.innerHTML = '<img src="' + compressedImage + '" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-neon);">';
         }
         
-        showToast("تم تحديث الصورة بنجاح", "success");
+        showToast(tr('avatarUpdated'), "success");
         closeCropperModal();
     }
 
