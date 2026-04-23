@@ -293,7 +293,7 @@
     .bmi-marker {
       position: relative;
       height: 0;
-      margin-top: 8px;
+      margin-top: -12px;
     }
     .bmi-marker::before {
       content: '';
@@ -302,7 +302,7 @@
       height: 0;
       border-left: 7px solid transparent;
       border-right: 7px solid transparent;
-      border-top: 10px solid #fff;
+      border-bottom: 10px solid #fff;
       transform: translateX(-50%);
       left: var(--marker-left, 50%);
       filter: drop-shadow(0 0 6px rgba(255,255,255,0.8));
@@ -366,31 +366,48 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 15px;
+      gap: 10px;
+      width: 100%;
     }
     .bmi-avatar-canvas {
-      width: 140px;
-      height: 140px;
-      background: rgba(0, 242, 255, 0.08);
-      border: 1px solid rgba(0, 242, 255, 0.25);
-      border-radius: 12px;
+      width: 100%;
+      height: 120px;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
-      padding: 10px;
-      overflow: hidden;
+      padding: 10px 0;
     }
     .bmi-avatar-canvas svg {
-      width: 100%;
-      height: 100%;
-      filter: drop-shadow(0 0 8px rgba(0, 242, 255, 0.3));
+      max-height: 120px;
+      filter: drop-shadow(0 4px 12px rgba(0, 242, 255, 0.2));
     }
     .bmi-avatar-info {
       width: 100%;
       text-align: center;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(0, 242, 255, 0.15);
     }
-    .bmi-avatar-top { display: flex; align-items: flex-start; gap: 10px; flex-direction: column; width: 100%; }
-    .bmi-avatar-meta { font-size: 0.78rem; color: #d0dce3; line-height: 1.45; width: 100%; }
+    .bmi-avatar-info-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .bmi-avatar-info-label {
+      font-size: 0.7rem;
+      color: #a0adb7;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .bmi-avatar-info-value {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+    }
     .bmi-balance-track {
       margin-top: 10px;
       height: 8px;
@@ -2159,161 +2176,162 @@
       // Clear canvas
       canvas.innerHTML = '';
       
-      // Create SVG element
+      // Create SVG element with better dimensions
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('viewBox', '0 0 100 150');
+      svg.setAttribute('viewBox', '0 0 80 140');
       svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       
-      // Calculate body proportions based on weight ratio
-      const weightRatio = weight / idealWeight;
-      const bodyWidth = 15 + (weightRatio > 1.2 ? (weightRatio - 1.2) * 15 : 0); // Width increases with overweight
-      const bodyHeight = 40 + (height > 170 ? (height - 170) * 0.15 : -(170 - height) * 0.15); // Height based on input
+      // Calculate proportions based on weight and height
+      const weightRatio = weight / idealWeight; // 1 = perfect weight
+      const bodyScale = Math.max(0.6, Math.min(1.4, weightRatio)); // Scale from 0.6 to 1.4
+      
+      // Base dimensions for normal person
+      let headRadius = 6 * bodyScale;
+      let bodyWidth = 12 * bodyScale;
+      let bodyHeight = 35 * bodyScale;
+      let armLength = 15 * bodyScale;
+      let legLength = 28 * bodyScale;
       
       // Colors based on BMI
       let skinColor = '#f5b89a';
-      let accentColor = '#00f2ff';
+      let outlineColor = '#00f2ff';
+      let clothColor = '#1a5e7a';
       
       if (bmi < 18.5) {
-        skinColor = '#e8c8a0'; // Lighter for underweight
-        accentColor = '#4ea8ff';
+        skinColor = '#e8c8a0';
+        outlineColor = '#4ea8ff';
+        clothColor = '#1a3a5e';
+        bodyWidth *= 0.8;
       } else if (bmi < 25) {
-        skinColor = '#f5b89a'; // Normal
-        accentColor = '#2ecc71';
+        skinColor = '#f5b89a';
+        outlineColor = '#2ecc71';
+        clothColor = '#1a5e7a';
       } else if (bmi < 30) {
-        skinColor = '#f5a87a'; // Overweight
-        accentColor = '#f1c40f';
+        skinColor = '#f5a87a';
+        outlineColor = '#f1c40f';
+        clothColor = '#5e3a1a';
+        bodyWidth *= 1.2;
       } else {
-        skinColor = '#f59060'; // Obese
-        accentColor = '#e74c3c';
+        skinColor = '#f59060';
+        outlineColor = '#e74c3c';
+        clothColor = '#6e2a1a';
+        bodyWidth *= 1.4;
       }
       
-      // Head
-      const headY = 10;
-      const headRadius = 8;
+      const centerX = 40;
+      const centerY = 25;
+      
+      // Draw head
       const head = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      head.setAttribute('cx', '50');
-      head.setAttribute('cy', headY + headRadius);
+      head.setAttribute('cx', centerX);
+      head.setAttribute('cy', centerY);
       head.setAttribute('r', headRadius);
       head.setAttribute('fill', skinColor);
-      head.setAttribute('stroke', accentColor);
-      head.setAttribute('stroke-width', '0.5');
+      head.setAttribute('stroke', outlineColor);
+      head.setAttribute('stroke-width', '0.8');
       svg.appendChild(head);
       
-      // Eyes
+      // Draw face features
       if (gender === 'male') {
         // Male eyes
         const leftEye = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        leftEye.setAttribute('cx', '45');
-        leftEye.setAttribute('cy', headY + headRadius - 2);
-        leftEye.setAttribute('r', '1.5');
+        leftEye.setAttribute('cx', centerX - 2);
+        leftEye.setAttribute('cy', centerY - 1.5);
+        leftEye.setAttribute('r', '1.2');
         leftEye.setAttribute('fill', '#333');
         svg.appendChild(leftEye);
         
         const rightEye = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        rightEye.setAttribute('cx', '55');
-        rightEye.setAttribute('cy', headY + headRadius - 2);
-        rightEye.setAttribute('r', '1.5');
+        rightEye.setAttribute('cx', centerX + 2);
+        rightEye.setAttribute('cy', centerY - 1.5);
+        rightEye.setAttribute('r', '1.2');
         rightEye.setAttribute('fill', '#333');
         svg.appendChild(rightEye);
+        
+        // Eyebrows
+        const leftBrow = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        leftBrow.setAttribute('x1', centerX - 3);
+        leftBrow.setAttribute('y1', centerY - 3.5);
+        leftBrow.setAttribute('x2', centerX - 1);
+        leftBrow.setAttribute('y2', centerY - 3.5);
+        leftBrow.setAttribute('stroke', '#8b7355');
+        leftBrow.setAttribute('stroke-width', '0.6');
+        leftBrow.setAttribute('stroke-linecap', 'round');
+        svg.appendChild(leftBrow);
       } else {
-        // Female eyes (larger)
+        // Female eyes (larger, more expressive)
         const leftEye = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-        leftEye.setAttribute('cx', '45');
-        leftEye.setAttribute('cy', headY + headRadius - 2);
-        leftEye.setAttribute('rx', '2');
-        leftEye.setAttribute('ry', '2.5');
+        leftEye.setAttribute('cx', centerX - 2);
+        leftEye.setAttribute('cy', centerY - 1.5);
+        leftEye.setAttribute('rx', '1.5');
+        leftEye.setAttribute('ry', '2');
         leftEye.setAttribute('fill', '#333');
         svg.appendChild(leftEye);
         
         const rightEye = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-        rightEye.setAttribute('cx', '55');
-        rightEye.setAttribute('cy', headY + headRadius - 2);
-        rightEye.setAttribute('rx', '2');
-        rightEye.setAttribute('ry', '2.5');
+        rightEye.setAttribute('cx', centerX + 2);
+        rightEye.setAttribute('cy', centerY - 1.5);
+        rightEye.setAttribute('rx', '1.5');
+        rightEye.setAttribute('ry', '2');
         rightEye.setAttribute('fill', '#333');
         svg.appendChild(rightEye);
         
-        // Add hair for female
+        // Hair
         const hair = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        hair.setAttribute('d', `M 42 10 Q 50 6 58 10 Q 55 8 50 7 Q 45 8 42 10`);
+        hair.setAttribute('d', `M ${centerX - 7} ${centerY - 5} Q ${centerX} ${centerY - 9} ${centerX + 7} ${centerY - 5}`);
         hair.setAttribute('fill', '#8b7355');
+        hair.setAttribute('opacity', '0.8');
         svg.appendChild(hair);
       }
       
       // Mouth
       const mouth = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      mouth.setAttribute('d', `M 47 ${headY + headRadius + 3} Q 50 ${headY + headRadius + 5} 53 ${headY + headRadius + 3}`);
+      mouth.setAttribute('d', `M ${centerX - 1.5} ${centerY + 2} Q ${centerX} ${centerY + 3} ${centerX + 1.5} ${centerY + 2}`);
       mouth.setAttribute('stroke', '#d4a574');
-      mouth.setAttribute('stroke-width', '1');
+      mouth.setAttribute('stroke-width', '0.8');
       mouth.setAttribute('fill', 'none');
       mouth.setAttribute('stroke-linecap', 'round');
       svg.appendChild(mouth);
       
-      // Neck
-      const neckX = 50;
-      const neckY = headY + headRadius * 2;
-      const neckWidth = 4;
-      const neckHeight = 4;
-      const neck = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      neck.setAttribute('x', neckX - neckWidth / 2);
-      neck.setAttribute('y', neckY);
-      neck.setAttribute('width', neckWidth);
-      neck.setAttribute('height', neckHeight);
-      neck.setAttribute('fill', skinColor);
-      svg.appendChild(neck);
+      // Draw body (shirt/dress)
+      const bodyY = centerY + headRadius + 1;
+      const bodyPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       
-      // Body (torso)
-      const bodyY = neckY + neckHeight;
-      const bodyStartX = neckX - bodyWidth / 2;
-      
-      // Body shape based on gender
       if (gender === 'male') {
-        // Male rectangular body
-        const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        body.setAttribute('x', bodyStartX);
-        body.setAttribute('y', bodyY);
-        body.setAttribute('width', bodyWidth);
-        body.setAttribute('height', bodyHeight);
-        body.setAttribute('fill', accentColor);
-        body.setAttribute('opacity', '0.3');
-        body.setAttribute('stroke', accentColor);
-        body.setAttribute('stroke-width', '1');
-        body.setAttribute('rx', '3');
-        svg.appendChild(body);
-      } else {
-        // Female curved body
-        const body = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        const x1 = bodyStartX;
-        const w = bodyWidth;
-        const h = bodyHeight;
-        body.setAttribute('d', `
-          M ${x1} ${bodyY}
-          Q ${x1 - 2} ${bodyY + h * 0.3} ${x1} ${bodyY + h * 0.6}
-          Q ${x1 + 1} ${bodyY + h * 0.8} ${x1 + w * 0.5} ${bodyY + h}
-          Q ${x1 + w - 1} ${bodyY + h * 0.8} ${x1 + w} ${bodyY + h * 0.6}
-          Q ${x1 + w + 2} ${bodyY + h * 0.3} ${x1 + w} ${bodyY}
-          Q ${x1 + w * 0.5} ${bodyY - 2} ${x1} ${bodyY}
-          Z
+        bodyPath.setAttribute('d', `
+          M ${centerX - bodyWidth / 2} ${bodyY}
+          L ${centerX - bodyWidth / 2} ${bodyY + bodyHeight}
+          L ${centerX + bodyWidth / 2} ${bodyY + bodyHeight}
+          L ${centerX + bodyWidth / 2} ${bodyY}
+          Q ${centerX} ${bodyY - 2} ${centerX - bodyWidth / 2} ${bodyY}
         `);
-        body.setAttribute('fill', accentColor);
-        body.setAttribute('opacity', '0.3');
-        body.setAttribute('stroke', accentColor);
-        body.setAttribute('stroke-width', '1');
-        svg.appendChild(body);
+      } else {
+        // Curved dress/body for female
+        bodyPath.setAttribute('d', `
+          M ${centerX - bodyWidth / 2} ${bodyY}
+          Q ${centerX - bodyWidth / 2 - 2} ${bodyY + bodyHeight * 0.4} ${centerX - bodyWidth / 2 - 1} ${bodyY + bodyHeight}
+          L ${centerX + bodyWidth / 2 + 1} ${bodyY + bodyHeight}
+          Q ${centerX + bodyWidth / 2 + 2} ${bodyY + bodyHeight * 0.4} ${centerX + bodyWidth / 2} ${bodyY}
+          Q ${centerX} ${bodyY - 2} ${centerX - bodyWidth / 2} ${bodyY}
+        `);
       }
       
-      // Arms
-      const armY = bodyY + bodyHeight * 0.25;
-      const armLength = 14;
-      const armStartX = neckX - bodyWidth / 2;
-      const armEndX = neckX + bodyWidth / 2;
+      bodyPath.setAttribute('fill', clothColor);
+      bodyPath.setAttribute('stroke', outlineColor);
+      bodyPath.setAttribute('stroke-width', '0.8');
+      svg.appendChild(bodyPath);
+      
+      // Draw arms
+      const armY = bodyY + bodyHeight * 0.2;
+      const armOffset = bodyWidth / 2;
       
       // Left arm
       const leftArm = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      leftArm.setAttribute('x1', armStartX);
+      leftArm.setAttribute('x1', centerX - armOffset);
       leftArm.setAttribute('y1', armY);
-      leftArm.setAttribute('x2', armStartX - armLength);
-      leftArm.setAttribute('y2', armY + armLength * 0.3);
+      leftArm.setAttribute('x2', centerX - armOffset - armLength);
+      leftArm.setAttribute('y2', armY + armLength * 0.2);
       leftArm.setAttribute('stroke', skinColor);
       leftArm.setAttribute('stroke-width', '2');
       leftArm.setAttribute('stroke-linecap', 'round');
@@ -2321,63 +2339,59 @@
       
       // Right arm
       const rightArm = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      rightArm.setAttribute('x1', armEndX);
+      rightArm.setAttribute('x1', centerX + armOffset);
       rightArm.setAttribute('y1', armY);
-      rightArm.setAttribute('x2', armEndX + armLength);
-      rightArm.setAttribute('y2', armY + armLength * 0.3);
+      rightArm.setAttribute('x2', centerX + armOffset + armLength);
+      rightArm.setAttribute('y2', armY + armLength * 0.2);
       rightArm.setAttribute('stroke', skinColor);
       rightArm.setAttribute('stroke-width', '2');
       rightArm.setAttribute('stroke-linecap', 'round');
       svg.appendChild(rightArm);
       
-      // Legs
+      // Draw legs
       const legStartY = bodyY + bodyHeight;
-      const legLength = 25;
-      const legWidth = 3;
-      const legGap = bodyWidth / 3;
+      const legGap = bodyWidth * 0.4;
       
-      // Left leg
+      // Left leg (pants)
       const leftLeg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      leftLeg.setAttribute('x', neckX - legGap / 2 - legWidth / 2);
+      leftLeg.setAttribute('x', centerX - legGap - 1.5);
       leftLeg.setAttribute('y', legStartY);
-      leftLeg.setAttribute('width', legWidth);
+      leftLeg.setAttribute('width', '3');
       leftLeg.setAttribute('height', legLength);
       leftLeg.setAttribute('fill', '#2c3e50');
-      leftLeg.setAttribute('stroke', accentColor);
+      leftLeg.setAttribute('stroke', outlineColor);
       leftLeg.setAttribute('stroke-width', '0.5');
-      leftLeg.setAttribute('rx', '2');
+      leftLeg.setAttribute('rx', '1.5');
       svg.appendChild(leftLeg);
       
-      // Right leg
+      // Right leg (pants)
       const rightLeg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      rightLeg.setAttribute('x', neckX + legGap / 2 - legWidth / 2);
+      rightLeg.setAttribute('x', centerX + legGap - 1.5);
       rightLeg.setAttribute('y', legStartY);
-      rightLeg.setAttribute('width', legWidth);
+      rightLeg.setAttribute('width', '3');
       rightLeg.setAttribute('height', legLength);
       rightLeg.setAttribute('fill', '#2c3e50');
-      rightLeg.setAttribute('stroke', accentColor);
+      rightLeg.setAttribute('stroke', outlineColor);
       rightLeg.setAttribute('stroke-width', '0.5');
-      rightLeg.setAttribute('rx', '2');
+      rightLeg.setAttribute('rx', '1.5');
       svg.appendChild(rightLeg);
       
       // Feet
       const footY = legStartY + legLength;
-      const footSize = 2;
-      
       const leftFoot = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-      leftFoot.setAttribute('cx', neckX - legGap / 2);
-      leftFoot.setAttribute('cy', footY + footSize);
-      leftFoot.setAttribute('rx', footSize);
-      leftFoot.setAttribute('ry', footSize * 0.6);
-      leftFoot.setAttribute('fill', '#000');
+      leftFoot.setAttribute('cx', centerX - legGap);
+      leftFoot.setAttribute('cy', footY + 1.5);
+      leftFoot.setAttribute('rx', '2');
+      leftFoot.setAttribute('ry', '1.5');
+      leftFoot.setAttribute('fill', '#1a1a1a');
       svg.appendChild(leftFoot);
       
       const rightFoot = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-      rightFoot.setAttribute('cx', neckX + legGap / 2);
-      rightFoot.setAttribute('cy', footY + footSize);
-      rightFoot.setAttribute('rx', footSize);
-      rightFoot.setAttribute('ry', footSize * 0.6);
-      rightFoot.setAttribute('fill', '#000');
+      rightFoot.setAttribute('cx', centerX + legGap);
+      rightFoot.setAttribute('cy', footY + 1.5);
+      rightFoot.setAttribute('rx', '2');
+      rightFoot.setAttribute('ry', '1.5');
+      rightFoot.setAttribute('fill', '#1a1a1a');
       svg.appendChild(rightFoot);
       
       canvas.appendChild(svg);
@@ -2517,11 +2531,20 @@
             <div class="bmi-avatar-container">
               <div class="bmi-avatar-canvas" id="avatarCanvas"></div>
               <div class="bmi-avatar-info">
-                <div class="bmi-avatar-meta">
-                  <div id="avatarGenderLabel"><b>${bmiGender === 'male' ? t.male : t.female}</b></div>
-                  <div>${t.bmiNowHeight}: ${height} cm</div>
-                  <div>${t.bmiNowWeight}: ${weight} ${t.bmiKg}</div>
-                  <div>${t.bmiIdealWeight}: ${idealWeightRounded} ${t.bmiKg}</div>
+                <div class="bmi-avatar-info-item">
+                  <span class="bmi-avatar-info-label">${bmiGender === 'male' ? t.male : t.female}</span>
+                </div>
+                <div class="bmi-avatar-info-item">
+                  <span class="bmi-avatar-info-label">${t.bmiNowHeight}</span>
+                  <span class="bmi-avatar-info-value">${height} cm</span>
+                </div>
+                <div class="bmi-avatar-info-item">
+                  <span class="bmi-avatar-info-label">${t.bmiNowWeight}</span>
+                  <span class="bmi-avatar-info-value">${weight} ${t.bmiKg}</span>
+                </div>
+                <div class="bmi-avatar-info-item">
+                  <span class="bmi-avatar-info-label">${t.bmiIdealWeight}</span>
+                  <span class="bmi-avatar-info-value">${idealWeightRounded} ${t.bmiKg}</span>
                 </div>
               </div>
             </div>
