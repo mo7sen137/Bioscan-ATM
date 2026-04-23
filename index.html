@@ -831,7 +831,8 @@
             
             // Validate password
             const pwdField = document.getElementById('userPassword');
-            const pwd = pwdField.value;
+            const pwd = formatKeypadPassword(pwdField.value);
+            pwdField.value = pwd;
             const passwordPattern = /^[A-D][0-9]{4}[A-D]$/;
 
             if(!passwordPattern.test(pwd)) {
