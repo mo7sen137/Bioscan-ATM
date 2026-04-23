@@ -284,13 +284,13 @@
 
                 <div class="password-wrapper">
                     <i class="fas fa-lock password-icon"></i>
-                    <input type="password" id="password" class="input-field password-field" placeholder="••••••••" onkeyup="validatePassword()">
+                    <input type="password" id="password" class="input-field password-field" placeholder="A1998B" maxlength="6" inputmode="text" autocapitalize="characters" oninput="handlePasswordInput(this)">
                     <i class="fas fa-eye toggle-password" id="togglePwd" onclick="togglePasswordVisibility()"></i>
                     <div class="error-msg" id="password-error"></div>
                 </div>
 
                 <div class="security-standards" id="security-msg">
-                    Global Security Standard: Min 8 characters, include uppercase, numbers, and symbols.
+                    Password format: A-D letter + 4 digits + A-D letter (example: A1998B)
                 </div>
 
                 <button class="action-btn" id="createAccountBtn" onclick="createAccount()">
@@ -500,25 +500,42 @@
             }
         }
 
+        function formatKeypadPassword(value) {
+            const raw = value.toUpperCase().replace(/[^A-D0-9]/g, '');
+            let formatted = '';
+
+            for (const ch of raw) {
+                if (formatted.length === 0) {
+                    if (/[A-D]/.test(ch)) formatted += ch;
+                } else if (formatted.length >= 1 && formatted.length <= 4) {
+                    if (/\d/.test(ch)) formatted += ch;
+                } else if (formatted.length === 5) {
+                    if (/[A-D]/.test(ch)) formatted += ch;
+                }
+
+                if (formatted.length === 6) break;
+            }
+
+            return formatted;
+        }
+
+        function handlePasswordInput(input) {
+            input.value = formatKeypadPassword(input.value);
+            validatePassword();
+        }
+
         function validatePassword() {
             const pwd = document.getElementById('password').value;
             const field = document.getElementById('password');
+            const passwordPattern = /^[A-D][0-9]{4}[A-D]$/;
             
             field.classList.remove('valid', 'invalid');
-            
-            const hasLength = pwd.length >= 8;
-            const hasUpper = /[A-Z]/.test(pwd);
-            const hasLower = /[a-z]/.test(pwd);
-            const hasNumbers = /\d/.test(pwd);
-            const hasSymbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd);
-            
-            const isStrong = hasLength && hasUpper && hasNumbers && hasSymbols;
             
             if(pwd.length === 0) {
                 return;
             }
             
-            if(isStrong) {
+            if(passwordPattern.test(pwd)) {
                 field.classList.add('valid');
                 document.getElementById('password-error').classList.remove('show');
             } else {
@@ -712,14 +729,11 @@
                 return;
             }
             
-            const hasUpper = /[A-Z]/.test(pwd);
-            const hasLower = /[a-z]/.test(pwd);
-            const hasNumbers = /\d/.test(pwd);
-            const hasSymbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd);
-            
-            if(pwd.length < 8 || !hasUpper || !hasLower || !hasNumbers || !hasSymbols) {
+            const passwordPattern = /^[A-D][0-9]{4}[A-D]$/;
+
+            if(!passwordPattern.test(pwd)) {
                 document.getElementById('password').classList.add('shake');
-                showError('password', currentLang === 'ar' ? "كلمة المرور ضعيفة" : "Password doesn't meet security standards");
+                showError('password', currentLang === 'ar' ? "صيغة كلمة المرور: حرف من A-D ثم 4 أرقام ثم حرف من A-D (مثال: A1998B)" : "Password format: A-D letter, 4 digits, then A-D letter (e.g. A1998B)");
                 setTimeout(() => document.getElementById('password').classList.remove('shake'), 400);
                 return;
             }
@@ -862,7 +876,7 @@
             
             document.getElementById("reg-title").innerText = currentLang === 'ar' ? "إنشاء حساب" : "CREATE ACCOUNT";
             document.getElementById("reg-subtitle").innerText = currentLang === 'ar' ? "التحقق الثنائي والتسجيل الآمن" : "2FA Verification & Secure Registration";
-            document.getElementById("security-msg").innerText = currentLang === 'ar' ? "معيار الأمان العالمي: حد أدنى 8 أحرف، تضمين أحرف كبيرة وأرقام ورموز." : "Global Security Standard: Min 8 characters, include uppercase, numbers, and symbols.";
+            document.getElementById("security-msg").innerText = currentLang === 'ar' ? "صيغة كلمة المرور: حرف من A-D ثم 4 أرقام ثم حرف من A-D (مثال: A1998B)." : "Password format: A-D letter + 4 digits + A-D letter (example: A1998B).";
             document.getElementById("sendCodeText").innerText = currentLang === 'ar' ? "إرسال الكود" : "SEND CODE";
             document.getElementById("verifyCodeText").innerText = currentLang === 'ar' ? "تحقق" : "VERIFY";
         }

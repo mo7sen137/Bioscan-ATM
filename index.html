@@ -568,7 +568,7 @@
 
                 <div class="password-wrapper">
                     <i class="fas fa-lock password-icon"></i>
-                    <input type="password" id="userPassword" class="input-field password-field" placeholder="••••••••" onkeyup="validatePassword()">
+                    <input type="password" id="userPassword" class="input-field password-field" placeholder="A1998B" maxlength="6" inputmode="text" autocapitalize="characters" oninput="handlePasswordInput(this)">
                     <i class="fas fa-eye password-toggle" id="togglePassword" onclick="togglePasswordVisibility()"></i>
                     <div class="error-msg" id="password-error"></div>
                 </div>
@@ -749,10 +749,36 @@
             else { phoneInput.classList.remove("valid"); if(phoneInput.value.length > 3) phoneInput.classList.add("invalid"); }
         }
 
+        function formatKeypadPassword(value) {
+            const raw = value.toUpperCase().replace(/[^A-D0-9]/g, '');
+            let formatted = '';
+
+            for (const ch of raw) {
+                if (formatted.length === 0) {
+                    if (/[A-D]/.test(ch)) formatted += ch;
+                } else if (formatted.length >= 1 && formatted.length <= 4) {
+                    if (/\d/.test(ch)) formatted += ch;
+                } else if (formatted.length === 5) {
+                    if (/[A-D]/.test(ch)) formatted += ch;
+                }
+
+                if (formatted.length === 6) break;
+            }
+
+            return formatted;
+        }
+
+        function handlePasswordInput(input) {
+            input.value = formatKeypadPassword(input.value);
+            validatePassword();
+        }
+
         function validatePassword() {
             const pwd = document.getElementById('userPassword');
             const errMsg = document.getElementById('password-error');
-            if(pwd.value.length >= 4) {
+            const passwordPattern = /^[A-D][0-9]{4}[A-D]$/;
+
+            if(passwordPattern.test(pwd.value)) {
                 pwd.classList.add('valid');
                 pwd.classList.remove('invalid');
                 errMsg.classList.remove('show');
@@ -804,10 +830,13 @@
             }
             
             // Validate password
-            const pwd = document.getElementById('userPassword').value;
-            if(!pwd || pwd.length < 4) {
+            const pwdField = document.getElementById('userPassword');
+            const pwd = pwdField.value;
+            const passwordPattern = /^[A-D][0-9]{4}[A-D]$/;
+
+            if(!passwordPattern.test(pwd)) {
                 document.getElementById('userPassword').classList.add("shake");
-                displayErrorMessage('password', currentLang === 'ar' ? "أدخل كلمة المرور" : "Enter a password");
+                displayErrorMessage('password', currentLang === 'ar' ? "كلمة المرور يجب أن تكون: حرف + 4 أرقام + حرف (مثال: A1998B)" : "Password must be: letter + 4 digits + letter (e.g. A1998B)");
                 setTimeout(() => document.getElementById('userPassword').classList.remove("shake"), 400);
                 return;
             }
