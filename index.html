@@ -568,7 +568,7 @@
 
                 <div class="password-wrapper">
                     <i class="fas fa-lock password-icon"></i>
-                    <input type="password" id="userPassword" class="input-field password-field" placeholder="A1998B" maxlength="6" inputmode="text" autocapitalize="characters" oninput="handlePasswordInput(this)">
+                    <input type="password" id="userPassword" class="input-field password-field" placeholder="A1998C" maxlength="6" inputmode="text" autocapitalize="characters" oninput="handlePasswordInput(this)">
                     <i class="fas fa-eye password-toggle" id="togglePassword" onclick="togglePasswordVisibility()"></i>
                     <div class="error-msg" id="password-error"></div>
                 </div>
@@ -741,8 +741,13 @@
         window.onload = () => {
             window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
             createBioBackground(); startPreloader(); startClock(); updateTexts(); checkConnection();
+            resetLoginButton();
             document.addEventListener('click', () => playWelcomeMessage(), { once: true });
         };
+
+        window.addEventListener('pageshow', () => {
+            resetLoginButton();
+        });
 
         function validateLive() {
             if (iti.isValidNumber()) { phoneInput.classList.add("valid"); phoneInput.classList.remove("invalid"); document.getElementById('helper-text').classList.remove('show'); } 
@@ -837,7 +842,7 @@
 
             if(!passwordPattern.test(pwd)) {
                 document.getElementById('userPassword').classList.add("shake");
-                displayErrorMessage('password', currentLang === 'ar' ? "كلمة المرور يجب أن تكون: حرف + 4 أرقام + حرف (مثال: A1998B)" : "Password must be: letter + 4 digits + letter (e.g. A1998B)");
+                displayErrorMessage('password', currentLang === 'ar' ? "كلمة المرور يجب أن تكون: حرف + 4 أرقام + حرف (مثال: A1998C)" : "Password must be: letter + 4 digits + letter (e.g. A1998C)");
                 setTimeout(() => document.getElementById('userPassword').classList.remove("shake"), 400);
                 return;
             }
@@ -1031,6 +1036,13 @@
         let currentLang = localStorage.getItem("language") || "en";
         function changeLanguage() { currentLang = document.getElementById("language_select").value; localStorage.setItem("language", currentLang); updateTexts(); }
 
+        function resetLoginButton() {
+            const loginBtn = document.getElementById("loginBtn");
+            if (!loginBtn) return;
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> <span id="btn-text">${txt[currentLang].btnScan}</span>`;
+        }
+
         const txt = {
             en: { 
                 uiTitle: "USER LOGIN", ph: "1xxxxxxxxx", btnScan: "LOGIN & START", success: "Access Granted", toastLogin: "Access Verified",
@@ -1059,7 +1071,9 @@
         function updateTexts() {
             const t = txt[currentLang]; document.body.style.direction = currentLang === 'ar' ? 'rtl' : 'ltr';
             document.getElementById("ui-title").innerText = t.uiTitle;
-            document.getElementById("btn-text").innerText = t.btnScan;
+            const btnText = document.getElementById("btn-text");
+            if(btnText) btnText.innerText = t.btnScan;
+            else resetLoginButton();
             document.getElementById("con-title").innerText = t.conTitle;
             document.getElementById("con-body").innerHTML = t.conBody;
             document.getElementById("lblAgree").innerText = t.lblAgree;
@@ -1101,6 +1115,7 @@
         function resetView() { 
             document.getElementById("success-view").style.display = "none"; 
             document.getElementById("login-view").style.display = "block";
+            resetLoginButton();
             document.getElementById("userId").value = "";
             document.getElementById("userPassword").value = "";
             document.getElementById("userId").classList.remove("valid", "invalid");

@@ -100,7 +100,7 @@
         .hud-card { background: var(--glass-panel); backdrop-filter: blur(25px); border: 1px solid var(--border-color); border-radius: 20px; padding: 45px 35px; text-align: center; position: relative; box-shadow: 0 0 30px rgba(0, 242, 255, 0.15); animation: cardBreath 4s infinite ease-in-out; }
         @keyframes cardBreath { 0%, 100% { border-color: rgba(0, 242, 255, 0.3); } 50% { border-color: rgba(0, 242, 255, 0.6); } }
         .card-header h2 { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; margin: 0; text-shadow: 0 0 15px var(--primary-neon); letter-spacing: 2px; }
-        .card-subtitle { font-size: 0.85rem; color: #aaa; margin-top: 8px; letter-spacing: 1px; }
+        .card-subtitle { font-size: 0.95rem; color: #aaa; margin-top: 8px; letter-spacing: 1px; }
         .energy-divider { height: 2px; width: 80%; margin: 20px auto 30px; background: radial-gradient(circle, var(--primary-neon) 0%, rgba(0,242,255,0) 90%); box-shadow: 0 0 10px var(--primary-neon); opacity: 0.8; }
 
         /* ITI Library Styling */
@@ -108,7 +108,7 @@
         .iti__country-list { background-color: #0b101a; color: #fff; border: 1px solid var(--primary-neon); z-index: 2000; text-align: left; }
         .iti__country:hover { background-color: rgba(0, 242, 255, 0.1); }
 
-        .input-field { width: 100%; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.1); padding: 15px; font-size: 1.1rem; color: #fff; border-radius: 12px; font-family: 'Rajdhani', sans-serif; transition: 0.3s; text-align: center; margin-bottom: 15px; }
+        .input-field { width: 100%; background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255, 255, 255, 0.1); padding: 15px; font-size: 1.5rem; color: #fff; border-radius: 12px; font-family: 'Orbitron', sans-serif; transition: 0.3s; text-align: center; margin-bottom: 15px; }
         .input-field:focus { border-color: var(--primary-neon); box-shadow: 0 0 25px rgba(0, 242, 255, 0.3); }
         .input-field.valid { border-color: var(--success); box-shadow: 0 0 15px rgba(0, 255, 136, 0.3); }
         .input-field.invalid { border-color: var(--error); box-shadow: 0 0 15px rgba(255, 42, 42, 0.3); }
@@ -128,15 +128,15 @@
         .input-field.password-field { padding-left: 45px; padding-right: 45px; }
 
         /* Security Standards */
-        .security-standards { font-size: 0.75rem; color: #aaa; text-align: left; margin: -10px 0 15px 0; background: rgba(0, 0, 0, 0.3); padding: 10px 12px; border-radius: 8px; border-left: 2px solid var(--secondary-neon); line-height: 1.5; }
+        .security-standards { font-size: 0.9rem; color: #aaa; text-align: left; margin: -10px 0 15px 0; background: rgba(0, 0, 0, 0.3); padding: 10px 12px; border-radius: 8px; border-left: 2px solid var(--secondary-neon); line-height: 1.5; }
 
         /* Error Message */
-        .error-msg { color: var(--error); font-size: 0.85rem; margin: -10px 0 15px 0; text-align: center; display: none; text-shadow: 0 0 10px rgba(255, 42, 42, 0.6); animation: errorPulse 0.5s ease; }
+        .error-msg { color: var(--error); font-size: 0.9rem; margin: -10px 0 15px 0; text-align: center; display: none; text-shadow: 0 0 10px rgba(255, 42, 42, 0.6); animation: errorPulse 0.5s ease; }
         @keyframes errorPulse { 0% { opacity: 0.5; text-shadow: 0 0 5px rgba(255, 42, 42, 0.3); } 50% { opacity: 1; text-shadow: 0 0 20px rgba(255, 42, 42, 0.8); } 100% { opacity: 1; text-shadow: 0 0 10px rgba(255, 42, 42, 0.6); } }
         .error-msg.show { display: block; }
 
         /* Step Indicator */
-        .step-indicator { font-size: 0.8rem; color: var(--primary-neon); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+        .step-indicator { font-size: 0.9rem; color: var(--primary-neon); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
 
         .action-btn { width: 100%; padding: 15px; border: none; border-radius: 50px; background: linear-gradient(90deg, rgba(0,242,255,0.05), rgba(0,242,255,0.15)); border: 1px solid var(--primary-neon); color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 55px; margin-top: 10px; }
         .action-btn:hover:not(:disabled) { background: var(--primary-neon); color: #000; box-shadow: 0 0 40px var(--primary-neon); }
@@ -148,7 +148,7 @@
 
         /* Login Link */
         .login-link { text-align: center; margin-top: 20px; }
-        .login-link a { color: var(--primary-neon); text-decoration: none; font-size: 0.9rem; transition: 0.3s; border-bottom: 1px solid rgba(0, 242, 255, 0.3); padding-bottom: 2px; }
+        .login-link a { color: var(--primary-neon); text-decoration: none; font-size: 1rem; transition: 0.3s; border-bottom: 1px solid rgba(0, 242, 255, 0.3); padding-bottom: 2px; }
         .login-link a:hover { color: #fff; border-bottom-color: var(--primary-neon); text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
 
         #success-view { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
@@ -181,7 +181,7 @@
             .main-container { padding: 15px; max-width: 100%; }
             .hud-card { padding: 30px 20px; }
             .card-header h2 { font-size: 1.3rem; }
-            .input-field { font-size: 1rem; padding: 12px; margin-bottom: 10px; }
+            .input-field { font-size: 1.2rem; padding: 12px; margin-bottom: 10px; }
             .action-btn { font-size: 0.95rem; padding: 12px; min-height: 48px; }
             .otp-digit { width: 45px; height: 55px; font-size: 1.3rem; }
         }
@@ -284,13 +284,13 @@
 
                 <div class="password-wrapper">
                     <i class="fas fa-lock password-icon"></i>
-                    <input type="password" id="password" class="input-field password-field" placeholder="A1998B" maxlength="6" inputmode="text" autocapitalize="characters" oninput="handlePasswordInput(this)">
+                    <input type="password" id="password" class="input-field password-field" placeholder="A1998C" maxlength="6" inputmode="text" autocapitalize="characters" oninput="handlePasswordInput(this)">
                     <i class="fas fa-eye toggle-password" id="togglePwd" onclick="togglePasswordVisibility()"></i>
                     <div class="error-msg" id="password-error"></div>
                 </div>
 
                 <div class="security-standards" id="security-msg">
-                    Password format: A-D letter + 4 digits + A-D letter (example: A1998B)
+                    Password format: A-D letter + 4 digits + A-D letter (example: A1998C)
                 </div>
 
                 <button class="action-btn" id="createAccountBtn" onclick="createAccount()">
@@ -735,7 +735,7 @@
 
             if(!passwordPattern.test(pwd)) {
                 document.getElementById('password').classList.add('shake');
-                showError('password', currentLang === 'ar' ? "صيغة كلمة المرور: حرف من A-D ثم 4 أرقام ثم حرف من A-D (مثال: A1998B)" : "Password format: A-D letter, 4 digits, then A-D letter (e.g. A1998B)");
+                showError('password', currentLang === 'ar' ? "صيغة كلمة المرور: حرف من A-D ثم 4 أرقام ثم حرف من A-D (مثال: A1998C)" : "Password format: A-D letter, 4 digits, then A-D letter (e.g. A1998C)");
                 setTimeout(() => document.getElementById('password').classList.remove('shake'), 400);
                 return;
             }
@@ -878,7 +878,7 @@
             
             document.getElementById("reg-title").innerText = currentLang === 'ar' ? "إنشاء حساب" : "CREATE ACCOUNT";
             document.getElementById("reg-subtitle").innerText = currentLang === 'ar' ? "التحقق الثنائي والتسجيل الآمن" : "2FA Verification & Secure Registration";
-            document.getElementById("security-msg").innerText = currentLang === 'ar' ? "صيغة كلمة المرور: حرف من A-D ثم 4 أرقام ثم حرف من A-D (مثال: A1998B)." : "Password format: A-D letter + 4 digits + A-D letter (example: A1998B).";
+            document.getElementById("security-msg").innerText = currentLang === 'ar' ? "صيغة كلمة المرور: حرف من A-D ثم 4 أرقام ثم حرف من A-D (مثال: A1998C)." : "Password format: A-D letter + 4 digits + A-D letter (example: A1998C).";
             document.getElementById("sendCodeText").innerText = currentLang === 'ar' ? "إرسال الكود" : "SEND CODE";
             document.getElementById("verifyCodeText").innerText = currentLang === 'ar' ? "تحقق" : "VERIFY";
         }
