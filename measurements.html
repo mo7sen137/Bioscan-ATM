@@ -256,8 +256,150 @@
     .sidebar-header h3 { color: var(--primary-neon); margin: 0; font-family: 'Orbitron', sans-serif; font-size: 1.2rem; }
     .close-sidebar { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
     .sidebar-input { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; margin-bottom: 15px; text-align: center; font-size: 1.1rem; }
+    .sidebar-label { color:#ddd; display:block; margin-bottom:5px; font-size:0.9rem; }
+    .gender-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+    .gender-btn {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.04);
+      color: #ddd;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+      transition: 0.25s;
+    }
+    .gender-btn.active {
+      border-color: var(--primary-neon);
+      color: #001015;
+      background: linear-gradient(90deg, var(--primary-neon), #52ffe9);
+      font-weight: bold;
+      box-shadow: 0 0 14px rgba(0, 242, 255, 0.35);
+    }
     .calc-btn { width: 100%; padding: 12px; background: var(--primary-neon); color: #000; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; }
     .result-box { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid var(--primary-neon); display: none; }
+    .bmi-summary { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .bmi-score { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 700; line-height: 1; }
+    .bmi-status { font-size: 1rem; font-weight: 700; }
+    .bmi-distance { font-size: 0.85rem; color: #cfd8dc; margin-top: 3px; }
+    .bmi-scale { margin-top: 14px; }
+    .bmi-scale-labels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-size: 0.72rem; color: #b7c5cf; text-align: center; margin-bottom: 6px; }
+    .bmi-scale-bar { position: relative; display: grid; grid-template-columns: 24% 24% 20% 32%; gap: 4px; height: 8px; }
+    .bmi-segment { border-radius: 8px; opacity: 0.95; }
+    .bmi-under { background: #4ea8ff; }
+    .bmi-normal { background: #2ecc71; }
+    .bmi-over { background: #f1c40f; }
+    .bmi-obese { background: #e74c3c; }
+    .bmi-marker {
+      position: relative;
+      height: 0;
+      margin-top: 8px;
+    }
+    .bmi-marker::before {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 10px solid #fff;
+      transform: translateX(-50%);
+      left: var(--marker-left, 50%);
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.8));
+    }
+    .bmi-range-note { margin-top: 14px; font-size: 0.82rem; color: #d5dde1; line-height: 1.5; }
+    .bmi-visual-grid { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .bmi-gauge-card, .bmi-avatar-card {
+      background: linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .bmi-gauge {
+      --gauge: 50%;
+      --gauge-color: #2ecc71;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 0 auto;
+      position: relative;
+      background: conic-gradient(var(--gauge-color) var(--gauge), rgba(255,255,255,0.08) 0%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(0,0,0,0.35);
+    }
+    .bmi-gauge::before {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      background: #0f1724;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .bmi-gauge-inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      line-height: 1.1;
+    }
+    .bmi-gauge-value {
+      display: block;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .bmi-gauge-label {
+      display: block;
+      font-size: 0.7rem;
+      color: #aab8c2;
+    }
+    .bmi-gauge-caption {
+      text-align: center;
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: #d7e3ea;
+      font-weight: 600;
+    }
+    .bmi-avatar-top { display: flex; align-items: center; gap: 10px; }
+    .bmi-avatar-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,242,255,0.12);
+      color: var(--primary-neon);
+      border: 1px solid rgba(0,242,255,0.35);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .bmi-avatar-meta { font-size: 0.78rem; color: #d0dce3; line-height: 1.45; }
+    .bmi-balance-track {
+      margin-top: 10px;
+      height: 8px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.1);
+      overflow: hidden;
+    }
+    .bmi-balance-fill {
+      height: 100%;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #4ea8ff, #2ecc71, #f1c40f, #e74c3c);
+      transition: width 0.4s ease;
+    }
+    .bmi-balance-text {
+      margin-top: 8px;
+      font-size: 0.76rem;
+      color: #c2d0d8;
+      line-height: 1.4;
+    }
+    @media (max-width: 480px) {
+      .bmi-visual-grid { grid-template-columns: 1fr; }
+      .bmi-gauge { width: 90px; height: 90px; }
+    }
 
     .custom-modal-box { background: #0b101a; border: 1px solid var(--primary-neon); padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 60px rgba(0, 242, 255, 0.2); transform: scale(0.9); transition: 0.3s; z-index: 12001; }
     .custom-modal-overlay.active .custom-modal-box { transform: scale(1); }
@@ -784,8 +926,14 @@
   <div class="sidebar" id="smartSidebar">
     <div class="sidebar-header"><h3 id="sidebarTitle"><i class="fas fa-brain"></i> SMART CHECK</h3><button class="close-sidebar" onclick="toggleSidebar(false)">×</button></div>
     <div class="sidebar-content">
-      <label id="lblWeight" style="color:#ddd; display:block; margin-bottom:5px; font-size:0.9rem;">Weight (kg)</label><input type="number" id="inputWeight" class="sidebar-input" placeholder="e.g. 75">
-      <label id="lblHeight" style="color:#ddd; display:block; margin-bottom:5px; font-size:0.9rem;">Height (cm)</label><input type="number" id="inputHeight" class="sidebar-input" placeholder="e.g. 175">
+      <label id="lblWeight" class="sidebar-label">Weight (kg)</label><input type="number" id="inputWeight" class="sidebar-input" placeholder="e.g. 75">
+      <label id="lblHeight" class="sidebar-label">Height (cm)</label><input type="number" id="inputHeight" class="sidebar-input" placeholder="e.g. 175">
+      <label id="lblAge" class="sidebar-label">Age (years)</label><input type="number" id="inputAge" class="sidebar-input" min="1" max="120" placeholder="e.g. 23">
+      <label id="lblGender" class="sidebar-label">Gender</label>
+      <div class="gender-toggle" id="genderToggle">
+        <button type="button" class="gender-btn active" id="genderMale" onclick="setBmiGender('male')">Male</button>
+        <button type="button" class="gender-btn" id="genderFemale" onclick="setBmiGender('female')">Female</button>
+      </div>
       <button class="calc-btn" onclick="calculateHealthRisk()" id="btnAnalyze">ANALYZE DATA</button>
       <div id="analysisResult" class="result-box"></div>
     </div>
@@ -1372,7 +1520,12 @@
         temp: "Temperature", pulse: "Pulse Rate", bp: "Blood Pressure", ox: "Oxygen (SpO2)",
         vision: "VISION TEST", vSub: "Start eye exam", hist: "HISTORY LOGS", hSub: "View previous data",
         save: "SAVE ALL READINGS", exit: "TERMINATE SESSION",
-        sbTitle: "SMART CHECK", w: "Weight (kg)", h: "Height (cm)", calc: "ANALYZE DATA",
+        sbTitle: "SMART CHECK", w: "Weight (kg)", h: "Height (cm)", age: "Age (years)", bmiGender: "Gender", calc: "ANALYZE DATA",
+        bmiNeedData: "Enter valid data.", bmiDistanceLow: "Below normal by", bmiDistanceHigh: "Above normal by", bmiInRange: "Inside normal range",
+        bmiPersonalRange: "Personal normal range", bmiBy: "by", bmiPoints: "points", bmiUnder: "Underweight", bmiNormal: "Normal", bmiOver: "Overweight", bmiObese: "Obese",
+        bmiWeightZone: "Healthy weight zone", bmiAdviceDiet: "Diet", bmiAdviceExercise: "Exercise", bmiAdviceWater: "Water",
+        bmiVisualTitle: "Body Proportion", bmiNowWeight: "Weight", bmiNowHeight: "Height", bmiIdealWeight: "Ideal weight",
+        bmiBalanced: "Well-balanced build", bmiAboveIdeal: "Above ideal by", bmiBelowIdeal: "Below ideal by", bmiKg: "kg",
         conTitle: "Emergency Contact", conTxt: "Enter phone number",
         sosTitle: "Emergency Alert", sosTxt: "Confirm SOS?",
         saveBtn: "Save", cancel: "Cancel", yes: "YES, SEND HELP",
@@ -1400,7 +1553,12 @@
         temp: "درجة الحرارة", pulse: "نبض القلب", bp: "ضغط الدم", ox: "نسبة الأكسجين",
         vision: "فحص النظر", vSub: "بدء الفحص", hist: "سجل البيانات", hSub: "عرض القراءات السابقة",
         save: "حفظ جميع القراءات", exit: "إنهاء الجلسة",
-        sbTitle: "الفحص الذكي", w: "الوزن (كجم)", h: "الطول (سم)", calc: "تحليل النتائج",
+        sbTitle: "الفحص الذكي", w: "الوزن (كجم)", h: "الطول (سم)", age: "العمر (سنة)", bmiGender: "النوع", calc: "تحليل النتائج",
+        bmiNeedData: "يرجى إدخال بيانات صحيحة.", bmiDistanceLow: "أقل من الطبيعي بمقدار", bmiDistanceHigh: "أعلى من الطبيعي بمقدار", bmiInRange: "داخل النطاق الطبيعي",
+        bmiPersonalRange: "النطاق الطبيعي الشخصي", bmiBy: "بمقدار", bmiPoints: "نقطة", bmiUnder: "نحافة", bmiNormal: "طبيعي", bmiOver: "زيادة وزن", bmiObese: "سمنة",
+        bmiWeightZone: "نطاق الوزن الصحي", bmiAdviceDiet: "غذاء", bmiAdviceExercise: "رياضة", bmiAdviceWater: "المياه",
+        bmiVisualTitle: "تناسق الجسم", bmiNowWeight: "الوزن", bmiNowHeight: "الطول", bmiIdealWeight: "الوزن المثالي",
+        bmiBalanced: "تناسق جيد", bmiAboveIdeal: "أعلى من المثالي بمقدار", bmiBelowIdeal: "أقل من المثالي بمقدار", bmiKg: "كجم",
         conTitle: "جهة اتصال الطوارئ", conTxt: "أدخل رقم الهاتف",
         sosTitle: "تنبيه طوارئ", sosTxt: "هل تود إرسال استغاثة؟",
         saveBtn: "حفظ", cancel: "إلغاء", yes: "نعم، أرسل المساعدة",
@@ -1475,6 +1633,13 @@
         document.getElementById("sidebarTitle").innerHTML = `<i class="fas fa-brain"></i> ${t.sbTitle}`;
         document.getElementById("lblWeight").innerText = t.w;
         document.getElementById("lblHeight").innerText = t.h;
+        document.getElementById("lblAge").innerText = t.age;
+        document.getElementById("lblGender").innerText = t.bmiGender;
+        document.getElementById("genderMale").innerText = t.male;
+        document.getElementById("genderFemale").innerText = t.female;
+        document.getElementById("inputWeight").placeholder = isAr ? "مثال: 75" : "e.g. 75";
+        document.getElementById("inputHeight").placeholder = isAr ? "مثال: 175" : "e.g. 175";
+        document.getElementById("inputAge").placeholder = isAr ? "مثال: 23" : "e.g. 23";
         document.getElementById("btnAnalyze").innerText = t.calc;
         
         document.getElementById("contactTitle").innerText = t.conTitle;
@@ -1972,26 +2137,167 @@
         return values;
     }
 
+    let bmiGender = 'male';
+
+    function setBmiGender(gender) {
+      bmiGender = gender === 'female' ? 'female' : 'male';
+      document.getElementById('genderMale').classList.toggle('active', bmiGender === 'male');
+      document.getElementById('genderFemale').classList.toggle('active', bmiGender === 'female');
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
     function calculateHealthRisk() {
       const weight = parseFloat(document.getElementById("inputWeight").value);
       const height = parseFloat(document.getElementById("inputHeight").value);
+      const age = parseInt(document.getElementById("inputAge").value, 10);
       const resultBox = document.getElementById("analysisResult");
-      const lang = currentLang;
+      const t = UI_TEXTS[currentLang] || UI_TEXTS.en;
 
-      if(!weight || !height) {
-        resultBox.style.display = "block"; resultBox.style.borderLeftColor = "#ff416c";
-        resultBox.innerText = lang === "ar" ? "يرجى إدخال البيانات." : "Enter valid data."; return;
+      if(!weight || !height || !age || age < 1) {
+        resultBox.style.display = "block";
+        resultBox.style.borderLeftColor = "#ff416c";
+        resultBox.innerText = t.bmiNeedData;
+        return;
       }
-      const h_m = height / 100; const bmi = (weight / (h_m * h_m)).toFixed(1); const waterNeed = (weight * 0.035).toFixed(1);
-      let status="", color="", dietTip="", exerciseTip="";
-      if(bmi<18.5){ status=lang==="ar"?"نحافة":"Underweight"; color="#3498db"; dietTip=lang==="ar"?"🥑 أكثر من المكسرات":"🥑 Eat nuts"; exerciseTip=lang==="ar"?"🏋️‍♂️ تمارين مقاومة":"🏋️‍♂️ Strength training"; }
-      else if(bmi<25){ status=lang==="ar"?"مثالي":"Healthy"; color="#2ecc71"; dietTip=lang==="ar"?"🥗 حافظ على السلطة":"🥗 Eat salads"; exerciseTip=lang==="ar"?"🏃‍♂️ مشي يومي":"🏃‍♂️ Daily walk"; }
-      else if(bmi<30){ status=lang==="ar"?"زائد":"Overweight"; color="#f1c40f"; dietTip=lang==="ar"?"📉 قلل السكر":"📉 Cut sugar"; exerciseTip=lang==="ar"?"🚴‍♂️ ركوب الدراجة":"🚴‍♂️ Cycling"; }
-      else{ status=lang==="ar"?"سمنة":"Obese"; color="#e74c3c"; dietTip=lang==="ar"?"🚫 لا للمقليات":"🚫 No fried food"; exerciseTip=lang==="ar"?"🚶‍♂️ مشي خفيف":"🚶‍♂️ Light walking"; }
 
-      resultBox.style.display="block"; resultBox.style.borderLeftColor=color;
-      resultBox.innerHTML=`<strong style="color:${color}; font-size:1.1rem;">BMI: ${bmi} (${status})</strong><br><div style="margin-top:10px; font-size:0.9rem; color:#eee;">💧 ${waterNeed} L<br>🍎 <b>${lang==="ar"?"غذاء":"Diet"}:</b> ${dietTip}<br>💪 <b>${lang==="ar"?"رياضة":"Gym"}:</b> ${exerciseTip}</div>`;
-      if(voiceEnabled){const u=new SpeechSynthesisUtterance(lang==="ar"?`مؤشر كتلة الجسم ${bmi}`:`BMI is ${bmi}`);u.lang=lang==="ar"?'ar-SA':'en-US';window.speechSynthesis.speak(u);}
+      const h_m = height / 100;
+      const h2 = h_m * h_m;
+      const bmi = weight / h2;
+      const bmiRounded = bmi.toFixed(1);
+      const waterNeed = (weight * 0.035).toFixed(1);
+
+      let status = "";
+      let color = "";
+      let dietTip = "";
+      let exerciseTip = "";
+
+      if (bmi < 18.5) {
+        status = t.bmiUnder;
+        color = "#4ea8ff";
+        dietTip = currentLang === "ar" ? "زد البروتين الصحي والمكسرات تدريجيًا" : "Increase lean protein and healthy nuts gradually";
+        exerciseTip = currentLang === "ar" ? "تمارين مقاومة خفيفة 3 مرات أسبوعيا" : "Light resistance training 3x weekly";
+      } else if (bmi < 25) {
+        status = t.bmiNormal;
+        color = "#2ecc71";
+        dietTip = currentLang === "ar" ? "استمر على توازن البروتين والخضار" : "Keep a balanced protein + vegetables plan";
+        exerciseTip = currentLang === "ar" ? "150 دقيقة نشاط أسبوعيا للحفاظ على المستوى" : "150 minutes activity weekly to maintain";
+      } else if (bmi < 30) {
+        status = t.bmiOver;
+        color = "#f1c40f";
+        dietTip = currentLang === "ar" ? "قلل السكريات والمشروبات عالية السعرات" : "Reduce sugar and high-calorie drinks";
+        exerciseTip = currentLang === "ar" ? "مشي سريع 30 دقيقة يوميا" : "Brisk walk 30 minutes daily";
+      } else {
+        status = t.bmiObese;
+        color = "#e74c3c";
+        dietTip = currentLang === "ar" ? "نظام منخفض السعرات بإشراف مختص" : "Structured calorie deficit with specialist guidance";
+        exerciseTip = currentLang === "ar" ? "ابدأ تدريجيا بتمارين منخفضة التأثير" : "Start gradually with low-impact activity";
+      }
+
+      // Personalized normal zone by age + gender for guidance
+      let normalMin = bmiGender === 'female' ? 18.3 : 18.5;
+      let normalMax = 24.9;
+      if (age >= 45) normalMax = 25.4;
+      if (age >= 60) normalMax = 26.0;
+
+      let distanceText = "";
+      if (bmi < normalMin) {
+        distanceText = `${t.bmiDistanceLow} ${(normalMin - bmi).toFixed(1)} ${t.bmiPoints}`;
+      } else if (bmi > normalMax) {
+        distanceText = `${t.bmiDistanceHigh} ${(bmi - normalMax).toFixed(1)} ${t.bmiPoints}`;
+      } else {
+        distanceText = t.bmiInRange;
+      }
+
+      const markerLeft = clamp(((bmi - 14) / (40 - 14)) * 100, 0, 100);
+      const gaugePercent = clamp(((bmi - 12) / (40 - 12)) * 100, 0, 100);
+      const healthyWMin = (normalMin * h2).toFixed(1);
+      const healthyWMax = (normalMax * h2).toFixed(1);
+      const underMaxW = (18.5 * h2).toFixed(1);
+      const overMinW = (25 * h2).toFixed(1);
+      const obeseMinW = (30 * h2).toFixed(1);
+      const idealWeight = (22 * h2);
+      const idealWeightRounded = idealWeight.toFixed(1);
+      const idealDelta = weight - idealWeight;
+      const weightRatioPercent = clamp((weight / idealWeight) * 100, 55, 145);
+      const genderIcon = bmiGender === 'female' ? 'fa-person-dress' : 'fa-person';
+
+      let proportionText = t.bmiBalanced;
+      if (idealDelta > 2) {
+        proportionText = `${t.bmiAboveIdeal} ${idealDelta.toFixed(1)} ${t.bmiKg}`;
+      } else if (idealDelta < -2) {
+        proportionText = `${t.bmiBelowIdeal} ${Math.abs(idealDelta).toFixed(1)} ${t.bmiKg}`;
+      }
+
+      resultBox.style.display = "block";
+      resultBox.style.borderLeftColor = color;
+      resultBox.innerHTML = `
+        <div class="bmi-summary">
+          <div class="bmi-score" style="color:${color}">${bmiRounded}</div>
+          <div>
+            <div class="bmi-status" style="color:${color}">BMI - ${status}</div>
+            <div class="bmi-distance">${distanceText}</div>
+          </div>
+        </div>
+
+        <div class="bmi-scale">
+          <div class="bmi-scale-labels">
+            <div>${t.bmiUnder}<br><small>&lt; ${underMaxW}kg</small></div>
+            <div>${t.bmiNormal}<br><small>${healthyWMin} - ${healthyWMax}kg</small></div>
+            <div>${t.bmiOver}<br><small>${overMinW} - ${obeseMinW}kg</small></div>
+            <div>${t.bmiObese}<br><small>&gt; ${obeseMinW}kg</small></div>
+          </div>
+          <div class="bmi-scale-bar">
+            <span class="bmi-segment bmi-under"></span>
+            <span class="bmi-segment bmi-normal"></span>
+            <span class="bmi-segment bmi-over"></span>
+            <span class="bmi-segment bmi-obese"></span>
+          </div>
+          <div class="bmi-marker" style="--marker-left:${markerLeft}%;"></div>
+        </div>
+
+        <div class="bmi-visual-grid">
+          <div class="bmi-gauge-card">
+            <div class="bmi-gauge" style="--gauge:${gaugePercent}%; --gauge-color:${color};">
+              <div class="bmi-gauge-inner">
+                <span class="bmi-gauge-value">${bmiRounded}</span>
+                <span class="bmi-gauge-label">BMI</span>
+              </div>
+            </div>
+            <div class="bmi-gauge-caption">${status}</div>
+          </div>
+
+          <div class="bmi-avatar-card">
+            <div class="bmi-avatar-top">
+              <i class="fas ${genderIcon} bmi-avatar-icon"></i>
+              <div class="bmi-avatar-meta">
+                <div><b>${t.bmiVisualTitle}</b></div>
+                <div>${t.bmiNowHeight}: ${height} cm</div>
+                <div>${t.bmiNowWeight}: ${weight} ${t.bmiKg}</div>
+                <div>${t.bmiIdealWeight}: ${idealWeightRounded} ${t.bmiKg}</div>
+              </div>
+            </div>
+            <div class="bmi-balance-track"><div class="bmi-balance-fill" style="width:${weightRatioPercent}%;"></div></div>
+            <div class="bmi-balance-text">${proportionText}</div>
+          </div>
+        </div>
+
+        <div class="bmi-range-note">
+          <div><b>${t.bmiPersonalRange}:</b> ${normalMin.toFixed(1)} - ${normalMax.toFixed(1)} BMI</div>
+          <div><b>${t.bmiWeightZone}:</b> ${healthyWMin} - ${healthyWMax} kg</div>
+          <div style="margin-top:8px;">💧 <b>${t.bmiAdviceWater}:</b> ${waterNeed} L</div>
+          <div>🍎 <b>${t.bmiAdviceDiet}:</b> ${dietTip}</div>
+          <div>💪 <b>${t.bmiAdviceExercise}:</b> ${exerciseTip}</div>
+        </div>
+      `;
+
+      if (voiceEnabled) {
+        const u = new SpeechSynthesisUtterance(currentLang === "ar" ? `مؤشر كتلة الجسم ${bmiRounded}` : `BMI is ${bmiRounded}`);
+        u.lang = currentLang === "ar" ? 'ar-SA' : 'en-US';
+        window.speechSynthesis.speak(u);
+      }
     }
 
     // Modal & Sidebar
