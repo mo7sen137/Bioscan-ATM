@@ -501,8 +501,8 @@
         }
 
         function formatKeypadPassword(value) {
-            // Keep typing flexible: allow only keypad-safe chars, then enforce full pattern on validation.
-            return value.toUpperCase().replace(/[^A-D0-9]/g, '').slice(0, 6);
+            // Keep typing flexible: allow English letters and digits, then enforce A-D pattern on validation.
+            return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
         }
 
         function handlePasswordInput(input) {
