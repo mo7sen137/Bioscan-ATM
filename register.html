@@ -501,22 +501,8 @@
         }
 
         function formatKeypadPassword(value) {
-            const raw = value.toUpperCase().replace(/[^A-D0-9]/g, '');
-            let formatted = '';
-
-            for (const ch of raw) {
-                if (formatted.length === 0) {
-                    if (/[A-D]/.test(ch)) formatted += ch;
-                } else if (formatted.length >= 1 && formatted.length <= 4) {
-                    if (/\d/.test(ch)) formatted += ch;
-                } else if (formatted.length === 5) {
-                    if (/[A-D]/.test(ch)) formatted += ch;
-                }
-
-                if (formatted.length === 6) break;
-            }
-
-            return formatted;
+            // Keep typing flexible: allow only keypad-safe chars, then enforce full pattern on validation.
+            return value.toUpperCase().replace(/[^A-D0-9]/g, '').slice(0, 6);
         }
 
         function handlePasswordInput(input) {
