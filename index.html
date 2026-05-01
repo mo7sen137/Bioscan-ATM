@@ -46,7 +46,7 @@
         #preloader { position: fixed; inset: 0; background: #020408; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
         .loader-wrapper { position: relative; width: 120px; height: 120px; margin-bottom: 30px; }
         .loader-ring { position: absolute; inset: 0; border: 3px solid transparent; border-top-color: var(--primary-neon); border-right-color: var(--secondary-neon); border-radius: 50%; animation: spinFast 1s linear infinite; box-shadow: 0 0 25px rgba(0, 242, 255, 0.4), inset 0 0 15px rgba(0, 242, 255, 0.2); }
-        .loader-logo { position: absolute; inset: 15px; border-radius: 50%; background: url('https://cdn-icons-png.flaticon.com/512/2966/2966487.png') no-repeat center/cover; animation: pulseLoader 2s infinite ease-in-out, glowPulse 2s infinite ease-in-out; filter: drop-shadow(0 0 15px var(--primary-neon)); }
+        .loader-logo { position: absolute; inset: 15px; width: calc(100% - 30px); height: calc(100% - 30px); animation: pulseLoader 2s infinite ease-in-out, glowPulse 2s infinite ease-in-out; filter: drop-shadow(0 0 15px var(--primary-neon)); }
         .loader-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; letter-spacing: 4px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; text-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
         #loaderStatus { font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; color: var(--primary-neon); letter-spacing: 1px; margin: 15px 0 20px 0; height: 1.2em; transition: all 0.4s ease; text-shadow: 0 0 10px rgba(0, 242, 255, 0.4); }
         .progress-bar { width: 0%; height: 4px; background: linear-gradient(90deg, var(--primary-neon), var(--secondary-neon)); box-shadow: 0 0 15px var(--primary-neon); transition: width 0.4s cubic-bezier(0.4, 0.0, 0.2, 1); border-radius: 2px; width: 200px; position: relative; }
@@ -57,6 +57,10 @@
         @keyframes pulseLoader { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1); opacity: 1; } }
         @keyframes glowPulse { 0%, 100% { filter: drop-shadow(0 0 10px var(--primary-neon)) drop-shadow(0 0 20px rgba(0, 242, 255, 0.4)); } 50% { filter: drop-shadow(0 0 20px var(--primary-neon)) drop-shadow(0 0 35px rgba(0, 242, 255, 0.6)); } }
         @keyframes progressFlow { 0% { width: 0%; box-shadow: 0 0 10px var(--primary-neon); } 50% { box-shadow: 0 0 20px var(--primary-neon), inset 0 0 10px rgba(0, 242, 255, 0.3); } 100% { width: 100%; box-shadow: 0 0 15px var(--primary-neon); } }
+        .success-subtitle,
+        #spinnerText {
+            display: none;
+        }
 
         /* --- 3. BACKGROUND ANIMATION --- */
         #bio-background {
@@ -86,7 +90,7 @@
         }
         .header-left { display: flex; align-items: center; gap: 20px; }
         .brand { display: flex; align-items: center; gap: 15px; }
-        .brand-logo { width: 45px; height: 45px; border: 2px solid var(--primary-neon); border-radius: 50%; box-shadow: 0 0 15px var(--primary-neon); animation: pulseLogo 3s infinite; }
+        .brand-logo { width: 45px; height: 45px; border: none; border-radius: 50%; box-shadow: 0 0 15px var(--primary-neon); animation: pulseLogo 3s infinite; display: block; }
         @keyframes pulseLogo { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
         .brand-text h1 { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin: 0; letter-spacing: 2px; background: linear-gradient(90deg, #fff, var(--primary-neon)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .brand-text p { margin: 0; font-size: 0.7rem; color: var(--primary-neon); opacity: 0.8; letter-spacing: 2px; }
@@ -593,10 +597,39 @@
 
 <body>
 
+    <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute; left:-9999px; overflow:hidden;">
+        <defs>
+            <linearGradient id="bioscan-logo-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00f2ff"></stop>
+                <stop offset="100%" stop-color="#7000ff"></stop>
+            </linearGradient>
+            <radialGradient id="bioscan-logo-bg" cx="50%" cy="45%" r="65%">
+                <stop offset="0%" stop-color="#0d1e30"></stop>
+                <stop offset="100%" stop-color="#05070d"></stop>
+            </radialGradient>
+            <symbol id="bioscan-logo" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="46" fill="url(#bioscan-logo-bg)" stroke="url(#bioscan-logo-stroke)" stroke-width="3"></circle>
+                <circle cx="50" cy="50" r="34" fill="none" stroke="rgba(0,242,255,0.18)" stroke-width="1.5" stroke-dasharray="1 5"></circle>
+                <path d="M26 38c11-12 34-15 50-4" fill="none" stroke="#00f2ff" stroke-width="2.8" stroke-linecap="round"></path>
+                <path d="M31 58c10-7 22-8 33-2s16 7 24 5" fill="none" stroke="#7000ff" stroke-width="2.6" stroke-linecap="round" opacity="0.82"></path>
+                <g transform="translate(28 28)">
+                    <rect x="0" y="10" width="18" height="28" rx="4" fill="none" stroke="#00f2ff" stroke-width="2.5"></rect>
+                    <path d="M9 13v22M3 24h12" stroke="#00f2ff" stroke-width="2.4" stroke-linecap="round"></path>
+                </g>
+                <path d="M57 28c7 1 12 5 15 11" fill="none" stroke="#00f2ff" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="1 4"></path>
+                <circle cx="66" cy="36" r="2.3" fill="#00f2ff"></circle>
+                <circle cx="74" cy="47" r="2.3" fill="#00f2ff"></circle>
+                <circle cx="67" cy="58" r="2.3" fill="#00f2ff"></circle>
+                <path d="M65 36l8 11l-7 11" fill="none" stroke="#00f2ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M43 73c5 3 10 3 15 0" fill="none" stroke="#7000ff" stroke-width="2" stroke-linecap="round"></path>
+            </symbol>
+        </defs>
+    </svg>
+
     <div id="preloader">
         <div class="loader-wrapper">
             <div class="loader-ring"></div>
-            <div class="loader-logo"></div>
+            <svg class="loader-logo" viewBox="0 0 100 100" aria-hidden="true"><use href="#bioscan-logo"></use></svg>
         </div>
         <div class="loader-title">BIOSCAN ATM</div>
         <div class="loader-status" id="loaderStatus">Initializing Biosensors...</div>
@@ -608,7 +641,7 @@
     <header>
         <div class="header-left">
             <div class="brand">
-                <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" class="brand-logo" alt="Logo">
+                <svg class="brand-logo" viewBox="0 0 100 100" aria-hidden="true"><use href="#bioscan-logo"></use></svg>
                 <div class="brand-text">
                     <h1>Bioscan ATM</h1>
                     <p>STATION ONLINE</p>
@@ -1236,13 +1269,13 @@
         </div>
         <div class="checkmark-icon">✓</div>
         <div class="success-message" id="successMessage">SUCCESS</div>
-        <div class="success-subtitle" id="successSubtitle">Redirecting to dashboard...</div>
+        <div class="success-subtitle" id="successSubtitle"></div>
     </div>
 
     <!-- === PHASE 2: SPINNER OVERLAY === -->
     <div class="spinner-overlay" id="spinnerOverlay">
         <div class="spinner"></div>
-        <div class="spinner-text" id="spinnerText">LOADING...</div>
+        <div class="spinner-text" id="spinnerText"></div>
     </div>
 
     <!-- === PHASE 2: TOAST CONTAINER === -->
