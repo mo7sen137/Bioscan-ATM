@@ -1226,6 +1226,162 @@
                 muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
             }
         }
+
+    <!-- === PHASE 2: SUCCESS CONTAINER === -->
+    <div class="success-container" id="successContainer">
+        <div class="success-checkmark">
+            <div class="checkmark-circle"></div>
+        </div>
+        <div class="checkmark-icon">✓</div>
+        <div class="success-message" id="successMessage">SUCCESS</div>
+        <div class="success-subtitle" id="successSubtitle">Redirecting to dashboard...</div>
+    </div>
+
+    <!-- === PHASE 2: SPINNER OVERLAY === -->
+    <div class="spinner-overlay" id="spinnerOverlay">
+        <div class="spinner"></div>
+        <div class="spinner-text" id="spinnerText">LOADING...</div>
+    </div>
+
+    <!-- === PHASE 2: TOAST CONTAINER === -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        /* === PHASE 2: ENHANCED TOAST NOTIFICATION SYSTEM === */
+        function showToastNew(title, message, type = 'info', duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            // Map type to icon
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas ${icons[type] || icons.info}"></i>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <div class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto-remove after duration
+            const timeout = setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.classList.add('hide');
+                    setTimeout(() => toast.remove(), 400);
+                }
+            }, duration);
+            
+            // Remove on manual close
+            toast.querySelector('.toast-close').addEventListener('click', () => {
+                clearTimeout(timeout);
+            });
+        }
+
+        /* === PHASE 2: SUCCESS ANIMATION === */
+        function showSuccessAnimation(message = null, subtitle = null) {
+            const container = document.getElementById('successContainer');
+            const msgEl = document.getElementById('successMessage');
+            const subEl = document.getElementById('successSubtitle');
+            
+            if (message) msgEl.textContent = message;
+            if (subtitle) subEl.textContent = subtitle;
+            
+            container.classList.add('show');
+            
+            // Create confetti
+            createConfetti();
+        }
+
+        /* === PHASE 2: CONFETTI ANIMATION === */
+        function createConfetti() {
+            const container = document.getElementById('successContainer');
+            const confettiCount = 30;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = `confetti-piece ${i % 2 === 0 ? 'secondary' : ''}`;
+                
+                // Random positions and rotations
+                const startX = Math.random() * window.innerWidth;
+                const tx = (Math.random() - 0.5) * 200;
+                const rot = Math.random() * 360;
+                
+                confetti.style.setProperty('--tx', `${tx}px`);
+                confetti.style.setProperty('--rot', `${rot}deg`);
+                confetti.style.left = `${startX}px`;
+                confetti.style.top = '50px';
+                
+                container.appendChild(confetti);
+                
+                // Remove after animation
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        /* === PHASE 2: LOADING SPINNER === */
+        function showSpinner(text = 'LOADING...') {
+            const overlay = document.getElementById('spinnerOverlay');
+            const spinnerText = document.getElementById('spinnerText');
+            spinnerText.textContent = text;
+            overlay.classList.add('active');
+        }
+
+        function hideSpinner() {
+            const overlay = document.getElementById('spinnerOverlay');
+            overlay.classList.remove('active');
+        }
+
+        /* === PHASE 2: ERROR FIELD VALIDATION === */
+        function markFieldError(fieldId, errorMsg) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.add('error-state');
+                const errorEl = field.nextElementSibling;
+                if (errorEl && errorEl.classList.contains('error-msg')) {
+                    errorEl.innerHTML = `<i class="fas fa-exclamation-circle error-icon"></i> ${errorMsg}`;
+                    errorEl.classList.add('show');
+                }
+            }
+        }
+
+        function clearFieldError(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.remove('error-state');
+                const errorEl = field.nextElementSibling;
+                if (errorEl && errorEl.classList.contains('error-msg')) {
+                    errorEl.classList.remove('show');
+                }
+            }
+        }
+
+        /* === PHASE 2: SUCCESS FIELD VALIDATION === */
+        function markFieldValid(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.classList.add('valid');
+                field.classList.remove('error-state');
+                const statusIcon = field.nextElementSibling;
+                if (statusIcon && statusIcon.classList.contains('input-status-icon')) {
+                    statusIcon.classList.remove('invalid');
+                    statusIcon.classList.add('valid');
+                }
+            }
+        }
+    </script>
     </script>
 </body>
 </html>
