@@ -277,11 +277,17 @@
       box-shadow: 0 0 14px rgba(0, 242, 255, 0.35);
     }
     .calc-btn { width: 100%; padding: 12px; background: var(--primary-neon); color: #000; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; }
-    .result-box { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid var(--primary-neon); display: none; }
-    .bmi-summary { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-    .bmi-score { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 700; line-height: 1; }
-    .bmi-status { font-size: 1rem; font-weight: 700; }
-    .bmi-distance { font-size: 0.85rem; color: #cfd8dc; margin-top: 3px; }
+    .result-box { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; border-left: 3px solid var(--primary-neon); display: none; overflow: hidden; }
+    .bmi-summary {
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+    }
+    .bmi-score { font-family: 'Orbitron', sans-serif; font-size: 1.9rem; font-weight: 700; line-height: 1; text-align: center; }
+    .bmi-summary > div:last-child { min-width: 0; }
+    .bmi-status { font-size: 0.98rem; font-weight: 700; line-height: 1.25; word-break: break-word; }
+    .bmi-distance { font-size: 0.85rem; color: #cfd8dc; margin-top: 3px; line-height: 1.45; word-break: break-word; }
     .bmi-scale { margin-top: 14px; }
     .bmi-scale-labels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-size: 0.72rem; color: #b7c5cf; text-align: center; margin-bottom: 6px; }
     .bmi-scale-bar { position: relative; display: grid; grid-template-columns: 24% 24% 20% 32%; gap: 4px; height: 8px; }
@@ -308,7 +314,7 @@
       filter: drop-shadow(0 0 6px rgba(255,255,255,0.8));
     }
     .bmi-range-note { margin-top: 14px; font-size: 0.82rem; color: #d5dde1; line-height: 1.5; }
-    .bmi-visual-grid { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .bmi-visual-grid { margin-top: 12px; display: grid; grid-template-columns: 1fr; gap: 10px; }
     .bmi-gauge-card, .bmi-avatar-card {
       background: linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
       border: 1px solid rgba(255,255,255,0.09);
@@ -371,7 +377,7 @@
     .bmi-avatar-info {
       width: 100%;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
       padding: 15px 0;
     }
@@ -425,8 +431,10 @@
       line-height: 1.4;
     }
     @media (max-width: 480px) {
-      .bmi-visual-grid { grid-template-columns: 1fr; }
       .bmi-gauge { width: 90px; height: 90px; }
+      .bmi-summary { grid-template-columns: 64px minmax(0, 1fr); gap: 10px; }
+      .bmi-score { font-size: 1.7rem; }
+      .bmi-avatar-info { gap: 8px; }
     }
 
     .custom-modal-box { background: #0b101a; border: 1px solid var(--primary-neon); padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 60px rgba(0, 242, 255, 0.2); transform: scale(0.9); transition: 0.3s; z-index: 12001; }
@@ -1396,19 +1404,130 @@
         return [];
     }
 
+    const MEDICAL_PROFILE_OPTIONS = {
+      allergies: [
+        { value: 'dust_allergy', en: 'Dust allergy', ar: 'حساسية الغبار' },
+        { value: 'pollen_allergy', en: 'Pollen allergy', ar: 'حساسية حبوب اللقاح' },
+        { value: 'food_allergy', en: 'Food allergy', ar: 'حساسية الطعام' },
+        { value: 'milk_allergy', en: 'Milk allergy', ar: 'حساسية اللبن' },
+        { value: 'egg_allergy', en: 'Egg allergy', ar: 'حساسية البيض' },
+        { value: 'nut_allergy', en: 'Nut allergy', ar: 'حساسية المكسرات' },
+        { value: 'fish_allergy', en: 'Fish allergy', ar: 'حساسية الأسماك' },
+        { value: 'drug_allergy', en: 'Drug allergy', ar: 'حساسية الأدوية' },
+        { value: 'skin_allergy', en: 'Skin allergy', ar: 'حساسية الجلد' },
+        { value: 'pet_allergy', en: 'Pet allergy', ar: 'حساسية الحيوانات الأليفة' }
+      ],
+      diseases: [
+        { value: 'frequent_colds', en: 'Frequent colds', ar: 'نزلات البرد المتكررة' },
+        { value: 'sinusitis', en: 'Sinusitis', ar: 'التهاب الجيوب الأنفية' },
+        { value: 'bronchitis', en: 'Bronchitis', ar: 'التهاب الشعب الهوائية' },
+        { value: 'stomach_colon_problems', en: 'Stomach and colon problems', ar: 'مشكلات المعدة والقولون' },
+        { value: 'anemia', en: 'Anemia', ar: 'فقر الدم' },
+        { value: 'migraine', en: 'Migraine', ar: 'الصداع النصفي' },
+        { value: 'urinary_tract_infections', en: 'Urinary tract infections', ar: 'التهابات المسالك البولية' },
+        { value: 'arthritis', en: 'Arthritis', ar: 'التهاب المفاصل' }
+      ],
+      medications: [
+        { value: 'paracetamol', en: 'Paracetamol', ar: 'باراسيتامول' },
+        { value: 'ibuprofen', en: 'Ibuprofen', ar: 'إيبوبروفين' },
+        { value: 'amoxicillin', en: 'Amoxicillin', ar: 'أموكسيسيلين' },
+        { value: 'omeprazole', en: 'Omeprazole', ar: 'أوميبرازول' },
+        { value: 'metformin', en: 'Metformin', ar: 'ميتفورمين' },
+        { value: 'atorvastatin', en: 'Atorvastatin', ar: 'أتورفاستاتين' },
+        { value: 'insulin', en: 'Insulin', ar: 'إنسولين' },
+        { value: 'cetirizine', en: 'Cetirizine', ar: 'سيتريزين' }
+      ],
+      chronicDiseases: [
+        { value: 'hypertension', en: 'Hypertension', ar: 'ارتفاع ضغط الدم' },
+        { value: 'diabetes', en: 'Diabetes', ar: 'السكري' },
+        { value: 'heart_disease', en: 'Heart disease', ar: 'أمراض القلب' },
+        { value: 'asthma', en: 'Asthma', ar: 'الربو' },
+        { value: 'copd', en: 'COPD', ar: 'مرض الانسداد الرئوي المزمن' },
+        { value: 'chronic_kidney_disease', en: 'Chronic kidney disease', ar: 'أمراض الكلى المزمنة' },
+        { value: 'chronic_liver_disease', en: 'Chronic liver disease', ar: 'أمراض الكبد المزمنة' },
+        { value: 'cancer', en: 'Cancer', ar: 'السرطان' },
+        { value: 'obesity', en: 'Obesity', ar: 'السمنة' },
+        { value: 'thyroid_disorder', en: 'Thyroid disorder', ar: 'اضطرابات الغدة الدرقية' }
+      ]
+    };
+
+    const MEDICAL_PROFILE_LOOKUP = Object.entries(MEDICAL_PROFILE_OPTIONS).reduce((acc, [type, options]) => {
+      acc[type] = options.reduce((map, option) => {
+        [option.value, option.en, option.ar].forEach(token => {
+          map[String(token).trim().toLowerCase()] = option;
+        });
+        return map;
+      }, {});
+      return acc;
+    }, {});
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function getMedicalOption(type, value) {
+      const lookup = MEDICAL_PROFILE_LOOKUP[type] || {};
+      const token = String(value || '').trim().toLowerCase();
+      return lookup[token] || null;
+    }
+
+    function normalizeMedicalProfileItem(type, value) {
+      const cleanValue = String(value || '').trim();
+      if (!cleanValue) return '';
+      const option = getMedicalOption(type, cleanValue);
+      return option ? option.value : cleanValue;
+    }
+
+    function getMedicalProfileItemLabel(type, value) {
+      const cleanValue = String(value || '').trim();
+      if (!cleanValue) return '';
+      const option = getMedicalOption(type, cleanValue);
+      if (!option) return cleanValue;
+      return option[currentLang] || option.en;
+    }
+
+    function setLocalizedSelectOptions(selectId, type, placeholderLabel) {
+      const select = document.getElementById(selectId);
+      const options = MEDICAL_PROFILE_OPTIONS[type] || [];
+      if (!select) return;
+
+      if (select.options[0]) {
+        select.options[0].text = placeholderLabel;
+        select.options[0].value = '';
+      }
+
+      options.forEach((option, index) => {
+        const selectOption = select.options[index + 1];
+        if (!selectOption) return;
+        selectOption.text = option[currentLang] || option.en;
+        selectOption.value = option.value;
+      });
+    }
+
+    function refreshMedicalProfileUI() {
+      ['allergies', 'diseases', 'medications', 'chronicDiseases'].forEach(type => renderMultiTags(type));
+    }
+
     function renderMultiTags(type) {
         const container = document.getElementById(type + 'Tags');
         if (!container) return;
 
         const items = medicalProfileData[type] || [];
         if (!items.length) {
-          container.innerHTML = `<span class="multi-empty">${tr('noItems')}</span>`;
+        container.innerHTML = `<span class="multi-empty">${tr('noItems')}</span>`;
             return;
         }
 
-        container.innerHTML = items.map(item =>
-            `<span class="multi-tag">${item}<button type="button" onclick="removeMedicalItem('${type}', '${item.replace(/'/g, "\\'")}')"><i class="fas fa-times"></i></button></span>`
-        ).join('');
+      container.innerHTML = items.map(item => {
+        const displayItem = escapeHtml(getMedicalProfileItemLabel(type, item));
+          const encodedItem = encodeURIComponent(item);
+          return `<span class="multi-tag">${displayItem}<button type="button" onclick="removeMedicalItem('${type}', decodeURIComponent('${encodedItem}'))"><i class="fas fa-times"></i></button></span>`;
+      }).join('');
     }
 
     function persistMedicalProfile() {
@@ -1431,13 +1550,15 @@
         const cleanItem = (item || '').trim();
         if (!cleanItem) return;
 
-        const alreadyExists = medicalProfileData[type].some(existing => existing.toLowerCase() === cleanItem.toLowerCase());
+        const normalizedItem = normalizeMedicalProfileItem(type, cleanItem);
+
+        const alreadyExists = medicalProfileData[type].some(existing => normalizeMedicalProfileItem(type, existing) === normalizedItem);
         if (alreadyExists) {
           showToast(tr('itemExists'), 'info');
             return;
         }
 
-        medicalProfileData[type].push(cleanItem);
+        medicalProfileData[type].push(normalizedItem);
         renderMultiTags(type);
         persistMedicalProfile()
           .then(() => showToast(tr('itemAdded'), 'success'))
@@ -1459,7 +1580,8 @@
     }
 
     function removeMedicalItem(type, item) {
-        medicalProfileData[type] = (medicalProfileData[type] || []).filter(entry => entry !== item);
+        const targetItem = normalizeMedicalProfileItem(type, item);
+        medicalProfileData[type] = (medicalProfileData[type] || []).filter(entry => normalizeMedicalProfileItem(type, entry) !== targetItem);
         renderMultiTags(type);
         persistMedicalProfile()
           .then(() => showToast(tr('itemRemoved'), 'success'))
@@ -1469,10 +1591,10 @@
     function loadMedicalProfileData(userData) {
         const nestedProfile = userData.medicalProfile || {};
 
-        medicalProfileData.allergies = normalizeArrayField(nestedProfile.allergies || userData.allergies);
-        medicalProfileData.diseases = normalizeArrayField(nestedProfile.diseases || userData.diseases);
-        medicalProfileData.medications = normalizeArrayField(nestedProfile.medications || userData.medications);
-        medicalProfileData.chronicDiseases = normalizeArrayField(nestedProfile.chronicDiseases || userData.chronicDiseases);
+      medicalProfileData.allergies = normalizeArrayField(nestedProfile.allergies || userData.allergies).map(item => normalizeMedicalProfileItem('allergies', item));
+      medicalProfileData.diseases = normalizeArrayField(nestedProfile.diseases || userData.diseases).map(item => normalizeMedicalProfileItem('diseases', item));
+      medicalProfileData.medications = normalizeArrayField(nestedProfile.medications || userData.medications).map(item => normalizeMedicalProfileItem('medications', item));
+      medicalProfileData.chronicDiseases = normalizeArrayField(nestedProfile.chronicDiseases || userData.chronicDiseases).map(item => normalizeMedicalProfileItem('chronicDiseases', item));
 
         renderMultiTags('allergies');
         renderMultiTags('diseases');
@@ -1737,22 +1859,16 @@
         document.getElementById('medicationsCustomInput').placeholder = t.placeholderMedication;
         document.getElementById('chronicDiseasesCustomInput').placeholder = t.placeholderChronic;
 
-        setSelectOptionLabels('allergiesSelect', isAr
-          ? ['اختر نوع حساسية...','حساسية الغبار','حساسية حبوب اللقاح','حساسية الطعام','حساسية اللبن','حساسية البيض','حساسية المكسرات','حساسية الأسماك','حساسية الأدوية','حساسية الجلد','حساسية الحيوانات الأليفة']
-          : ['Select allergy type...','Dust allergy','Pollen allergy','Food allergy','Milk allergy','Egg allergy','Nut allergy','Fish allergy','Drug allergy','Skin allergy','Pet allergy']);
-        setSelectOptionLabels('diseasesSelect', isAr
-          ? ['اختر مرض...','نزلات البرد المتكررة','التهاب الجيوب الأنفية','التهاب الشعب الهوائية','مشكلات المعدة والقولون','فقر الدم','الصداع النصفي','التهابات المسالك البولية','التهاب المفاصل']
-          : ['Select disease...','Frequent colds','Sinusitis','Bronchitis','Stomach and colon problems','Anemia','Migraine','Urinary tract infections','Arthritis']);
-        setSelectOptionLabels('medicationsSelect', isAr
-          ? ['اختر دواء...','باراسيتامول','إيبوبروفين','أموكسيسيلين','أوميبرازول','ميتفورمين','أتورفاستاتين','إنسولين','سيتريزين']
-          : ['Select medication...','Paracetamol','Ibuprofen','Amoxicillin','Omeprazole','Metformin','Atorvastatin','Insulin','Cetirizine']);
-        setSelectOptionLabels('chronicDiseasesSelect', isAr
-          ? ['اختر مرضًا مزمنًا...','ارتفاع ضغط الدم','السكري','أمراض القلب','الربو','مرض الانسداد الرئوي المزمن','أمراض الكلى المزمنة','أمراض الكبد المزمنة','السرطان','السمنة','اضطرابات الغدة الدرقية']
-          : ['Select chronic disease...','Hypertension','Diabetes','Heart diseases','Asthma','COPD','Chronic kidney disease','Chronic liver disease','Cancer','Obesity','Thyroid disorders']);
+        setLocalizedSelectOptions('allergiesSelect', 'allergies', t.selectAllergy);
+        setLocalizedSelectOptions('diseasesSelect', 'diseases', t.selectDisease);
+        setLocalizedSelectOptions('medicationsSelect', 'medications', t.selectMedication);
+        setLocalizedSelectOptions('chronicDiseasesSelect', 'chronicDiseases', t.selectChronic);
 
         document.querySelectorAll('.multi-empty').forEach(el => {
           el.innerText = t.noItems;
         });
+
+        refreshMedicalProfileUI();
 
         const statusDot = document.getElementById('connectionStatus');
         if (statusDot) {
