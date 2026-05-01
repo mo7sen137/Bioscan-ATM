@@ -851,7 +851,7 @@
                     clearInterval(iv);
                     setTimeout(() => { 
                         bar.style.width = '100%';
-                        statusEl.textContent = "✅ Loaded";
+                        statusEl.textContent = "";
                         statusEl.style.color = 'var(--success)';
                         setTimeout(() => { 
                             document.getElementById('preloader').style.opacity = '0'; 
@@ -1263,7 +1263,7 @@
         <div class="success-checkmark">
             <div class="checkmark-circle"></div>
         </div>
-        <div class="checkmark-icon">✓</div>
+        <div class="checkmark-icon" id="successIconText"></div>
         <div class="success-message" id="successMessage"></div>
         <div class="success-subtitle" id="successSubtitle"></div>
     </div>
